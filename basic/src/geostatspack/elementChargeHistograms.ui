@@ -1,0 +1,488 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>elementChargesHistograms</class>
+<comment>Wizard for atomic charge histograms by element in Geostats.py
+Python:##############################################################################
+Python:# elementChargeHistograms.py
+Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# all rights reserved
+Python:##############################################################################
+Python:# Licensed under the Non-Profit Open Software License version 3.0
+Python:# see file LICENSE for details.
+Python:##############################################################################
+</comment>
+<author>Jan M. Knaup &lt;knaup@bccms.uni-bremen.de&gt;</author>
+<widget class="QWizard">
+    <property name="name">
+        <cstring>Form</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>390</width>
+            <height>324</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>element charge histograms</string>
+        <comment>Bin atomic charges into historams per element</comment>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string>Wizard to generate element-wise atomic charge histograms</string>
+    </property>
+    <property name="whatsThis" stdset="0">
+        <string>&lt;h1&gt;Element-wise atomic charge histogram wizard&lt;/h1&gt;
+&lt;p&gt;Generates atomic (Mulliken) charge histograms for each element in the geometry.&lt;/p&gt;
+&lt;p&gt;The histograms are saved into a fixed-column multi-block gnuplot compatible ascii datafile.&lt;/p&gt;
+&lt;p&gt;If the Python Gnuplot package and gnuplot are available, the chrge histograms can be plotted directlz and the plot can be saved.&lt;/p&gt;</string>
+    </property>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>page</cstring>
+        </property>
+        <attribute name="title">
+            <string>Binning</string>
+        </attribute>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>0</y>
+                    <width>370</width>
+                    <height>130</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;h1&gt;Binning&lt;/h1&gt;
+&lt;p&gt;The Charges are sorted into evenly spaced bins distributed between the minimum and maximum atomic charge per element.&lt;/p&gt;
+&lt;p&gt;Select the number of bins per element charge histogram.&lt;/p&gt;</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>170</x>
+                    <y>140</y>
+                    <width>210</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Bins per histogram</string>
+            </property>
+        </widget>
+        <widget class="QSpinBox">
+            <property name="name">
+                <cstring>binsSpinBox</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>0</x>
+                    <y>140</y>
+                    <width>151</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="maxValue">
+                <number>1000</number>
+            </property>
+            <property name="minValue">
+                <number>2</number>
+            </property>
+            <property name="value">
+                <number>10</number>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>number of bins per histogram</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>The charges are binned into a range of intervals between the smallest and largest atomic charge per element. The number of intervals (=bins) per element is selected here.</string>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>WizardPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Output</string>
+        </attribute>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel4</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>110</y>
+                    <width>100</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Data file name</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>dataFileEdit</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>120</x>
+                    <y>110</y>
+                    <width>240</width>
+                    <height>21</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>charges.hst</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>data filename</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>Filename for the gnuplot-firendly file containing the histogram data.</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>0</y>
+                    <width>351</width>
+                    <height>100</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;h1&gt;Output options&lt;/h1&gt;
+&lt;p&gt;Select the data filename, decide wether to call gnuplot and to directly save the plot. Choose the plot filename and -type if applicable.&lt;/p&gt;</string>
+            </property>
+        </widget>
+        <widget class="QFrame">
+            <property name="name">
+                <cstring>frame3_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>140</y>
+                    <width>360</width>
+                    <height>100</height>
+                </rect>
+            </property>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>gnuplot options</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>If gnuplot and the gnuplot python module are present on yout system, gnuplot can be called directly to display the diagrams(s) and optionally save the plot into a graphics file.</string>
+            </property>
+            <widget class="QCheckBox">
+                <property name="name">
+                    <cstring>callGnuplotCheckBox</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>6</x>
+                        <y>3</y>
+                        <width>100</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>call gnuplot</string>
+                </property>
+                <property name="tristate">
+                    <bool>false</bool>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>Should gnuplot be called?</string>
+                </property>
+            </widget>
+            <widget class="QCheckBox">
+                <property name="name">
+                    <cstring>savePlotCheckBox</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>false</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>20</x>
+                        <y>20</y>
+                        <width>151</width>
+                        <height>21</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>save plot</string>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>Should the plot be saved as a graphics file?</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>plotFilenameTextLabel</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>false</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>20</x>
+                        <y>50</y>
+                        <width>93</width>
+                        <height>21</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>filename prefix</string>
+                </property>
+            </widget>
+            <widget class="QButtonGroup">
+                <property name="name">
+                    <cstring>fileFormatButtonGroup</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>false</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>190</x>
+                        <y>20</y>
+                        <width>150</width>
+                        <height>70</height>
+                    </rect>
+                </property>
+                <property name="title">
+                    <string>graphics file format</string>
+                </property>
+                <property name="flat">
+                    <bool>false</bool>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>Select the graphics file format to save the plot.</string>
+                </property>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>pngRadioButton</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>80</x>
+                            <y>20</y>
+                            <width>60</width>
+                            <height>21</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>png</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>figRadioButton</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>80</x>
+                            <y>40</y>
+                            <width>60</width>
+                            <height>21</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>fig</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>epsRadioButton</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>20</y>
+                            <width>60</width>
+                            <height>21</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>eps</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>emfRadioButton</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>40</y>
+                            <width>60</width>
+                            <height>21</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>emf</string>
+                    </property>
+                </widget>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>plotFileEdit</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>false</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>20</x>
+                        <y>70</y>
+                        <width>140</width>
+                        <height>21</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>charges</string>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>graphics file name prefix</string>
+                </property>
+            </widget>
+        </widget>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>WizardPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Finish</string>
+        </attribute>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel7</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>10</y>
+                    <width>270</width>
+                    <height>60</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;h1&gt;Finishing&lt;/h1&gt;
+&lt;p&gt;Binning charges and writing output files.&lt;/p&gt;</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>90</y>
+                    <width>281</width>
+                    <height>16</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;b&gt;Elements&lt;/b&gt;</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel2_2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>4</x>
+                    <y>148</y>
+                    <width>291</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;b&gt;Atom binning&lt;/b&gt;</string>
+            </property>
+        </widget>
+        <widget class="QProgressBar">
+            <property name="name">
+                <cstring>elementsProgressBar</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>0</x>
+                    <y>110</y>
+                    <width>370</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>progress finishing the histograms per element</string>
+            </property>
+        </widget>
+        <widget class="QProgressBar">
+            <property name="name">
+                <cstring>binningProgressBar</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>0</x>
+                    <y>170</y>
+                    <width>370</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>progress of binning one element's atomic charges</string>
+            </property>
+        </widget>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>callGnuplotCheckBox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>Form</receiver>
+        <slot>setSavePlotState(bool)</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>binsSpinBox</tabstop>
+    <tabstop>dataFileEdit</tabstop>
+</tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">elementChargeHistograms.ui.h</include>
+</includes>
+<slots>
+    <slot>setSavePlotState( bool )</slot>
+    <slot>accept()</slot>
+    <slot>plotHistogram()</slot>
+    <slot>setGeometry( geo )</slot>
+    <slot>init()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="6"/>
+</UI>

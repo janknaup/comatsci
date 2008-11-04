@@ -1,0 +1,330 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>periodicExpand</class>
+<comment>Python:##############################################################################
+Python:# periodicExpand.py
+Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# all rights reserved
+Python:##############################################################################
+Python:# Licensed under the Non-Profit Open Software License version 3.0
+Python:# see file LICENSE for details.
+Python:##############################################################################
+Python:#periodic expansion dialog</comment>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>periodicExpand</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>300</width>
+            <height>310</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>300</width>
+            <height>310</height>
+        </size>
+    </property>
+    <property name="maximumSize">
+        <size>
+            <width>300</width>
+            <height>310</height>
+        </size>
+    </property>
+    <property name="baseSize">
+        <size>
+            <width>300</width>
+            <height>310</height>
+        </size>
+    </property>
+    <property name="caption">
+        <string>Periodically Expand Geometry</string>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string>Geometry periodic expansion dialog</string>
+    </property>
+    <property name="whatsThis" stdset="0">
+        <string>This Dialog allows to periodically expand supercell geometries</string>
+    </property>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>cDirGroupBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>190</y>
+                <width>280</width>
+                <height>60</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>c-direction</string>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>c-vector</string>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>The x,y,z coordinates of the the supercell c-vector in Angstrom. Slect how many old supercells should be included in the new cell's c direction.</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>cVectorLabel</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>30</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string></string>
+            </property>
+        </widget>
+        <widget class="QSpinBox">
+            <property name="name">
+                <cstring>cSpinBox</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>200</x>
+                    <y>20</y>
+                    <width>70</width>
+                    <height>30</height>
+                </rect>
+            </property>
+            <property name="minValue">
+                <number>1</number>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>number of old cells in c direction</string>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>280</width>
+                <height>50</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&lt;h2&gt;Set number of old supercells in each lattice direction&lt;/h2&gt;</string>
+        </property>
+        <property name="alignment">
+            <set>WordBreak|AlignVCenter</set>
+        </property>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>aDirGroupBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>70</y>
+                <width>280</width>
+                <height>60</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>a-direction</string>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>a-vector</string>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>The x,y,z coordinates of the the supercell a-vector in Angstrom. Slect how many old supercells should be included in the new cell's a direction.</string>
+        </property>
+        <widget class="QSpinBox">
+            <property name="name">
+                <cstring>aSpinBox</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>200</x>
+                    <y>20</y>
+                    <width>70</width>
+                    <height>30</height>
+                </rect>
+            </property>
+            <property name="minValue">
+                <number>1</number>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>number of old cells in a direction</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>aVectorLabel</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>30</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string></string>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>cancelButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>160</x>
+                <y>260</y>
+                <width>121</width>
+                <height>41</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>cancel</string>
+        </property>
+        <property name="autoDefault">
+            <bool>false</bool>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>cancel periodic expansion</string>
+        </property>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>bDirGroupBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>130</y>
+                <width>280</width>
+                <height>60</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>b-direction</string>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>b-vector</string>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>The x,y,z coordinates of the the supercell b-vector in Angstrom. Slect how many old supercells should be included in the new cell's b direction.</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>bVectorLabel</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>30</y>
+                    <width>180</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string></string>
+            </property>
+        </widget>
+        <widget class="QSpinBox">
+            <property name="name">
+                <cstring>bSpinBox</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>200</x>
+                    <y>20</y>
+                    <width>70</width>
+                    <height>30</height>
+                </rect>
+            </property>
+            <property name="minValue">
+                <number>1</number>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>number of old cells in c direction</string>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>okButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>260</y>
+                <width>120</width>
+                <height>41</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>OK</string>
+        </property>
+        <property name="autoDefault">
+            <bool>false</bool>
+        </property>
+        <property name="default">
+            <bool>false</bool>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>expand supercell and leave dialog</string>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>okButton</sender>
+        <signal>clicked()</signal>
+        <receiver>periodicExpand</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>cancelButton</sender>
+        <signal>clicked()</signal>
+        <receiver>periodicExpand</receiver>
+        <slot>reject()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>aSpinBox</tabstop>
+    <tabstop>bSpinBox</tabstop>
+    <tabstop>cSpinBox</tabstop>
+    <tabstop>cancelButton</tabstop>
+    <tabstop>okButton</tabstop>
+</tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">periodicExpand.ui.h</include>
+</includes>
+<slots>
+    <slot>setVectors( Lattice )</slot>
+    <slot>getExpandSpecifier()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="6"/>
+</UI>

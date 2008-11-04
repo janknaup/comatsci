@@ -1,0 +1,58 @@
+#!/usr/bin/python
+##############################################################################
+# geostats
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+import os,sys
+
+versionname="python%d.%d" % sys.version_info[0:2]
+
+sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
+		"../lib/",versionname,"site-packages"))
+
+from optparse import OptionParser
+
+from qt import *
+
+import geostatspack.geostats_main as gsm
+
+usage="usage: %prog [options] [<geometryfile>]"
+
+parser=OptionParser(usage)
+
+parser.add_option("-c","--convert",
+		action="store", type="str", metavar="TYPE", dest="conv", default=None,
+		help="convert input file to format TYPE and exit")
+
+a = QApplication(sys.argv)
+QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
+w = gsm.MainWindow()
+a.setMainWidget(w)
+(options,args) = parser.parse_args(a.argv())
+if len(args)>1 and os.path.exists(args[1]):
+	w.fileread(os.path.abspath(args[1]))
+if options.conv!=None:
+	oftype=options.conv.lstrip('.').strip().lower()
+	dotpos=w.filename.rfind('.')
+	ofname=os.path.basename(w.filename[:dotpos+1]+oftype)
+	if oftype=='gen':
+		w.geo.writegen(ofname)
+	elif oftype=='fdf':
+		w.geo.writefdf(ofname)
+	elif oftype=='xyz':
+		w.geo.writexyz(ofname)
+	elif oftype=='pdb':
+		w.geo.writepdb(ofname)
+	elif oftype=='fmg':
+		w.geo.writefmg(ofname)
+	else:
+		raise("Unknown output file type")
+	sys.exit(0)
+w.show()
+a.exec_loop()

@@ -1,0 +1,315 @@
+#!/usr/bin/python
+##############################################################################
+# pathprops
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+import os,sys,math
+
+versionname="python%d.%d" % sys.version_info[0:2]
+
+sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
+		"../lib/",versionname,"site-packages"))
+
+import comatsci
+
+from Numeric import *
+
+from optparse import OptionParser
+
+def atcharges(path, image, chargesdir):
+	"""read atomic charges from DFTB charge file for one image"""
+	steplabel = "step-%6.4f" % ((float(image)/(float(path.numimages())-1)))
+	chrfilename = chargesdir+"/"+steplabel+"-CHR.DAT"
+	if not os.path.isdir(chargesdir):
+		print "%s is not a directory! abort." % (chargesdir)
+		sys.exit(1)
+	elif not (os.path.exists(chrfilename) or os.path.exists(chrfilename+".gz") or os.path.exists(chrfilename+".bz2")):
+		print "Charge file %s for image %d does not exist. abort." % (chrfilename,image)
+		sys.exit(1)
+	chrfile=comatsci.utils.compressedopen(chrfilename,'r')
+	for i in range(5):
+		line=chrfile.readline()
+	atchr=[]
+	for i in range(path.Atomcount):
+		dummy=chrfile.readline().split()
+		atchr.append(float(dummy[1]))
+	return array(atchr)
+
+
+
+def deltacharges(atcharges,path):
+	"""return array of atomic valence charge deltas, based on atomic charge array
+	atcharges and atomtypes of path"""
+	basecharges=zeros((path.Atomcount),Float)
+	for i in range(path.Atomcount):
+		atype=path.geos[0].AtomTypes[i]
+		basecharges[i]=path.geos[0].VALEL[atype]
+	return atcharges-basecharges
+
+def maxdeltacharges(path, chargesdir):
+	"""return maximum charge deltas for each atom"""
+	imgc=[]
+	for i in range(path.numimages()):
+		imgc.append(atcharges(path,i,chargesdir))
+	dc=[]
+	for i in range(path.Atomcount):
+		max=-10000
+		min= 10000
+		for j in range(path.numimages()):
+			if imgc[j][i]>max:
+				max=imgc[j][i]
+			elif imgc[j][i]<min:
+				min=imgc[j][i]
+		dc.append(max-min)
+	return dc
+	
+
+
+
+
+#Parse Options
+
+usage="usage: %prog [options] <checkpoint directory>"
+
+parser=OptionParser(usage)
+
+parser.add_option("-p","--polyint",
+		action="store", metavar="N", dest="polyint", type="int", default=0,
+		help="Write a cubic polynomial interpolation of N energy values along the path to cubic.nrg file")
+
+parser.add_option("-u","--polypath",
+		action="store", metavar="N", dest="polypath", type="int", default=0,
+		help="Write a cubic polynomial interpolation of N path images to cubic.fmg and cubic.xyz files")
+
+##parser.add_option("-t","--trajectories",
+##		action="store_true", dest="trajectories", default=False,
+##		help="Write atom trajectories into <element>.trj files")
+
+parser.add_option("-r","--rmsds",
+	action="store_true", dest="rmsds", default=False,
+	help="Write Atomic displacement RMSDs along path to rmsds.dat and rmsds.pdb files")
+
+parser.add_option("-c","--deltacharges",
+		action="store", metavar="DIR", dest="deltacharges", type="string", default="",
+		help="Write atomic charge deltas from DFTB charge files in directroy DIR to deltas.chr file")
+
+parser.add_option("--maxdeltacharges",
+		action="store", metavar="DIR", dest="maxdc", type="string", default="",
+		help="Write maximum atomic charge deltas from DFTB charge files in directroy DIR to maxdeltas.chr and maxdeltas.pdb files")
+		
+parser.add_option("-d","--centerdists",
+		action="store", metavar="CNT", dest="center", type="int", default="-1",
+		help="Write atomic distances in last image from atom CNT to file center.dst")
+		
+parser.add_option("--ereptarget",
+		action="store", metavar="DFTBCPT", dest="target", type="string", default="",
+		help="""Write an E_rep fitting target path checkpoint into 'target', based on the fit method path in <checkpoint directory> and the null-spline DFTB path in DFTBCPT.""")
+
+parser.add_option("-e","--external-calcs",
+		action="store", type="string", metavar="C", dest="externalcalcs", default=None,
+		help="read and parse outputs from external calculations using calculator C. Writes into subdirectories of ./externalcalcs")
+
+parser.add_option("--dimer",
+		action="store", type="int", metavar="N", dest="dimer", default=-1,
+		help="extract a dimer with a separation of 1.0 Bohr at image N and write to 'extracted_dimer.fmg'.")
+
+parser.add_option("--inconsistent",
+		action="store_false", dest="checkCompat", default=True,
+		help="Do not check subsequent geometries for consistency with preceeding one. Useful for creating targets of isodesmic reactions etc. Default: check for consistency.")
+		
+parser.add_option("--bondcounts",
+		action="store_true", dest="bondcounts", default=False,
+		help="Write Element-Element bond counts per image to 'bondcounts.dat' file.")
+
+parser.add_option("-v", 
+		action="count", dest="verbosity", default=comatsci.constants.VBL_NORMAL,
+		help="Increase verbosity level, default=%default")
+
+parser.add_option("-q", "--quiet",
+		action="store_const", const=comatsci.constants.VBL_QUIET, dest="verbosity",
+		help="Limit output to fatal errors and critical warnings, no status output at all")
+		
+parser.add_option("--silence",
+		action="store_const", const=comatsci.constants.VBL_SILENCE, dest="verbosity",
+		help="Limit output to fatal errors only. Not even warnings.")			
+
+(options,args) = parser.parse_args()
+
+if len(args) != 1 and options.externalcalcs==None:
+	print "You must specify exactly one checkpoint directory or .fmg file. See pathprops -h for more information"
+	sys.exit(1)
+	
+
+
+path=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v',0,options.verbosity)
+
+
+if os.path.isdir(args[0]):
+	path.readcheckpoint(args[0],options.checkCompat)
+elif os.path.exists(args[0]):
+	path.etReadFmgPath(args[0],options.checkCompat,GeoConstructor=comatsci.Geometry.AnalysisGeometry)
+else:
+	print 'Checkpoint "%s" does not exist. abort.' % (args[0])
+	sys.exit(1)
+
+if options.externalcalcs!=None:
+	#check if valid calculator type was specified
+	if not options.externalcalcs in comatsci.constants.PASTACALCS:
+		print "Unknown (or unsupported) calculator '%s' specified. abort." % (options.externalcalcs,)
+		sys.exit(1)
+	#be verbose
+	print "preparing to parse outputs from %s calculations.  " % (options.externalcalcs),
+	#store cwd, create ./externalcalcs and cd into it
+	oldpath=os.path.realpath(".")
+	#prepare calculator to parse outputs
+	if options.externalcalcs=="siesta":
+		dummycalc=comatsci.Calculators.siestacalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+	elif options.externalcalcs=="dftb":
+		dummycalc=comatsci.Calculators.dftbcalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+	elif options.externalcalcs=="noodle":
+		dummycalc=comatsci.Calculators.noodlecalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+	elif options.externalcalcs=="gaussian":
+		dummycalc=comatsci.Calculators.gaussiancalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+	else:
+		raise ValueError,"cannot handle calculator name"
+	#now parse the outputs
+	print "...parsing outputs... ",
+	print args[1:]
+	path.importEnergiesForces(dummycalc, args[1:])
+	print "done."
+	path.writefmgpath("extresultspath.fmg")
+
+
+if options.polyint>0:
+	if path.has_realforces():
+		print "Writing cubic interpolation of energies along path to cubic.nrg... ",
+		path.cubicenergies(path.cubicfit(),options.polyint)
+		print "done."
+	else:
+		print "\nPath has no real forces, cannot perform cubic interpolation. abort"
+		sys.exit(1)
+
+if options.polypath>0:
+	if path.has_realforces():
+		print "Writing cubic interpolation of geometries along path to cubic.fmg and cubic.xyz... ",
+		temppath=path.cubicInterpolate(options.polypath)
+	#	temppath.writefmgpath("cubic.fmg")
+		temppath.writexyzpath("cubic.xyz")
+		print "done."
+	else:
+		print "\nPath has no real forces, cannot perform cubic interpolation. abort"
+		sys.exit(1)
+
+if options.rmsds:
+	print "Writing Atomic RMSDs to rmsds.dat file... ",
+	path.writermsds()
+	rmsds=path.rmsds()
+	path.geos[path.numimages()-1].writepdb('rmsds.pdb',beta=rmsds)
+	print "done."
+	
+if options.deltacharges!="":
+	print "Writing atomic charge differences over path for each atom to deltas.chr... ",
+	dchrs=[]
+	for i in range(path.numimages()):
+		dchrs.append(deltacharges(atcharges(path,i,options.deltacharges),path))
+	outfile=open("deltas.chr","w")
+	print >> outfile,"#Atom No, delta[images]"
+	for i in range(path.Atomcount):
+		outline="%6d " %(i)
+		for j in range(path.numimages()):
+			outline+="%10.6f " % (dchrs[j][i])
+		print >> outfile,outline
+	outfile.close()
+	print "done."
+
+if options.maxdc!="":
+	print "Writing maximum atomic charge differences over path for each atom to maxdeltas.chr... ",
+	outfile=open("maxdeltas.chr","w")
+	mdc= maxdeltacharges(path,options.maxdc)
+	for i in mdc:
+		print >>outfile, "%10.6f" % (i)
+	outfile.close()
+	path.geos[path.numimages()-1].writepdb('maxdeltas.pdb',beta=mdc)
+	print "done."
+
+if options.center!=-1:
+	if options.center > path.Atomcount:
+		raise "centerdists: center atom out of range"
+	else:
+		print "Writing distance from atom %d in last image for each atom to neb.dst... " % (options.center),
+		path.writecenterdists(center=options.center, image=path.numimages()-1, filename='neb.dst')
+		print "done."
+	
+
+if options.target!="":
+	if not os.path.exists(options.target):
+		raise "null spline DFTB checkpoint directory does not exist"
+	else:
+		print "Reading null-spline dftb path."
+		cmppath=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v')
+		outpath=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v')
+		if os.path.isdir(options.target):
+			cmppath.readcheckpoint(options.target,options.checkCompat)
+			outpath.readcheckpoint(options.target,options.checkCompat)
+		elif os.path.exists(options.target):
+			cmppath.readfmgpath(options.target,options.checkCompat)
+			outpath.readfmgpath(options.target,options.checkCompat)
+		else:
+			print 'Second checkpoint "%s" for target generation does not exist. abort.' %(options.target)
+			sys.exit(1)
+		outpath.energies=path.deltaenergy(cmppath)
+		if options.checkCompat:
+			outpath.realforces=path.deltaforce(cmppath)
+		else:
+			print "Skipping force difference calculation for inconsistent path, clearing forces"
+			outpath.realforces=[]
+		print "Writing target path checkpoint"
+		outpath.writecheckpoint("target")
+
+if options.dimer>0:
+	#construct a dimer from the specified image number
+	print "extractind dimer at image %d" %(options.dimer)
+	from comatsci import Dimer
+	prepDimer=Dimer.Dimer()
+	prepDimer.setR0Geo(path.geos[options.dimer-1])
+	#calculate using standard formula and use tangent at selected image for dimer direction
+	path._calctangents()
+	dimerDir=array(path.tangents[options.dimer-1],Float)
+	dimerDir/=2*math.sqrt(dot(dimerDir,dimerDir))
+	prepDimer.setDeltaR(dimerDir)
+	#write the dimer to .fmg file
+	print "writing dimer to extracted_dimer.fmg"
+	prepDimer.writefmg("extracted_dimer.fmg")
+
+
+if options.bondcounts:
+	#write per image element-element bind counts to bondcounts.dat
+	print "writing element-element bond counts to bondcounts.dat... ",
+	bcfile=open("bondcounts.dat","w")
+	elements=sort(path.geos[0].elem_elem_bondcounts().keys())
+	num_elements=len(elements)
+	# descriptive header line
+	print >> bcfile, "#img   ",
+	for i in range(num_elements):
+		for j in range(i,num_elements):
+			print >> bcfile, "%3s-%3s" % (path.geos[0].PTE[elements[i]],path.geos[0].PTE[elements[j]]),
+	print >> bcfile, ""
+	# one line of element-element bondcounts per image
+	for k in range(path.numImages):
+		print >> bcfile, " %6d " % (k+1),
+		for i in range(num_elements):
+			for j in range(i,num_elements):
+				print >> bcfile, "%6d" % (path.geos[k].elem_elem_bondcounts()[elements[i]][elements[j]]),
+		print >> bcfile, ""
+	#finished writing bond count lines
+	bcfile.close()
+	print "done."
+	
+	
+print "Finished requested operations."

@@ -1,0 +1,771 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>MainWindow</class>
+<comment>Python:##############################################################################
+Python:# geostats_main.py
+Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# all rights reserved
+Python:##############################################################################
+Python:# Licensed under the Non-Profit Open Software License version 3.0
+Python:# see file LICENSE for details.
+Python:##############################################################################
+Python:
+Python:import pypath
+Python:import EditGeometry
+Python:import periodicExpand
+Python:import elementChargeHistograms
+Python:import rdfWizard
+Python:import geostatshelp
+Python:import linkLayersSLA
+Python:import linkLayersHCS
+Python:import linkLayersBCTC
+Python:import chargeConstraintsWizard</comment>
+<author>Jan M. Knaup</author>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>geostats</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>530</width>
+            <height>440</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>21</width>
+            <height>169</height>
+        </size>
+    </property>
+    <property name="maximumSize">
+        <size>
+            <width>530</width>
+            <height>440</height>
+        </size>
+    </property>
+    <property name="baseSize">
+        <size>
+            <width>530</width>
+            <height>440</height>
+        </size>
+    </property>
+    <property name="caption">
+        <string>Geometry Statistics and Editing</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string>Geometry Statitsics and Editing</string>
+    </property>
+    <property name="whatsThis" stdset="0">
+        <string>Tool to calculate gemeotry statistics and edit geometries</string>
+    </property>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frame3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>340</y>
+                <width>530</width>
+                <height>50</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>Geometry operations quick access</string>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>Geometry operations quick access</string>
+        </property>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>periodicExpandButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>140</x>
+                    <y>10</y>
+                    <width>120</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Periodic Expand</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>periodically expand supercell</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>Opens a dialog to periodically expand the supercell</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>editAtomsButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>10</y>
+                    <width>120</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Edit Atoms</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>edit atoms</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>Opens a dialog to edit atom properties and add/remove geometry layers</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>VMDButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>399</x>
+                    <y>10</y>
+                    <width>120</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>VMD</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>view geometry in VMD</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>saves the current geometry and loads it into vmd</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>whateverButton</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>270</x>
+                    <y>10</y>
+                    <width>120</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>nothing yet</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>nothing</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>nothing</string>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QTextBrowser">
+        <property name="name">
+            <cstring>textBrowser1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>530</width>
+                <height>330</height>
+            </rect>
+        </property>
+        <property name="font">
+            <font>
+                <family>Monospace</family>
+            </font>
+        </property>
+        <property name="text">
+            <string>geostats.py -- tool to analyze and manupulate molecular geometries</string>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>Textual geometry Statistics</string>
+        </property>
+        <property name="whatsThis" stdset="0">
+            <string>Displays textual statistics information on the loaded geometry. Can be saved in .html format via Statistics-&gt;save statistics</string>
+        </property>
+    </widget>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>MenuBar</cstring>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+        <action name="fileSaveAsAction"/>
+        <separator/>
+        <action name="fileView_in_VMDAction"/>
+        <separator/>
+        <action name="fileExitAction"/>
+        <separator/>
+    </item>
+    <item text="Edit" name="Edit">
+        <action name="editedit_atomsAction"/>
+        <action name="editperiodic_expandAction"/>
+        <action name="editgenerate_linkatomsAction"/>
+        <action name="editHCS_link_layersAction"/>
+        <action name="editBCTC_link_LayersAction"/>
+    </item>
+    <item text="Statistics" name="Statistics">
+        <action name="statisticsCoordinationsAction"/>
+        <action name="statisticsChargesAction"/>
+        <separator/>
+        <action name="statisticssave_BCT_coefficientsAction"/>
+        <action name="statisticsget_charge_constraintsAction"/>
+        <separator/>
+        <action name="statisticsgraphsAction"/>
+        <item text="graphs" name="popupMenu_20" accel="">
+            <action name="statisticsgraphselement_charge_histogramsAction"/>
+            <action name="statisticsgraphsradial_distribution_functionAction"/>
+        </item>
+        <separator/>
+        <action name="statisticsbond_listAction"/>
+        <separator/>
+        <action name="statisticsSave_StatisticsAction"/>
+    </item>
+    <item text="&amp;Help" name="helpMenu">
+        <action name="helpContentsAction"/>
+        <action name="helpAboutAction"/>
+    </item>
+</menubar>
+<toolbars>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileOpenAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image1</iconset>
+        </property>
+        <property name="text">
+            <string>Open</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Open...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+O</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="iconSet">
+            <iconset>image2</iconset>
+        </property>
+        <property name="text">
+            <string>Save</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Save</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+S</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Save As</string>
+        </property>
+        <property name="menuText">
+            <string>Save &amp;As...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>E&amp;xit</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Contents...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;About</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsCoordinationsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>coordinations</string>
+        </property>
+        <property name="menuText">
+            <string>coordinations</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsSave_StatisticsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>save Statistics</string>
+        </property>
+        <property name="menuText">
+            <string>save Statistics</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsbond_listAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>bond list</string>
+        </property>
+        <property name="menuText">
+            <string>bond list</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsallAction</cstring>
+        </property>
+        <property name="text">
+            <string>all</string>
+        </property>
+        <property name="menuText">
+            <string>all</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editedit_atomsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>edit atoms...</string>
+        </property>
+        <property name="menuText">
+            <string>edit atoms...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editperiodic_expandAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>periodic expand...</string>
+        </property>
+        <property name="menuText">
+            <string>periodic expand...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileView_in_VMDAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>View in VMD</string>
+        </property>
+        <property name="menuText">
+            <string>View in VMD</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsChargesAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>charges</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editgenerate_linkatomsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>simple-link layers...</string>
+        </property>
+        <property name="menuText">
+            <string>simple-link layers...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsgraphsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>graphs</string>
+        </property>
+        <property name="menuText">
+            <string>graphs</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsgraphselement_charge_histogramsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>element charge histograms...</string>
+        </property>
+        <property name="menuText">
+            <string>element charge histograms...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsgraphsradial_distribution_functionAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>radial distribution function...</string>
+        </property>
+        <property name="menuText">
+            <string>radial distribution function...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticssave_BCT_coefficientsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>save BCT coefficients...</string>
+        </property>
+        <property name="menuText">
+            <string>save BCT coefficients...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsget_charge_constraintsAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>get charge constraints...</string>
+        </property>
+        <property name="menuText">
+            <string>get charge constraints...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editBCTC_link_LayersAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>BCTC-link layers...</string>
+        </property>
+        <property name="menuText">
+            <string>BCTC-link layers...</string>
+        </property>
+        <property name="toolTip">
+            <string>Create QM/MM linked geometry using BCTC embedding</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editHCS_link_layersAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>HCS-link layers...</string>
+        </property>
+        <property name="menuText">
+            <string>HCS-link layers...</string>
+        </property>
+        <property name="toolTip">
+            <string>Generate QM/MM embedded geometry using HCS</string>
+        </property>
+    </action>
+</actions>
+<images>
+    <image name="image0">
+        <data format="PNG" length="583">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d0000020e49444154388dad94bf4b5b5114c73f37be6722f1bda4a504891077712ee42f7034b85a872e2efe010e6ece4aa6d035ae01c1b5b45db22610440d912c31f5a5f2e87b49a3c1342ff67489f96194dad77ee1c2bde7c2e79cfb3d87ab4404807abd2e3737371886412c1623140a297c2800a09492e3e363badd2ebaae532c1691874c7e8000b66d63db36a55289d3d3539acda61f1edac3c6b22cf2f93cbd5e0fd775d9dadaf2050c28a50420954ae1380eb66db3b1b1c1cccc8c2f0f9588a0941a5a562e97a956ab24934962b1d85f43038f03cbcbcb742e2fb13637e9d4ebd23e3f97fb6ef7e50d1a5426e3baaa54e483aecb679033a5e42c1a957a262322c29f96f654928ffbfb043d8f3030af69bc0a87296f6ff36b715196d6d68636341a0db9b8b860616181502844229118014dd704e03af88d2f8787bc05da9ac6fcec2cdf2d8b0e50d8dbc3bcbb13565701c866b3acacac108fc769b55adcdede4e57d86e36b9f73c1ce0aba6c1dc1ccd4e8736503d39c1dad941aeaf01a8d56a048341fafd3eaeeb128944508000188e01c08f688b774b4bbcb9ba2232e8da4f2033b86fbf6e0f9f9c4ea7a552a9a0eb3a9665b1bbbb3b6a8ae11862388688887c3a3a1a9edf83ac4fde0f1be0799ee472393938389042a12022329a436354c184a753968c55f894a6802fd573e0a9c17ea94cd714d335a706de37f039f03f031f6b3836ff4322a2c67f9b0993fdc67e03763547872dbf85be0000000049454e44ae426082</data>
+    </image>
+    <image name="image1">
+        <data format="PNG" length="210">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000009949444154388ded94410e85200c445f89c7367f61bc775d2848a42860ffced9548bbe8e13043e1d928177f481a123dc2b34f6f47a3de2b865a8843f4001982a0b3d5f62c58300aa1ad70550449ab9d507a773a8a4ba4f92a2df333c64c63bebbd82e5b8addecbcc7820eb4266c639745dfa80f36faf66c66fa19c3f882fb470ec05cdc0bed07893f68e171492635f686c3eeff6ba3c8fdd366dc4c0452c8781f8080000000049454e44ae426082</data>
+    </image>
+    <image name="image2">
+        <data format="PNG" length="217">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000a049444154388dd5954d0a802010859fd14668e18de662d222bc98376a21b4ac451992c66469e0b7f187f1f11c47052a218e762daddbfb9e99f6568f80b5364b8588ce35440400e80a398ce8f99034d2292cc37c8ebd530feb583a05e954341f8a027b2a7d3a1f09bf854dc5d5d953aa396e4f38cab199e2d2e108abe156f82e30977fcb4d8ff942d75dbebed2e143953a93f6caad3d6111f44b7d4f820ff9c0069bb51ecded318c5c0000000049454e44ae426082</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>fileOpenAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>fileOpen()</slot>
+    </connection>
+    <connection>
+        <sender>fileSaveAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>fileSave()</slot>
+    </connection>
+    <connection>
+        <sender>fileSaveAsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>fileSaveAs()</slot>
+    </connection>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>statisticsCoordinationsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>DisplayCoordinations()</slot>
+    </connection>
+    <connection>
+        <sender>statisticsSave_StatisticsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>SaveStatistics()</slot>
+    </connection>
+    <connection>
+        <sender>statisticsbond_listAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>display_bondlist()</slot>
+    </connection>
+    <connection>
+        <sender>editedit_atomsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>editAtoms()</slot>
+    </connection>
+    <connection>
+        <sender>editAtomsButton</sender>
+        <signal>clicked()</signal>
+        <receiver>geostats</receiver>
+        <slot>editAtoms()</slot>
+    </connection>
+    <connection>
+        <sender>periodicExpandButton</sender>
+        <signal>clicked()</signal>
+        <receiver>geostats</receiver>
+        <slot>periodicExpand()</slot>
+    </connection>
+    <connection>
+        <sender>editperiodic_expandAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>periodicExpand()</slot>
+    </connection>
+    <connection>
+        <sender>statisticsChargesAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>DisplayCharges()</slot>
+    </connection>
+    <connection>
+        <sender>editgenerate_linkatomsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>generate_linkatoms()</slot>
+    </connection>
+    <connection>
+        <sender>statisticsgraphselement_charge_histogramsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>elementChargesHistograms()</slot>
+    </connection>
+    <connection>
+        <sender>statisticsgraphsradial_distribution_functionAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>rdf()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>editBCTC_link_LayersAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>generate_BCTCLinkAtoms()</slot>
+    </connection>
+    <connection>
+        <sender>editHCS_link_layersAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>generate_hcsLinkAtoms()</slot>
+    </connection>
+    <connection>
+        <sender>statisticssave_BCT_coefficientsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>save_BCTC_coefficients()</slot>
+    </connection>
+    <connection>
+        <sender>statisticsget_charge_constraintsAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>display_charge_constraints()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>textBrowser1</tabstop>
+    <tabstop>editAtomsButton</tabstop>
+    <tabstop>periodicExpandButton</tabstop>
+    <tabstop>whateverButton</tabstop>
+    <tabstop>VMDButton</tabstop>
+</tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">geostats_main.ui.h</include>
+</includes>
+<slots>
+    <slot>fileOpen()</slot>
+    <slot>fileSave()</slot>
+    <slot>fileSaveAs()</slot>
+    <slot>DisplayCoordinations()</slot>
+    <slot>helpContents()</slot>
+    <slot>helpAbout()</slot>
+    <slot>SaveStatistics()</slot>
+    <slot>fileread( fnam )</slot>
+    <slot>display_bondlist()</slot>
+    <slot>editAtoms()</slot>
+    <slot>periodicExpand()</slot>
+    <slot>DisplayCharges()</slot>
+    <slot>generate_linkatoms()</slot>
+    <slot>generate_hcsLinkAtoms()</slot>
+    <slot>elementChargesHistograms()</slot>
+    <slot>rdf()</slot>
+    <slot>generate_BCTCLinkAtoms()</slot>
+    <slot specifier="non virtual">save_BCTC_coefficients()</slot>
+    <slot specifier="non virtual">display_charge_constraints()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

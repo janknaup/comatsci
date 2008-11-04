@@ -1,0 +1,6 @@
+include src/scripts *
+exclude src/comatsci/Calculators/dftbcalc.*
+global-exclude *.ui *.ui.h
+prune doc-src
+prune api-doc
+prune test

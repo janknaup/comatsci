@@ -1,0 +1,173 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>GeostatsHelp</class>
+<comment>Python:##############################################################################
+Python:# geostatshelp.py
+Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# all rights reserved
+Python:##############################################################################
+Python:# Licensed under the Non-Profit Open Software License version 3.0
+Python:# see file LICENSE for details.
+Python:##############################################################################
+</comment>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>GeostatsHelp</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>486</width>
+            <height>480</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Geostats Help</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <property name="iconText">
+        <string>Help on Geostats</string>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string>Help on geostats.py</string>
+    </property>
+    <property name="whatsThis" stdset="0">
+        <string>Help on geostats.py</string>
+    </property>
+    <hbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QTextBrowser">
+            <property name="name">
+                <cstring>helpTextBrowser</cstring>
+            </property>
+            <property name="text">
+                <string>&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Geostats.py Help&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Geostats.py Help&lt;/h1&gt;
+&lt;h2&gt;Contents&lt;/h2&gt;
+&lt;a href="#sec_intro"&gt;Introduction&lt;/a&gt;&lt;br&gt;
+&lt;a href="#sec_formats"&gt;File Formats&lt;/a&gt;&lt;br&gt;
+&lt;a href="#sec_menus"&gt;Menus&lt;/a&gt;&lt;br&gt;
+&lt;a href="#sec_dialogs"&gt;Dialogs&lt;/a&gt;&lt;br&gt;
+&lt;a href="#sec_copyright"&gt;Copyright&lt;/a&gt;&lt;br&gt;
+&lt;a name="sec_intro"&gt;&lt;h2&gt;Introduction&lt;/h2&gt;&lt;/a&gt;&lt;br&gt;
+&lt;p&gt;Geostats.py is intended to to allow statistical analyses and simple geometry manipulations on atomistic models of molecules and solids.&lt;/p&gt;
+&lt;p&gt;Bug reports, feature suggestions and comments are welcome and should be addressed to the &lt;a href="#sec_copyright"&gt;author&lt;/a&gt;.&lt;/p&gt;
+&lt;a name="sec_formats"&gt;&lt;h2&gt;Supported File Formats&lt;/h2&gt;&lt;/a&gt;
+&lt;h3&gt;input&lt;/h3&gt;
+&lt;a name="fmt_gen"&gt;&lt;p&gt;&lt;tt&gt;.gen&lt;/tt&gt;: Generic file format from old dftb implementations. Refer to the dftb documentation for reference.&lt;/p&gt;&lt;/a&gt;
+&lt;a name="fmt_fmg"&gt;&lt;p&gt;&lt;tt&gt;.fmg&lt;/tt&gt;: Flexible molecular geometry. XML format for molecular geometries and trajectories. More flexible and easily extensible but not so human readable.&lt;/p&gt;&lt;/a&gt;
+&lt;a name="fmt_xyz"&gt;&lt;p&gt;&lt;tt&gt;.xyz&lt;/tt&gt;: Plain and general purpose element symbol, X, Y, Z file format. Does not support supercells or additional atomic properties.&lt;/p&gt;&lt;/a&gt;
+&lt;h3&gt;output&lt;/h3&gt;
+&lt;p&gt;&lt;tt&gt;.gen&lt;/tt&gt;: &lt;a href="#fmt_gen"&gt;see above&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;tt&gt;.fmg&lt;/tt&gt;: &lt;a href="#fmt_fmg"&gt;see above&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;tt&gt;.fdf&lt;/tt&gt;: SIESTA flexible document format. Suitable to be included as geometry information into a SIESTA input file.&lt;/p&gt;
+&lt;p&gt;&lt;tt&gt;.pdb&lt;/tt&gt;: Protein DataBase format. Very limited support, all atoms are stored as HETATM records, segments correspond to geometry layers.&lt;/p&gt;
+&lt;p&gt;&lt;tt&gt;.xyz&lt;/tt&gt;: &lt;a href="#fmt_xyz"&gt;see above.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;tt&gt;.xyzq&lt;/tt&gt;: Very simple X, Y, Z Charge file format to specify point charges.&lt;/p&gt;
+&lt;a name="sec_menus"&gt;&lt;h2&gt;Menus&lt;/h2&gt;&lt;/a&gt;
+&lt;h3&gt;File&lt;/h3&gt;
+File operations
+&lt;h4&gt;&lt;/h4&gt;
+&lt;h4&gt;open&lt;/h4&gt;
+&lt;p&gt;Calls an open file dialog to read a geometry file for analysis or editing&lt;/p&gt;.
+&lt;h4&gt;save&lt;/h4&gt;
+&lt;p&gt;Saves to the last opened filename.&lt;/p&gt;
+&lt;h4&gt;save as&lt;/h4&gt;
+&lt;p&gt;Calls a save file dialog to choose filename, directory and filetype to save the current geometry.&lt;/p&gt;
+&lt;h4&gt;view in VMD&lt;/h4&gt;
+&lt;p&gt;&lt;i&gt;Not yet implemented&lt;/i&gt;Opens an external VMD instance to view or edit the current Geometry.&lt;/p&gt;
+&lt;h3&gt;Edit&lt;/h3&gt;
+Geometry editing operations
+&lt;h4&gt;edit atoms&lt;/h4&gt;
+&lt;p&gt;Opens the edit atoms dialog, which allows to modify layers and edit all atomic properties known to the .fmg file format.&lt;/p&gt;
+&lt;h4&gt;periodic expand&lt;/h4&gt;
+&lt;p&gt;&lt;i&gt;only available for supercell geometries.&lt;/i&gt; Opens the periodic expand dialog which allows to expand the geometry along the supercell vectors.&lt;/p&gt;
+&lt;h4&gt;generate linkatoms&lt;/h4&gt;
+&lt;p&gt;Adds link-hydrogens to the DEFAULT layer of the geometry along all bonds between the DEFAULT and PCHR layers.&lt;/p&gt;
+&lt;h3&gt;Statistics&lt;/h3&gt;
+&lt;h4&gt;coordinations&lt;/h4&gt;
+&lt;p&gt;Adds atomic cooridination statistics to the main text area.&lt;/p&gt;
+&lt;h4&gt;charges&lt;/h4&gt;
+&lt;p&gt;Adds atomic charge statistics to the main text area.&lt;/p&gt;
+&lt;h4&gt;graphs&lt;/h4&gt;
+&lt;p&gt;Submenu from which wizards for graphing statistical functions can be opened.&lt;/p&gt;
+&lt;h5&gt;available wizards&lt;/h5&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;b&gt;element charge histograms&lt;/b&gt; Creates one separate atomic charge histogram for each element.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;radial distribution function&lt;/b&gt; Calculates the radial distribution function for the geometry.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;bond list&lt;/h4&gt;
+&lt;p&gt;Adds a complete bond table to the main text area.&lt;i&gt;Can generate large amounts of text.&lt;/i&gt;&lt;/p&gt;
+&lt;h4&gt;save statistics&lt;/h4&gt;
+&lt;p&gt;Saves the contents of the main text area to geostats.html in the directory from which geostats.py was called.&lt;/p&gt;
+&lt;h3&gt;Help&lt;/h3&gt;
+&lt;h4&gt;contents&lt;/h4&gt;
+&lt;p&gt;This dialog&lt;/p&gt;
+&lt;h4&gt;about&lt;/h4&gt;
+&lt;p&gt;A very shirt description of geostats.py&lt;/p&gt;
+&lt;a name="sec_dialogs"&gt;&lt;h2&gt;Dialogs&lt;/h2&gt;
+&lt;h3&gt;edit atoms&lt;/h3&gt;
+&lt;p&gt;The edit atoms provides two functions: 1. a table view of the atoms, in which position element, position, layer, charge and subtype of each atom can be edited.&lt;/p&gt;
+&lt;p&gt;Additionally, atoms can deleted from and added to the tables, using buttons at the lower right corner of the table.&lt;/p&gt;
+&lt;p&gt;2. a table of geometry layers, in which existing layers can be deleted and new layers can be created. If a layer is deleted, all atoms in that layer are automatically assigned to the default layer.&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;h3&gt;periodic expand&lt;/h3&gt;
+&lt;p&gt;The dialog displays the a,b,c supercell vectors in angstroms and allows to choose the number of old supercells to be in included in the new supercell in each direction. The old supercell itself would be 1,1,1. To double the supercell in all directions, one would enter 2,2,2.&lt;/p&gt;
+&lt;p&gt;Periodic expansion is inly available,  if the loaded geometry is specified as periodic and has supercell vectors.&lt;/p&gt;
+&lt;h3&gt;element charges histograms&lt;/h3&gt;
+&lt;p&gt;The element charges histograms wizard applies a binning procedure to the atomic charges of all atoms present int he geometry. The histograms are separate for each element.&lt;/p&gt;
+&lt;p&gt;In step 1, choose the number of bins per histogram. Do not choose a too fine binning grid.&lt;/p&gt;
+&lt;p&gt;In step 2, enter the filename into which the gnuplot-friendly histogram data should be written. Also, if gnuplot and the Gnuplot python module are available on your system, choose wheter to call gnupot directly to display the histograms and optionally save the graph in one of the following file formats:
+&lt;ul&gt;
+&lt;li&gt;&lt;tt&gt;.eps&lt;/tt&gt;: encapsulated postscript&lt;/li&gt;
+&lt;li&gt;&lt;tt&gt;.png&lt;/tt&gt;: portable network graphics&lt;/li&gt;
+&lt;li&gt;&lt;tt&gt;.emf&lt;/tt&gt;: enhanced metafile&lt;/li&gt;
+&lt;li&gt;&lt;tt&gt;.fig&lt;/tt&gt;: xfig graphics file&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/p&gt;
+&lt;p&gt;in step 3, just klick finish to start the generation of the historgams. Progress bars inform about the progress of the binning progress over the lements.&lt;/p&gt;
+&lt;h3&gt;radial distribution function&lt;/h3&gt;
+&lt;p&gt;The radial distribution function wizard calculates the rdf of all atoms in the loaded geometry. for Molecules, the cutoff radius and density are derived from a sphere, tightly circumscribing the molecule. For a supercell structure these data are derived from the cell vectors.&lt;/p&gt;
+&lt;p&gt;In step 1, the enter stepwidth of the rdf calculation.&lt;/p&gt;
+&lt;p&gt;In step 2, enter the filename into which the gnuplot-friendly rdf  data should be written. Also, if gnuplot and the Gnuplot python module are available on your system, choose wheter to call gnupot directly to display the rdf and optionally save the graph in one of the following file formats:
+&lt;ul&gt;
+&lt;li&gt;&lt;tt&gt;.eps&lt;/tt&gt;: encapsulated postscript&lt;/li&gt;
+&lt;li&gt;&lt;tt&gt;.png&lt;/tt&gt;: portable network graphics&lt;/li&gt;
+&lt;li&gt;&lt;tt&gt;.emf&lt;/tt&gt;: enhanced metafile&lt;/li&gt;
+&lt;li&gt;&lt;tt&gt;.fig&lt;/tt&gt;: xfig graphics file&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/p&gt;
+&lt;p&gt;In step 3, just klick finish to start the calculation of the rdf. Progress bars inform about the progress of the bond length binning and normalization.&lt;/p&gt;
+&lt;p&gt;Normalization is shaky and will not work as expected for molecules or surface slab models.&lt;/p&gt;
+&lt;a name="sec_copyright"&gt;&lt;h2&gt;Copyright&lt;/h2&gt;&lt;/a&gt;
+&lt;p&gt;This program was written by &lt;a href="mailto:Jan.Knaup@bccms.uni-bremen.de"&gt;&lt;b&gt;Jan M. Knaup&lt;/b&gt; &amp;lt;Jan.Knaup@bccms.uni-bremen.de&amp;gt;&lt;/a&gt; of the &lt;a href="http://www.bccms.uni-bremen.de"&gt;&lt;b&gt;Bremen Center for Computational Materials Science&lt;/b&gt;&lt;/a&gt;. It may be redistributed without charge, as long as this copyright notice is left intact. Any software derived from this package must contain a reference to geostats.py and proper mention of the copyrights on geostats.py&lt;/p&gt;
+&lt;/body&gt;</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Help on geostats.py</string>
+            </property>
+            <property name="whatsThis" stdset="0">
+                <string>Help on geostats.py</string>
+            </property>
+        </widget>
+    </hbox>
+</widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="583">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d0000020e49444154388dad94bf4b5b5114c73f37be6722f1bda4a504891077712ee42f7034b85a872e2efe010e6ece4aa6d035ae01c1b5b45db22610440d912c31f5a5f2e87b49a3c1342ff67489f96194dad77ee1c2bde7c2e79cfb3d87ab4404807abd2e3737371886412c1623140a297c2800a09492e3e363badd2ebaae532c1691874c7e8000b66d63db36a55289d3d3539acda61f1edac3c6b22cf2f93cbd5e0fd775d9dadaf2050c28a50420954ae1380eb66db3b1b1c1cccc8c2f0f9588a0941a5a562e97a956ab24934962b1d85f43038f03cbcbcb742e2fb13637e9d4ebd23e3f97fb6ef7e50d1a5426e3baaa54e483aecb679033a5e42c1a957a262322c29f96f654928ffbfb043d8f3030af69bc0a87296f6ff36b715196d6d68636341a0db9b8b860616181502844229118014dd704e03af88d2f8787bc05da9ac6fcec2cdf2d8b0e50d8dbc3bcbb13565701c866b3acacac108fc769b55adcdede4e57d86e36b9f73c1ce0aba6c1dc1ccd4e8736503d39c1dad941aeaf01a8d56a048341fafd3eaeeb128944508000188e01c08f688b774b4bbcb9ba2232e8da4f2033b86fbf6e0f9f9c4ea7a552a9a0eb3a9665b1bbbb3b6a8ae11862388688887c3a3a1a9edf83ac4fde0f1be0799ee472393938389042a12022329a436354c184a753968c55f894a6802fd573e0a9c17ea94cd714d335a706de37f039f03f031f6b3836ff4322a2c67f9b0993fdc67e03763547872dbf85be0000000049454e44ae426082</data>
+    </image>
+</images>
+<includes>
+    <include location="local" impldecl="in implementation">geostatshelp.ui.h</include>
+</includes>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

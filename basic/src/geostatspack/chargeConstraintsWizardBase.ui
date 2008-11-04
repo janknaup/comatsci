@@ -1,0 +1,159 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>atomChargeConstraintsWizardBase</class>
+<comment>Python:##############################################################################
+Python:# chargeConstraintsWizardBase.py
+Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# all rights reserved
+Python:##############################################################################
+Python:# Licensed under the Non-Profit Open Software License version 3.0
+Python:# see file LICENSE for details.
+Python:##############################################################################
+</comment>
+<author>Jan M. Knaup &lt;Jan.Knaup@bccms.uni-bremen.de&gt;</author>
+<widget class="QWizard">
+    <property name="name">
+        <cstring>chargeConstraintsWizard</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>600</width>
+            <height>480</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>DFTB+ Charge Contraints</string>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string>Generate atom charge constraint specifications in DFTB+ .hsd format.</string>
+    </property>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>page</cstring>
+        </property>
+        <attribute name="title">
+            <string>Select Atoms</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
+                <property name="name">
+                    <cstring>textLabel1</cstring>
+                </property>
+                <property name="text">
+                    <string>&lt;font size="+1"&gt;Input serial numbers (counting from 1) of atoms to apply constraints on, separated by white space, in the text editor below. &lt;br&gt;When ready, click "next".&lt;/font&gt;</string>
+                </property>
+                <property name="textFormat">
+                    <enum>AutoText</enum>
+                </property>
+                <property name="alignment">
+                    <set>WordBreak|AlignVCenter</set>
+                </property>
+            </widget>
+            <widget class="QTextEdit" row="2" column="0" rowspan="1" colspan="2">
+                <property name="name">
+                    <cstring>atomSerialsTextEdit</cstring>
+                </property>
+                <property name="textFormat">
+                    <enum>PlainText</enum>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>Enter the serial numbers of atoms here. Atom serials can i.e. be obtained from vmd by using atomselection get serial.</string>
+                </property>
+            </widget>
+            <widget class="QSplitter" row="1" column="0">
+                <property name="name">
+                    <cstring>splitter1</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabel1_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>charge constraints prefactor</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit">
+                    <property name="name">
+                        <cstring>constraintsPrefactorLineEdit</cstring>
+                    </property>
+                    <property name="text">
+                        <string>.</string>
+                    </property>
+                    <property name="inputMask">
+                        <string>D.dd;0</string>
+                    </property>
+                </widget>
+            </widget>
+            <spacer row="1" column="1">
+                <property name="name">
+                    <cstring>spacer1</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>151</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+        </grid>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>WizardPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Charge Constraints</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QTextEdit" row="0" column="0">
+                <property name="name">
+                    <cstring>constraintsDisplayTextEdit</cstring>
+                </property>
+                <property name="readOnly">
+                    <bool>true</bool>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>Copy and paste constraints specifiers into DFTB+ dftb_in.hsd file. See DFTB+ manual!</string>
+                </property>
+            </widget>
+        </grid>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>chargeConstraintsWizard</sender>
+        <signal>selected(const QString&amp;)</signal>
+        <receiver>chargeConstraintsWizard</receiver>
+        <slot>pageFunctionDispatch()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">chargeConstraintsWizardBase.ui.h</include>
+</includes>
+<slots>
+    <slot specifier="non virtual">printConstraints()</slot>
+    <slot specifier="pure virtual">pageFunctionDispatch()</slot>
+    <slot>setGeometry( geo )</slot>
+</slots>
+<functions>
+    <function access="private" specifier="non virtual">init()</function>
+</functions>
+<layoutdefaults spacing="6" margin="6"/>
+</UI>

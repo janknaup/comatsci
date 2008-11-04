@@ -1,0 +1,372 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>rdfWizard</class>
+<comment>Python:##############################################################################
+Python:# rdfWizard.py
+Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# all rights reserved
+Python:##############################################################################
+Python:# Licensed under the Non-Profit Open Software License version 3.0
+Python:# see file LICENSE for details.
+Python:##############################################################################
+Wizard for atomic charge histograms by element in Geostats.py</comment>
+<author>Jan M. Knaup &lt;knaup@bccms.uni-bremen.de&gt;</author>
+<widget class="QWizard">
+    <property name="name">
+        <cstring>rdfWizard</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>390</width>
+            <height>333</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>radial distribution function</string>
+        <comment>Bin atomic charges into historams per element</comment>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string>Wizard to calculate the radial distribution function</string>
+    </property>
+    <property name="whatsThis" stdset="0">
+        <string>&lt;h1&gt;Radial distribution function (rdf) wizard&lt;/h1&gt;
+&lt;p&gt;The rdf wizard helps you to calculate the radial distribution function of the given Geometry. For supercells, the cell volume is used for normalization, otherwise a sphere thightly circumcising the molecule. &lt;b&gt;Normalization breaks for slab and wire models, due to the vacuum in the supercell.&lt;b&gt;&lt;/p&gt;
+&lt;p&gt;The rdf is saved into a fixed-column ascii datafile.&lt;/p&gt;
+&lt;p&gt;If the Python Gnuplot package and gnuplot are available, the rdf can be directly plotted and the plot can be saved.&lt;/p&gt;</string>
+    </property>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>page</cstring>
+        </property>
+        <attribute name="title">
+            <string>Binning</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLabel" row="1" column="0">
+                <property name="name">
+                    <cstring>textLabel1</cstring>
+                </property>
+                <property name="text">
+                    <string>&lt;b&gt;Spherical shell thickness&lt;/b&gt;</string>
+                </property>
+            </widget>
+            <widget class="QLabel" row="2" column="2">
+                <property name="name">
+                    <cstring>textLabel1_3</cstring>
+                </property>
+                <property name="text">
+                    <string>&lt;font size="+3"&gt;Bohr&lt;/font&gt;</string>
+                </property>
+            </widget>
+            <widget class="QLCDNumber" row="2" column="1">
+                <property name="name">
+                    <cstring>stepWidthLCDNumber</cstring>
+                </property>
+                <property name="frameShadow">
+                    <enum>Sunken</enum>
+                </property>
+                <property name="numDigits">
+                    <number>4</number>
+                </property>
+                <property name="segmentStyle">
+                    <enum>Filled</enum>
+                </property>
+            </widget>
+            <widget class="QSlider" row="2" column="0">
+                <property name="name">
+                    <cstring>stepWidthSlider</cstring>
+                </property>
+                <property name="maxValue">
+                    <number>200</number>
+                </property>
+                <property name="value">
+                    <number>20</number>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="tickmarks">
+                    <enum>Above</enum>
+                </property>
+                <property name="tickInterval">
+                    <number>25</number>
+                </property>
+            </widget>
+            <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
+                <property name="name">
+                    <cstring>textLabel2</cstring>
+                </property>
+                <property name="text">
+                    <string>&lt;h1&gt;Stepwidth&lt;/h1&gt;
+&lt;p&gt;The radial distribution function is calculated by binning the interatomic distances into spherical shells of equal thickness and dividing the counts by sphere shell volume.&lt;/p&gt;
+&lt;p&gt;Select the rdf stepwidth in Bohr radii.&lt;/p&gt;</string>
+                </property>
+            </widget>
+        </grid>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>WizardPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Output</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLabel" row="1" column="0">
+                <property name="name">
+                    <cstring>textLabel4</cstring>
+                </property>
+                <property name="text">
+                    <string>Data file name</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit" row="1" column="1">
+                <property name="name">
+                    <cstring>dataFileEdit</cstring>
+                </property>
+                <property name="text">
+                    <string>rdf.dat</string>
+                </property>
+            </widget>
+            <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
+                <property name="name">
+                    <cstring>textLabel3</cstring>
+                </property>
+                <property name="text">
+                    <string>&lt;h1&gt;Output options&lt;/h1&gt;
+&lt;p&gt;Select the data filename, decide wether to call gnuplot and to directly save the plot. Choose the plot filename and -type if applicable.&lt;/p&gt;</string>
+                </property>
+            </widget>
+            <widget class="QFrame" row="2" column="0" rowspan="1" colspan="2">
+                <property name="name">
+                    <cstring>frame3</cstring>
+                </property>
+                <property name="frameShape">
+                    <enum>StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                    <enum>Raised</enum>
+                </property>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QCheckBox" row="0" column="0" rowspan="2" colspan="2">
+                        <property name="name">
+                            <cstring>callGnuplotCheckBox</cstring>
+                        </property>
+                        <property name="text">
+                            <string>call gnuplot</string>
+                        </property>
+                        <property name="tristate">
+                            <bool>false</bool>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="2" column="1">
+                        <property name="name">
+                            <cstring>plotFilenameTextLabel</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="text">
+                            <string>filename prefix</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="3" column="1">
+                        <property name="name">
+                            <cstring>plotFileEdit</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="text">
+                            <string>rdf</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox" row="1" column="1">
+                        <property name="name">
+                            <cstring>savePlotCheckBox</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="text">
+                            <string>save plot</string>
+                        </property>
+                    </widget>
+                    <widget class="QButtonGroup" row="1" column="2" rowspan="3" colspan="1">
+                        <property name="name">
+                            <cstring>fileFormatButtonGroup</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="title">
+                            <string>graphics file format</string>
+                        </property>
+                        <property name="flat">
+                            <bool>false</bool>
+                        </property>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>emfRadioButton</cstring>
+                            </property>
+                            <property name="geometry">
+                                <rect>
+                                    <x>10</x>
+                                    <y>40</y>
+                                    <width>60</width>
+                                    <height>21</height>
+                                </rect>
+                            </property>
+                            <property name="text">
+                                <string>emf</string>
+                            </property>
+                        </widget>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>pngRadioButton</cstring>
+                            </property>
+                            <property name="geometry">
+                                <rect>
+                                    <x>80</x>
+                                    <y>20</y>
+                                    <width>60</width>
+                                    <height>21</height>
+                                </rect>
+                            </property>
+                            <property name="text">
+                                <string>png</string>
+                            </property>
+                        </widget>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>figRadioButton</cstring>
+                            </property>
+                            <property name="geometry">
+                                <rect>
+                                    <x>80</x>
+                                    <y>40</y>
+                                    <width>60</width>
+                                    <height>21</height>
+                                </rect>
+                            </property>
+                            <property name="text">
+                                <string>fig</string>
+                            </property>
+                        </widget>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>epsRadioButton</cstring>
+                            </property>
+                            <property name="geometry">
+                                <rect>
+                                    <x>10</x>
+                                    <y>20</y>
+                                    <width>60</width>
+                                    <height>21</height>
+                                </rect>
+                            </property>
+                            <property name="text">
+                                <string>eps</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                    </widget>
+                </grid>
+            </widget>
+        </grid>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>WizardPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Finish</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLabel" row="1" column="0">
+                <property name="name">
+                    <cstring>textLabel1_2</cstring>
+                </property>
+                <property name="text">
+                    <string>&lt;b&gt;Binning&lt;/b&gt;</string>
+                </property>
+            </widget>
+            <widget class="QLabel" row="3" column="0">
+                <property name="name">
+                    <cstring>textLabel2_2</cstring>
+                </property>
+                <property name="text">
+                    <string>&lt;b&gt;Postprocessing&lt;/b&gt;</string>
+                </property>
+            </widget>
+            <widget class="QLabel" row="0" column="0">
+                <property name="name">
+                    <cstring>textLabel7</cstring>
+                </property>
+                <property name="text">
+                    <string>&lt;h1&gt;Finishing&lt;/h1&gt;
+&lt;p&gt;Binning scales like N&lt;sup&gt;2&lt;/sup&gt; with atom count, the Posprocessing scales linear.&lt;/p&gt;</string>
+                </property>
+            </widget>
+            <widget class="QProgressBar" row="4" column="0">
+                <property name="name">
+                    <cstring>postProcessProgressBar</cstring>
+                </property>
+            </widget>
+            <widget class="QProgressBar" row="2" column="0">
+                <property name="name">
+                    <cstring>binningProgressBar</cstring>
+                </property>
+            </widget>
+        </grid>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>callGnuplotCheckBox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>rdfWizard</receiver>
+        <slot>setSavePlotState(bool)</slot>
+    </connection>
+    <connection>
+        <sender>stepWidthSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>rdfWizard</receiver>
+        <slot>stepWidthChanged(int)</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>dataFileEdit</tabstop>
+    <tabstop>callGnuplotCheckBox</tabstop>
+    <tabstop>savePlotCheckBox</tabstop>
+    <tabstop>plotFileEdit</tabstop>
+</tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">rdfWizard.ui.h</include>
+</includes>
+<slots>
+    <slot>setSavePlotState( bool )</slot>
+    <slot>accept()</slot>
+    <slot>plotHistogram()</slot>
+    <slot>setGeometry( geo )</slot>
+    <slot>init()</slot>
+    <slot>stepWidthChanged( int )</slot>
+</slots>
+<layoutdefaults spacing="6" margin="6"/>
+</UI>

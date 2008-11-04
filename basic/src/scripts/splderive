@@ -1,0 +1,69 @@
+#!/usr/bin/python
+##############################################################################
+# splderive
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+
+import os,sys,shutil
+
+versionname="python%d.%d" % sys.version_info[0:2]
+
+sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
+		"../lib/",versionname,"site-packages"))
+		
+
+from comatsci import Spline as spl
+from comatsci import utils
+
+import numpy.oldnumeric as num
+
+def readspline(filename):
+	"""return spline object from X,Y datapoint file"""
+	erepfile=utils.compressedopen(filename,'r')
+	replines=list(erepfile)
+	erepfile.close()
+	xlist=[]
+	ylist=[]
+	for i in replines:
+		# ignore common comment markers
+		firstchar=i.lstrip()[0]
+		if not (firstchar=="#" or firstchar==";"):
+			dummy=i.split()
+			if not (dummy[0].lstrip()[0]=='*' or dummy[1].lstrip()[0]=='*'):
+				xlist.append(float(dummy[0]))
+				ylist.append(float(dummy[1]))
+	return spl.spline(num.array(xlist,num.Float),num.array(ylist,num.Float))
+
+
+usage = "usage: splresample.py <infile> <npoints> [<xmin>] [<xmax>]"
+
+if len(sys.argv) < 3 or len(sys.argv)> 5:
+	print usage
+	sys.exit(1)
+
+print >>sys.stderr,"reading input data from %s" % (sys.argv[1])
+spl=readspline(sys.argv[1])
+print  >>sys.stderr,"done reading."
+
+if len(sys.argv)>3:
+	xmin=float(sys.argv[3])
+else:
+	xmin=spl.xgrid[0]
+	
+if len(sys.argv)>4:
+	xmax=float(sys.argv[4])
+else:
+	xmax=spl.xgrid[-1]
+
+step=float((xmax-xmin)/int(sys.argv[2]))
+print >>sys.stderr,"interpolating %d values between %f and %f" % (int(sys.argv[2]),xmin,xmax)
+
+for i in range(int(sys.argv[2])):
+	x=xmin+i*step
+	print "%12.6f   %12.6f" % (x,spl.splder(x))

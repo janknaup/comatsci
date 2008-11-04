@@ -1,0 +1,172 @@
+#!/usr/bin/python
+##############################################################################
+# pathprepare
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+import os,sys
+
+versionname="python%d.%d" % sys.version_info[0:2]
+
+sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
+		"../lib/",versionname,"site-packages"))
+
+import comatsci
+
+from optparse import OptionParser
+
+#Parse Options
+
+usage="usage: %prog [options] <start> [<intermediates>] <end>\n  or : %prog [options] <pathfile>"
+
+parser=OptionParser(usage)
+
+parser.add_option("-t","--filetype",
+		action="store", metavar="T", dest="fileType", default=None,
+		help="Filetype specification for input files.")
+parser.add_option("-i","--interpolate",
+		action="store", type="int", metavar="N", dest="interpolate", default=0,
+		help="linearly interpolate N steps between each starting structure read from input files, default: no linear interpolation. Cannot be combined with -s or -e")
+parser.add_option("-s","--spline-resample",
+		action="store", type="int", metavar="N", dest="splineresample", default=0,
+		help="spline resamplepath to contain a total of N images, default: no spline resampling. Cannot be combined with -i, -e or -r")
+parser.add_option("-e","--equispline-resample",
+		action="store", type="int", metavar="N", dest="equisplineresample", default=0,
+		help="spline resamplepath to contain a total of N images at equal arc length spacing, default: no equidistant spline resampling. Cannot be combined with -i, -s or -r")
+parser.add_option("-c","--calcinputs",
+		action="store", type="string", metavar="C", dest="calcinputs", default=None,
+		help="write inputs for energies and forces calculations using calculator C. Writes into subdirectories of ./calcinputs")
+parser.add_option("--inconsistent",
+		action="store_false", dest="checkCompat", default=True,
+		help="Do not check subsequent geometries for consistency with preceeding one. Useful for creating targets of isodesmic reactions etc. Default: check for consistency.")
+parser.add_option("-r","--rener-resample",
+		action="store", type="int", metavar="N", dest="rennerresample", default=0,
+		help="resample path by Renner Subsplines to contain a total of N images at equal arc length spacing, default: no Renner subspline resampling. Cannot be combined with -i, -s or -e")
+
+
+(options,args) = parser.parse_args()
+
+
+if len(args)<2 and len(args)!=1:
+	print "You must specify at least one start and one end structure. Abort."
+	sys.exit()
+
+if options.interpolate!=0 and (options.splineresample!=0 or options.rennerresample!=0):
+	print "Cannot combine linear interpolation and spline resampling in one call. Abort."
+	sys.exit()
+if options.interpolate!=0 and (options.equisplineresample!=0  or options.rennerresample!=0):
+	print "Cannot combine linear interpolation and equidistant spline resampling in one call. Abort."
+	sys.exit()
+if options.equisplineresample!=0 and (options.splineresample!=0 or options.rennerresample!=0):
+	print "Cannot combine normal and equidistant spline resampling in one call. Abort."
+	sys.exit()
+
+# be yakky
+print
+"""pathprepare
+tool to prepare reaction paths for NEB relaxation in PaSTaFARIAn"""
+
+# sanity-check geometry filetype spec
+if options.fileType!=None:
+	if not options.fileType in ("fmg","gen","xyz"):
+		raise """spefified geometry file type "%s" unknown! abort.""" % options.fileType
+
+
+#inititalize path and read geometry files
+path=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+print "reading input geometries"
+if len(args)==1:
+	path.readfmgpath(args[0])
+else:
+	for i in args:
+		path.appendgeofile(i,checkCompat=options.checkCompat,TypeSpec=options.fileType)
+		print i
+print "read %d geometries" % (path.numimages())
+
+#interpolate if specified
+if options.interpolate!=0:
+	path.pathinterpolate(options.interpolate)
+	print "interpolating %d intermediates per input geometry interval." % (options.interpolate)
+	print "path has now %d images total." % (path.numimages())
+##	path.writecheckpoint("checkpoint")
+	path.writexyzpath("path.xyz")
+##	print "interpolated path images wirtten to checkpoint"
+
+
+if options.splineresample!=0:
+	path.splineResample(options.splineresample)
+	print "spline resampling path at %d points." % (options.splineresample)
+	print "path has now %d images total." % (path.numimages())
+##	print "interpolated path images wirtten to checkpoint"
+
+
+if options.equisplineresample!=0:
+	print "spline resampling path at %d equidistant points." % (options.equisplineresample)
+	print "this may take a while, please wait..."
+	path.equiDistSplineResample(options.equisplineresample)
+	print "path has now %d images total." % (path.numimages())
+
+
+
+if options.rennerresample!=0:
+	# sanity check: Renner Subspline resampling needs at least 5 images in path
+	if path.numimages() < 5:
+		print "Error: Renner Subspline resampling requires at least 5 images in original path. Abort."
+		sys.exit(1)
+	print "Renner Subspline resampling path at %d equidistant points." % (options.rennerresample)
+	# generate Rspline representation of path
+	path._genRsplineRep()
+	# calculate curve length points at which to interpolate
+	params= []
+	for i in range(options.rennerresample):
+		params.append((path._rSplineRep.totalLength/(options.rennerresample-1))*i)
+	print path._rSplineRep.totalLength
+	print params
+	# resample path
+	path.rennerSubsplineResample(params)
+	print "path has now %d images total." % (path.numimages())
+
+
+
+if options.calcinputs!=None:
+	#check if valid calculator type was specified
+	if not options.calcinputs in comatsci.constants.PASTACALCS:
+		print "Unknown (or unsupported) calculator '%s' specified. abort." % (options.calcinputs,)
+		sys.exit(1)
+	#be verbose
+	print "preparing to generate input files for %s single point calculations." % (options.calcinputs)
+	#store cwd, create ./calcinputs and cd into it
+	oldpath=os.path.realpath(".")
+	if not os.path.exists("./calcinputs"):
+		os.mkdir("./calcinputs")
+	os.chdir("./calcinputs")
+	#prepare calculator to generate inputs
+	if options.calcinputs=="siesta":
+		dummycalc=comatsci.Calculators.siestacalc(optionfname="../pypath.ini")
+	elif options.calcinputs=="dftb":
+		dummycalc=comatsci.Calculators.dftbcalc(optionfname="../pypath.ini")
+	elif options.calcinputs=="noodle":
+		dummycalc=comatsci.Calculators.noodlecalc(optionfname="../pypath.ini")
+	elif options.calcinputs=="gaussian":
+		dummycalc=comatsci.Calculators.gaussiancalc(optionfname="../pypath.ini")
+	else:
+		raise ValueError,"cannot handle calculator name"
+	#now prepare the calculation inputs
+	for i in range(path.numimages()):
+		steplabel="%05d"%(i)
+		dummycalc.calcInput(path.geos[i], steplabel,charge=0)
+	#finally, return to old path
+	os.chdir(oldpath)
+	print "done."
+
+
+print '''finished all requested operations. Writing path checkpoint "preppath"'''
+
+path.writecheckpoint("preppath")
+path.writexyzpath("preppath.xyz")
+path.writefmgpath("preppath.fmg")
