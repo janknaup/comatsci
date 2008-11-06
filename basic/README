@@ -1,0 +1,585 @@
+comatsci
+computational materials science utility package
+
+Jan M. Knaup, Bremen Center for Compuational Materials Science
+Jan.Knaup@bccms.uni-bremen.de
+
+Table of Contents
+
+    1 Introduction
+        1.1 Requirements
+        1.2 Installation
+    2 Utilities
+        2.1 geostats
+        2.2 geoconv
+    3 Known geometry file formats
+        3.1 .xyz (read/write)
+            example: CO molecule
+        3.2 .gen (read/write)
+            example: CO molecule
+        3.3 .fmg (read/write)
+            3.3.1 example: water
+        3.4 .pdb (write only)
+        3.5 .xyzq (write only)
+            example: water
+        3.6 .tm (write only)
+        3.7 .fdf (write only)
+    A flexible molecular geometry DTD
+
+
+1 Introduction
+
+1.1 Requirements
+
+comatsci requires the following software/libraries to be present 
+on a system:
+
+• Python version \geq 2.4 (not comatible to python 3)
+
+  – POSIX compatible build environment and header files to 
+    compile python c-extensions
+
+• numpy
+
+• pyqt version \geq 3
+
+• ElementTree (included in Python version \geq 2.5)
+
+Note that windows is not an officially supported platform for 
+comatsci.
+
+1.2 Installation
+
+comatsci should be installed via the supplied setup script. 
+Execute python setup.py install as root, to install comatsci 
+system-wide. Any other installation tree can be chosen with the 
+--prefix option to install, e.g. --prefix=~ to install into 
+$HOME/bin and $HOME/lib. The setup script also offers options to 
+generate installers for different operating systems, depending on 
+the platform and installed python version, please refer to the 
+integrated documentation available by calling python setup.py 
+--help.
+
+2 Utilities
+
+2.1 geostats<sub:geostats.py>
+
+Geostats.py is a Qt gui utility to extract some statistical 
+information and to edit the geometry.
+
+The command line is: geostats.py [options] [<geometryfile>]
+
+Possible options are:
+
+  -h, --help show this help message and exit
+
+  -c TYPE, --convert=TYPE convert input file to format TYPE and 
+  exit
+
+  gen dftb generic file format
+
+  xyz standard .xyz format
+
+  fdf SIESTA fdf Geometry specification
+
+  pdb protein database file format, suitable for some 
+    visualization purposes
+
+  fmg flexible molecular geometry xml format
+
+Currently geostats.py can output a bond list and some basic 
+atomic coordination statistics. The statistics output can be 
+saved to ``geostats.htm''. Radial distribution functions and 
+atomic charge histograms (per element) can be computed. These 
+Data can be saved as ascii-files suitable for gnuplot, as well as 
+directly plotted and saved in various graphics file formats using 
+gnuplot, if the gnuplot python extension and gnuplot itself are 
+available.
+
+Additonally geostats.py provides an ``edit atoms'' dialog in 
+which atom properties can be edited in a table view, atoms can be 
+added or deleted and layers can be added or deleted. This is 
+mainly intended as a convenient way to assign atoms different 
+layers.
+
+A ``periodic expand'' dialog allows to periodically expand 
+supercells.
+
+2.2 geoconv<sub:geoconv.py>
+
+Geoconv.py serves to quickly convert geometries between different 
+formats known to comatsci. It is can called as geoconv.py or via 
+symbolic links named to[format], where [format] is the specified 
+output format (cf. -f option). geoconv only works on single 
+geometries but not on paths. Known formats are described in 
+section [sec:geometry-formats].
+
+Command lines are of the format
+
+<commandname> [options] <inputfilename> [output filename]
+
+The input file type is determined by the file name extension. If 
+the output file name is ommitted, the program writes a file of 
+the same name as the input file, with the extension replaced 
+appropriately.
+
+Possible command line options are:
+
+  -h, --help show this help message and exit
+
+  -f F, --format=F Write output geometry in format F. 
+  Default=gen. Choose from : ['fdf', 'xyz', 'xyzq', 'gen', 'tm', 
+  'fmg', 'pdb'] 
+
+  -x XTND, --extend=XTND periodically extend the input geometry 
+  to include a:b:c original supercells in the a:b:c lattice 
+  directions, default = 1:1:1 (only the original supercell)
+
+  -p F, --population=F Read dftb Mulliken population from file F. 
+  No default.
+
+  -l L, --layer=L Write Only Atoms from Layer L into output 
+  geometry. default: write whole geometry
+
+  -e E, --element=E Write only atoms of element E into output 
+  geometry. default: write all elements
+
+  --tolayer=L Move atoms defined by --atomindices or --atomlist 
+  to layer L. L must be defined in the geometry, either 
+  --atomindices or --atomlist must be given. Cannot be combined 
+  with -L.
+
+  --translate=V Translate atoms defined by --atomindices or 
+  --atomlist by vector V. V must be in the form x:y:z. Either 
+  --atomindices or --atomlist must be given. 
+
+  --atomindices=IDX Declare, which single atoms are to be 
+  modified, argument is a whitespace delimited list of integer 
+  atom index numbers. Counts from 0. Mutually exclusive with 
+  --atomlist.
+
+  --atomlist=LST Declare, which single atoms are to be modified, 
+  argument is a whitespace delimited list of integer atom serial 
+  numbers. Counts from 1. Mutually exlusive with --atomindices.
+
+  --addlayer=L Add layer with name L to geometry.
+
+3 Known geometry file formats<sec:geometry-formats>
+
+3.1 .xyz (read/write)
+
+The widely used xmol format for carthesian corrdinates of atoms 
+in molecules. The first line starts with an integer giving the 
+number of atoms in the file, the second line is a comment line 
+and ignored. Following lines list the element symbol and x,y,z 
+coordinates in Angstrom of one atom each. Additional fields are 
+ignored, to ensure compatibility with programs that store 
+additional information in .xyz files. On multi-frame .xyz files, 
+only the first geometry is read.
+
+  example: CO molecule
+
+2
+
+C 0.0 0.0 0.0
+O 1.2 0.0 0.0
+
+3.2 .gen (read/write)
+
+Generic molecular and crystalline geometry file format, 
+originally from DFTB implementations. This file format is 
+flexible in its support of cluster and supercell geometries. 
+Please refer to the dftb documentation for a detailed description 
+of the geometry file format.
+
+  example: CO molecule
+
+# number_of_atoms mode flag
+ 2 C
+ # chemical symbols of atom types
+ O C 
+ # number_of_atom type_of_atom cartesian_coordinates_in_angstroms
+ 1 1 0.0 0.0 0.0
+ 2 2 1.2 0.0 0.0 
+
+4 more lines follow for periodic structures. These contain the 
+coordinates of the origin and three vectors characterizing the 
+supercell.
+
+• The atom type number refers to the ordering of the chemical 
+  symbols in line 2. These together determine the element of each 
+  atom, other than in dftb.
+
+• The atom numbers (first column of the coordinate lines) are for 
+  convenience only but required. 
+
+• The flag (first line, second column) is either ``C'' for 
+  clusters/molecules or ``S'' for supercells. 
+
+3.3 .fmg (read/write)<sec:fmg-format>
+
+The Flexible Molecular Geometry file format is an xml format 
+intended to store all geometry information that can be processed 
+by comatsci. As an .xml format it is user-editable in principle, 
+however, an xml-aware editor is strongly recommended. Currently 
+fmg provides the following features:
+
+• Supercell and cluster geometries
+
+• Specification of multiple geometries, e.g. for storing reaction 
+  paths
+
+• Specification of geometry layers to partition the geometry
+
+• Specification of geometry dimers for use with the dimer method
+
+• Specification of atomic properties:
+
+  – charge
+
+  – layer
+
+  – subtype (e.g. for different force-field atom types within one 
+    element)
+
+• Storage of additional trajectory information outside the 
+  geometry declaration:
+
+  – Energy
+
+  – Velocities
+
+  – Forces
+
+  – General trajectory information:
+
+    ∗ Number of geometry iterations so far
+
+C.f. appendix [sec:fmg-dtd] for the xml document type definition 
+of the flexible molecular geometry format.
+
+3.3.1 example: water
+
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE fmg>
+
+<fmg>
+
+<geometry>
+
+<mode>C</mode>
+
+<lattice orgx=''0.0'' orgy=''0.0'' orgz=''0.0'' lunit=''ang''>
+
+<latvec_a>1.0 0.0 0.0</latvec_a>
+
+<latvec_b>0.0 1.0 0.0</latvec_b>
+
+<latvec_c>0.0 0.0 1.0</latvec_c>
+
+</lattice>
+
+<layer>
+
+<lname>default</lname>
+
+<li>0</li>
+
+</layer>
+
+<atom lunit="ang">
+
+<x>0.98</x> <y>0.0</y> <z>0.0</z>
+
+<el>1</el>
+
+<st>H</st>
+
+<chr>0.0</chr>
+
+<li>0</li>
+
+</atom>
+
+<atom lunit="ang">
+
+<x>-0.49</x> <y>0.85</y> <z>0.0</z>
+
+<el>1</el>
+
+<st>H</st>
+
+<chr>0.0</chr>
+
+</atom>
+
+<atom lunit="ang">
+
+<x>0.0</x> <y>0.0</y> <z>0.0</z>
+
+<el>8</el>
+
+<st>O</st>
+
+<chr>0.0</chr>
+
+</atom>
+
+</geometry>
+
+</fmg>
+
+The following rules apply:
+
+• the <fmg> document tag is mandatory
+
+• multiple <geometry> tags are allowed. The geoconv and geostats 
+  tools ignore all but the first geometry.
+
+• all attributes are optional
+
+• possible value for lunit are:
+
+  – ang: Angstrom, default value
+
+  – au: Bohr radii
+
+• <mode> is optional, possible values are:
+
+  – C --- cluster, default value
+
+  – S --- supercell
+
+• <lattice> is optional
+The org[xyz] attributes specify the supercell origin (as in the 
+  .gen format) and are mostly ignored
+
+• <lattice> must contain exactly one of each of the following 
+  elements:
+
+  – <latvec_a>: first lattice vector, 3 coordinates
+
+  – <latvec_b>: second lattice vector, 3 coordinates
+
+  – <latvec_c>: third lattice vector, 3 coordinates
+
+• <layer> is optional, multiple layers may be specified. <layer> 
+  must contain exactly one <lname> and <li> element
+
+• <atom> must contain exactly one of each of the following 
+  elements:
+
+  – <x>: x coordinate
+
+  – <y>: y coordinate
+
+  – <z>: z coordinate
+
+  – <el>: element number
+
+• <atom> may contain one of each of the following elements:
+
+  – <li>: layer index, default 0
+
+  – <st>: subtype, default [element symbol]
+
+  – <chr>: charge, default 0.0. Unit is electrons, negative 
+    values signify electron excess
+
+  – <lpop>: l-shell populations, default is empty
+
+• <trjstep> is outside the geometry definition. It stores data 
+  applying to one single <geometry>. To store data for a geometry 
+  trajectory, an equal number of trjstep elements in the same 
+  order should be present. It may contain the following 
+  subelements:
+
+  – <nrg>: Image total Energy
+
+  – <velocities>: Image Velocities data block
+
+  – <forces>: Image forces data block
+
+• <trjinfo> is outside the geometry definition. It stores general 
+  information applying to the whole trajectory, rather than 
+  stepwise data, as in <trjstep>. Only one <trjinfo> element 
+  should be present in one <fmg> and only the first element 
+  encountered is evaluated. subelements:
+
+  – <stepcount>: Number of geometry iterations performed so far.
+
+• <dimer> must contain exactly one <geometry> element, specifying 
+  the dimer midpoint. It must also contain exactly one <DeltaR> 
+  element, specifying the dimer translation vector \vec{\mbox{R}_{1}}-\vec{\mbox{R}_{0}}
+  . Additionally the following subelements are allowed:
+
+  – <NoGradInRot /> Boolean specifier not to use gradient 
+    calculation in rotation step. deprecated!
+
+  – <curvature> The curvature in dimer direction
+
+  – <E0 eunit=''''> Calculated energy at dimer midpoint, possible 
+    units are eV and H.
+
+  – <E1 eunit=''''> Calculated energy at dimer endpoint 1, units 
+    as in E0.
+
+  – <E2 eunit=''''> Extrapolated energy at dimer endpoint 2, 
+    units as in E0.
+
+  – <f0> Calculated force at dimer midpoint in a.u..
+
+  – <f1> Calculated force at dimer endpoint 1 in a.u..
+
+  – <f2> Extrapolated force at dimer endpoint 2 in a.u..
+
+  – <fN> Projected rotational force on dimer in a.u..
+
+3.4 .pdb (write only)
+
+Protein database format. Refer to PDB documentation for details. 
+.fmg layers are written as segments.
+
+3.5 .xyzq (write only)
+
+Carthesian coordinates and atomic charges in a.u.. Suitable as 
+external electric field input in DFTB^{+}.
+
+  example: water
+
+1.85193164 0.00000000 0.00000000 0.2938
+-0.54141424 1.51278662 0.00000000 0.2938
+0.05430593 -0.19438394 0.00000000 -0.5877 
+
+3.6 .tm (write only)
+
+Turbomole coord: block. Refer to Turbomole documentation for 
+details.
+
+3.7 .fdf (write only)
+
+Geometry specification in SIESTA fdf input format. Refer to 
+SIESTA documentation for details.
+
+A flexible molecular geometry DTD<sec:fmg-dtd>
+
+<!ELEMENT mode (#PCDATA)>
+
+<!ELEMENT lattice (latvec_a, latvec_b, latvec_c)>
+
+<!ATTLIST lattice
+
+orgx CDATA "0.0"
+
+orgy CDATA "0.0"
+
+orgz CDATA "0.0"
+
+lunit (ang|au) "ang"
+
+>
+
+<!ELEMENT latvec_a (#PCDATA)>
+
+<!ELEMENT latvec_b (#PCDATA)>
+
+<!ELEMENT latvec_c (#PCDATA)>
+
+<!ELEMENT layer (li, lname)>
+
+<!ELEMENT li (#PCDATA)>
+
+<!ELEMENT lname (#PCDATA)>
+
+<!ELEMENT atom (x, y, z, el, st?, chr?, li?, lpop?)>
+
+<!ATTLIST atom
+
+lunit (ang|au) "ang"
+
+>
+
+<!ELEMENT x (#PCDATA)>
+
+<!ELEMENT y (#PCDATA)>
+
+<!ELEMENT z (#PCDATA)>
+
+<!ELEMENT el (#PCDATA)>
+
+<!ELEMENT st (#PCDATA)>
+
+<!ELEMENT chr (#PCDATA)>
+
+<!ELEMENT nrg (#PCDATA)>
+
+<!ELEMENT lpop (#PCDATA)>
+
+<!ATTLIST nrg
+
+eunit (eV|au) "au"
+
+>
+
+<!ELEMENT velocities (#PCDATA)>
+
+<!ELEMENT forces (#PCDATA)>
+
+<!ELEMENT geometry (mode?, lattice?, layer?, atom+)>
+
+<!ELEMENT trjstep (nrg?,velocities?,forces?)>
+
+<!ELEMENT fmg (geometry+,trjstep*,trjinfo?)>
+
+<!ELEMENT stepcount (#PCDATA)>
+
+<!ELEMENT trjinfo (stepcount?)>
+
+<!ELEMENT DeltaR (#PCDATA)>
+
+<!ATTLIST DeltaR
+
+lunit (ang|au) "ang"
+
+>
+
+<!ELEMENT NoGradInRot EMPTY>
+
+<!ELEMENT curvature (#PCDATA)>
+
+<!ELEMENT E0 (#PCDATA)>
+
+<!ATTLIST E0
+
+eunit (eV|au|H) "au"
+
+>
+
+<!ELEMENT E1 (#PCDATA)>
+
+<!ATTLIST E1
+
+eunit (eV|au|H) "au"
+
+>
+
+<!ELEMENT E2 (#PCDATA)>
+
+<!ATTLIST E2
+
+eunit (eV|au|H) "au"
+
+>
+
+<!ELEMENT f0 (#PCDATA)>
+
+<!ELEMENT f1 (#PCDATA)>
+
+<!ELEMENT f2 (#PCDATA)>
+
+<!ELEMENT fN (#PCDATA)>
+
+<!ELEMENT Dimer 
+(Geometry,DeltaR,NoGradInRot?,(E0,E1)?,E2?,(f0,f1)?,f2?,fN?,curvature?)>
+

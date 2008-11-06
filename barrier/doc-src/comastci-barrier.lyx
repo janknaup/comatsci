@@ -1,0 +1,1524 @@
+#LyX 1.5.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{a4wide}
+\end_preamble
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans helvet
+\font_typewriter default
+\font_default_family sfdefault
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine natbib_numerical
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+comatsci-barrier
+\newline
+
+\series bold
+com
+\series default
+putational 
+\series bold
+mat
+\series default
+erials 
+\series bold
+sci
+\series default
+ence utility package
+\newline
+reaction barrier search utilities
+\end_layout
+
+\begin_layout Author
+Jan M.
+ Knaup, Bremen Center for Compuational Materials Science
+\newline
+Jan.Knaup@bccms.uni-bremen.
+de
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Subsection
+Requirements
+\end_layout
+
+\begin_layout Standard
+comatsci-barrier is an extension to the comatsci package.
+ Therefore, comatsci must be installed on a system as a basic prerequisite.
+ comatsci itself requires the following software/libraries to be present
+ on a system:
+\end_layout
+
+\begin_layout Itemize
+Python version 
+\begin_inset Formula $\geq$
+\end_inset
+
+ 2.4 (not comatible to python 3)
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+POSIX compatible build environment and header files to compile python c-extensio
+ns
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+numpy
+\end_layout
+
+\begin_layout Itemize
+pyqt version 
+\begin_inset Formula $\geq$
+\end_inset
+
+ 3
+\end_layout
+
+\begin_layout Itemize
+ElementTree (included in Python version 
+\begin_inset Formula $\geq$
+\end_inset
+
+ 2.5)
+\end_layout
+
+\begin_layout Standard
+Note that windows is not an officially supported platform for comatsci.
+\end_layout
+
+\begin_layout Standard
+Additionally, comatsci-barrier requires external computational chemistry
+ packages to perform the energies and gradients calculations underlying
+ it's operations.
+ One or more of the following packages must be installed for comatsci-barrier
+ to function:
+\end_layout
+
+\begin_layout Itemize
+DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Gaussian (tested with ver.
+ 03, other versions may or may not work)
+\end_layout
+
+\begin_layout Itemize
+SIESTA
+\end_layout
+
+\begin_layout Standard
+comatsci-barrier can easily be extended to support other calculation backend
+ programs, by anyone with basic skills in object oriented programming and
+ python.
+ If you are interested in adapting comatsci-barrier, feel free to contact
+ the author for support.
+\end_layout
+
+\begin_layout Standard
+comatsci-barrier provides experimental functionality to distribute individual
+ calculation jobs across several computers using MPI.
+ To use this, a working MPI installation must be present, as well as the
+ pypar package.
+ (Note that at this time only limited support can be given for this facility,
+ due to lack of development and testing resources.)
+\end_layout
+
+\begin_layout Subsection
+Installation
+\end_layout
+
+\begin_layout Standard
+comatsci-barrier should be installed via the supplied setup script.
+ Execute 
+\family typewriter
+python setup.py install
+\family default
+ as root, to install comatsci system-wide.
+ Any other installation tree can be chosen with the 
+\family typewriter
+--prefix
+\family default
+ option to install, e.g.
+ 
+\family typewriter
+--prefix=~
+\family default
+ to install into 
+\family typewriter
+$HOME/bin
+\family default
+ and 
+\family typewriter
+$HOME/lib
+\family default
+.
+ The setup script also offers options to generate installers for different
+ operating systems, depending on the platform and installed python version,
+ please refer to the integrated documentation available by calling 
+\family typewriter
+python setup.py --help
+\family default
+.
+\end_layout
+
+\begin_layout Subsection
+License
+\end_layout
+
+\begin_layout Standard
+comatsci-barrier is provided without any warranty as open software under
+ the terms of the Non-commercial Open Software License v3.0.
+ Please refer to the attached LICENSE file or appendix\InsetSpace ~
+
+\begin_inset LatexCommand ref
+reference "sec:NP-OSL"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Users are asked to acknowlegde the use of comatsci-barrier or the individual
+ utility in publications of results obtained using this software.
+\end_layout
+
+\begin_layout Subsection
+Further reading
+\end_layout
+
+\begin_layout Standard
+Please refer to the comatsci documentation for a descritption of single-geometry
+ related utilities and supported file formats.
+\end_layout
+
+\begin_layout Section
+Utilities
+\end_layout
+
+\begin_layout Standard
+As of version 1.0 only NEB reaction path search is supported.
+ Other barrier search methods are being implemented but have not reached
+ a publishable state.
+\end_layout
+
+\begin_layout Subsection
+Pastafarian
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+Path Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+\emph default
+ searches for a chemical transition path using the 
+\emph on
+Nudged Elastic Band
+\emph default
+ method with various extensions.
+\end_layout
+
+\begin_layout Subsubsection*
+Command Line Options
+\end_layout
+
+\begin_layout Standard
+The general command line for pypath is as follows:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+pastafarian [options] <start geometry> [<intermediate geometries>] <end
+ geometry>
+\end_layout
+
+\begin_layout Standard
+or
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+pastafarian [options] <path file>
+\end_layout
+
+\begin_layout Standard
+where 
+\family typewriter
+<path file>
+\family default
+ is a reaction path or NEB checkpoint in .fmg format.
+\end_layout
+
+\begin_layout Standard
+The possible command line options are:
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-h,\InsetSpace ~
+--help
+\family default
+ show this help message and exit 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-m\InsetSpace ~
+N,\InsetSpace ~
+--maxit=N
+\family default
+ Maximum number of NEB iterations for this run, default=100 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-r\InsetSpace ~
+RMS,\InsetSpace ~
+--rmstol=RMS
+\family default
+ stop iterating if path RMS force in a.u.
+ falls below RMS, default=1e-05 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-f\InsetSpace ~
+FMAX,\InsetSpace ~
+--forcetol=FMAX
+\family default
+ stop iterating if path maximum of atomic forces in a.u.
+ falls below FMAX, default=0.0001 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-c\InsetSpace ~
+CALC,\InsetSpace ~
+--calculator=CALC
+\family default
+ use CALC to calculate energies and forces, default=dftb 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-x\InsetSpace ~
+LIST,\InsetSpace ~
+--fixedatoms=LIST
+\family default
+ Keep atoms in comma delimeted LIST fixed, default=None
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-s\InsetSpace ~
+D_T,\InsetSpace ~
+--stepwidth=D_T
+\family default
+ Use D_T as stepwidth for velocity Verlet relaxation, default=0.1 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+--charge=Q
+\family default
+ Set the system total charge to Q.
+ Given in units of electrons, negative charge means electron excess, default=0
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-v
+\family default
+ Increase verbosity level, default=1
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-q,\InsetSpace ~
+--quiet
+\family default
+ Limit output to fatal errors and critical warnings, no status output at
+ all
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+--silence
+\family default
+ Limit output to fatal errors only.
+ Not even warnings.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-d\InsetSpace ~
+SCHEDULER,\InsetSpace ~
+--scheduler=SCHEDULER
+\family default
+ Choose scheduler to manage execution of single calculations.
+ Choices are 's': serial, 'p': MPI parallel.
+ default=s
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-t\InsetSpace ~
+MAXTHREADS,\InsetSpace ~
+--maxworkthreads=MAXTHREADS
+\family default
+ Set maximum number of concurrent parallel threads in thread scheduling
+ mode.
+ 0:= no limit.
+ default=0 (currently unused)
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+--pathdebug
+\family default
+ Write individual .xyz and .fmg path files for each NEB step and write some
+ energy and forces data to pathDebug.nrg for data debugging purposes
+\end_layout
+
+\begin_layout Standard
+Default values for all command line options are overridden by the config
+ file, 
+\family typewriter
+pastafarian --help
+\family default
+ shows the default values actually used.
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset Marginal
+status open
+
+\begin_layout Standard
+Experimental
+\end_layout
+
+\end_inset
+
+
+\family default
+MPI scheduling requires an installed pypar 1.9.2 or higher package and execution
+ of the pastafarian script in an mpi environment, i.e.
+ via mpirun or similar.
+ 
+\emph on
+Caveat: currently the detection of MPI master or slave status is performed
+ by evaluation of the LAMRANK or MPIRANK environment variables.
+ This may break, depending on your installation!
+\end_layout
+
+\begin_layout Subsubsection*
+\begin_inset LatexCommand label
+name "sub:pasta-Config-File"
+
+\end_inset
+
+Config File
+\end_layout
+
+\begin_layout Standard
+The PaSTaFARIAn config file has the name 
+\series bold
+pypath.ini
+\series default
+ and is in the form of a windows .ini type file.
+ (Extensions in Windowx XP .reg files are not supported.) The config file
+ contains one section labeled 
+\series bold
+[PYPATH]
+\series default
+, which contains all configuration variables for the path search itself
+ and possibly several sections with configuration variables for the different
+ calculators.
+ The calculator configuration sections are described int he Calculators
+ section of this document.
+\end_layout
+
+\begin_layout Standard
+All settings from the 
+\series bold
+[PYPATH]
+\series default
+ section of the config file are overridden by the respective command line
+ options, if such are given.
+\end_layout
+
+\begin_layout Standard
+The Configuration variables are:
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+maxit=100
+\family default
+ maximum number of NEB iterations
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+rmstol=2e-4
+\family default
+ rms force convergence criterion
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+forcetol=2e-3
+\family default
+ max force convergence criterion
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+calculator=dftb
+\family default
+ calculator to use, currently dftb, noodle (=dftb+), gaussian and siesta
+ are supported
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+stepwidth=0.25
+\family default
+ velocity verlet stepwidth
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+fixedatoms=[]
+\family default
+ put a comma separated list of fixed atoms here 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+charge=0
+\family default
+ set the system total charge to Q.
+ Given in units of electrons, negative charge means electron excess.
+\end_layout
+
+\begin_layout Standard
+Additionally, the section 
+\series bold
+[NEB]
+\series default
+ stores NEB algorithm-specific settings
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+fmode=s
+\family default
+ force calculation mode:
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+s standard NEB forces
+\end_layout
+
+\begin_layout Description
+c climbing image NEB forces
+\end_layout
+
+\end_deeper
+\begin_layout Description
+
+\family typewriter
+relmode=v
+\family default
+ relaxation mode:
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+v projected velocity verlet
+\end_layout
+
+\begin_layout Description
+s (constant displacement) steepest descent
+\end_layout
+
+\end_deeper
+\begin_layout Description
+
+\family typewriter
+tangmode=s
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+s use standard NEB tangents
+\end_layout
+
+\begin_layout Description
+w use weighted tangents after J.
+ Chem.
+ Phys.
+ 
+\series bold
+113
+\series default
+, 9978 (2000).
+ Can lead to NEB force discontinuities between iterations if used on paths
+ far from the PES valley.
+ 
+\emph on
+Attention:
+\emph default
+ Overshoot detection is disabled when using weighted tangents.
+\end_layout
+
+\begin_layout Description
+p use spline tangents from a parametric cubic spline representation of the
+ path.
+ 
+\series bold
+Caution
+\series default
+ highly experimental.
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection*
+Output files
+\end_layout
+
+\begin_layout Standard
+PaSTaFARIAn writes most of its output to stdout.
+ Additionally, the following files are written:
+\end_layout
+
+\begin_layout Description
+energies.dat: This file contains the reaction path energy profile for each
+ NEB cycle that was performed in a format suitable for gnuplot.
+ Column one contains the image sequence number, col.\InsetSpace ~
+2 contains the total
+ energy in H.
+ NEB cycles are separated by blank lines.
+\end_layout
+
+\begin_layout Description
+path.xyz: This file contains the last reaction path geometries calculated
+ as a multi-frame\InsetSpace ~
+.xyz file.
+ This is mainly intended to be able to conveniently visualize the path using
+ standard molecular visualization software.
+\end_layout
+
+\begin_layout Description
+checkpoint: This directory contains the last reaction path calculated in
+ the form of\InsetSpace ~
+.gen files named path-X.gen, where X is in the range of 
+\begin_inset Formula $0\ldots1$
+\end_inset
+
+, reflecting the image sequence.
+ This can be used to restart an interupted calculation by calling 
+\family typewriter
+pypath.py [options] checkpoint/*.
+
+\family default
+ Old files are not deleted, so be sure to check the contents of this directory
+ before using wildcards!
+\end_layout
+
+\begin_layout Description
+checkpoint.fmg: The last reaction path geometries in a single, multi-geometry
+ fmg file.
+ Suitable for use as a restart file.
+ This is intended to replace the 
+\series bold
+checkpoint
+\series default
+ directory in the future.
+\end_layout
+
+\begin_layout Description
+checkpoint.xyz: The last reaction path in a single, multi-frame\InsetSpace ~
+.xyz file.
+ Intended for convenient visualization.
+\end_layout
+
+\begin_layout Standard
+Additionally, calculators may create further files in additional directories,
+ e.g.\InsetSpace ~
+for data reuse purposes.
+\end_layout
+
+\begin_layout Section
+Calculators
+\end_layout
+
+\begin_layout Standard
+comatsci-barrier is designed to support any atomic simulation package as
+ a calculator, as long as the package provides total energies and atomic
+ forces in Cartesian coordinates.
+ Adding another calculator is done by subclassing an abstract calculator
+ class, implementing a few methods which write geometry and control input
+ files, run the calculation binary and read the results.
+ Currently, the following calculators are implemented and reasonably stable:
+\end_layout
+
+\begin_layout Subsection
+DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+/Noodle
+\end_layout
+
+\begin_layout Standard
+The noodle calculator uses DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+ to calculate energies and forces.
+ It has been tested with Version 0.2p0 and uses the new hsd input parser.
+ Most of the dftb parameters are set via a parameter file included into
+ the main hsd input via an <<+ or <<! directive.
+ Parameters, which are to be set via the 
+\series bold
+[NOODLE]
+\series default
+ section of the pypath.ini file are:
+\end_layout
+
+\begin_layout Description
+binary=/usr/local/bin/noodle 
+\bar under
+full
+\bar default
+ path to the noodle binary.
+ Must be accessible on all nodes in parallel calculations
+\end_layout
+
+\begin_layout Description
+workdir=TEMP Name prefix for the directories in which to run the dftb+ calculati
+ons.
+ The special Value 
+\begin_inset Quotes eld
+\end_inset
+
+TEMP
+\begin_inset Quotes erd
+\end_inset
+
+ uses mktmpdir to create a temporary directory in the path specified by
+ the $TMPDIR environment variable.
+\end_layout
+
+\begin_layout Description
+skdir=/home/knaup/SlKo/ifam/alsicnoh-mavo 
+\bar under
+full
+\bar default
+ path to the SK files.
+ The SK file naming convention follows the dftb calculator.
+ This may change with future versions of noodle!
+\end_layout
+
+\begin_layout Description
+chrdir=charges name of the directory in which noodle restart files are stored
+\end_layout
+
+\begin_layout Description
+rchr=t read charges from last NEB iteration pypath checks whether the charge
+ file is present, so it's safe to say t here
+\end_layout
+
+\begin_layout Description
+paraminclude=params.ndl A .hsd or .xml noodle input file which is included
+ at the beginning of the input.hsd.
+ System Charge, SK Files, LMAX and some options are overridden by automatically
+ generated entries, so setting them here is useless.
+\end_layout
+
+\begin_layout Description
+oldSKnames=true use old Slater-Koster file naming convention, rather than
+ the new one.
+ 
+\emph on
+Defaults to true for Version 1.0, this may change in the future!
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+All
+\series default
+ the usual caveats for dftb calculations apply here.
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+The directory specified in chargesdir must exist, even if charges are not
+ reused! 
+\emph default
+When in doubt remove the charges directory, damaged or incomplete charges
+ files will lead to wrong results and may or may not cause error messages.
+\end_layout
+
+\begin_layout Subsubsection*
+Slater-Koster file names
+\end_layout
+
+\begin_layout Standard
+In the old convention, the dftb calculator expects to find SK files named
+ by concatenating the lowercase element symbols for each interaction in
+ the SK directory.
+ E.g.
+ for s C,O,H system, the file names would be 
+\family typewriter
+cc,co, ch, oc, oo, oh, hc, ho, hh.
+
+\family default
+ Both files for must always be present, even for fully symmetric interactions.
+ In such cases, use symlinks.
+\end_layout
+
+\begin_layout Standard
+The new naming convention for SK files is to join the capitalized Element
+ names by a dash 
+\family typewriter
+-
+\family default
+ and add the extension
+\family typewriter
+\InsetSpace ~
+.skf
+\family default
+.
+ The files from the example above would thus be called 
+\family typewriter
+C-C.skf
+\family default
+, 
+\family typewriter
+C-O.skf
+\family default
+ 
+\family typewriter
+C-H.skf
+\family default
+\SpecialChar \ldots{}
+, a file for the Si -- Na interaction would be called 
+\family typewriter
+Si-Na.skf
+\family default
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Point charges
+\end_layout
+
+\begin_layout Standard
+The Noodle calculator supports the point charges external electric field
+ option of noodle.
+ There are two possible ways to employ it:
+\end_layout
+
+\begin_layout Enumerate
+The point charges specification can be added to the noodle parameter include
+ file.
+ This requires no further intervention or even awareness of the calculator.
+ The approach can be cumbersome for the user, as it requires the manual
+ generation of the point charges to the parameter file.
+ It also counteracts the possibility to use a single parameter file for
+ a whole series of calculations to ensure consistency.
+\end_layout
+
+\begin_layout Enumerate
+The internal Geometry representation supports grouping atoms into layers
+ and the selection of subgeometries based on atomic layer assignment.
+ Layers are identified by a unique integer layer index.
+ Currently the Layer object only contains a Name for the layer.
+ Layer names need not be unique.
+ If the geometry object passed to the noodle calculator contains a layer
+ named 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+, the calculator automatically adds an external field/pointcharges specification
+, adding the atoms from the 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ layer as point charges.
+ 
+\emph on
+If several 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ layers exist, only on of them is used, the choice is not strictly determined!
+\emph default
+ 
+\begin_inset Marginal
+status collapsed
+
+\begin_layout Standard
+
+\noun on
+deprecated
+\end_layout
+
+\end_inset
+
+
+\newline
+In this case, only the atoms from the default layer 
+\begin_inset Quotes eld
+\end_inset
+
+0
+\begin_inset Quotes erd
+\end_inset
+
+ are added to the noodle geometry input.
+ This means that all atoms not contained in the default layer or the 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ layer will be ignored.
+\newline
+Currently, geometry layers and atomic charge specification
+ are only supported via the .fmg file format, cf.
+ comatsci documentation.
+ The geostats.py tool of comatsci provides a more user friendly interface
+ to edit these properties than a plain text editor does.
+\newline
+This way to specify
+ external charges is deprecated, because in most situations tens of thousands
+ of point-charges are necessary, which have to be kept in memory for each
+ image along the path.
+ Additionally, the computational effort to separate the layers in geometry
+ of such size is considerable and may lead to significant overhead.
+\end_layout
+
+\begin_layout Standard
+Both methods can be mixed, as the automatic point charges specification
+ is added to any possible point charges spec from the parameter file.
+\end_layout
+
+\begin_layout Standard
+Be aware that this is by no means an automatic QM/MM scheme.
+ The user is responsible for providing link atoms and specifying the necessary
+ geometry constraints.
+\end_layout
+
+\begin_layout Subsection
+SIESTA
+\end_layout
+
+\begin_layout Standard
+The siesta calculator uses SIESTA to do the energy and forces calculations.
+ It has only been tested with v1.3 and v1.3-f1p, but older versions might
+ work as well.
+ Most of the SIESTA parameters are set in an\InsetSpace ~
+.fdf file, which must be supplied
+ by the user and is includes into the siesta input using an 
+\begin_inset Quotes eld
+\end_inset
+
+%include
+\begin_inset Quotes erd
+\end_inset
+
+ directive.
+ The Parameters to be set in the 
+\series bold
+[SIESTA]
+\series default
+ section of the pypath.ini file are:
+\end_layout
+
+\begin_layout Description
+binary=/usr/local/bin/siesta 
+\bar under
+Full
+\bar default
+ path to the SIESTA binary.
+\end_layout
+
+\begin_layout Description
+ppdir=/home/user/siesta-pseudo Directory containing the pseudo potential
+ files to use for the SIESTA calculations.
+\end_layout
+
+\begin_layout Description
+workdir=TEMP Name prefix for the directories in which to run the SIESTA
+ calculations.
+ The special Value 
+\begin_inset Quotes eld
+\end_inset
+
+TEMP
+\begin_inset Quotes erd
+\end_inset
+
+ uses mktmpdir to create a temporary directroy in the path specified by
+ the $TMPDIR environment variable.
+\end_layout
+
+\begin_layout Description
+dmdir=DMS Directory in which to store the .DM files from the calculation
+ for the different images.
+ 
+\emph on
+Warning: If the basis set has changed, the old .DM files cannot be reused.
+ SIESTA will inevitably fail.
+\end_layout
+
+\begin_layout Description
+rdms=t Reuse the .DM file from the previous calculation on the same image.
+ This should usually bet set to 
+\begin_inset Quotes eld
+\end_inset
+
+t
+\begin_inset Quotes erd
+\end_inset
+
+ as it speeds up the calculations enormously.
+ It is safe to to say 
+\begin_inset Quotes eld
+\end_inset
+
+t
+\begin_inset Quotes erd
+\end_inset
+
+ here, if no old .DM files are present.
+\end_layout
+
+\begin_layout Description
+paraminclude=params.fdf An .fdf file which should contain all calculation
+ parameters not automatically set by pypath.
+ Pypath automatically sets the following parameters, which 
+\emph on
+must not
+\emph default
+ be set in this file:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Atomic Coordinates
+\end_layout
+
+\begin_layout Itemize
+Cell Vectors
+\end_layout
+
+\begin_layout Itemize
+Chemical Species
+\end_layout
+
+\begin_layout Itemize
+NumCGSteps
+\end_layout
+
+\begin_layout Itemize
+any MD parameters
+\end_layout
+
+\begin_layout Itemize
+systemlabel
+\end_layout
+
+\begin_layout Itemize
+%include directives
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Besides the usual caveats for SIESTA calculations, the following tip might
+ be useful: SIESTA has difficulties finding a proper density matrix if the
+ atomic configuration is not close to an equilibrium state.
+ This might lead to convergence failure in the vicinity an interpolated
+ intermediate state.
+ In Such cases it is useful, to copy a\InsetSpace ~
+.DM file from a neighboring image to
+ the image with convergence problems.
+ A converged density map for a similar isoelectronic configuration is usually
+ a much better starting point than SIESTA's initial guess.
+\end_layout
+
+\begin_layout Subsection
+Gaussian (03)
+\end_layout
+
+\begin_layout Standard
+The Gaussian calculator is only tested for Gaussian03.
+ Please consider your Gaussian Manual for extensive documentation on Gaussian
+ use and features.
+\end_layout
+
+\begin_layout Standard
+Parameters for the Gaussian calculator are entered in the [Gaussian] section
+ of pypath.ini.
+ Parameters are:
+\end_layout
+
+\begin_layout Description
+binary=g03 path to the gaussian binary
+\end_layout
+
+\begin_layout Description
+workdir=TEMP Name prefix for the directories in which to run the SIESTA
+ calculations.
+ The special Value 
+\begin_inset Quotes eld
+\end_inset
+
+TEMP
+\begin_inset Quotes erd
+\end_inset
+
+ uses mktmpdir to create a temporary directroy in the path specified by
+ the $TMPDIR environment variable.
+\end_layout
+
+\begin_layout Description
+chkdir=g03chk directroy in which gaussian checkpoint files will be stored
+\end_layout
+
+\begin_layout Description
+rchk=false read checkpoint file (
+\series bold
+warning:
+\series default
+ this is untested and may go horribly wrong)
+\end_layout
+
+\begin_layout Description
+hamiltonian=BPL/6-31G*/AUTO Hamiltonian part of the route section
+\end_layout
+
+\begin_layout Description
+routeopts= further options to incorporate into the route section.
+ Do not specify SP, OPT or FREQ statements here!
+\end_layout
+
+\begin_layout Description
+spinmul=1 spin multiplicity
+\end_layout
+
+\begin_layout Subsection
+Müller-Brown potential
+\end_layout
+
+\begin_layout Standard
+Called as 
+\family typewriter
+muellerbrown
+\family default
+.
+ The two-dimensional test potential for reaction path analysis algorithms
+ suggested by 
+\begin_inset LatexCommand citet
+key "TCA-53-75-1979"
+
+\end_inset
+
+.
+ The potential is dependent on the absolute atomic coordinate in Bohr.
+ Intended for testing and demonstration purposes.
+ Be aware that the potential operates on shorter distances than interatomic
+ potentials, i.e.
+ the gradients are very steep and smaller step sizes are necessary.
+\end_layout
+
+\begin_layout Standard
+Takes no options and has therefore no config file section.
+\end_layout
+
+\begin_layout Section
+\start_of_appendix
+Non-Profit Open Software License ("Non-Profit OSL") 3.0
+\begin_inset LatexCommand label
+name "sec:NP-OSL"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Licensed under the Non-Profit Open Software License version 3.0
+\end_layout
+
+\begin_layout Standard
+1) Grant of Copyright License.
+ Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable
+ license, for the duration of the copyright, to do the following:
+\end_layout
+
+\begin_layout Standard
+a) to reproduce the Original Work in copies, either alone or as part of
+ a collective work;
+\end_layout
+
+\begin_layout Standard
+b) to translate, adapt, alter, transform, modify, or arrange the Original
+ Work, thereby creating derivative works ("Derivative Works") based upon
+ the Original Work;
+\end_layout
+
+\begin_layout Standard
+c) to distribute or communicate copies of the Original Work and Derivative
+ Works to the public, with the proviso that copies of Original Work or Derivativ
+e Works that You distribute or communicate shall be licensed under this
+ Non-Profit Open Software License or as provided in section 17(d);
+\end_layout
+
+\begin_layout Standard
+d) to perform the Original Work publicly; and
+\end_layout
+
+\begin_layout Standard
+e) to display the Original Work publicly.
+\end_layout
+
+\begin_layout Standard
+2) Grant of Patent License.
+ Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable
+ license, under patent claims owned or controlled by the Licensor that are
+ embodied in the Original Work as furnished by the Licensor, for the duration
+ of the patents, to make, use, sell, offer for sale, have made, and import
+ the Original Work and Derivative Works.
+\end_layout
+
+\begin_layout Standard
+3) Grant of Source Code License.
+ The term "Source Code" means the preferred form of the Original Work for
+ making modifications to it and all available documentation describing how
+ to modify the Original Work.
+ Licensor agrees to provide a machine-readable copy of the Source Code of
+ the Original Work along with each copy of the Original Work that Licensor
+ distributes.
+ Licensor reserves the right to satisfy this obligation by placing a machine-rea
+dable copy of the Source Code in an information repository reasonably calculated
+ to permit inexpensive and convenient access by You for as long as Licensor
+ continues to distribute the Original Work.
+\end_layout
+
+\begin_layout Standard
+4) Exclusions From License Grant.
+ Neither the names of Licensor, nor the names of any contributors to the
+ Original Work, nor any of their trademarks or service marks, may be used
+ to endorse or promote products derived from this Original Work without
+ express prior permission of the Licensor.
+ Except as expressly stated herein, nothing in this License grants any license
+ to Licensor's trademarks, copyrights, patents, trade secrets or any other
+ intellectual property.
+ No patent license is granted to make, use, sell, offer for sale, have made,
+ or import embodiments of any patent claims other than the licensed claims
+ defined in Section 2.
+ No license is granted to the trademarks of Licensor even if such marks
+ are included in the Original Work.
+ Nothing in this License shall be interpreted to prohibit Licensor from
+ licensing under terms different from this License any Original Work that
+ Licensor otherwise would have a right to license.
+\end_layout
+
+\begin_layout Standard
+5) External Deployment.
+ The term "External Deployment" means the use, distribution, or communication
+ of the Original Work or Derivative Works in any way such that the Original
+ Work or Derivative Works may be used by anyone other than You, whether
+ those works are distributed or communicated to those persons or made available
+ as an application intended for use over a network.
+ As an express condition for the grants of license hereunder, You must treat
+ any External Deployment by You of the Original Work or a Derivative Work
+ as a distribution under section 1(c).
+\end_layout
+
+\begin_layout Standard
+6) Attribution Rights.
+ You must retain, in the Source Code of any Derivative Works that You create,
+ all copyright, patent, or trademark notices from the Source Code of the
+ Original Work, as well as any notices of licensing and any descriptive
+ text identified therein as an "Attribution Notice." You must cause the Source
+ Code for any Derivative Works that You create to carry a prominent Attribution
+ Notice reasonably calculated to inform recipients that You have modified
+ the Original Work.
+\end_layout
+
+\begin_layout Standard
+7) Warranty of Provenance and Disclaimer of Warranty.
+ The Original Work is provided under this License on an "AS IS" BASIS and
+ WITHOUT WARRANTY, either express or implied, including, without limitation,
+ the warranties of non-infringement, merchantability or fitness for a particular
+ purpose.
+ THE ENTIRE RISK AS TO THE QUALITY OF THE ORIGINAL WORK IS WITH YOU.
+ This DISCLAIMER OF WARRANTY constitutes an essential part of this License.
+ No license to the Original Work is granted by this License except under
+ this disclaimer.
+\end_layout
+
+\begin_layout Standard
+8) Limitation of Liability.
+ Under no circumstances and under no legal theory, whether in tort (including
+ negligence), contract, or otherwise, shall the Licensor be liable to anyone
+ for any direct, indirect, special, incidental, or consequential damages
+ of any character arising as a result of this License or the use of the
+ Original Work including, without limitation, damages for loss of goodwill,
+ work stoppage, computer failure or malfunction, or any and all other commercial
+ damages or losses.
+ This limitation of liability shall not apply to the extent applicable law
+ prohibits such limitation.
+\end_layout
+
+\begin_layout Standard
+9) Acceptance and Termination.
+ If, at any time, You expressly assented to this License, that assent indicates
+ your clear and irrevocable acceptance of this License and all of its terms
+ and conditions.
+ If You distribute or communicate copies of the Original Work or a Derivative
+ Work, You must make a reasonable effort under the circumstances to obtain
+ the express assent of recipients to the terms of this License.
+ This License conditions your rights to undertake the activities listed
+ in Section 1, including your right to create Derivative Works based upon
+ the Original Work, and doing so without honoring these terms and conditions
+ is prohibited by copyright law and international treaty.
+ Nothing in this License is intended to affect copyright exceptions and
+ limitations (including "fair use" or "fair dealing").
+ This License shall terminate immediately and You may no longer exercise
+ any of the rights granted to You by this License upon your failure to honor
+ the conditions in Section 1(c).
+\end_layout
+
+\begin_layout Standard
+10) Termination for Patent Action.
+ This License shall terminate automatically and You may no longer exercise
+ any of the rights granted to You by this License as of the date You commence
+ an action, including a cross-claim or counterclaim, against Licensor or
+ any licensee alleging that the Original Work infringes a patent.
+ This termination provision shall not apply for an action alleging patent
+ infringement by combinations of the Original Work with other software or
+ hardware.
+\end_layout
+
+\begin_layout Standard
+11) Jurisdiction, Venue and Governing Law.
+ Any action or suit relating to this License may be brought only in the
+ courts of a jurisdiction wherein the Licensor resides or in which Licensor
+ conducts its primary business, and under the laws of that jurisdiction
+ excluding its conflict-of-law provisions.
+ The application of the United Nations Convention on Contracts for the Internati
+onal Sale of Goods is expressly excluded.
+ Any use of the Original Work outside the scope of this License or after
+ its termination shall be subject to the requirements and penalties of copyright
+ or patent law in the appropriate jurisdiction.
+ This section shall survive the termination of this License.
+\end_layout
+
+\begin_layout Standard
+12) Attorneys' Fees.
+ In any action to enforce the terms of this License or seeking damages relating
+ thereto, the prevailing party shall be entitled to recover its costs and
+ expenses, including, without limitation, reasonable attorneys' fees and
+ costs incurred in connection with such action, including any appeal of
+ such action.
+ This section shall survive the termination of this License.
+\end_layout
+
+\begin_layout Standard
+13) Miscellaneous.
+ If any provision of this License is held to be unenforceable, such provision
+ shall be reformed only to the extent necessary to make it enforceable.
+\end_layout
+
+\begin_layout Standard
+14) Definition of "You" in This License.
+ "You" throughout this License, whether in upper or lower case, means an
+ individual or a legal entity exercising rights under, and complying with
+ all of the terms of, this License.
+ For legal entities, "You" includes any entity that controls, is controlled
+ by, or is under common control with you.
+ For purposes of this definition, "control" means (i) the power, direct
+ or indirect, to cause the direction or management of such entity, whether
+ by contract or otherwise, or (ii) ownership of fifty percent (50%) or more
+ of the outstanding shares, or (iii) beneficial ownership of such entity.
+\end_layout
+
+\begin_layout Standard
+15) Right to Use.
+ You may use the Original Work in all ways not otherwise restricted or condition
+ed by this License or by law, and Licensor promises not to interfere with
+ or be responsible for such uses by You.
+\end_layout
+
+\begin_layout Standard
+16) Modification of This License.
+ This License is Copyright © 2005 Lawrence Rosen.
+ Permission is granted to copy, distribute, or communicate this License
+ without modification.
+ Nothing in this License permits You to modify this License as applied to
+ the Original Work or to Derivative Works.
+ However, You may modify the text of this License and copy, distribute or
+ communicate your modified version (the "Modified License") and apply it
+ to other original works of authorship subject to the following conditions:
+ (i) You may not indicate in any way that your Modified License is the "Open
+ Software License" or "OSL" and you may not use those names in the name
+ of your Modified License; (ii) You must replace the notice specified in
+ the first paragraph above with the notice "Licensed under <insert your
+ license name here>" or with a notice of your own that is not confusingly
+ similar to the notice in this License; and (iii) You may not claim that
+ your original works are open source software unless your Modified License
+ has been approved by Open Source Initiative (OSI) and You comply with its
+ license review and certification process.
+\end_layout
+
+\begin_layout Standard
+17) Non-Profit Amendment.
+ The name of this amended version of the Open Software License ("OSL 3.0")
+ is "Non-Profit Open Software License 3.0".
+ The original OSL 3.0 license has been amended as follows:
+\end_layout
+
+\begin_layout Standard
+(a) Licensor represents and declares that it is a not-for-profit organization
+ that derives no revenue whatsoever from the distribution of the Original
+ Work or Derivative Works thereof, or from support or services relating
+ thereto.
+\end_layout
+
+\begin_layout Standard
+(b) The first sentence of Section 7 ["Warranty of Provenance"] of OSL 3.0
+ has been stricken.
+ For Original Works licensed under this Non-Profit OSL 3.0, LICENSOR OFFERS
+ NO WARRANTIES WHATSOEVER.
+\end_layout
+
+\begin_layout Standard
+(c) In the first sentence of Section 8 ["Limitation of Liability"] of this
+ Non-Profit OSL 3.0, the list of damages for which LIABILITY IS LIMITED now
+ includes "direct" damages.
+\end_layout
+
+\begin_layout Standard
+(d) The proviso in Section 1(c) of this License now refers to this "Non-Profit
+ Open Software License" rather than the "Open Software License".
+ You may distribute or communicate the Original Work or Derivative Works
+ thereof under this Non-Profit OSL 3.0 license only if You make the representatio
+n and declaration in paragraph (a) of this Section 17.
+ Otherwise, You shall distribute or communicate the Original Work or Derivative
+ Works thereof only under the OSL 3.0 license and You shall publish clear
+ licensing notices so stating.
+ Also by way of clarification, this License does not authorize You to distribute
+ or communicate works under this Non-Profit OSL 3.0 if You received them
+ under the original OSL 3.0 license.
+\end_layout
+
+\begin_layout Standard
+(e) Original Works licensed under this license shall reference "Non-Profit
+ OSL 3.0" in licensing notices to distinguish them from works licensed under
+ the original OSL 3.0 license.
+\end_layout
+
+\end_body
+\end_document

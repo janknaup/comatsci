@@ -1,0 +1,2697 @@
+#LyX 1.5.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{a4wide}
+\end_preamble
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans helvet
+\font_typewriter default
+\font_default_family sfdefault
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine natbib_numerical
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+comatsci
+\newline
+
+\series bold
+com
+\series default
+putational 
+\series bold
+mat
+\series default
+erials 
+\series bold
+sci
+\series default
+ence utility package
+\end_layout
+
+\begin_layout Author
+Jan M.
+ Knaup, Bremen Center for Compuational Materials Science
+\newline
+Jan.Knaup@bccms.uni-bremen.
+de
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Subsection
+Requirements
+\end_layout
+
+\begin_layout Standard
+comatsci requires the following software/libraries to be present on a system:
+\end_layout
+
+\begin_layout Itemize
+Python version 
+\begin_inset Formula $\geq$
+\end_inset
+
+ 2.4 (not comatible to python 3)
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+POSIX compatible build environment and header files to compile python c-extensio
+ns
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+numpy
+\end_layout
+
+\begin_layout Itemize
+pyqt version 
+\begin_inset Formula $\geq$
+\end_inset
+
+ 3 (only required for the geostats utility)
+\end_layout
+
+\begin_layout Itemize
+ElementTree (included in Python version 
+\begin_inset Formula $\geq$
+\end_inset
+
+ 2.5)
+\end_layout
+
+\begin_layout Standard
+Note that windows is not an officially supported platform for comatsci.
+\end_layout
+
+\begin_layout Subsection
+Installation
+\end_layout
+
+\begin_layout Standard
+comatsci should be installed via the supplied setup script.
+ Execute 
+\family typewriter
+python setup.py install
+\family default
+ as root, to install comatsci system-wide.
+ Any other installation tree can be chosen with the 
+\family typewriter
+--prefix
+\family default
+ option to install, e.g.
+ 
+\family typewriter
+--prefix=~
+\family default
+ to install into 
+\family typewriter
+$HOME/bin
+\family default
+ and 
+\family typewriter
+$HOME/lib
+\family default
+.
+ The setup script also offers options to generate installers for different
+ operating systems, depending on the platform and installed python version,
+ please refer to the integrated documentation available by calling 
+\family typewriter
+python setup.py --help
+\family default
+.
+\end_layout
+
+\begin_layout Subsection
+License
+\end_layout
+
+\begin_layout Standard
+comatsci is provided without any warranty as open software under the terms
+ of the Non-commercial Open Software License v3.0.
+ Please refer to the attached LICENSE file or appendix\InsetSpace ~
+
+\begin_inset LatexCommand ref
+reference "sec:NP-OSL"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Utilities
+\end_layout
+
+\begin_layout Subsection
+geostats
+\begin_inset LatexCommand label
+name "sub:geostats.py"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Geostats.py is a Qt gui utility to extract some statistical information and
+ to edit the geometry.
+\end_layout
+
+\begin_layout Standard
+The command line is: 
+\family typewriter
+geostats.py [options] [<geometryfile>]
+\end_layout
+
+\begin_layout Standard
+Possible options are:
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-h,\InsetSpace ~
+--help
+\family default
+ show this help message and exit
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-c\InsetSpace ~
+TYPE,\InsetSpace ~
+--convert=TYPE
+\family default
+ convert input file to format TYPE and exit
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+gen dftb generic file format
+\end_layout
+
+\begin_layout Description
+xyz standard .xyz format
+\end_layout
+
+\begin_layout Description
+fdf SIESTA fdf Geometry specification
+\end_layout
+
+\begin_layout Description
+pdb protein database file format, suitable for some visualization purposes
+\end_layout
+
+\begin_layout Description
+fmg flexible molecular geometry xml format
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Currently geostats.py can output a bond list and some basic atomic coordination
+ statistics.
+ The statistics output can be saved to 
+\begin_inset Quotes eld
+\end_inset
+
+geostats.htm
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Radial distribution functions and atomic charge histograms (per element)
+ can be computed.
+ These Data can be saved as ascii-files suitable for gnuplot, as well as
+ directly plotted and saved in various graphics file formats using gnuplot,
+ if the gnuplot python extension and gnuplot itself are available.
+\end_layout
+
+\begin_layout Standard
+Additonally geostats.py provides an 
+\begin_inset Quotes eld
+\end_inset
+
+edit atoms
+\begin_inset Quotes erd
+\end_inset
+
+ dialog in which atom properties can be edited in a table view, atoms can
+ be added or deleted and layers can be added or deleted.
+ This is mainly intended as a convenient way to assign atoms different layers.
+\end_layout
+
+\begin_layout Standard
+A 
+\begin_inset Quotes eld
+\end_inset
+
+periodic expand
+\begin_inset Quotes erd
+\end_inset
+
+ dialog allows to periodically expand supercells.
+\end_layout
+
+\begin_layout Subsection
+geoconv
+\begin_inset LatexCommand label
+name "sub:geoconv.py"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Geoconv.py serves to quickly convert geometries between different formats
+ known to comatsci.
+ It is can called as geoconv.py or via symbolic links named to[format], where
+ [format] is the specified output format (cf.
+ -f option).
+ geoconv only works on single geometries but not on paths.
+ Known formats are described in section 
+\begin_inset LatexCommand ref
+reference "sec:geometry-formats"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Command lines are of the format
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<commandname> [options] <inputfilename> [output filename]
+\end_layout
+
+\begin_layout Standard
+The input file type is determined by the file name extension.
+ If the output file name is ommitted, the program writes a file of the same
+ name as the input file, with the extension replaced appropriately.
+\end_layout
+
+\begin_layout Standard
+Possible command line options are:
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-h,\InsetSpace ~
+--help
+\family default
+ show this help message and exit
+\end_layout
+
+\begin_layout Description
+-f\InsetSpace ~
+F,\InsetSpace ~
+--format=F Write output geometry in format F.
+ Default=gen.
+ Choose from : ['fdf', 'xyz', 'xyzq', 'gen', 'tm', 'fmg', 'pdb'] 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-x\InsetSpace ~
+XTND,\InsetSpace ~
+--extend=XTND
+\family default
+ periodically extend the input geometry to include a:b:c original supercells
+ in the a:b:c lattice directions, default = 1:1:1 (only the original supercell)
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-p\InsetSpace ~
+F,\InsetSpace ~
+--population=F
+\family default
+ Read dftb Mulliken population from file F.
+ No default.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-l\InsetSpace ~
+L,\InsetSpace ~
+--layer=L
+\family default
+ Write Only Atoms from Layer L into output geometry.
+ default: write whole geometry
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+-e\InsetSpace ~
+E,\InsetSpace ~
+--element=E
+\family default
+ Write only atoms of element E into output geometry.
+ default: write all elements
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+--tolayer=L
+\family default
+ Move atoms defined by --atomindices or --atomlist to layer L.
+ L must be defined in the geometry, either --atomindices or --atomlist must
+ be given.
+ Cannot be combined with -L.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+--translate=V
+\family default
+ Translate atoms defined by --atomindices or --atomlist by vector V.
+ V must be in the form x:y:z.
+ Either --atomindices or --atomlist must be given.
+ 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+--atomindices=IDX
+\family default
+ Declare, which single atoms are to be modified, argument is a whitespace
+ delimited list of integer atom index numbers.
+ Counts from 0.
+ Mutually exclusive with --atomlist.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+--atomlist=LST
+\family default
+ Declare, which single atoms are to be modified, argument is a whitespace
+ delimited list of integer atom serial numbers.
+ Counts from 1.
+ Mutually exlusive with --atomindices.
+\end_layout
+
+\begin_layout Description
+--addlayer=L Add layer with name L to geometry.
+\end_layout
+
+\begin_layout Section
+Known geometry file formats
+\begin_inset LatexCommand label
+name "sec:geometry-formats"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+.xyz (read/write)
+\end_layout
+
+\begin_layout Standard
+The widely used xmol format for carthesian corrdinates of atoms in molecules.
+ The first line starts with an integer giving the number of atoms in the
+ file, the second line is a comment line and ignored.
+ Following lines list the element symbol and x,y,z coordinates in Angstrom
+ of one atom each.
+ Additional fields are ignored, to ensure compatibility with programs that
+ store additional information in .xyz files.
+ On multi-frame .xyz files, only the first geometry is read.
+\end_layout
+
+\begin_layout Subsubsection*
+example: CO molecule
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\size footnotesize
+2
+\newline
+
+\newline
+C 0.0 0.0 0.0
+\newline
+O 1.2 0.0 0.0
+\end_layout
+
+\begin_layout Subsection
+.gen (read/write)
+\end_layout
+
+\begin_layout Standard
+Generic molecular and crystalline geometry file format, originally from
+ DFTB implementations.
+ This file format is flexible in its support of cluster and supercell geometries.
+ Please refer to the dftb documentation for a detailed description of the
+ geometry file format.
+\end_layout
+
+\begin_layout Subsubsection*
+example: CO molecule
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\size footnotesize
+# number_of_atoms mode flag
+\newline
+ 2 C
+\newline
+ # chemical symbols of atom types
+\newline
+ O C 
+\newline
+ #
+ number_of_atom type_of_atom cartesian_coordinates_in_angstroms
+\newline
+ 1 1 0.0 0.0
+ 0.0
+\newline
+ 2 2 1.2 0.0 0.0 
+\end_layout
+
+\begin_layout Standard
+4 more lines follow for periodic structures.
+ These contain the coordinates of the origin and three vectors characterizing
+ the supercell.
+\end_layout
+
+\begin_layout Itemize
+The atom type number refers to the ordering of the chemical symbols in line
+ 2.
+ These together determine the element of each atom, other than in dftb.
+\end_layout
+
+\begin_layout Itemize
+The atom numbers (first column of the coordinate lines) are for convenience
+ only but required.
+ 
+\end_layout
+
+\begin_layout Itemize
+The flag (first line, second column) is either 
+\begin_inset Quotes eld
+\end_inset
+
+C
+\begin_inset Quotes erd
+\end_inset
+
+ for clusters/molecules or 
+\begin_inset Quotes eld
+\end_inset
+
+S
+\begin_inset Quotes erd
+\end_inset
+
+ for supercells.
+ 
+\end_layout
+
+\begin_layout Subsection
+.fmg (read/write)
+\begin_inset LatexCommand label
+name "sec:fmg-format"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The Flexible Molecular Geometry file format is an xml format intended to
+ store all geometry information that can be processed by comatsci.
+ As an .xml format it is user-editable in principle, however, an xml-aware
+ editor is strongly recommended.
+ Currently fmg provides the following features:
+\end_layout
+
+\begin_layout Itemize
+Supercell and cluster geometries
+\end_layout
+
+\begin_layout Itemize
+Specification of multiple geometries, e.g.
+ for storing reaction paths
+\end_layout
+
+\begin_layout Itemize
+Specification of geometry layers to partition the geometry
+\end_layout
+
+\begin_layout Itemize
+Specification of geometry dimers for use with the dimer method
+\end_layout
+
+\begin_layout Itemize
+Specification of atomic properties:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+charge
+\end_layout
+
+\begin_layout Itemize
+layer
+\end_layout
+
+\begin_layout Itemize
+subtype (e.g.
+ for different force-field atom types within one element)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Storage of additional trajectory information outside the geometry declaration:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Energy
+\end_layout
+
+\begin_layout Itemize
+Velocities
+\end_layout
+
+\begin_layout Itemize
+Forces
+\end_layout
+
+\begin_layout Itemize
+General trajectory information:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Number of geometry iterations so far
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+C.f.\InsetSpace ~
+appendix\InsetSpace ~
+
+\begin_inset LatexCommand ref
+reference "sec:fmg-dtd"
+
+\end_inset
+
+ for the xml document type definition of the flexible molecular geometry
+ format.
+\end_layout
+
+\begin_layout Subsubsection
+example: water
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<!DOCTYPE fmg>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<fmg>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<geometry>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<mode>C</mode>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<lattice orgx=
+\begin_inset Quotes erd
+\end_inset
+
+0.0
+\begin_inset Quotes erd
+\end_inset
+
+ orgy=
+\begin_inset Quotes erd
+\end_inset
+
+0.0
+\begin_inset Quotes erd
+\end_inset
+
+ orgz=
+\begin_inset Quotes erd
+\end_inset
+
+0.0
+\begin_inset Quotes erd
+\end_inset
+
+ lunit=
+\begin_inset Quotes erd
+\end_inset
+
+ang
+\begin_inset Quotes erd
+\end_inset
+
+>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<latvec_a>1.0 0.0 0.0</latvec_a>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<latvec_b>0.0 1.0 0.0</latvec_b>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<latvec_c>0.0 0.0 1.0</latvec_c>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</lattice>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<layer>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<lname>default</lname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<li>0</li>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</layer>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<atom lunit="ang">
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<x>0.98</x> <y>0.0</y> <z>0.0</z>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<el>1</el>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<st>H</st>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<chr>0.0</chr>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<li>0</li>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</atom>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<atom lunit="ang">
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<x>-0.49</x> <y>0.85</y> <z>0.0</z>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<el>1</el>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<st>H</st>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<chr>0.0</chr>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</atom>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<atom lunit="ang">
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<x>0.0</x> <y>0.0</y> <z>0.0</z>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<el>8</el>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<st>O</st>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<chr>0.0</chr>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</atom>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+</geometry>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+</fmg>
+\end_layout
+
+\begin_layout Standard
+The following rules apply:
+\end_layout
+
+\begin_layout Itemize
+the 
+\family typewriter
+<fmg>
+\family default
+ document tag is mandatory
+\end_layout
+
+\begin_layout Itemize
+multiple 
+\family typewriter
+<geometry>
+\family default
+ tags are allowed.
+ The geoconv and geostats tools ignore all but the first geometry.
+\end_layout
+
+\begin_layout Itemize
+all attributes are optional
+\end_layout
+
+\begin_layout Itemize
+possible value for lunit are:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+ang
+\family default
+: Angstrom, default value
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+au
+\family default
+: Bohr radii
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<mode>
+\family default
+ is optional, possible values are:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+C
+\family default
+ --- cluster, default value
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+S
+\family default
+ --- supercell
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<lattice>
+\family default
+ is optional
+\newline
+The 
+\family typewriter
+org
+\family default
+[
+\family typewriter
+xyz
+\family default
+] attributes specify the supercell origin (as in the .gen format) and are
+ mostly ignored
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<lattice>
+\family default
+ must contain exactly one of each of the following elements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<latvec_a>
+\family default
+: first lattice vector, 3 coordinates
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<latvec_b>
+\family default
+: second lattice vector, 3 coordinates
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<latvec_c>
+\family default
+: third lattice vector, 3 coordinates
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<layer>
+\family default
+ is optional, multiple layers may be specified.
+ 
+\family typewriter
+<layer>
+\family default
+ must contain exactly one 
+\family typewriter
+<lname>
+\family default
+ and 
+\family typewriter
+<li>
+\family default
+ element
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<atom>
+\family default
+ must contain exactly one of each of the following elements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<x>
+\family default
+: x coordinate
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<y>
+\family default
+: y coordinate
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<z>
+\family default
+: z coordinate
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<el>
+\family default
+: element number
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<atom>
+\family default
+ may contain one of each of the following elements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<li>
+\family default
+: layer index, default 0
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<st>
+\family default
+: subtype, default [element symbol]
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<chr>
+\family default
+: charge, default 0.0.
+ Unit is electrons, negative values signify electron excess
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<lpop>:
+\family default
+ l-shell populations, default is empty
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<trjstep>
+\family default
+ is outside the geometry definition.
+ It stores data applying to one single 
+\family typewriter
+<geometry>
+\family default
+.
+ To store data for a geometry trajectory, an equal number of trjstep elements
+ in the same order should be present.
+ It may contain the following subelements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<nrg>:
+\family default
+ Image total Energy
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<velocities>:
+\family default
+ Image Velocities data block
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<forces>:
+\family default
+ Image forces data block
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<trjinfo>
+\family default
+ is outside the geometry definition.
+ It stores general information applying to the whole trajectory, rather
+ than stepwise data, as in 
+\family typewriter
+<trjstep>
+\family default
+.
+ Only one 
+\family typewriter
+<trjinfo>
+\family default
+ element should be present in one 
+\family typewriter
+<fmg>
+\family default
+ and only the first element encountered is evaluated.
+ subelements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<stepcount>
+\family default
+: Number of geometry iterations performed so far.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<dimer>
+\family default
+ must contain exactly one 
+\family typewriter
+<geometry>
+\family default
+ element, specifying the dimer midpoint.
+ It must also contain exactly one 
+\family typewriter
+<DeltaR>
+\family default
+ element, specifying the dimer translation vector 
+\begin_inset Formula $\vec{\mbox{R}_{1}}-\vec{\mbox{R}_{0}}$
+\end_inset
+
+.
+ Additionally the following subelements are allowed:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<NoGradInRot />
+\family default
+ Boolean specifier not to use gradient calculation in rotation step.
+ 
+\emph on
+deprecated!
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<curvature>
+\family default
+ The curvature in dimer direction
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<E0 eunit=
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+>
+\family default
+ Calculated energy at dimer midpoint, possible units are eV and H.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<E1 eunit=
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+>
+\family default
+ Calculated energy at dimer endpoint 1, units as in E0.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<E2 eunit=
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+>
+\family default
+ Extrapolated energy at dimer endpoint 2, units as in E0.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<f0>
+\family default
+ Calculated force at dimer midpoint in a.u..
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<f1>
+\family default
+ Calculated force at dimer endpoint 1 in a.u..
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<f2>
+\family default
+ Extrapolated force at dimer endpoint 2 in a.u..
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<fN>
+\family default
+ Projected rotational force on dimer in a.u..
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+.pdb (write only)
+\end_layout
+
+\begin_layout Standard
+Protein database format.
+ Refer to PDB documentation for details.
+ .fmg layers are written as segments.
+\end_layout
+
+\begin_layout Subsection
+.xyzq (write only)
+\end_layout
+
+\begin_layout Standard
+Carthesian coordinates and atomic charges in a.u..
+ Suitable as external electric field input in DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection*
+example: water
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+1.85193164 0.00000000 0.00000000 0.2938
+\newline
+-0.54141424 1.51278662 0.00000000 0.2938
+\newline
+0.05430593
+ -0.19438394 0.00000000 -0.5877 
+\end_layout
+
+\begin_layout Subsection
+.tm (write only)
+\end_layout
+
+\begin_layout Standard
+Turbomole 
+\family typewriter
+coord:
+\family default
+ block.
+ Refer to Turbomole documentation for details.
+\end_layout
+
+\begin_layout Subsection
+.fdf (write only)
+\end_layout
+
+\begin_layout Standard
+Geometry specification in SIESTA fdf input format.
+ Refer to SIESTA documentation for details.
+\end_layout
+
+\begin_layout Section
+\start_of_appendix
+Non-Profit Open Software License ("Non-Profit OSL") 3.0
+\begin_inset LatexCommand label
+name "sec:NP-OSL"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Licensed under the Non-Profit Open Software License version 3.0
+\end_layout
+
+\begin_layout Standard
+1) Grant of Copyright License.
+ Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable
+ license, for the duration of the copyright, to do the following:
+\end_layout
+
+\begin_layout Standard
+a) to reproduce the Original Work in copies, either alone or as part of
+ a collective work;
+\end_layout
+
+\begin_layout Standard
+b) to translate, adapt, alter, transform, modify, or arrange the Original
+ Work, thereby creating derivative works ("Derivative Works") based upon
+ the Original Work;
+\end_layout
+
+\begin_layout Standard
+c) to distribute or communicate copies of the Original Work and Derivative
+ Works to the public, with the proviso that copies of Original Work or Derivativ
+e Works that You distribute or communicate shall be licensed under this
+ Non-Profit Open Software License or as provided in section 17(d);
+\end_layout
+
+\begin_layout Standard
+d) to perform the Original Work publicly; and
+\end_layout
+
+\begin_layout Standard
+e) to display the Original Work publicly.
+\end_layout
+
+\begin_layout Standard
+2) Grant of Patent License.
+ Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable
+ license, under patent claims owned or controlled by the Licensor that are
+ embodied in the Original Work as furnished by the Licensor, for the duration
+ of the patents, to make, use, sell, offer for sale, have made, and import
+ the Original Work and Derivative Works.
+\end_layout
+
+\begin_layout Standard
+3) Grant of Source Code License.
+ The term "Source Code" means the preferred form of the Original Work for
+ making modifications to it and all available documentation describing how
+ to modify the Original Work.
+ Licensor agrees to provide a machine-readable copy of the Source Code of
+ the Original Work along with each copy of the Original Work that Licensor
+ distributes.
+ Licensor reserves the right to satisfy this obligation by placing a machine-rea
+dable copy of the Source Code in an information repository reasonably calculated
+ to permit inexpensive and convenient access by You for as long as Licensor
+ continues to distribute the Original Work.
+\end_layout
+
+\begin_layout Standard
+4) Exclusions From License Grant.
+ Neither the names of Licensor, nor the names of any contributors to the
+ Original Work, nor any of their trademarks or service marks, may be used
+ to endorse or promote products derived from this Original Work without
+ express prior permission of the Licensor.
+ Except as expressly stated herein, nothing in this License grants any license
+ to Licensor's trademarks, copyrights, patents, trade secrets or any other
+ intellectual property.
+ No patent license is granted to make, use, sell, offer for sale, have made,
+ or import embodiments of any patent claims other than the licensed claims
+ defined in Section 2.
+ No license is granted to the trademarks of Licensor even if such marks
+ are included in the Original Work.
+ Nothing in this License shall be interpreted to prohibit Licensor from
+ licensing under terms different from this License any Original Work that
+ Licensor otherwise would have a right to license.
+\end_layout
+
+\begin_layout Standard
+5) External Deployment.
+ The term "External Deployment" means the use, distribution, or communication
+ of the Original Work or Derivative Works in any way such that the Original
+ Work or Derivative Works may be used by anyone other than You, whether
+ those works are distributed or communicated to those persons or made available
+ as an application intended for use over a network.
+ As an express condition for the grants of license hereunder, You must treat
+ any External Deployment by You of the Original Work or a Derivative Work
+ as a distribution under section 1(c).
+\end_layout
+
+\begin_layout Standard
+6) Attribution Rights.
+ You must retain, in the Source Code of any Derivative Works that You create,
+ all copyright, patent, or trademark notices from the Source Code of the
+ Original Work, as well as any notices of licensing and any descriptive
+ text identified therein as an "Attribution Notice." You must cause the Source
+ Code for any Derivative Works that You create to carry a prominent Attribution
+ Notice reasonably calculated to inform recipients that You have modified
+ the Original Work.
+\end_layout
+
+\begin_layout Standard
+7) Warranty of Provenance and Disclaimer of Warranty.
+ The Original Work is provided under this License on an "AS IS" BASIS and
+ WITHOUT WARRANTY, either express or implied, including, without limitation,
+ the warranties of non-infringement, merchantability or fitness for a particular
+ purpose.
+ THE ENTIRE RISK AS TO THE QUALITY OF THE ORIGINAL WORK IS WITH YOU.
+ This DISCLAIMER OF WARRANTY constitutes an essential part of this License.
+ No license to the Original Work is granted by this License except under
+ this disclaimer.
+\end_layout
+
+\begin_layout Standard
+8) Limitation of Liability.
+ Under no circumstances and under no legal theory, whether in tort (including
+ negligence), contract, or otherwise, shall the Licensor be liable to anyone
+ for any direct, indirect, special, incidental, or consequential damages
+ of any character arising as a result of this License or the use of the
+ Original Work including, without limitation, damages for loss of goodwill,
+ work stoppage, computer failure or malfunction, or any and all other commercial
+ damages or losses.
+ This limitation of liability shall not apply to the extent applicable law
+ prohibits such limitation.
+\end_layout
+
+\begin_layout Standard
+9) Acceptance and Termination.
+ If, at any time, You expressly assented to this License, that assent indicates
+ your clear and irrevocable acceptance of this License and all of its terms
+ and conditions.
+ If You distribute or communicate copies of the Original Work or a Derivative
+ Work, You must make a reasonable effort under the circumstances to obtain
+ the express assent of recipients to the terms of this License.
+ This License conditions your rights to undertake the activities listed
+ in Section 1, including your right to create Derivative Works based upon
+ the Original Work, and doing so without honoring these terms and conditions
+ is prohibited by copyright law and international treaty.
+ Nothing in this License is intended to affect copyright exceptions and
+ limitations (including "fair use" or "fair dealing").
+ This License shall terminate immediately and You may no longer exercise
+ any of the rights granted to You by this License upon your failure to honor
+ the conditions in Section 1(c).
+\end_layout
+
+\begin_layout Standard
+10) Termination for Patent Action.
+ This License shall terminate automatically and You may no longer exercise
+ any of the rights granted to You by this License as of the date You commence
+ an action, including a cross-claim or counterclaim, against Licensor or
+ any licensee alleging that the Original Work infringes a patent.
+ This termination provision shall not apply for an action alleging patent
+ infringement by combinations of the Original Work with other software or
+ hardware.
+\end_layout
+
+\begin_layout Standard
+11) Jurisdiction, Venue and Governing Law.
+ Any action or suit relating to this License may be brought only in the
+ courts of a jurisdiction wherein the Licensor resides or in which Licensor
+ conducts its primary business, and under the laws of that jurisdiction
+ excluding its conflict-of-law provisions.
+ The application of the United Nations Convention on Contracts for the Internati
+onal Sale of Goods is expressly excluded.
+ Any use of the Original Work outside the scope of this License or after
+ its termination shall be subject to the requirements and penalties of copyright
+ or patent law in the appropriate jurisdiction.
+ This section shall survive the termination of this License.
+\end_layout
+
+\begin_layout Standard
+12) Attorneys' Fees.
+ In any action to enforce the terms of this License or seeking damages relating
+ thereto, the prevailing party shall be entitled to recover its costs and
+ expenses, including, without limitation, reasonable attorneys' fees and
+ costs incurred in connection with such action, including any appeal of
+ such action.
+ This section shall survive the termination of this License.
+\end_layout
+
+\begin_layout Standard
+13) Miscellaneous.
+ If any provision of this License is held to be unenforceable, such provision
+ shall be reformed only to the extent necessary to make it enforceable.
+\end_layout
+
+\begin_layout Standard
+14) Definition of "You" in This License.
+ "You" throughout this License, whether in upper or lower case, means an
+ individual or a legal entity exercising rights under, and complying with
+ all of the terms of, this License.
+ For legal entities, "You" includes any entity that controls, is controlled
+ by, or is under common control with you.
+ For purposes of this definition, "control" means (i) the power, direct
+ or indirect, to cause the direction or management of such entity, whether
+ by contract or otherwise, or (ii) ownership of fifty percent (50%) or more
+ of the outstanding shares, or (iii) beneficial ownership of such entity.
+\end_layout
+
+\begin_layout Standard
+15) Right to Use.
+ You may use the Original Work in all ways not otherwise restricted or condition
+ed by this License or by law, and Licensor promises not to interfere with
+ or be responsible for such uses by You.
+\end_layout
+
+\begin_layout Standard
+16) Modification of This License.
+ This License is Copyright © 2005 Lawrence Rosen.
+ Permission is granted to copy, distribute, or communicate this License
+ without modification.
+ Nothing in this License permits You to modify this License as applied to
+ the Original Work or to Derivative Works.
+ However, You may modify the text of this License and copy, distribute or
+ communicate your modified version (the "Modified License") and apply it
+ to other original works of authorship subject to the following conditions:
+ (i) You may not indicate in any way that your Modified License is the "Open
+ Software License" or "OSL" and you may not use those names in the name
+ of your Modified License; (ii) You must replace the notice specified in
+ the first paragraph above with the notice "Licensed under <insert your
+ license name here>" or with a notice of your own that is not confusingly
+ similar to the notice in this License; and (iii) You may not claim that
+ your original works are open source software unless your Modified License
+ has been approved by Open Source Initiative (OSI) and You comply with its
+ license review and certification process.
+\end_layout
+
+\begin_layout Standard
+17) Non-Profit Amendment.
+ The name of this amended version of the Open Software License ("OSL 3.0")
+ is "Non-Profit Open Software License 3.0".
+ The original OSL 3.0 license has been amended as follows:
+\end_layout
+
+\begin_layout Standard
+(a) Licensor represents and declares that it is a not-for-profit organization
+ that derives no revenue whatsoever from the distribution of the Original
+ Work or Derivative Works thereof, or from support or services relating
+ thereto.
+\end_layout
+
+\begin_layout Standard
+(b) The first sentence of Section 7 ["Warranty of Provenance"] of OSL 3.0
+ has been stricken.
+ For Original Works licensed under this Non-Profit OSL 3.0, LICENSOR OFFERS
+ NO WARRANTIES WHATSOEVER.
+\end_layout
+
+\begin_layout Standard
+(c) In the first sentence of Section 8 ["Limitation of Liability"] of this
+ Non-Profit OSL 3.0, the list of damages for which LIABILITY IS LIMITED now
+ includes "direct" damages.
+\end_layout
+
+\begin_layout Standard
+(d) The proviso in Section 1(c) of this License now refers to this "Non-Profit
+ Open Software License" rather than the "Open Software License".
+ You may distribute or communicate the Original Work or Derivative Works
+ thereof under this Non-Profit OSL 3.0 license only if You make the representatio
+n and declaration in paragraph (a) of this Section 17.
+ Otherwise, You shall distribute or communicate the Original Work or Derivative
+ Works thereof only under the OSL 3.0 license and You shall publish clear
+ licensing notices so stating.
+ Also by way of clarification, this License does not authorize You to distribute
+ or communicate works under this Non-Profit OSL 3.0 if You received them
+ under the original OSL 3.0 license.
+\end_layout
+
+\begin_layout Standard
+(e) Original Works licensed under this license shall reference "Non-Profit
+ OSL 3.0" in licensing notices to distinguish them from works licensed under
+ the original OSL 3.0 license.
+\end_layout
+
+\begin_layout Section
+flexible molecular geometry DTD
+\begin_inset LatexCommand label
+name "sec:fmg-dtd"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT mode (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT lattice (latvec_a, latvec_b, latvec_c)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST lattice
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+orgx CDATA "0.0"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+orgy CDATA "0.0"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+orgz CDATA "0.0"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+lunit (ang|au) "ang"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT latvec_a (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT latvec_b (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT latvec_c (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT layer (li, lname)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT li (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT lname (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT atom (x, y, z, el, st?, chr?, li?, lpop?)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST atom
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+lunit (ang|au) "ang"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT x (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT y (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT z (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT el (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT st (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT chr (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT nrg (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT lpop (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST nrg
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+eunit (eV|au) "au"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT velocities (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT forces (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT geometry (mode?, lattice?, layer?, atom+)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT trjstep (nrg?,velocities?,forces?)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT fmg (geometry+,trjstep*,trjinfo?)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT stepcount (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT trjinfo (stepcount?)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT DeltaR (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST DeltaR
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+lunit (ang|au) "ang"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT NoGradInRot EMPTY>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT curvature (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT E0 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST E0
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+eunit (eV|au|H) "au"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT E1 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST E1
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+eunit (eV|au|H) "au"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT E2 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST E2
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+eunit (eV|au|H) "au"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT f0 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT f1 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT f2 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT fN (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT Dimer (Geometry,DeltaR,NoGradInRot?,(E0,E1)?,E2?,(f0,f1)?,f2?,fN?,curv
+ature?)>
+\end_layout
+
+\end_body
+\end_document
