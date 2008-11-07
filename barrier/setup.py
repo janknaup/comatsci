@@ -16,7 +16,7 @@ distrib=setup (	name="comatsci-barriers",
 		package_dir={'comatsci':'src/comatsci',},
 		scripts=['src/scripts/pastafarian','src/scripts/pathprepare',
 			'src/scripts/pathprops','src/scripts/multiaverage'],
-		data_files=[("share/doc/comatsci","doc/comatsci-barrier.pdf")]
+		data_files=[("share/doc/comatsci",["doc/comatsci-barrier.pdf"])],
 		description="Computational Materials Science Toolkit - Reaction Barrier Search Module",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 

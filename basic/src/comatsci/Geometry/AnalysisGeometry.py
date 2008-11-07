@@ -378,7 +378,7 @@ class AnalysisGeometry(Geometry):
 		if stepsfunction!=None:
 			stepsfunction(len(bins-1))
 		#for proper rdf normalization calculate the total density
-		totaldensity=self.numberdensity()
+		totaldensity=self.numberDensity
 		for i in range(1,len(bins)):
 			volume=bins[i]**3-bins[i-1]**3
 			volume*=constants.PI*(4.0/3.0)

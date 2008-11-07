@@ -26,7 +26,7 @@ distrib=setup (	name="comatsci-base",
 		scripts=['src/scripts/geostats','src/scripts/geoconv',
                          'src/scripts/coordination_check','src/scripts/splresample',
                          'src/scripts/splderive',],
-		data_files=[("share/doc/comatsci","doc/comatsci-basic.pdf")]
+		data_files=[("share/doc/comatsci",["doc/comatsci-basic.pdf"])],
 		description="Basic Computational Materials Science Toolkit",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
