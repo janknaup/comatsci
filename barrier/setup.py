@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from distutils.core import setup,Extension
-import os
+import os,sys
 
 startpath=os.getcwd()
 
@@ -9,13 +9,14 @@ AUTHOR="Jan M. Knaup"
 AU_EMAIL="Knaup@bccms.uni-bremen.de"
 URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 
-setup (	name="comatsci-barriers",
+distrib=setup (	name="comatsci-barriers",
 		version=VERSIONTAG,
 		py_modules = ['comatsci.Schedulers',],
 		packages=['comatsci.Calculators','comatsci.Path',],
 		package_dir={'comatsci':'src/comatsci',},
 		scripts=['src/scripts/pastafarian','src/scripts/pathprepare',
 			'src/scripts/pathprops','src/scripts/multiaverage'],
+		data_files=[("share/doc/comatsci","doc/comatsci-barrier.pdf")]
 		description="Computational Materials Science Toolkit - Reaction Barrier Search Module",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
@@ -37,5 +38,4 @@ setup (	name="comatsci-barriers",
 			'Topic :: Scientific/Enginieering :: Chemistry',
 		]
 		)
-
 

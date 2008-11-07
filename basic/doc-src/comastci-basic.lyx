@@ -452,6 +452,40 @@ E,\InsetSpace ~
 --addlayer=L Add layer with name L to geometry.
 \end_layout
 
+\begin_layout Subsection
+to[format]
+\end_layout
+
+\begin_layout Standard
+Aliases of geoconv, allowing to quickly convert a readable input geometry
+ to the [format] file format.
+ Aliases are:
+\end_layout
+
+\begin_layout Itemize
+togen
+\end_layout
+
+\begin_layout Itemize
+tofmg
+\end_layout
+
+\begin_layout Itemize
+toxyz
+\end_layout
+
+\begin_layout Itemize
+tofdf
+\end_layout
+
+\begin_layout Itemize
+toxyzq
+\end_layout
+
+\begin_layout Itemize
+totm
+\end_layout
+
 \begin_layout Section
 Known geometry file formats
 \begin_inset LatexCommand label
