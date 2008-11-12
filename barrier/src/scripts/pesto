@@ -86,6 +86,9 @@ def dimerrun(mode):
                     **************************
                     *** pesto %10s ***
                     **************************
+    (c) Jan M. Knaup <Jan.Knaup@bccms.uni-bremen.de>
+    Licensed under the Non-Profit Open Software License version 3.0
+    see attached LICENSE file for details
 
     PortablE State of Transition Optimizer
     (using the improved Dimer Method, cf. J. Chem. Phys. 123, 224101 (2005))
@@ -250,7 +253,7 @@ def readconfig_options(mode="s"):
 
 	#Parse Options
 
-	usage="usage: %prog [options] <dimer file>"
+	usage="usage: %prog [options] <dimer file>\nLicensed under the Non-Profit Open Software License version 3.0"
 
 	parser=OptionParser(usage)
 

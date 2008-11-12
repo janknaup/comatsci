@@ -37,7 +37,7 @@ workmodes={"xyz"	:	("xyz",Geometry.Geometry.writexyz),
 if not programname[2:] in workmodes.keys():
 	programname="togen"
 
-usage="usage: %prog [options] <input file> [<output file>]"
+usage="usage: %prog [options] <input file> [<output file>]\nLicensed under the Non-Profit Open Software License version 3.0"
 
 parser=OptionParser(usage)
 

@@ -126,7 +126,7 @@ if __name__=="__main__":
 	usage = """%prog [options] datafile [[datafile], ...]
 Calculate averages of Data in ascii files of same column and line counts.
 If more than one datafile is specified, first calculate ensemble average over files.
-Other averages available via options."""
+Other averages available via options.\nLicensed under the Non-Profit Open Software License version 3.0"""
 
 	parser=OptionParser(usage)
 

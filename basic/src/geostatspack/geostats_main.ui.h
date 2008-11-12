@@ -76,7 +76,10 @@ void Form1::helpContents()
 
 void Form1::helpAbout()
 {
-	QMessageBox.about(self,"About geostats","<H1>geostats</H1><p>Calculate geometry statistics and transform file formats.</p><p>Written by Jan M. Knaup <b>Jan.Knaup@bccms.uni-bremen.de</b></p>")
+	QMessageBox.about(self,"About geostats","""<H1>geostats %s</H1><p>Calculate geometry statistics and transform file formats.</p>
+			  <p>Licensed under the Non-Profit Open Software License version 3.0</p>
+			  <p>see file LICENSE for details.</p>
+			  <p>Written by Jan M. Knaup <b><a href="mailto:Jan.Knaup@bccms.uni-bremen.de">Jan.Knaup@bccms.uni-bremen.de</a></b></p>"""%(comatsci.constants.VERSION))
 }
 
 

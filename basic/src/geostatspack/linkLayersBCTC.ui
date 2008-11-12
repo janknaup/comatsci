@@ -3,14 +3,14 @@
 <comment>Python:##############################################################################
 Python:# linkLayersBCTC.py
 Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# (c) 2005-2008 by Jan M. Knaup , Knaup@bccms.uni-bremen.de
 Python:# all rights reserved
 Python:##############################################################################
 Python:# Licensed under the Non-Profit Open Software License version 3.0
 Python:# see file LICENSE for details.
 Python:##############################################################################
 Python:
-Python:from pypath import utils
+Python:from comatsci import utils
 Python:import copy</comment>
 <author>Jan M. Knaup</author>
 <widget class="QDialog">

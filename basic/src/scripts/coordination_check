@@ -27,7 +27,7 @@ geo=Geometry.AnalysisGeometry()
 
 # dirty trick to make optparse display an intelligible error message, if output format is not specified
 
-usage="usage: %prog [options] <input file> [<output file>]"
+usage="usage: %prog [options] <input file> [<output file>]\nLicensed under the Non-Profit Open Software License version 3.0"
 
 parser=OptionParser(usage)
 

@@ -3,14 +3,14 @@
 <comment>Python:##############################################################################
 Python:# geostats_main.py
 Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# (c) 2005-2008 by Jan M. Knaup , Knaup@bccms.uni-bremen.de
 Python:# all rights reserved
 Python:##############################################################################
 Python:# Licensed under the Non-Profit Open Software License version 3.0
 Python:# see file LICENSE for details.
 Python:##############################################################################
 Python:
-Python:import pypath
+Python:import comatsci
 Python:import EditGeometry
 Python:import periodicExpand
 Python:import elementChargeHistograms

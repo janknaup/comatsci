@@ -90,6 +90,10 @@ def nebrun(mode="s"):
                  *** pastafarian %10s ***
                  ******************************
 
+(c) Jan M. Knaup <Jan.Knaup@bccms.uni-bremen.de>
+Licensed under the Non-Profit Open Software License version 3.0
+see attached LICENSE file for details
+
 PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
 
 using the following options:
@@ -279,7 +283,7 @@ def readconfig_options(mode="s"):
 
 	#Parse Options
 
-	usage="usage: %prog [options] <startgeometry> [<intermediate geometries>] <endgeometry>"
+	usage="usage: %prog [options] <startgeometry> [<intermediate geometries>] <endgeometry>\nLicensed under the Non-Profit Open Software License version 3.0"
 
 	parser=OptionParser(usage)
 

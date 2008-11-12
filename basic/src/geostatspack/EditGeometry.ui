@@ -3,7 +3,7 @@
 <comment>Python:##############################################################################
 Python:# EditGeometry.py
 Python:# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-Python:# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+Python:# (c) 2005-2008 by Jan M. Knaup , Knaup@bccms.uni-bremen.de
 Python:# all rights reserved
 Python:##############################################################################
 Python:# Licensed under the Non-Profit Open Software License version 3.0
@@ -11,7 +11,7 @@ Python:# see file LICENSE for details.
 Python:##############################################################################
 Python:
 Python:#Atom editing form
-Python:from pypath import Geometry
+Python:from comatsci import Geometry
 Python:from qttable import QTableItem
 Python:from qttable import QComboTableItem
 Python:import copy

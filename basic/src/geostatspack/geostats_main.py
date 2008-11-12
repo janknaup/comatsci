@@ -2,13 +2,22 @@
 
 # Form implementation generated from reading ui file 'geostats_main.ui'
 #
-# Created: Tue Oct 14 16:15:02 2008
+# Created: Wed Nov 12 11:27:39 2008
 #      by: The PyQt User Interface Compiler (pyuic) 3.17.4
 #
 # WARNING! All changes made in this file will be lost!
 
 
 from qt import *
+##############################################################################
+# geostats_main.py
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup , Knaup@bccms.uni-bremen.de
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
 
 import comatsci
 import EditGeometry
@@ -419,7 +428,10 @@ class MainWindow(QMainWindow):
         
 
     def helpAbout(self):
-        	QMessageBox.about(self,"About geostats","<H1>geostats</H1><p>Calculate geometry statistics and transform file formats.</p><p>Written by Jan M. Knaup <b>Jan.Knaup@bccms.uni-bremen.de</b></p>")
+        	QMessageBox.about(self,"About geostats","""<H1>geostats %s</H1><p>Calculate geometry statistics and transform file formats.</p>
+        			  <p>Licensed under the Non-Profit Open Software License version 3.0</p>
+        			  <p>see file LICENSE for details.</p>
+        			  <p>Written by Jan M. Knaup <b><a href="mailto:Jan.Knaup@bccms.uni-bremen.de">Jan.Knaup@bccms.uni-bremen.de</a></b></p>"""%(comatsci.constants.VERSION))
         
 
     def SaveStatistics(self):

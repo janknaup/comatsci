@@ -22,7 +22,7 @@ from optparse import OptionParser
 
 #Parse Options
 
-usage="usage: %prog [options] <start> [<intermediates>] <end>\n  or : %prog [options] <pathfile>"
+usage="usage: %prog [options] <start> [<intermediates>] <end>\n  or : %prog [options] <pathfile>\nLicensed under the Non-Profit Open Software License version 3.0"
 
 parser=OptionParser(usage)
 

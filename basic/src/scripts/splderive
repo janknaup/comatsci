@@ -41,7 +41,7 @@ def readspline(filename):
 	return spl.spline(num.array(xlist,num.Float),num.array(ylist,num.Float))
 
 
-usage = "usage: splresample.py <infile> <npoints> [<xmin>] [<xmax>]"
+usage = "usage: splresample.py <infile> <npoints> [<xmin>] [<xmax>]\nLicensed under the Non-Profit Open Software License version 3.0"
 
 if len(sys.argv) < 3 or len(sys.argv)> 5:
 	print usage
