@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/knaup/src/comatsci/geostatspack/chargeConstraintsWizardBase.ui'
+# Form implementation generated from reading ui file 'chargeConstraintsWizardBase.ui'
 #
-# Created: Di Sep 2 16:37:14 2008
-#      by: The PyQt User Interface Compiler (pyuic) 3.17.3
+# Created: Thu Nov 13 11:18:05 2008
+#      by: The PyQt User Interface Compiler (pyuic) 3.17.4
 #
 # WARNING! All changes made in this file will be lost!
 
 
-import sys
 from qt import *
+##############################################################################
+# chargeConstraintsWizardBase.py
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup, Knaup@bccms.uni-bremen.de
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
 
 
 class atomChargeConstraintsWizardBase(QWizard):
@@ -70,7 +78,7 @@ class atomChargeConstraintsWizardBase(QWizard):
         self.textLabel1.setText(self.__tr("<font size=\"+1\">Input serial numbers (counting from 1) of atoms to apply constraints on, separated by white space, in the text editor below. <br>When ready, click \"next\".</font>"))
         QToolTip.add(self.atomSerialsTextEdit,self.__tr("Enter the serial numbers of atoms here. Atom serials can i.e. be obtained from vmd by using atomselection get serial."))
         self.textLabel1_2.setText(self.__tr("charge constraints prefactor"))
-        self.constraintsPrefactorLineEdit.setText(self.__tr("1."))
+        self.constraintsPrefactorLineEdit.setText(self.__tr("."))
         self.constraintsPrefactorLineEdit.setInputMask(self.__tr("D.dd;0"))
         self.setTitle(self.page,self.__tr("Select Atoms"))
         QToolTip.add(self.constraintsDisplayTextEdit,self.__tr("Copy and paste constraints specifiers into DFTB+ dftb_in.hsd file. See DFTB+ manual!"))
@@ -107,11 +115,3 @@ class atomChargeConstraintsWizardBase(QWizard):
 
     def __tr(self,s,c = None):
         return qApp.translate("atomChargeConstraintsWizardBase",s,c)
-
-if __name__ == "__main__":
-    a = QApplication(sys.argv)
-    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
-    w = atomChargeConstraintsWizardBase()
-    a.setMainWidget(w)
-    w.show()
-    a.exec_loop()

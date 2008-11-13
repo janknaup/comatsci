@@ -1,5 +1,6 @@
 *~
 *.py[co]
+*.py.bak
 */dist
 */build
 */api-doc

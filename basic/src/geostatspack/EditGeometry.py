@@ -1,16 +1,24 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/knaup/src/comatsci/geostatspack/EditGeometry.ui'
+# Form implementation generated from reading ui file 'EditGeometry.ui'
 #
-# Created: Di Sep 2 16:37:11 2008
-#      by: The PyQt User Interface Compiler (pyuic) 3.17.3
+# Created: Thu Nov 13 11:18:05 2008
+#      by: The PyQt User Interface Compiler (pyuic) 3.17.4
 #
 # WARNING! All changes made in this file will be lost!
 
 
-import sys
 from qt import *
 from qttable import QTable
+##############################################################################
+# EditGeometry.py
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup , Knaup@bccms.uni-bremen.de
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
 
 #Atom editing form
 from comatsci import Geometry
@@ -311,11 +319,3 @@ class Edit_Atoms(QDialog):
 
     def __tr(self,s,c = None):
         return qApp.translate("Edit_Atoms",s,c)
-
-if __name__ == "__main__":
-    a = QApplication(sys.argv)
-    QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
-    w = Edit_Atoms()
-    a.setMainWidget(w)
-    w.show()
-    a.exec_loop()

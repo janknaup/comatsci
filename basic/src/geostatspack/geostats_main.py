@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geostats_main.ui'
 #
-# Created: Wed Nov 12 11:27:39 2008
+# Created: Thu Nov 13 11:18:05 2008
 #      by: The PyQt User Interface Compiler (pyuic) 3.17.4
 #
 # WARNING! All changes made in this file will be lost!
