@@ -5,7 +5,7 @@ import os
 
 startpath=os.getcwd()
 
-VERSIONTAG="1.0.0-b1"
+VERSIONTAG="1.0.0-b2"
 AUTHOR="Jan M. Knaup"
 AU_EMAIL="Knaup@bccms.uni-bremen.de"
 URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
@@ -13,7 +13,12 @@ URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 setup (	name="comatsci-qmmm",
 		version=VERSIONTAG,
 		py_modules = ['comatsci.Geometry.EmbedGeometry',],
-		package_dir = {'comatsci.Geometry':'src'},
+		package_dir = {'comatsci.Geometry':'src/embedGeo'},
+		scripts = ["src/scripts/scale_linkdists",
+			   "src/scripts/chargeanalys-2D",
+			   "src/scripts/dosanalys-2D",
+			   "src/scripts/dosanalys-3D"],
+		data_files=[("share/doc/comatsci",["doc/comatsci-embed.pdf","doc/run.sh.example"])],
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
 		url=URL,
@@ -25,7 +30,7 @@ setup (	name="comatsci-qmmm",
 			'Intended Audience :: Education',
 			'Intended Audience :: Developers',
 			'Intended Audience :: Science/Research',
-			'License :: OSI Approved :: Non-Profit Open Software License v3',
+			'License :: Proprietary',
 			'Operating System :: POSIX',
 			'Programming Language :: Python',
 			'Programming Language :: Python :: 2.4',

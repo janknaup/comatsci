@@ -1,30 +1,76 @@
-Terms and conditions to obtain a copy of comatsci-embed
+comatsci-embed license for academic use
 
-Preamble
+  Terms and conditions to obtain a copy of comatsci-embed
 
-In the following the term "author" refers to Jan M. Knaup. The term "program" shall mean the copyrighted comatsci-qmmm package (in source, object and executable form). 
+  Preamble
 
-This licence covers the use of comatsci-qmmm for non-commercial purposes as ene extension to the comatsci package, other uses may be arranged individually by discussion with the author.
+In the following the term "author" refers to Jan M. Knaup. The 
+term "program" shall mean the copyrighted comatsci-qmmm package 
+(in source, object and executable form). 
 
-Mandatory terms and conditions
+This licence covers the use of comatsci-qmmm for non-commercial 
+purposes as ene extension to the comatsci package, other uses may 
+be arranged individually by discussion with the author.
 
-I request a copy of the comatsci-qmmm package and therefore agree to the following terms and conditions to use the program and to have access to the source code: 
+  Mandatory terms and conditions
 
-   1. All title, ownership and rights to the program or to any copies of it remain with the author, regardless of the ownership of the media on which the program is used or installed.
-      
-   2. I will not provide a copy of the program in any way to anyone for any reason whatsoever. I may make copies of the code but only for backup purposes, or to use it on any of my group's computer resources.  I will refer any request for copies of the program to the author.  Anyone directly associated with my research group is covered by the licence and may share my copy of the program on all of my group's computer resources as long as they agree to the mandatory terms and conditions.
-   
-   3. I will not redistribute any part of the program as part of another software without written permission of the author.
-   
-   4. The program and any documentation is supplied on an as is basis without any warranty, and thus with no additional responsibility or liability. I understand that support for running the program can not be provided in general, except on the basis of a joint project between the code author and the research partner.
-   
-   5. It is obvious that modifications of the program can lead to problems where the author may not be able to help. It is encouraged that I report any difficulties encountered in the use of standard versions of the program, which I have not modified, to the author.
-   
-   6. Users are encouraged to report usefull modifications to programs to the author. I agree that any reported modifications could be incorporated into the program, potentially with further modifications. I certify that I am entitled to, and bear responsibility for contributing these modifications to the program and that they will be covered by this licence once incorporated. The contributed modifications are non-exclusively for use in the program, so that my rights to use the original modifications I have contributed for other purposes are not affected.
-   
-   7. In any publication derived from use of the program, I will make references to relevant papers about the program (comatsci-qmmm), the QM/MM coupling method method and any appropriate extensions used. The manual of the program contains the list of the papers to consider for citation.
-   
-   8. One copy of each and every publication resulting from use of the program will be sent to the contact address of the author for their attention.
-   
-   9. comatsci-qmmm relies on external libraries for operation. Some of those libraries are included in the comatsci-qmmm distribution. The terms and conditions for the redistribution of these libraries are given in the appropriate source directories.
+I request a copy of the comatsci-qmmm package and therefore agree 
+to the following terms and conditions to use the program and to 
+have access to the source code: 
 
+1. All title, ownership and rights to the program or to any 
+  copies of it remain with the author, regardless of the 
+  ownership of the media on which the program is used or 
+  installed.
+
+2. I will not provide a copy of the program in any way to anyone 
+  for any reason whatsoever. I may make copies of the code but 
+  only for backup purposes, or to use it on any of my group's 
+  computer resources. I will refer any request for copies of the 
+  program to the author. Anyone directly associated with my 
+  research group is covered by the licence and may share my copy 
+  of the program on all of my group's computer resources as long 
+  as they agree to the mandatory terms and conditions.
+
+3. I will not redistribute any part of the program as part of 
+  another software without written permission of the author.
+
+4. The program and any documentation is supplied on an as is 
+  basis without any warranty, and thus with no additional 
+  responsibility or liability. I understand that support for 
+  running the program can not be provided in general, except on 
+  the basis of a joint project between the code author and the 
+  research partner.
+
+5. It is obvious that modifications of the program can lead to 
+  problems where the author may not be able to help. It is 
+  encouraged that I report any difficulties encountered in the 
+  use of standard versions of the program, which I have not 
+  modified, to the author.
+
+6. Users are encouraged to report useful modifications to 
+  programs to the author. I agree that any reported modifications 
+  could be incorporated into the program, potentially with 
+  further modifications. I certify that I am entitled to, and 
+  bear responsibility for contributing these modifications to the 
+  program and that they will be covered by this licence once 
+  incorporated. The contributed modifications are non-exclusively 
+  for use in the program, so that my rights to use the original 
+  modifications I have contributed for other purposes are not 
+  affected.
+
+7. In any publication derived from use of the program, I will 
+  make references to relevant papers about the program 
+  (comatsci-qmmm), the QM/MM coupling method method and any 
+  appropriate extensions used. The manual of the program contains 
+  the list of the papers to consider for citation.
+
+8. One copy of each and every publication resulting from use of 
+  the program will be sent to the contact address of the author 
+  for their attention.
+
+9. comatsci-qmmm may rely on external libraries for operation. If 
+  any of these libraries are included in the comatsci-qmmm 
+  distribution, the repsective terms and conditions for their 
+  redistribution libraries are given in the appropriate source 
+  directories.

@@ -1,3 +1,12 @@
+LICENSE
+MANIFEST
+MANIFEST.in
 README
 setup.py
-src/EmbedGeometry.py
+doc/comatsci-embed.pdf
+doc/run.sh.example
+src/embedGeo/EmbedGeometry.py
+src/scripts/chargeanalys-2D
+src/scripts/dosanalys-2D
+src/scripts/dosanalys-3D
+src/scripts/scale_linkdists
