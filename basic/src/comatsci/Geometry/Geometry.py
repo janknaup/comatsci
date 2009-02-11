@@ -25,12 +25,9 @@ import bisect
 #  see if python 2.5's elementTree implementation is present
 try:
 	from xml.etree import ElementTree as ET
-#  otherwise try to import locally installed cElementTree or elementtree (for python 2.4 and below)
+#  otherwise try to import locally installed elementtree (for python 2.4 and below)
 except:
-	try:
-		import cElementTree as ET
-	except:
-		from elementtree import ElementTree as ET
+	from elementtree import ElementTree as ET
 
 
 ##import numpy.oldnumeric.linear_algebra as lina
