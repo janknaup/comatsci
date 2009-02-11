@@ -18,7 +18,7 @@ Table of Contents
             Config File
             Output files
     3 Calculators
-        3.1 DFTB^{+}/Noodle
+        3.1 DFTB/Noodle
             Slater-Koster file names
             Point charges
         3.2 SIESTA
@@ -87,6 +87,16 @@ options to generate installers for different operating systems,
 depending on the platform and installed python version, please 
 refer to the integrated documentation available by calling python 
 setup.py --help.
+
+[Rand:
+Attention!
+]On some x86_64 platforms, libraries are separated into lib and 
+lib64 directories. In such a case, it is important to make sure, 
+that pure python libraries are installed into the same lib* tree 
+as platform dependent packages. Otherwise, extensions to 
+comatsci-basic may not be found by the python interpreter. Cf. 
+the --install-platlib, --install-purelib and --install-lib 
+options to setup.py.
 
 1.3 License
 
@@ -178,7 +188,7 @@ Default values for all command line options are overridden by the
 config file, pastafarian --help shows the default values actually 
 used.
 
-[margin:
+[Rand:
 Experimental
 ]MPI scheduling requires an installed pypar 1.9.2 or higher 
 package and execution of the pastafarian script in an mpi 
@@ -306,9 +316,9 @@ section of the pypath.ini file are:
   Must be accessible on all nodes in parallel calculations
 
   workdir=TEMP Name prefix for the directories in which to run 
-  the dftb+ calculations. The special Value ``TEMP'' uses 
-  mktmpdir to create a temporary directory in the path specified 
-  by the $TMPDIR environment variable.
+  the dftb+ calculations. The special Value “TEMP” uses mktmpdir 
+  to create a temporary directory in the path specified by the 
+  $TMPDIR environment variable.
 
   skdir=/home/knaup/SlKo/ifam/alsicnoh-mavo full path to the SK 
   files. The SK file naming convention follows the dftb 
@@ -370,18 +380,18 @@ employ it:
   layer assignment. Layers are identified by a unique integer 
   layer index. Currently the Layer object only contains a Name 
   for the layer. Layer names need not be unique. If the geometry 
-  object passed to the noodle calculator contains a layer named ``
-  PCHR'', the calculator automatically adds an external 
-  field/pointcharges specification, adding the atoms from the ``
-  PCHR'' layer as point charges. If several ``PCHR'' layers 
-  exist, only on of them is used, the choice is not strictly 
-  determined! [margin:
+  object passed to the noodle calculator contains a layer named “
+  PCHR”, the calculator automatically adds an external 
+  field/pointcharges specification, adding the atoms from the “
+  PCHR” layer as point charges. If several “PCHR” layers exist, 
+  only on of them is used, the choice is not strictly determined! 
+  [Rand:
 deprecated
 ]
-In this case, only the atoms from the default layer ``0'' are 
-  added to the noodle geometry input. This means that all atoms 
-  not contained in the default layer or the ``PCHR'' layer will 
-  be ignored.
+In this case, only the atoms from the default layer “0” are added 
+  to the noodle geometry input. This means that all atoms not 
+  contained in the default layer or the “PCHR” layer will be 
+  ignored.
 Currently, geometry layers and atomic charge specification are 
   only supported via the .fmg file format, cf. comatsci 
   documentation. The geostats.py tool of comatsci provides a more 
@@ -408,9 +418,9 @@ The siesta calculator uses SIESTA to do the energy and forces
 calculations. It has only been tested with v1.3 and v1.3-f1p, but 
 older versions might work as well. Most of the SIESTA parameters 
 are set in an .fdf file, which must be supplied by the user and 
-is includes into the siesta input using an ``%include'' 
-directive. The Parameters to be set in the [SIESTA] section of 
-the pypath.ini file are:
+is includes into the siesta input using an “%include” directive. 
+The Parameters to be set in the [SIESTA] section of the 
+pypath.ini file are:
 
   binary=/usr/local/bin/siesta Full path to the SIESTA binary.
 
@@ -418,9 +428,9 @@ the pypath.ini file are:
   potential files to use for the SIESTA calculations.
 
   workdir=TEMP Name prefix for the directories in which to run 
-  the SIESTA calculations. The special Value ``TEMP'' uses 
-  mktmpdir to create a temporary directroy in the path specified 
-  by the $TMPDIR environment variable.
+  the SIESTA calculations. The special Value “TEMP” uses mktmpdir 
+  to create a temporary directroy in the path specified by the 
+  $TMPDIR environment variable.
 
   dmdir=DMS Directory in which to store the .DM files from the 
   calculation for the different images. Warning: If the basis set 
@@ -428,9 +438,9 @@ the pypath.ini file are:
   inevitably fail.
 
   rdms=t Reuse the .DM file from the previous calculation on the 
-  same image. This should usually bet set to ``t'' as it speeds 
-  up the calculations enormously. It is safe to to say ``t'' 
-  here, if no old .DM files are present.
+  same image. This should usually bet set to “t” as it speeds up 
+  the calculations enormously. It is safe to to say “t” here, if 
+  no old .DM files are present.
 
   paraminclude=params.fdf An .fdf file which should contain all 
   calculation parameters not automatically set by pypath. Pypath 
@@ -473,9 +483,9 @@ Parameters for the Gaussian calculator are entered in the
   binary=g03 path to the gaussian binary
 
   workdir=TEMP Name prefix for the directories in which to run 
-  the SIESTA calculations. The special Value ``TEMP'' uses 
-  mktmpdir to create a temporary directroy in the path specified 
-  by the $TMPDIR environment variable.
+  the SIESTA calculations. The special Value “TEMP” uses mktmpdir 
+  to create a temporary directroy in the path specified by the 
+  $TMPDIR environment variable.
 
   chkdir=g03chk directroy in which gaussian checkpoint files will 
   be stored

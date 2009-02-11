@@ -63,6 +63,16 @@ the platform and installed python version, please refer to the
 integrated documentation available by calling python setup.py 
 --help.
 
+[Rand:
+Attention!
+]On some x86_64 platforms, libraries are separated into lib and 
+lib64 directories. In such a case, it is important to make sure, 
+that pure python libraries are installed into the same lib* tree 
+as platform dependent packages. Otherwise, extensions to 
+comatsci-basic may not be found by the python interpreter. Cf. 
+the --install-platlib, --install-purelib and --install-lib 
+options to setup.py.
+
 1.3 License
 
 comatsci is provided without any warranty as open software under 
@@ -99,20 +109,18 @@ Possible options are:
 
 Currently geostats.py can output a bond list and some basic 
 atomic coordination statistics. The statistics output can be 
-saved to ``geostats.htm''. Radial distribution functions and 
-atomic charge histograms (per element) can be computed. These 
-Data can be saved as ascii-files suitable for gnuplot, as well as 
-directly plotted and saved in various graphics file formats using 
-gnuplot, if the gnuplot python extension and gnuplot itself are 
-available.
+saved to “geostats.htm”. Radial distribution functions and atomic 
+charge histograms (per element) can be computed. These Data can 
+be saved as ascii-files suitable for gnuplot, as well as directly 
+plotted and saved in various graphics file formats using gnuplot, 
+if the gnuplot python extension and gnuplot itself are available.
 
-Additonally geostats.py provides an ``edit atoms'' dialog in 
-which atom properties can be edited in a table view, atoms can be 
-added or deleted and layers can be added or deleted. This is 
-mainly intended as a convenient way to assign atoms different 
-layers.
+Additonally geostats.py provides an “edit atoms” dialog in which 
+atom properties can be edited in a table view, atoms can be added 
+or deleted and layers can be added or deleted. This is mainly 
+intended as a convenient way to assign atoms different layers.
 
-A ``periodic expand'' dialog allows to periodically expand 
+A “periodic expand” dialog allows to periodically expand 
 supercells.
 
 2.2 geoconv<sub:geoconv.py>
@@ -240,8 +248,8 @@ supercell.
 • The atom numbers (first column of the coordinate lines) are for 
   convenience only but required. 
 
-• The flag (first line, second column) is either ``C'' for 
-  clusters/molecules or ``S'' for supercells. 
+• The flag (first line, second column) is either “C” for 
+  clusters/molecules or “S” for supercells. 
 
 3.3 .fmg (read/write)<sec:fmg-format>
 
@@ -297,7 +305,7 @@ of the flexible molecular geometry format.
 
 <mode>C</mode>
 
-<lattice orgx=''0.0'' orgy=''0.0'' orgz=''0.0'' lunit=''ang''>
+<lattice orgx=”0.0” orgy=”0.0” orgz=”0.0” lunit=”ang”>
 
 <latvec_a>1.0 0.0 0.0</latvec_a>
 
@@ -446,14 +454,14 @@ The org[xyz] attributes specify the supercell origin (as in the
 
   – <curvature> The curvature in dimer direction
 
-  – <E0 eunit=''''> Calculated energy at dimer midpoint, possible 
+  – <E0 eunit=””> Calculated energy at dimer midpoint, possible 
     units are eV and H.
 
-  – <E1 eunit=''''> Calculated energy at dimer endpoint 1, units 
-    as in E0.
+  – <E1 eunit=””> Calculated energy at dimer endpoint 1, units as 
+    in E0.
 
-  – <E2 eunit=''''> Extrapolated energy at dimer endpoint 2, 
-    units as in E0.
+  – <E2 eunit=””> Extrapolated energy at dimer endpoint 2, units 
+    as in E0.
 
   – <f0> Calculated force at dimer midpoint in a.u..
 

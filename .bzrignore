@@ -22,3 +22,4 @@ test_regr/mbtest/*.png
 test_regr/mbtest/*.gif
 test_regr/mbtest/*.avi
 test_regr/mbtest/plots
+doc-src/embedbib.bib.bak

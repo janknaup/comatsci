@@ -71,6 +71,16 @@ the platform and installed python version, please refer to the
 integrated documentation available by calling python setup.py 
 --help.
 
+[Rand:
+Attention!
+]On some x86_64 platforms, libraries are separated into lib and 
+lib64 directories. In such a case, it is important to make sure, 
+that pure python libraries are installed into the same lib* tree 
+as platform dependent packages. Otherwise, extensions to 
+comatsci-basic may not be found by the python interpreter. Cf. 
+the --install-platlib, --install-purelib and --install-lib 
+options to setup.py.
+
 1.3 License
 
 comatsci-embed is provided without any warranty without charge 

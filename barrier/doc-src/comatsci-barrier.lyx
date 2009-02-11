@@ -1,11 +1,12 @@
-#LyX 1.5.5 created this file. For more info see http://www.lyx.org/
-\lyxformat 276
+#LyX 1.6.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
 \begin_document
 \begin_header
 \textclass article
 \begin_preamble
 \usepackage{a4wide}
 \end_preamble
+\use_default_options false
 \language english
 \inputencoding auto
 \font_roman default
@@ -16,9 +17,11 @@
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
+
 \graphics default
 \paperfontsize default
 \spacing single
+\use_hyperref false
 \papersize default
 \use_geometry false
 \use_amsmath 1
@@ -44,7 +47,9 @@
 
 \begin_layout Title
 comatsci-barrier
-\newline
+\begin_inset Newline newline
+\end_inset
+
 
 \series bold
 com
@@ -58,20 +63,24 @@ erials
 sci
 \series default
 ence utility package
-\newline
+\begin_inset Newline newline
+\end_inset
+
 reaction barrier search utilities
 \end_layout
 
 \begin_layout Author
 Jan M.
  Knaup, Bremen Center for Compuational Materials Science
-\newline
-Jan.Knaup@bccms.uni-bremen.
-de
+\begin_inset Newline newline
+\end_inset
+
+Jan.Knaup@bccms.uni-bremen.de
 \end_layout
 
 \begin_layout Standard
-\begin_inset LatexCommand tableofcontents
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
 
 \end_inset
 
@@ -212,6 +221,51 @@ python setup.py --help
 .
 \end_layout
 
+\begin_layout Standard
+\begin_inset Marginal
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+Attention!
+\end_layout
+
+\end_inset
+
+On some x86_64 platforms, libraries are separated into 
+\family typewriter
+lib
+\family default
+ and 
+\family typewriter
+lib64
+\family default
+ directories.
+ In such a case, it is important to make sure, that pure python libraries
+ are installed into the same 
+\family typewriter
+lib*
+\family default
+ tree as platform dependent packages.
+ Otherwise, extensions to comatsci-basic may not be found by the python
+ interpreter.
+ Cf.
+ the 
+\family typewriter
+--install-platlib
+\family default
+, 
+\family typewriter
+--install-purelib
+\family default
+ and 
+\family typewriter
+--install-lib
+\family default
+ options to setup.py.
+\end_layout
+
 \begin_layout Subsection
 License
 \end_layout
@@ -219,9 +273,13 @@ License
 \begin_layout Standard
 comatsci-barrier is provided without any warranty as open software under
  the terms of the Non-commercial Open Software License v3.0.
- Please refer to the attached LICENSE file or appendix\InsetSpace ~
+ Please refer to the attached LICENSE file or appendix
+\begin_inset space ~
+\end_inset
 
-\begin_inset LatexCommand ref
+
+\begin_inset CommandInset ref
+LatexCommand ref
 reference "sec:NP-OSL"
 
 \end_inset
@@ -309,7 +367,10 @@ The possible command line options are:
 \begin_layout Description
 
 \family typewriter
--h,\InsetSpace ~
+-h,
+\begin_inset space ~
+\end_inset
+
 --help
 \family default
  show this help message and exit 
@@ -318,8 +379,14 @@ The possible command line options are:
 \begin_layout Description
 
 \family typewriter
--m\InsetSpace ~
-N,\InsetSpace ~
+-m
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
 --maxit=N
 \family default
  Maximum number of NEB iterations for this run, default=100 
@@ -328,8 +395,14 @@ N,\InsetSpace ~
 \begin_layout Description
 
 \family typewriter
--r\InsetSpace ~
-RMS,\InsetSpace ~
+-r
+\begin_inset space ~
+\end_inset
+
+RMS,
+\begin_inset space ~
+\end_inset
+
 --rmstol=RMS
 \family default
  stop iterating if path RMS force in a.u.
@@ -339,8 +412,14 @@ RMS,\InsetSpace ~
 \begin_layout Description
 
 \family typewriter
--f\InsetSpace ~
-FMAX,\InsetSpace ~
+-f
+\begin_inset space ~
+\end_inset
+
+FMAX,
+\begin_inset space ~
+\end_inset
+
 --forcetol=FMAX
 \family default
  stop iterating if path maximum of atomic forces in a.u.
@@ -350,8 +429,14 @@ FMAX,\InsetSpace ~
 \begin_layout Description
 
 \family typewriter
--c\InsetSpace ~
-CALC,\InsetSpace ~
+-c
+\begin_inset space ~
+\end_inset
+
+CALC,
+\begin_inset space ~
+\end_inset
+
 --calculator=CALC
 \family default
  use CALC to calculate energies and forces, default=dftb 
@@ -360,8 +445,14 @@ CALC,\InsetSpace ~
 \begin_layout Description
 
 \family typewriter
--x\InsetSpace ~
-LIST,\InsetSpace ~
+-x
+\begin_inset space ~
+\end_inset
+
+LIST,
+\begin_inset space ~
+\end_inset
+
 --fixedatoms=LIST
 \family default
  Keep atoms in comma delimeted LIST fixed, default=None
@@ -370,8 +461,14 @@ LIST,\InsetSpace ~
 \begin_layout Description
 
 \family typewriter
--s\InsetSpace ~
-D_T,\InsetSpace ~
+-s
+\begin_inset space ~
+\end_inset
+
+D_T,
+\begin_inset space ~
+\end_inset
+
 --stepwidth=D_T
 \family default
  Use D_T as stepwidth for velocity Verlet relaxation, default=0.1 
@@ -397,7 +494,10 @@ D_T,\InsetSpace ~
 \begin_layout Description
 
 \family typewriter
--q,\InsetSpace ~
+-q,
+\begin_inset space ~
+\end_inset
+
 --quiet
 \family default
  Limit output to fatal errors and critical warnings, no status output at
@@ -416,8 +516,14 @@ D_T,\InsetSpace ~
 \begin_layout Description
 
 \family typewriter
--d\InsetSpace ~
-SCHEDULER,\InsetSpace ~
+-d
+\begin_inset space ~
+\end_inset
+
+SCHEDULER,
+\begin_inset space ~
+\end_inset
+
 --scheduler=SCHEDULER
 \family default
  Choose scheduler to manage execution of single calculations.
@@ -428,8 +534,14 @@ SCHEDULER,\InsetSpace ~
 \begin_layout Description
 
 \family typewriter
--t\InsetSpace ~
-MAXTHREADS,\InsetSpace ~
+-t
+\begin_inset space ~
+\end_inset
+
+MAXTHREADS,
+\begin_inset space ~
+\end_inset
+
 --maxworkthreads=MAXTHREADS
 \family default
  Set maximum number of concurrent parallel threads in thread scheduling
@@ -462,7 +574,7 @@ pastafarian --help
 \begin_inset Marginal
 status open
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Experimental
 \end_layout
 
@@ -481,7 +593,8 @@ Caveat: currently the detection of MPI master or slave status is performed
 \end_layout
 
 \begin_layout Subsubsection*
-\begin_inset LatexCommand label
+\begin_inset CommandInset label
+LatexCommand label
 name "sub:pasta-Config-File"
 
 \end_inset
@@ -674,15 +787,20 @@ PaSTaFARIAn writes most of its output to stdout.
 \begin_layout Description
 energies.dat: This file contains the reaction path energy profile for each
  NEB cycle that was performed in a format suitable for gnuplot.
- Column one contains the image sequence number, col.\InsetSpace ~
-2 contains the total
- energy in H.
+ Column one contains the image sequence number, col.
+\begin_inset space ~
+\end_inset
+
+2 contains the total energy in H.
  NEB cycles are separated by blank lines.
 \end_layout
 
 \begin_layout Description
 path.xyz: This file contains the last reaction path geometries calculated
- as a multi-frame\InsetSpace ~
+ as a multi-frame
+\begin_inset space ~
+\end_inset
+
 .xyz file.
  This is mainly intended to be able to conveniently visualize the path using
  standard molecular visualization software.
@@ -690,7 +808,10 @@ path.xyz: This file contains the last reaction path geometries calculated
 
 \begin_layout Description
 checkpoint: This directory contains the last reaction path calculated in
- the form of\InsetSpace ~
+ the form of
+\begin_inset space ~
+\end_inset
+
 .gen files named path-X.gen, where X is in the range of 
 \begin_inset Formula $0\ldots1$
 \end_inset
@@ -717,14 +838,20 @@ checkpoint
 \end_layout
 
 \begin_layout Description
-checkpoint.xyz: The last reaction path in a single, multi-frame\InsetSpace ~
+checkpoint.xyz: The last reaction path in a single, multi-frame
+\begin_inset space ~
+\end_inset
+
 .xyz file.
  Intended for convenient visualization.
 \end_layout
 
 \begin_layout Standard
 Additionally, calculators may create further files in additional directories,
- e.g.\InsetSpace ~
+ e.g.
+\begin_inset space ~
+\end_inset
+
 for data reuse purposes.
 \end_layout
 
@@ -868,7 +995,10 @@ The new naming convention for SK files is to join the capitalized Element
 \family default
  and add the extension
 \family typewriter
-\InsetSpace ~
+
+\begin_inset space ~
+\end_inset
+
 .skf
 \family default
 .
@@ -954,7 +1084,7 @@ PCHR
 \begin_inset Marginal
 status collapsed
 
-\begin_layout Standard
+\begin_layout Plain Layout
 
 \noun on
 deprecated
@@ -963,7 +1093,9 @@ deprecated
 \end_inset
 
 
-\newline
+\begin_inset Newline newline
+\end_inset
+
 In this case, only the atoms from the default layer 
 \begin_inset Quotes eld
 \end_inset
@@ -982,17 +1114,20 @@ PCHR
 \end_inset
 
  layer will be ignored.
-\newline
-Currently, geometry layers and atomic charge specification
- are only supported via the .fmg file format, cf.
+\begin_inset Newline newline
+\end_inset
+
+Currently, geometry layers and atomic charge specification are only supported
+ via the .fmg file format, cf.
  comatsci documentation.
  The geostats.py tool of comatsci provides a more user friendly interface
  to edit these properties than a plain text editor does.
-\newline
-This way to specify
- external charges is deprecated, because in most situations tens of thousands
- of point-charges are necessary, which have to be kept in memory for each
- image along the path.
+\begin_inset Newline newline
+\end_inset
+
+This way to specify external charges is deprecated, because in most situations
+ tens of thousands of point-charges are necessary, which have to be kept
+ in memory for each image along the path.
  Additionally, the computational effort to separate the layers in geometry
  of such size is considerable and may lead to significant overhead.
 \end_layout
@@ -1016,9 +1151,12 @@ SIESTA
 The siesta calculator uses SIESTA to do the energy and forces calculations.
  It has only been tested with v1.3 and v1.3-f1p, but older versions might
  work as well.
- Most of the SIESTA parameters are set in an\InsetSpace ~
-.fdf file, which must be supplied
- by the user and is includes into the siesta input using an 
+ Most of the SIESTA parameters are set in an
+\begin_inset space ~
+\end_inset
+
+.fdf file, which must be supplied by the user and is includes into the siesta
+ input using an 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1139,9 +1277,11 @@ Besides the usual caveats for SIESTA calculations, the following tip might
  atomic configuration is not close to an equilibrium state.
  This might lead to convergence failure in the vicinity an interpolated
  intermediate state.
- In Such cases it is useful, to copy a\InsetSpace ~
-.DM file from a neighboring image to
- the image with convergence problems.
+ In Such cases it is useful, to copy a
+\begin_inset space ~
+\end_inset
+
+.DM file from a neighboring image to the image with convergence problems.
  A converged density map for a similar isoelectronic configuration is usually
  a much better starting point than SIESTA's initial guess.
 \end_layout
@@ -1218,7 +1358,8 @@ muellerbrown
 .
  The two-dimensional test potential for reaction path analysis algorithms
  suggested by 
-\begin_inset LatexCommand citet
+\begin_inset CommandInset citation
+LatexCommand citet
 key "TCA-53-75-1979"
 
 \end_inset
@@ -1238,7 +1379,8 @@ Takes no options and has therefore no config file section.
 \begin_layout Section
 \start_of_appendix
 Non-Profit Open Software License ("Non-Profit OSL") 3.0
-\begin_inset LatexCommand label
+\begin_inset CommandInset label
+LatexCommand label
 name "sec:NP-OSL"
 
 \end_inset

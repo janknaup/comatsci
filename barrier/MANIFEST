@@ -3,6 +3,7 @@ MANIFEST
 MANIFEST.in
 README
 setup.py
+doc/comatsci-barrier.pdf
 src/comatsci/Schedulers.py
 src/comatsci/Calculators/CalcError.py
 src/comatsci/Calculators/Calculator.py

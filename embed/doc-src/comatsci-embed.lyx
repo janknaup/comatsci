@@ -183,6 +183,51 @@ python setup.py --help
 .
 \end_layout
 
+\begin_layout Standard
+\begin_inset Marginal
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+Attention!
+\end_layout
+
+\end_inset
+
+On some x86_64 platforms, libraries are separated into 
+\family typewriter
+lib
+\family default
+ and 
+\family typewriter
+lib64
+\family default
+ directories.
+ In such a case, it is important to make sure, that pure python libraries
+ are installed into the same 
+\family typewriter
+lib*
+\family default
+ tree as platform dependent packages.
+ Otherwise, extensions to comatsci-basic may not be found by the python
+ interpreter.
+ Cf.
+ the 
+\family typewriter
+--install-platlib
+\family default
+, 
+\family typewriter
+--install-purelib
+\family default
+ and 
+\family typewriter
+--install-lib
+\family default
+ options to setup.py.
+\end_layout
+
 \begin_layout Subsection
 License
 \end_layout
