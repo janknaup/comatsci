@@ -428,8 +428,6 @@ class noodlecalc(Calculator):
 		print >> ninput, newline.join(mxalist)+"}}"
 		#override output options to our own needs
 		print >> ninput, """*Options = {
-!PrintEigenVectors = No
-!WriteTaggedOut = No
 !AtomResolvedEnergies = No
 !WriteResultsTag = Yes
 !CalculateForces = Yes}"""
