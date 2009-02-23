@@ -176,7 +176,7 @@ class Geometry:
 
 	#atomic masses, rounded to two decimal figures. This table ends after Ba!
 	AMASS=[9999.9,
-	1.08,	4.00,
+	1.01,	4.00,
 	6.94,	9.01,	10.81,	12.01,	14.01,	16.00,	19.00,	20.18,
 	23.00,	24.31,	26.98,	28.09,	30.97,	32.07,	35.45,	39.95,
 	39.10,	40.08,	44.96,	47.87,	50.94,	52.00,	54.94,	55.85,	58.93,	58.69,	63.55,	65.41,	69.72,	72.64,	74.92,	78.96,	79.90,	83.80,
@@ -1633,7 +1633,7 @@ class Geometry:
 			self.Lattice=array(surround.Lattice)
 			self.Origin=array(surround.Origin)
 		# otherwise, lattices of self and surround must be identical
-		elif (add.accumulate(self.Lattice!=surround.Lattice))!=0:
+		elif not_equal(self.Lattice,surround.Lattice).any():
 			raise GeometryError("Embedded and surrounding Geometries mut have identical lattices!")
 ##		# otherwise, self.Lattice vectors must be integer multiples of surround.Lattice
 ##			else:
