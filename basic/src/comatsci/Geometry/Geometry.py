@@ -530,33 +530,90 @@ class Geometry:
 
 
 
-	def readxyz(self, filename):
-		"""read geometry from xyz file
-		@param filename: input file name
+	def parseXyzString(self, xyzstring):
+		"""parse geometry string in cyz format
+		@param xyzstring: string containing Atomic coordinated in xmol .xyz format
 		"""
-		self._reset_derived()
-		infile=utils.compressedopen(filename,"r")
-		self.Atomcount=int(infile.readline())
-		dummy=infile.readline()
+		# prepare temporary variables
 		tempgeo=[]
-		self.AtomTypes=[]
-		self.LPops=[]
-		for i in range(self.Atomcount):
-			dummy=infile.readline().split()
-			atsym=dummy[0].strip().lower()
-			self.AtomTypes.append(self.RPTE[atsym])
-			self.LPops.append([])
-			tempgeo.append([ float(s)/Angstrom for s in dummy[1:4] ])
+		tempAtomTypes=[]
+		tempLPops=[]
+		tempAtomCharges=[]
+		# break string into a list of lines
+		xyzlines=xyzstring.split('\n')
+		# discard trailing empty line if present
+		if xyzlines[-1].strip()=="":
+			del xyzlines[-1]
+		# parse atom count
+		line=xyzlines.pop(0)
+		try:
+			tempAtomCount=(int(line))
+		except:
+			print "atom count '%s' in xyz string could not be parsed. Abort" %(line,)
+			raise
+		# discard comment line, then check if number of atom lines
+		# matches number of atom
+		del xyzlines[0]
+		if len(xyzlines)!=tempAtomCount:
+			raise(ValueError,"Number of atom lines does not match specified atom count in xyz string")
+		# iterate trhough atom lines
+		for i in range(tempAtomCount):
+			line=xyzlines[i].split()
+			atsym=line[0].strip().lower()
+			try:
+				tempAtomTypes.append(self.RPTE[atsym])
+			except:
+				print "Atom symbol '%s' in line %d of xyz string could not be parsed. Abort." %(atsym,i+3)
+				raise
+			tempLPops.append([])
+			try:
+				tempgeo.append([ float(s)/Angstrom for s in line[1:4] ])
+			except:
+				print "Atomic coordinates in line %d of xyz string could not be parsed. Abort." %(i+3,)
+				raise
+			# DFTB specialty: try parsing coulumn 6 as atomic charge, ignore if unsuccessful
+			if len(line)>5:
+				try:
+					tempAtomCharges.append(float(line[5]))
+				except:
+					tempAtomCharges.append(0.0)
+			else:
+				tempAtomCharges.append(0.0)
+		# clear self before applying parsed geometry
+		self._reset_derived()
+		# apply parsed geometry and set implicit defaults
+		self.Atomcount=tempAtomCount
+		self.AtomTypes=tempAtomTypes
+		self.LPops=tempLPops
 		self.Mode='C'
 		self.Origin=array((0.,0.,0.),Float)
 		self.Lattice=array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),Float)
 		self.Geometry=array((tempgeo))
 		defaultlayer=GeoLayer("default layer")
 		self.LayerDict=={0: defaultlayer}
-		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
+		self.AtomCharges=tempAtomCharges
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+		# finally, check self for sanity.
 		self._consistency_check()
+		# finished.
+		
+
+
+
+	def readxyz(self, filename):
+		"""read geometry from xyz file
+		@param filename: input file name
+		"""
+		self._reset_derived()
+		infile=utils.compressedopen(filename,"r")
+		instring="".join(list(infile))
+		infile.close
+		try:
+			self.parseXyzString(instring)
+		except:
+			print "Parsing of .xyz file '%s' failed. Abort." % (filename,)
+			raise
 
 
 
@@ -1355,9 +1412,9 @@ class Geometry:
 		newgeo=self.__class__(self.Mode, self.Atomcount, self.AtomTypes, self.Origin,
 			self.Lattice, self.Geometry, self.AtomLayers, self.LayerDict,
 			self.AtomCharges, self.AtomSubTypes)
-		if self.Lattice!=other.Lattice:
+		if not_equal(self.Lattice,other.Lattice).any():
 			newgeo.Lattice=self.Lattice+position*(other.Lattice-self.Lattice)
-		if self.Origin!=other.Origin:
+		if not_equal(self.Origin,other.Origin).any():
 			newgeo.Origin=self.Origin+position*(other.Origin-self.Origin)
 		newcoords=zeros((shape(self.Geometry)))
 		newcoords=self.Geometry*(1.0-(float(position)))+other.Geometry*(float(position))
