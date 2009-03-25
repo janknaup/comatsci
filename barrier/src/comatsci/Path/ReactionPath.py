@@ -112,20 +112,69 @@ class Reactionpath:
 		"""
 		temp=Geometry.Geometry()
 		temp.readfile(filename,TypeSpec)
+		self.appendGeoObject(temp,checkCompat)
+
+
+
+	def appendGeoObject(self, Geometry,checkCompat=True):
+		"""append geometry object
+		@param Geometry: Geometry Object to Append
+		@param checkCompat: perform compatibility check Geometry
+		"""
 		if self.numimages()!=0 and checkCompat:
 			try:
-				self.geos[0].compatcheck(temp)
+				self.geos[0].compatcheck(Geometry)
 			except Geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					print "ReactionPath warning: Geometry lattice mismatch"
 				else:
 					raise
 		else:
-			self.Atomcount=temp.Atomcount
-			self.amasses=temp.getmasses()
-		self.geos.append(temp)
+			self.Atomcount=Geometry.Atomcount
+			self.amasses=Geometry.getmasses()
+		self.geos.append(Geometry)
 		# kill possibly stored spline representation
 		self.splineRep=None
+
+
+
+	def readXyzPath(self, filename, geoconstructor=Geometry.Geometry):
+		"""read path in xyz format (i.e. A file containing N concatenated xyz geometry strings)
+		@param filename: name of the multi-frame xyz file to read
+		@param geoconstructor: allows to pass a different geometry object constructor than that of Geometry, e.g. the AnalysisGeometry constructor to analyze a path or trajectory (default Geometry.Geometry)
+		"""
+		# read the whole xyz file into memory, store as a list and prune trailing empty line
+		infile=utils.compressedopen(filename,"r")
+		inlist=list(infile)
+		infile.close()
+		if inlist[-1].strip()=="":
+			del inlist[-1]
+		# parse atom count from first line and check if total number of lines is consistent with that
+		try:
+			atomcount=int(inlist[0].strip())
+		except:
+			print "Atom count '%s' from line 1 of xyz path file '%s' could not be parsed. Abort." % (inlist[1],filename,)
+			raise
+		blocklength=atomcount+2
+		if len(inlist)%blocklength!=0:
+			raise(ValueError,"Number of lines in input file '%s' does not match atom count. Abort." % (filename,))
+		# iterate through xyz blocks, parse and append geometries
+		imagecount=(len(inlist))//(atomcount+2)
+		for image in range(imagecount):
+			temp=geoconstructor()
+			try:
+				temp.parseXyzString("".join(inlist[image*blocklength:(image+1)*blocklength]))
+			except:
+				print "Parsing of xyz path image number %d failed. Abort." % (image+1)
+				raise
+			try:
+				self.appendGeoObject(temp,checkCompat=True)
+			except:
+				print "Inconsistancy in xyz Path file at image %d detected. Abort." % (image+1)
+				raise
+		#finished
+
+
 
 
 

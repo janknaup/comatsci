@@ -18,7 +18,7 @@ sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
 
 import comatsci
 
-from Numeric import *
+from numpy.oldnumeric import *
 
 from optparse import OptionParser
 
@@ -122,6 +122,10 @@ parser.add_option("--dimer",
 parser.add_option("--inconsistent",
 		action="store_false", dest="checkCompat", default=True,
 		help="Do not check subsequent geometries for consistency with preceeding one. Useful for creating targets of isodesmic reactions etc. Default: check for consistency.")
+
+parser.add_option("--lattice",
+		action="store", type="string", dest="lattice", default=None,
+		help="Set geometry Mode to 'S'(upercell) and apply the provided lattice vectors.")
 		
 parser.add_option("--bondcounts",
 		action="store_true", dest="bondcounts", default=False,
@@ -137,7 +141,8 @@ parser.add_option("-q", "--quiet",
 		
 parser.add_option("--silence",
 		action="store_const", const=comatsci.constants.VBL_SILENCE, dest="verbosity",
-		help="Limit output to fatal errors only. Not even warnings.")			
+		help="Limit output to fatal errors only. Not even warnings.")
+	
 
 (options,args) = parser.parse_args()
 
@@ -153,10 +158,35 @@ path=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v',0,options.verb
 if os.path.isdir(args[0]):
 	path.readcheckpoint(args[0],options.checkCompat)
 elif os.path.exists(args[0]):
-	path.etReadFmgPath(args[0],options.checkCompat,GeoConstructor=comatsci.Geometry.AnalysisGeometry)
+	if args[0][-3:].lower()=="fmg" or args[0][-6:].lower()=="fmg.gz" or args[0][-6:].lower()=="fmg.bz2":
+		path.readfmgpath(args[0],options.checkCompat,GeoConstructor=comatsci.Geometry.AnalysisGeometry)
+	elif args[0][-3:].lower()=="xyz" or args[0][-6:].lower()=="xyz.gz" or args[0][-6:].lower()=="xyz.bz2":
+		path.readXyzPath(args[0],geoconstructor=comatsci.Geometry.AnalysisGeometry)
+	else:
+		print 'Unknown file format of path file "%s". abort.' % (args[0])
+		sys.exit(1)
 else:
 	print 'Checkpoint "%s" does not exist. abort.' % (args[0])
 	sys.exit(1)
+
+print "Read path with %d images." %(path.numimages())
+
+if options.lattice!=None:
+	try:
+		templattice=[ float(j) for j in options.lattice.split() ]
+		lattice=reshape(array(templattice),(3,3))/comatsci.constants.ANGSTROM
+	except:
+		print "specified lattice vectors could not be parsed. abort."
+		raise
+	print "Setting geometry mode to supercell and applying lattice vectors:\n%12.6f %12.6f %12.6f\n%12.6f %12.6f %12.6f\n%12.6f %12.6f %12.6f" %(
+		lattice[0][0],lattice[0][1],lattice[0][2],
+		lattice[1][0],lattice[1][1],lattice[1][2],
+		lattice[2][0],lattice[2][1],lattice[2][2],
+	)
+	for i in range(path.numimages()):
+		path.geos[i].Mode="S"
+		path.geos[i].Lattice=array(lattice)
+
 
 if options.externalcalcs!=None:
 	#check if valid calculator type was specified
