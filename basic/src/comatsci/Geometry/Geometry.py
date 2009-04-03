@@ -884,7 +884,7 @@ class Geometry:
 		@param detailedoutname:  input file name
 		"""
 		if not (os.path.exists(detailedoutname) or os.path.exists(detailedoutname+".bz2") or os.path.exists(detailedoutname+".gz")):
-			raise GemoetryError("specified detailed.out file does not exist")
+			raise GeometryError("specified detailed.out file does not exist")
 		detfile=utils.compressedopen(detailedoutname,"r")
 		detlines=list(detfile)
 		detfile.close()
