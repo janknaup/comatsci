@@ -116,9 +116,13 @@ if options.append !=None:
 		appendgeo.readfile(i[0])
 		# get layer index from layername
 		appendlayer=geo.layerbyname(i[1])
+		# if layer does not exist and layer name is 'default', set appendlayer to 0
+		if appendlayer==None and i[1]=="default":
+			appendlayer=0
 		# if layer does not yet exist, create it
 		if appendlayer==None:
 			appendlayer=geo.addlayer(i[1])
+			
 		# append geometry
 		geo.appendgeometryflat(appendgeo,appendlayer)
 		# be verbose
