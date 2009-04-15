@@ -159,7 +159,7 @@ if os.path.isdir(args[0]):
 	path.readcheckpoint(args[0],options.checkCompat)
 elif os.path.exists(args[0]):
 	if args[0][-3:].lower()=="fmg" or args[0][-6:].lower()=="fmg.gz" or args[0][-6:].lower()=="fmg.bz2":
-		path.readfmgpath(args[0],options.checkCompat,GeoConstructor=comatsci.Geometry.AnalysisGeometry)
+		path.readfmgpath(args[0],checkCompat=(not options.checkCompat),GeoConstructor=comatsci.Geometry.AnalysisGeometry)
 	elif args[0][-3:].lower()=="xyz" or args[0][-6:].lower()=="xyz.gz" or args[0][-6:].lower()=="xyz.bz2":
 		path.readXyzPath(args[0],geoconstructor=comatsci.Geometry.AnalysisGeometry)
 	else:
