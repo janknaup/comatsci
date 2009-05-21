@@ -384,7 +384,7 @@ class Geometry:
 	
 	
 	
-	def addatom(self, type, position, layer=None, charge=0.0, subtype=None,LPop=None):
+	def addatom(self, type, position, layer=None, charge=0.0, subtype=None,LPop=None,checkConsistency=True):
 		"""append atom of type with position to the geometry
 		@param type: atom type (element number)
 		@param position: carthesian bohr coordinates
@@ -392,6 +392,7 @@ class Geometry:
 		@param charge: atom charge (default 0.0)
 		@param subtype: Atom Subtype, element symbol if None (default None)
 		@param LPop: Atomic l-shell populations list, can aslo be empty or None (default None)
+		@param checkConsistency: perform a consistency check of the geometry after appending the atom (default True)
 		"""
 		if not (layer in self.LayerDict or layer==None):
 			raise GeometryError("Trying to add to nonexistent layer")
@@ -817,10 +818,10 @@ class Geometry:
 			charge=i.findtext("chr")
 			if charge==None:
 				charge=0.0
-			# now add the atom just read
-			self.addatom(element, (x,y,z), li, charge, subtype)
-			# sanity check!
-			self._consistency_check()
+			# now add the atom just read Do not check consistency after each individual atom for performcance reasons
+			self.addatom(element, (x,y,z), li, charge, subtype, checkConsistency=False)
+		# sanity check now!
+		self._consistency_check()
 
 
 
