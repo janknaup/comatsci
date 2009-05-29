@@ -116,23 +116,23 @@ class Reactionpath:
 
 
 
-	def appendGeoObject(self, Geometry,checkCompat=True):
+	def appendGeoObject(self, geo,checkCompat=True):
 		"""append geometry object
 		@param Geometry: Geometry Object to Append
 		@param checkCompat: perform compatibility check Geometry
 		"""
 		if self.numimages()!=0 and checkCompat:
 			try:
-				self.geos[0].compatcheck(Geometry)
+				self.geos[0].compatcheck(geo)
 			except Geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					print "ReactionPath warning: Geometry lattice mismatch"
 				else:
 					raise
 		else:
-			self.Atomcount=Geometry.Atomcount
-			self.amasses=Geometry.getmasses()
-		self.geos.append(Geometry)
+			self.Atomcount=geo.Atomcount
+			self.amasses=geo.getmasses()
+		self.geos.append(geo)
 		# kill possibly stored spline representation
 		self.splineRep=None
 
