@@ -18,6 +18,8 @@ try:
 except ImportError:
 	from numpy.oldnumeric import linalg
 
+import numpy
+
 import os
 import sys
 import copy
@@ -508,3 +510,30 @@ class AnalysisGeometry(Geometry):
 
 
 
+
+	def getBondAngles(self):
+			"""return a dictionary of all (unique) bond angles in self
+			@return: dicitonary with 3-tuple key of atom indices and float values of bond angles in degrees"""
+			# initialize bond angles dictionary
+			bangdict={}
+			# we work on the reduced bond list
+			rbl=self.bondlist()
+			# iterate through all atoms for a
+			for a in range(self.Atomcount):
+					# iterate through all bond partners of a as possible apex atom b
+					for b in rbl[a]:
+							# iterate through all bond partners of apex atom
+							for c in rbl[b]:
+									if a<c: # bond list assures that a!=b and c!=b, so only a,c must be checked
+											bangdict[(a,b,c)]=self.angle(a,b,c)
+			# finished, return
+			return(bangdict)
+	
+	
+	
+	
+	def getBondAngleHistogram(self,bins=30):
+			"""return a histogram of all bond angles in the geometry
+			@param bind: number of bins in histogram, default=30
+			@return: array containing bond angles histogram"""
+			return numpy.histogram(self.getBondAngles().values(),bins,new=True)

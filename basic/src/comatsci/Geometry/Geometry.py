@@ -1630,11 +1630,29 @@ class Geometry:
 		@param b: apex atom index
 		@param c: third atom index
 		"""
-		v1=self.Geometry[a]-self.Geometry[b]
-		v2=self.Geometry[c]-self.Geometry[b]
-		l1=sqrt(dot(v1,v1))
-		l2=sqrt(dot(v2,v2))
-		cosofangle=dot(v1,v2)/(l1*l2)
+		# arms of the angle
+		arms=zeros((2,3),Float)
+		armlengths=[]
+		acidx={0:a,1:c} # helper, indices of a and c to be able to express the periodic expansion as loopoopoops
+		for i in (0,1):
+				if self.Mode=="S":
+						armlengths.append((sqrt(dot(self.Lattice[0],self.Lattice[0]))
+								+sqrt(dot(self.Lattice[1],self.Lattice[1]))
+								+sqrt(dot(self.Lattice[2],self.Lattice[2]))))
+						for u in [-1,0,1]:
+								for v in [-1,0,1]:
+										for w in [-1,0,1]:
+												tempbv=(self.Geometry[acidx[i]]+u*self.Lattice[0]+v*self.Lattice[1]+w*self.Lattice[2])-self.Geometry[b]
+												tempbl=sqrt(dot(tempbv,tempbv))
+												if tempbl<armlengths[i]:
+														arms[i]=tempbv
+														armlengths[i]=tempbl
+		# in a cluster geometry, things are easier...
+				else:
+						arms[i]=self.Geometry[j]-self.Geometry[i]
+						armlengths[i]=sqrt(dot(bv,bv))
+		# calculate angle from arms and arm lengths
+		cosofangle=dot(arms[0],arms[1])/(armlengths[0]*armlengths[1])
 		return math.degrees(math.acos(cosofangle))
 
 
