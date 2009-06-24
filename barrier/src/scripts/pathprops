@@ -142,6 +142,10 @@ parser.add_option("-q", "--quiet",
 parser.add_option("--silence",
 		action="store_const", const=comatsci.constants.VBL_SILENCE, dest="verbosity",
 		help="Limit output to fatal errors only. Not even warnings.")
+
+parser.add_option("--coordinations",
+				  action="store_true", dest="coordinations", default=False,
+				  help="write coordination deviations from ideal into beta column pathcoordinations.pdb file")
 	
 
 (options,args) = parser.parse_args()
@@ -341,5 +345,15 @@ if options.bondcounts:
 	bcfile.close()
 	print "done."
 	
+
+if options.coordinations:
+	# write atomic differences of coordinationm from ideal into beta column of pathcoordinations.pdb
+	print "Writing multiframe .pdb file pathcoordinations.pdb containing atomic coordination differeces"
+	coordinationsfile=open("pathcoordinations.pdb","w")
+	for i in range(path.numimages()):
+		coord_diffs=path.geos[i].atom_coordination_differences
+		print >> coordinationsfile,path.geos[i].getPDBString(beta=coord_diffs)
+	coordinationsfile.close()
+
 	
 print "Finished requested operations."
