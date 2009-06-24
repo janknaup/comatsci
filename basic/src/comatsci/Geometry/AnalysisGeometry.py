@@ -532,8 +532,41 @@ class AnalysisGeometry(Geometry):
 	
 	
 	
-	def getBondAngleHistogram(self,bins=30):
+	def getBondAngleHistogram(self,bins=36,normed=False):
 			"""return a histogram of all bond angles in the geometry
-			@param bind: number of bins in histogram, default=30
+			@param bins: number of bins in histogram, default=36 (<=5 deg per bin)
+			@param normed: if True, the histogram is normed, so that the area under it is 1. default=False
 			@return: array containing bond angles histogram"""
-			return numpy.histogram(self.getBondAngles().values(),bins,new=True)
+			return numpy.histogram(self.getBondAngles().values(),bins,new=True,normed=normed)
+
+
+
+
+	def getBondAnglesByElementsHistograms(self,bins=36,normed=False):
+		"""return a dictionary of histograms of all bond angles in the geometry, grouped by central atom element
+		@param bins: number of bins in each histogram, default=36 (<=5 deg per bin)
+		@param normed: if True, the histogram is normed, so that the area under it is 1. default=False
+		@return: dictionary of arrays containing bond angles histograms, key is elemental Z"""
+		# get bond angles dictionary
+		bangles=self.getBondAngles()
+		# initialize work dictionary
+		bangbyelement={}
+		# iterate through all bond angles
+		for i in bangles.keys():
+			cntrat=self.AtomTypes[i[1]]
+			# if this angle has new central atom type, add the corresponding list to bangbyelement
+			if not cntrat in bangbyelement.keys():
+				bangbyelement[cntrat]=[]
+			# append bond angle to corresponding
+			bangbyelement[cntrat].append(bangles[i])
+		# generate histograms for elemental bond angle distributions
+		histbyelement={}
+		ec=self.elemcounts()
+		for i in bangbyelement.keys():
+			histbyelement[i]=numpy.histogram(bangbyelement[i],bins,new=True,normed=normed)
+			# if histograms are normed, weight each one by the composition fraction of its element, to allow comparbility with the total histogram
+			if normed:
+				histbyelement[i]=(histbyelement[i][0]/(float(self.Atomcount)/float(ec[i])),histbyelement[i][1])
+		# finished, return
+		return histbyelement
+
