@@ -1253,38 +1253,71 @@ class Geometry:
 		@param beta: list of values to put in beta files, default: zeroes (default None)
 		@param writebondlist: write CONNECT records
 		"""
+		# open output file
+		outfile=open(filename,"w")
+		# get PDB string representation of self and print it into the output file
+		print >> outfile,(self.getPDBString(occupancy,beta,writebondlist))
+		# finished, close output file
+		outfile.close()
+
+
+
+	def getPDBString(self,occupancy=None, beta=None, writebondlist=0):
+		"""return a string containing Geometry in .pdb format. Set ocupancy and beta if specified, otherwise put AtomCharges and zeros respectively. Writes all atoms into HETATM records, writes CONNECT records if writebondlist!=0. <em>CAVEAT: connectivity for periodic structures contains cross-cell bonds!</em>
+		@param occupancy: list of values to put in occupancy field, default: atom charge (default None)
+		@param beta: list of values to put in beta files, default: zeroes (default None)
+		@param writebondlist: write CONNECT records
+		"""
+		# initialize list of .pdb lines
+		pdbLines=[]
+		# if no values for occupancy were specified, use atomic occupancies derived from atomic charges
 		if occupancy==None:
 			occupancy=[]
 			for i in range(self.Atomcount):
 				occupancy.append(-self.AtomCharges[i]+self.AtomTypes[i])
 		elif len(occupancy)!=self.Atomcount:
 			raise GeometryError("Occupancy array mismatch")
+		# if no beta values were specified, use all zeros
 		if beta==None:
 			beta=[float(0) for s in range(self.Atomcount)]
 		elif len(beta)!=self.Atomcount:
 			raise GeometryError("Beta array mismatch")
-		outfile=open(filename,"w")
-		print >>outfile,"HEADER    comatsci STRUCTURE                        "
-		print >>outfile,"TITLE     comatsci STRUCTURE"
+		# initialize header
+		pdbLines.append("HEADER    comatsci STRUCTURE                        ")
+		pdbLines.append("TITLE     comatsci STRUCTURE")
+		# check if geometry is supercell and orthorhombic, if so, add CRYST record, else skip supercell!
 		cubicmat=array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 		checkmat=self.Lattice*cubicmat
 		if self.Mode=="S" and add.reduce(add.reduce(checkmat==self.Lattice))==9:
 			a=self.Lattice[0][0]*Angstrom
 			b=self.Lattice[1][1]*Angstrom
 			c=self.Lattice[2][2]*Angstrom
-			print >>outfile,"CRYST1%9.3f%9.3f%9.3f%7.2f%7.2f%7.2f  P 1          1" % (a,b,c,90.,90.,90.)
+			pdbLines.append("CRYST1%9.3f%9.3f%9.3f%7.2f%7.2f%7.2f  P 1          1" % (a,b,c,90.,90.,90.))
+		# add segment HET records for geometry layers
 		for i in self.LayerDict.keys():
-			print >>outfile,"HET   %3s %4d" % (self.LayerDict[i].Name[0:3].ljust(3).upper(), i+1)
+			pdbLines.append("HET   %3s %4d" % (self.LayerDict[i].Name[0:3].ljust(3).upper(), i+1))
+		# convert coordinates to Angstrom
 		outgeo=self.Geometry*Angstrom
+		# write HETATM records for each atom
 		for i in range(self.Atomcount):
-			print >>outfile,"HETATM%5d %3s  %4s %4i    %8.3f%8.3f%8.3f%6.2f%6.2f      %4s%2s%2s"% (
+			# ***** begin very very long formatted string *****
+			pdbLines.append("HETATM%5d %3s  %4s %4i    %8.3f%8.3f%8.3f%6.2f%6.2f      %4s%2s%2s"% (
+				# atom number, Atom Name
 				i+1,self.PTE[self.AtomTypes[i]].ljust(3),
+				# Layer name (corresponding to HET record created earlier)
 				self.LayerDict[self.AtomLayers[i]].Name[0:4].rjust(4).upper(),
+				# HET index, X coordinate
 				self.AtomLayers[i]+1,outgeo[i][0],
+				# Y,Z coordinates
 				outgeo[i][1],outgeo[i][2],
+				# occupancy and beta as determines above, segment name
 				occupancy[i],beta[i],self.LayerDict[self.AtomLayers[i]].Name[0:4].ljust(4).upper(),
+				# element name
 				self.PTE[self.AtomTypes[i]][0:2].rjust(2).upper(),
-				"  ")
+				# some empty string
+				"  "))
+			# *****  end very very long formatted string  *****
+		# if bondlist was requested, generate it and append connect records for each bond
 		if writebondlist!=0:
 			blist=self.bondlist()
 			for i in range(self.Atomcount):
@@ -1294,10 +1327,14 @@ class Geometry:
 					outstring="CONECT%5i" % (i+1)
 					for j in slice:
 						outstring +="%5i"%(j+1)
-					print >> outfile, outstring
+					pdbLines.append(outstring)
 					line=line[4:len(line)]
-		print >>outfile,"END"
+		# END of geometry entry
+		pdbLines.append("END")
+		# return lines merged into .pdb format string
+		return "\n".join(pdbLines)
 
+	PDBString=property(fget=getPDBString,doc="representation of Geometry in .pdb format")
 
 
 
@@ -1762,7 +1799,7 @@ class Geometry:
 
 	def layerAtomMap(self, layer):
 		"""return a dictionary, mapping atom indices inside layer onto global atom indices in self
-		@param layer: layer which should be mapped"""
+		@param layer: layer which should be mappend"""
 		#the map to return
 		lAM={}
 		#counter for the intra-layer indices
