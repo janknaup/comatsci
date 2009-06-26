@@ -58,7 +58,10 @@ parser.add_option("-l","--layer",
 		help="Write only atoms from layer L into output geometry. default: write whole geometry")
 parser.add_option("-e","--element",
 		action="store", metavar="E", dest="element", type="int", default=None,
-		help="Write only atoms of lement E into output geometry. default: write all elements")		
+		help="Write only atoms of lement E into output geometry. default: write all elements")
+parser.add_option("-s", "--scale",
+				action="store", metavar="S", dest="scale", type="float", default=None,
+				help="scale the whole geometry by a factor of S.")
 #.................................................
 parser.set_defaults(append=None)
 parser.add_option("-a","--append",
@@ -206,6 +209,11 @@ if options.chargeconstraints:
 	else:
 		print outgeo.getHSDChargeConstraintString(modatoms)
 
+if options.scale!=None:
+		print "scaling output geometry by %f " % options.scale
+		outgeo.Geometry*=options.scale
+		if outgeo.Mode=="S":
+				outgeo.Lattice*=options.scale
 	
 if (len(args)==2):
 	outfilename=os.path.abspath(args[1])
