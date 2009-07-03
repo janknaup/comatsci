@@ -364,37 +364,82 @@ class AnalysisGeometry(Geometry):
 		@param progressfunction: callback function to report actual progress to. For progress display purposes. (default None)
 		@param histstepsfunction: callback function to report the total number of histogram progress steps to. For two-level progress display purposes (default None)
 		@param histprogressfunction: callback function to report actual histogram progress to. For two-level progress display purposes. (default None)
+		@return: (2,x) array of r,rdf(r)
 		"""
 		#get a 1D array of all bond lengths
 		bllist=self.distancematrix().ravel()
-		#get the range of the rdf
-		rmax=max(bllist)
-		#set up the distance bins an get the atom-atom distance histogram
-		bins=arange(0, rmax+binwidth,binwidth,Float)
-		rdhist=array(self.histogram(bllist,bins,histstepsfunction,histprogressfunction)[1],Float)
-		#we will output a 2D array of r,rdf, first put in the distances
-		rdf=[bins]
-		#now normalize for volume and correct for double counting
-##		print rdhist
-		#bins are progress, may slow things down a little - style over substance
+		#****************************************************************
+		# UPDATED CODE - USE numpy.histogram instead of homebew function
+		# does not provide progress callbacks but is orders of magnitude
+		# faster
+		#****************************************************************
+		# calculate number of bins from bin width and max range
+		bincount=int(ceil((max(bllist)+binwidth)/binwidth))
+		# pseudo progress function calls before and after histogram binning to
+		# stay backwards compatible
+		if histstepsfunction!=None:
+			histstepsfunction(bincount)
+		# generate histogram
+		(counts,bins)=numpy.histogram(bllist,bincount,new=True,normed=False)
+		if histprogressfunction!=None:
+			histprogressfunction(bincount)
+#-------------------------------------------------------------------------------
+# TODO: rmove old code snippet
+#		#get the range of the rdf
+#		rmax=max(bllist)
+#		#set up the distance bins an get the atom-atom distance histogram
+#		bins=arange(0, rmax+binwidth,binwidth,Float)
+#		rdhist=array(self.histogram(bllist,bins,histstepsfunction,histprogressfunction)[1],Float)
+#		#we will output a 2D array of r,rdf, first put in the distances
+#		rdf=[bins]
+#		#now normalize for volume and correct for double counting
+###		print rdhist
+#		#bins are progress, may slow things down a little - style over substance
+#-------------------------------------------------------------------------------
+		rdf=zeros((2,bincount-1),Float)
 		if stepsfunction!=None:
-			stepsfunction(len(bins-1))
+			stepsfunction(bincount-2)
 		#for proper rdf normalization calculate the total density
 		totaldensity=self.numberDensity
-		for i in range(1,len(bins)):
+		#bond length list contains 0 self distances so skip innermost bin
+		for i in range(2,len(bins)-2):
 			volume=bins[i]**3-bins[i-1]**3
 			volume*=constants.PI*(4.0/3.0)
 			#factor 2.0 accounts for double counting
-			rdhist[i]/=2.0*volume*totaldensity
+			rdf[1][i]=counts[i]/(2.0*volume*totaldensity)
 			if progressfunction!=None:
 				progressfunction(i)
-		rdf.append(rdhist)
-		#hotfix for inexplicable garbage at r=0: remove r=0 values
-		#first remove the bin
-		rdf[0]=rdf[0][1:-1]
-		#now the values
-		rdf[1]=rdf[1][1:-1]
+		#bond length list contains 0 self distances so remove r=0 values
+		# also, shift r values to fall within center of range bin
+		print shape(rdf)
+		print shape(bins)
+		print shape(counts)
+		rdf[0]=(bins[1:-1])+binwidth/2.0
+		#finished, return
 		return rdf
+
+
+
+	def elementRDFs(self,binwidth=0.2,
+			stepsfunction=None, progressfunction=None, 
+			histstepsfunction=None, histprogressfunction=None):
+		"""return a dictionary of elemental radial distribution functions
+		@param binwidth: stepwidth for the returned rdfs
+		@param stepsfunction: callback function to report the total number of progress steps to. For progress display purposes (default None)
+		@param progressfunction: callback function to report actual progress to. For progress display purposes. (default None)
+		@param histstepsfunction: callback function to report the total number of histogram progress steps to. For two-level progress display purposes (default None)
+		@param histprogressfunction: callback function to report actual histogram progress to. For two-level progress display purposes. (default None)		@return: dictionary with keys Z and values elemental rdf (2,x) arrays
+		"""
+		# get list of elements
+		Z,dummy=self.getatomsymlistdict()
+		# initialize return dictionary
+		elementRDF={}
+		for i in Z:
+			elementRDF[i]=self.elementsubgeometry(i).rdf(binwidth,
+						stepsfunction, progressfunction, 
+						histstepsfunction, histprogressfunction)
+		# finished, return
+		return elementRDF
 
 
 
