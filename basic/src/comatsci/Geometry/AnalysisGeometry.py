@@ -411,9 +411,6 @@ class AnalysisGeometry(Geometry):
 				progressfunction(i)
 		#bond length list contains 0 self distances so remove r=0 values
 		# also, shift r values to fall within center of range bin
-		print shape(rdf)
-		print shape(bins)
-		print shape(counts)
 		rdf[0]=(bins[1:-1])+binwidth/2.0
 		#finished, return
 		return rdf
