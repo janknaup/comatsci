@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'rdfWizard.ui'
 #
-# Created: Thu Nov 13 11:18:06 2008
-#      by: The PyQt User Interface Compiler (pyuic) 3.17.4
+# Created: Do Jul 16 16:28:05 2009
+#      by: The PyQt User Interface Compiler (pyuic) 3.17.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -149,7 +149,7 @@ class rdfWizard(QWizard):
 
         self.languageChange()
 
-        self.resize(QSize(390,333).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(390,358).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.callGnuplotCheckBox,SIGNAL("toggled(bool)"),self.setSavePlotState)
@@ -212,6 +212,15 @@ class rdfWizard(QWizard):
         	for j in range(len(self.rdfdata[0])):
         		print >> datafile, "%e   %e" % (self.rdfdata[0][j],self.rdfdata[1][j])
         	datafile.close()
+        	# calculate elemental RDFs and write datafiles
+        	elementrdfs=self.geo.elementRDFs(self.stepwidth, self.postProcessProgressBar.setTotalSteps, self.postProcessProgressBar.setProgress,
+        		self.binningProgressBar.setTotalSteps, self.binningProgressBar.setProgress)
+        	for i in elementrdfs.keys():
+        		elementDataFile=open(str(self.dataFileEdit.text())[0:-4]+"-"+self.geo.PTE[i]+str(self.dataFileEdit.text())[-4:],"w")
+        		print >> elementDataFile, "# r[a.u.] rdf_Z"
+        		for j in range(len(elementrdfs[i][0])):
+        			print >> elementDataFile, "%e   %e" % (elementrdfs[i][0][j],elementrdfs[i][1][j])
+        		elementDataFile.close()
         	if self.callGnuplotCheckBox.isChecked():
         		self.plotHistogram()
         	QDialog.accept(self)

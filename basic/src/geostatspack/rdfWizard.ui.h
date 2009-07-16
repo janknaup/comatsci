@@ -30,6 +30,15 @@ void rdfWizard::accept()
 	for j in range(len(self.rdfdata[0])):
 		print >> datafile, "%e   %e" % (self.rdfdata[0][j],self.rdfdata[1][j])
 	datafile.close()
+	# calculate elemental RDFs and write datafiles
+	elementrdfs=self.geo.elementRDFs(self.stepwidth, self.postProcessProgressBar.setTotalSteps, self.postProcessProgressBar.setProgress,
+		self.binningProgressBar.setTotalSteps, self.binningProgressBar.setProgress)
+	for i in elementrdfs.keys():
+		elementDataFile=open(str(self.dataFileEdit.text())[0:-4]+"-"+self.geo.PTE[i]+str(self.dataFileEdit.text())[-4:],"w")
+		print >> elementDataFile, "# r[a.u.] rdf_Z"
+		for j in range(len(elementrdfs[i][0])):
+			print >> elementDataFile, "%e   %e" % (elementrdfs[i][0][j],elementrdfs[i][1][j])
+		elementDataFile.close()
 	if self.callGnuplotCheckBox.isChecked():
 		self.plotHistogram()
 	QDialog.accept(self)
