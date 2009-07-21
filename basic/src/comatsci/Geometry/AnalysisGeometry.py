@@ -137,6 +137,7 @@ class AnalysisGeometry(Geometry):
 		elelco=self.elem_elem_coordinations()
 		bc=self.bondcount()
 		elcoco=self.elem_coordination_counts()
+		blstats=self.bondLengthStatistics()
 		lines=[]
 		lines.append("<H2>Composition</H2>")
 		lines.append("<table border=2 rules=all>\n<tr><th>Element</th><th># of atoms</th><th>%</th></tr>")
@@ -160,10 +161,19 @@ class AnalysisGeometry(Geometry):
 				lines.append(workstring)
 		lines.append("</table>")
 		lines.append("<H3>Average element-element coordinations</H3>")
-		lines.append("<table border=2 rules=all>\n<tr><th>Elements</th><th>avg. coord.</th></tr>")
+		lines.append("<table border=2 rules=all>\n<tr><th>Elements</th><th>avg. coord.</th><th>avg. bond length [A]</th></tr>")
 		for i in elelco.keys():
 			for j in elelco[i].keys():
-				workstring="<tr><td>%2s-%2s</td><td>%6.3f</td></tr>" % (self.PTE[i],self.PTE[j],elelco[i][j])
+				workstring="<tr><td>%2s-%2s</td><td>%6.3f</td>" % (self.PTE[i],self.PTE[j],elelco[i][j])
+				if i<=j:
+					blkey=(i,j)
+				else:
+					blkey=(j,i)
+				if blstats.has_key(blkey):
+					workstring+="<td>%8.4f &plusmn; %8.4f</td>" % (blstats[blkey]["mean"]*constants.ANGSTROM,blstats[blkey]["delta"]*constants.ANGSTROM)
+				else:
+					workstring+="<td>N/A</td>"
+				workstring+="</tr>"
 				lines.append(workstring)
 		lines.append("</table>")
 		newline="\n"
@@ -611,4 +621,104 @@ class AnalysisGeometry(Geometry):
 				histbyelement[i]=(histbyelement[i][0]/(float(self.Atomcount)/float(ec[i])),histbyelement[i][1])
 		# finished, return
 		return histbyelement
+
+
+
+
+
+	def getElementElementBondlengths(self):
+		"""Compile a dictionary of all Element-Element bond lengths
+		@return: dictionary with keys (Z,Z) tuples and values lists of bond lengths
+		"""
+		# get the geometries' reduced bond list (without double counting)
+		bondlist=self.reduced_bondlist()
+		# imitialize output dictionary
+		EEBondLengths={}
+		# iterate through all bonds
+		for i in range(len(bondlist)):
+			for j in bondlist[i]:
+				# generate key for this bond (Z1,Z2) with Z1 <= Z2
+				if self.AtomTypes[i] <= self.AtomTypes[j]:
+					key=(self.AtomTypes[i],self.AtomTypes[j])
+				else:
+					key=(self.AtomTypes[j],self.AtomTypes[i])
+				# initialize list of bond lenghts for (Z1,Z2) if necessary
+				if not EEBondLengths.has_key(key):
+					EEBondLengths[key]=[]
+				# calculate bond length from Geometry (avoid distance matrix)
+				# account for bond across periodic boundaries
+				if self.Mode=="S":
+						length=((sqrt(dot(self.Lattice[0],self.Lattice[0]))
+								+sqrt(dot(self.Lattice[1],self.Lattice[1]))
+								+sqrt(dot(self.Lattice[2],self.Lattice[2]))))
+						for u in [-1,0,1]:
+								for v in [-1,0,1]:
+										for w in [-1,0,1]:
+												tempbv=(self.Geometry[i]+u*self.Lattice[0]+v*self.Lattice[1]+w*self.Lattice[2])-self.Geometry[j]
+												tempbl=numpy.sqrt(numpy.dot(tempbv,tempbv))
+												if tempbl<length:
+														length=tempbl
+				# in a cluster geometry, things are easier...
+				else:
+					d=self.Geometry[i]-self.Geometry[j]
+					length=numpy.sqrt(numpy.dot(d,d))
+				# append bond length to proper elemental list
+				EEBondLengths[key].append(length)
+		# finished, return
+		return EEBondLengths
+	
+
+
+
+	def getBondLengthHistograms(self,bins=30):
+		"""calculate total and elemental histograms of the bond lengths
+		@param bins: Number of bins or array of bin boundaries. Default 30 autoscaled bins
+		@return: dictionary of bond length histograms with keys (Z1,Z2) and values arrays of bin centers and bond counts
+		special key(-1,-1) contains the total histogram
+		"""
+		# get the elemental bond length lists and compile a total list of bond lengths
+		total=[] 
+		elemBondLengths=self.getElementElementBondlengths()
+		for i in elemBondLengths.keys():
+			total+=elemBondLengths[i]
+		# initizalize return dictionary
+		bondLengthHistograms={}
+		# calculate total bond length histogram
+		tempHist=numpy.histogram(total,bins,new=True,normed=False)
+		bincenters=tempHist[1][:-1]+((tempHist[1][1]-tempHist[1][0])/2.0)
+		bondLengthHistograms[(-1,-1)]=numpy.array([bincenters,tempHist[0]])
+		# calculate elemental bond length histograms, using bins from total histogram
+		for i in elemBondLengths.keys():
+			bondLengthHistograms[i]=numpy.array([bincenters,numpy.histogram(elemBondLengths[i],tempHist[1],new=True,normed=False)[0]])
+		# finished, return
+		return bondLengthHistograms
+
+
+
+
+	def bondLengthStatistics(self):
+		"""calculate statistics on Element-Element bond length distributions
+		@return: dictionary with keys (Z1,Z2) element-element combinations and values dictionaries with sting keys and bond length statistical data.
+		
+		Currently implemented statistics are:
+			* B{"mean"} mean bond length
+			* B{"sigma"} standard deviation
+			* B{"delta"} two standard deviations confidence range
+		"""
+		# get the elemental bond length lists
+		elemBondLengths=self.getElementElementBondlengths()
+		# initialize return dictionary
+		blstats={}
+		# iterate through element-element combinations
+		for i in elemBondLengths.keys():
+			#initialize statistics dictionary
+			blstats[i]={}
+			#convert bond length list into array, calculate statistical values and store
+			temparray=numpy.array(elemBondLengths[i])
+			blstats[i]["mean"]=numpy.mean(temparray)
+			sigma=numpy.std(temparray)
+			blstats[i]["sigma"]=sigma
+			blstats[i]["delta"]=sigma/numpy.sqrt(float(len(temparray)))*2.0
+		# finished. return
+		return blstats
 
