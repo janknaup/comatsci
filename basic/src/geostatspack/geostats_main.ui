@@ -19,7 +19,9 @@ Python:import geostatshelp
 Python:import linkLayersSLA
 Python:import linkLayersHCS
 Python:import linkLayersBCTC
-Python:import chargeConstraintsWizard</comment>
+Python:import chargeConstraintsWizard
+Python:import anglesWizard
+Python:import bondlengthsWizard</comment>
 <author>Jan M. Knaup</author>
 <widget class="QMainWindow">
     <property name="name">
@@ -44,7 +46,7 @@ Python:import chargeConstraintsWizard</comment>
     <property name="minimumSize">
         <size>
             <width>21</width>
-            <height>169</height>
+            <height>177</height>
         </size>
     </property>
     <property name="maximumSize">
@@ -256,6 +258,8 @@ Python:import chargeConstraintsWizard</comment>
         <item text="graphs" name="popupMenu_20" accel="">
             <action name="statisticsgraphselement_charge_histogramsAction"/>
             <action name="statisticsgraphsradial_distribution_functionAction"/>
+            <action name="statisticsgraphsangle_distribution_histogramAction"/>
+            <action name="statisticsgraphsbond_length_histogramAction"/>
         </item>
         <separator/>
         <action name="statisticsbond_listAction"/>
@@ -590,6 +594,34 @@ Python:import chargeConstraintsWizard</comment>
             <string>Generate QM/MM embedded geometry using HCS</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsgraphsangle_distribution_histogramAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>angle distribution histogram</string>
+        </property>
+        <property name="menuText">
+            <string>angle distribution histogram</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>statisticsgraphsbond_length_histogramAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>bond length histogram</string>
+        </property>
+        <property name="menuText">
+            <string>bond length histogram</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -735,6 +767,18 @@ Python:import chargeConstraintsWizard</comment>
         <receiver>geostats</receiver>
         <slot>display_charge_constraints()</slot>
     </connection>
+    <connection>
+        <sender>statisticsgraphsangle_distribution_histogramAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>angleHist()</slot>
+    </connection>
+    <connection>
+        <sender>statisticsgraphsbond_length_histogramAction</sender>
+        <signal>activated()</signal>
+        <receiver>geostats</receiver>
+        <slot>bondlengthHist()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>textBrowser1</tabstop>
@@ -763,6 +807,8 @@ Python:import chargeConstraintsWizard</comment>
     <slot>generate_hcsLinkAtoms()</slot>
     <slot>elementChargesHistograms()</slot>
     <slot>rdf()</slot>
+    <slot>angleHist()</slot>
+    <slot>bondlengthHist()</slot>
     <slot>generate_BCTCLinkAtoms()</slot>
     <slot specifier="non virtual">save_BCTC_coefficients()</slot>
     <slot specifier="non virtual">display_charge_constraints()</slot>

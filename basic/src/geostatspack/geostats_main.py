@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geostats_main.ui'
 #
-# Created: Do Jul 16 16:28:05 2009
+# Created: Mi Jul 22 18:05:54 2009
 #      by: The PyQt User Interface Compiler (pyuic) 3.17.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -29,6 +29,8 @@ import linkLayersSLA
 import linkLayersHCS
 import linkLayersBCTC
 import chargeConstraintsWizard
+import anglesWizard
+import bondlengthsWizard
 
 image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
@@ -135,7 +137,7 @@ class MainWindow(QMainWindow):
             self.setName("geostats")
 
         self.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.sizePolicy().hasHeightForWidth()))
-        self.setMinimumSize(QSize(21,169))
+        self.setMinimumSize(QSize(21,177))
         self.setMaximumSize(QSize(530,440))
         self.setBaseSize(QSize(530,440))
         self.setIcon(self.image0)
@@ -210,6 +212,10 @@ class MainWindow(QMainWindow):
         self.editBCTC_link_LayersAction.setEnabled(0)
         self.editHCS_link_layersAction = QAction(self,"editHCS_link_layersAction")
         self.editHCS_link_layersAction.setEnabled(0)
+        self.statisticsgraphsangle_distribution_histogramAction = QAction(self,"statisticsgraphsangle_distribution_histogramAction")
+        self.statisticsgraphsangle_distribution_histogramAction.setEnabled(0)
+        self.statisticsgraphsbond_length_histogramAction = QAction(self,"statisticsgraphsbond_length_histogramAction")
+        self.statisticsgraphsbond_length_histogramAction.setEnabled(0)
 
 
 
@@ -247,6 +253,8 @@ class MainWindow(QMainWindow):
         self.Statistics.setAccel(QString.null,self.Statistics.insertItem(self.statisticsgraphsAction.iconSet(),self.__tr("graphs"),self.popupMenu_20))
         self.statisticsgraphselement_charge_histogramsAction.addTo(self.popupMenu_20)
         self.statisticsgraphsradial_distribution_functionAction.addTo(self.popupMenu_20)
+        self.statisticsgraphsangle_distribution_histogramAction.addTo(self.popupMenu_20)
+        self.statisticsgraphsbond_length_histogramAction.addTo(self.popupMenu_20)
         self.Statistics.insertSeparator()
         self.statisticsbond_listAction.addTo(self.Statistics)
         self.Statistics.insertSeparator()
@@ -286,6 +294,8 @@ class MainWindow(QMainWindow):
         self.connect(self.editHCS_link_layersAction,SIGNAL("activated()"),self.generate_hcsLinkAtoms)
         self.connect(self.statisticssave_BCT_coefficientsAction,SIGNAL("activated()"),self.save_BCTC_coefficients)
         self.connect(self.statisticsget_charge_constraintsAction,SIGNAL("activated()"),self.display_charge_constraints)
+        self.connect(self.statisticsgraphsangle_distribution_histogramAction,SIGNAL("activated()"),self.angleHist)
+        self.connect(self.statisticsgraphsbond_length_histogramAction,SIGNAL("activated()"),self.bondlengthHist)
 
         self.setTabOrder(self.textBrowser1,self.editAtomsButton)
         self.setTabOrder(self.editAtomsButton,self.periodicExpandButton)
@@ -365,6 +375,10 @@ class MainWindow(QMainWindow):
         self.editHCS_link_layersAction.setText(self.__tr("HCS-link layers..."))
         self.editHCS_link_layersAction.setMenuText(self.__tr("HCS-link layers..."))
         self.editHCS_link_layersAction.setToolTip(self.__tr("Generate QM/MM embedded geometry using HCS"))
+        self.statisticsgraphsangle_distribution_histogramAction.setText(self.__tr("angle distribution histogram"))
+        self.statisticsgraphsangle_distribution_histogramAction.setMenuText(self.__tr("angle distribution histogram"))
+        self.statisticsgraphsbond_length_histogramAction.setText(self.__tr("bond length histogram"))
+        self.statisticsgraphsbond_length_histogramAction.setMenuText(self.__tr("bond length histogram"))
         if self.MenuBar.findItem(1):
             self.MenuBar.findItem(1).setText(self.__tr("&File"))
         if self.MenuBar.findItem(2):
@@ -470,6 +484,8 @@ class MainWindow(QMainWindow):
         	self.statisticsgraphsAction.setEnabled(True)
         	self.statisticsgraphselement_charge_histogramsAction.setEnabled(True)
         	self.statisticsgraphsradial_distribution_functionAction.setEnabled(True)
+        	self.statisticsgraphsangle_distribution_histogramAction.setEnabled(True)
+        	self.statisticsgraphsbond_length_histogramAction.setEnabled(True)
         	self.statisticsSave_StatisticsAction.setEnabled(True)
         	self.statisticsget_charge_constraintsAction.setEnabled(True)
         	self.statisticssave_BCT_coefficientsAction.setEnabled(True)
@@ -525,6 +541,18 @@ class MainWindow(QMainWindow):
         	rdfwiz=rdfWizard.rdfWizard()
         	rdfwiz.setGeometry(self.geo)
         	rdfwiz.exec_loop()
+        
+
+    def angleHist(self):
+        	anglewiz=anglesWizard.anglesWizard()
+        	anglewiz.setGeometry(self.geo)
+        	anglewiz.exec_loop()
+        
+
+    def bondlengthHist(self):
+        	blHistwiz=bondlengthsWizard.bondlengthsWizard()
+        	blHistwiz.setGeometry(self.geo)
+        	blHistwiz.exec_loop()
         
 
     def generate_BCTCLinkAtoms(self):

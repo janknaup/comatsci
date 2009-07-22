@@ -123,6 +123,8 @@ void MainWindow::fileread(fnam)
 	self.statisticsgraphsAction.setEnabled(True)
 	self.statisticsgraphselement_charge_histogramsAction.setEnabled(True)
 	self.statisticsgraphsradial_distribution_functionAction.setEnabled(True)
+	self.statisticsgraphsangle_distribution_histogramAction.setEnabled(True)
+	self.statisticsgraphsbond_length_histogramAction.setEnabled(True)
 	self.statisticsSave_StatisticsAction.setEnabled(True)
 	self.statisticsget_charge_constraintsAction.setEnabled(True)
 	self.statisticssave_BCT_coefficientsAction.setEnabled(True)
@@ -194,6 +196,20 @@ void MainWindow::rdf()
 	rdfwiz.exec_loop()
 }
 
+void MainWindow::angleHist()
+{
+	anglewiz=anglesWizard.anglesWizard()
+	anglewiz.setGeometry(self.geo)
+	anglewiz.exec_loop()
+}
+
+
+void MainWindow::bondlengthHist()
+{
+	blHistwiz=bondlengthsWizard.bondlengthsWizard()
+	blHistwiz.setGeometry(self.geo)
+	blHistwiz.exec_loop()
+}
 
 void MainWindow::generate_BCTCLinkAtoms()
 {
