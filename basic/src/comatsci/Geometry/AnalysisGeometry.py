@@ -410,13 +410,14 @@ class AnalysisGeometry(Geometry):
 		if stepsfunction!=None:
 			stepsfunction(bincount-2)
 		#for proper rdf normalization calculate the total density
-		totaldensity=self.numberDensity
+#		totaldensity=self.numberDensity
 		#bond length list contains 0 self distances so skip innermost bin
-		for i in range(2,len(bins)-2):
-			volume=bins[i]**3-bins[i-1]**3
+		for i in range(1,len(counts)-1):
+			volume=bins[i+1]**3-bins[i]**3
 			volume*=constants.PI*(4.0/3.0)
-			#factor 2.0 accounts for double counting
-			rdf[1][i]=counts[i]/(2.0*volume*totaldensity)
+			#factor 2.0 accounts for double counting in distance matrix
+#			rdf[1][i]=counts[i]/(2.0*volume*totaldensity)
+			rdf[1][i]=counts[i]/(2.0*volume)
 			if progressfunction!=None:
 				progressfunction(i)
 		#bond length list contains 0 self distances so remove r=0 values
@@ -625,6 +626,33 @@ class AnalysisGeometry(Geometry):
 
 
 
+	def getBondAngleStats(self):
+		"""compile per central atom element bond angle statistics
+		@return dictionary with keys Z and values dictionaries of statistical data
+		"""
+		# get bond angles
+		bondAngles=self.getBondAngles()
+		# sort atoms into lists by central element
+		anglesByElement={}
+		for i in bondAngles.keys():
+			centralElement=self.AtomTypes[i[1]]
+			if not anglesByElement.has_key(centralElement):
+				anglesByElement[centralElement]=[]
+			anglesByElement[centralElement].append(bondAngles[i])
+		# initialize output dictionary
+		outputStats={}
+		# calculate statistics for each central element and store in output dictionary
+		for i in anglesByElement.keys():
+			temparray=numpy.array(anglesByElement[i])
+			outputStats[i]={}
+			outputStats[i]["mean"]=numpy.mean(temparray)
+			sigma=numpy.std(temparray)
+			outputStats[i]["sigma"]=sigma
+			outputStats[i]["delta"]=sigma/numpy.sqrt(float(len(temparray)))*2.0
+		# finished, return.
+		return outputStats
+
+
 
 	def getElementElementBondlengths(self):
 		"""Compile a dictionary of all Element-Element bond lengths
@@ -721,4 +749,5 @@ class AnalysisGeometry(Geometry):
 			blstats[i]["delta"]=sigma/numpy.sqrt(float(len(temparray)))*2.0
 		# finished. return
 		return blstats
+	
 
