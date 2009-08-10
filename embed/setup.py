@@ -22,7 +22,7 @@ setup (	name="comatsci-qmmm",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
 		url=URL,
-		description="Computational Materials Science Toolkit - solid state QM/MM Toolkit",
+		description="Computational Materials Science Toolkit - solid state QM/MM Module",
 		classifiers=[
 			'Development Status :: 5 - Production/Stable',
 			'Environment :: Console',

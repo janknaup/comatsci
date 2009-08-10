@@ -18,6 +18,8 @@ src/extensions/geoext.c
 src/extensions/splext.c
 src/geostatspack/EditGeometry.py
 src/geostatspack/__init__.py
+src/geostatspack/anglesWizard.py
+src/geostatspack/bondlengthsWizard.py
 src/geostatspack/chargeConstraintsWizard.py
 src/geostatspack/chargeConstraintsWizardBase.py
 src/geostatspack/elementChargeHistograms.py

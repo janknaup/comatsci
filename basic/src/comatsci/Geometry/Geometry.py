@@ -1686,8 +1686,8 @@ class Geometry:
 														armlengths[i]=tempbl
 		# in a cluster geometry, things are easier...
 				else:
-						arms[i]=self.Geometry[j]-self.Geometry[i]
-						armlengths[i]=sqrt(dot(bv,bv))
+						arms[i]=self.Geometry[acidx[i]]-self.Geometry[b]
+						armlengths.append(sqrt(dot(arms[i],arms[i])))
 		# calculate angle from arms and arm lengths
 		cosofangle=dot(arms[0],arms[1])/(armlengths[0]*armlengths[1])
 		return math.degrees(math.acos(cosofangle))
