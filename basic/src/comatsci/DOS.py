@@ -256,12 +256,17 @@ class DOS:
 		energies=num.arrayrange(emin,emax,stepwidth)
 		numsteps=len(energies)
 		lorentzDOS=num.zeros((numsteps,),num.Float)
+		occDOS=num.zeros((numsteps,),num.Float)
+		unoccDOS=num.zeros((numsteps,),num.Float)
 		# fill array by brute-force looping lorentz distributions for each eigenvalue
-		for i in self.eigenValues:
+		for i in range(len(self.eigenValues)):
 			for j in range(numsteps):
-			  lorentzDOS[j]+=lorentz(energies[j],spread,i)
+			  rawdos=lorentz(energies[j],spread,self.eigenValues[i])
+			  lorentzDOS[j]+=rawdos
+			  occDOS[j]+=rawdos*self.fillings[i]
+			  unoccDOS[j]+=rawdos*(2-self.fillings[i])
 		# finished, return combined array
-		return num.array((energies,lorentzDOS),num.Float)
+		return num.array((energies,lorentzDOS,occDOS,unoccDOS),num.Float)
 
 
 
@@ -293,10 +298,15 @@ class DOS:
 		energies=num.arrayrange(emin,emax,stepwidth)
 		numsteps=len(energies)
 		gaussDOS=num.zeros((numsteps,),num.Float)
+		occDOS=num.zeros((numsteps,),num.Float)
+		unoccDOS=num.zeros((numsteps,),num.Float)
 		# fill array by brute-force looping lorentz distributions for each eigenvalue
-		for i in self.eigenValues:
+		for i in range(len(self.eigenValues)):
 			for j in range(numsteps):
-			  gaussDOS[j]+=gaussian(energies[j],spread,i)
+			  rawdos=gaussian(energies[j],spread,self.eigenValues[i])
+			  gaussDOS[j]+=rawdos
+			  occDOS[j]+=rawdos*self.fillings[i]
+			  unoccDOS[j]+=rawdos*(2-self.fillings[i])
 		# finished, return combined array
-		return num.array((energies,gaussDOS),num.Float)
+		return num.array((energies,gaussDOS,unoccDOS),num.Float)
 
