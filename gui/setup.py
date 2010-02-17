@@ -14,26 +14,21 @@ URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 # the source script or by symlinking, if symlinks are available on the target
 # platform, format is a dictionary with script names as keys containing lists of
 # alias name strings
-aliases={"geoconv":["togen","toxyz","tofmg","tofdf","topdb","toxyzq","totm"]}
 
-distrib=setup (	name="comatsci-base",
+distrib=setup (	name="comatsci-gui",
 		version=VERSIONTAG,
-		packages=['comatsci', 'comatsci.Geometry'],
-		package_dir={'comatsci':'src/comatsci',},
-		ext_package='comatsci',
-		ext_modules=[Extension('Geometry.geoext',['src/extensions/geoext.c']),
-			Extension('splext',['src/extensions/splext.c'])],
-		scripts=['src/scripts/geoconv',
-                         'src/scripts/coordination_check','src/scripts/splresample',
-                         'src/scripts/splderive',],
-		data_files=[("share/doc/comatsci",["doc/comatsci-basic.pdf"])],
-		description="Basic Computational Materials Science Toolkit",
+		packages=['geostatspack'],
+		package_dir={'geostatspack':'src/geostatspack'},
+		scripts=['src/scripts/geostats',],
+		data_files=[("share/doc/comatsci",["doc/comatsci-gui.pdf"])],
+		description="Computational Materials Science Toolkit GUI utilities",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
 		url=URL, 
 		classifiers=[
 			'Development Status :: 5 - Production/Stable',
 			'Environment :: Console',
+			'Environment :: X11 Applications :: Qt',
 			'Intended Audience :: Education',
 			'Intended Audience :: Developers',
 			'Intended Audience :: Science/Research',
@@ -51,29 +46,5 @@ distrib=setup (	name="comatsci-base",
 #********************************************************************************************
 # post-install operations
 #********************************************************************************************
-
-# scripts postprocessing - check if scripts were installed
-
-if distrib.have_run.get("install_scripts",0)==1:
-	# script aliases processing
-	# decide wheter to symlink or copy aliases
-	if "symlink" in dir(os):
-		linktype="sym"
-	else:
-		linktype=None
-	# store install target and copy command locally to save typing
-	installdir=os.path.abspath(distrib.command_obj["install_scripts"].install_dir)
-	# process aliases
-	os.chdir(installdir)
-	for cmd in aliases.keys():
-		for alias in aliases[cmd]:
-			# remove existing alias if present
-			if os.path.exists(alias) and not distrib.dry_run:
-				os.unlink(alias)
-			# create new alias
-			copycmd=distrib.command_obj["install_scripts"].copy_file(cmd,alias,link=linktype)
-	os.chdir(startpath)
-	# finished with script aliases
-# finished with scripts postprocessing
 
 #print distrib.command_obj
