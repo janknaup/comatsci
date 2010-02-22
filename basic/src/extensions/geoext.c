@@ -184,9 +184,9 @@ geoext_blist(PyObject *self, PyObject *args)
 	double rada,blen;
 	long i,j;
 	double dx,dy,dz,distance;
+	double tolerance=1.1;
 	
-	
-	if(!PyArg_ParseTuple(args, "O!O!O!", &PyArray_Type, &pos, &PyList_Type, &types, &PyList_Type, &CORAD))
+	if(!PyArg_ParseTuple(args, "O!O!O!|d", &PyArray_Type, &pos, &PyList_Type, &types, &PyList_Type, &CORAD, &tolerance))
 		return NULL;
 	if (pos->nd !=2 || pos->descr->type_num != PyArray_DOUBLE
 			|| pos->dimensions[1]!=3){
@@ -214,7 +214,7 @@ geoext_blist(PyObject *self, PyObject *args)
 				- *(double *)(pos->data + j * pos->strides[0] + 2 * pos->strides[1]);
 			distance=sqrt((dx*dx)+(dy*dy)+(dz*dz));
 			typeb=PyInt_AsLong(PyList_GetItem(	types, j));
-			blen=(1.1* (double)PyFloat_AsDouble( PyList_GetItem(	CORAD, typeb))+rada)/5.291772e-01;
+			blen=(tolerance* (double)PyFloat_AsDouble( PyList_GetItem(	CORAD, typeb))+rada)/5.291772e-01;
 			if (distance < blen)
 			{
 				PyList_Append(PyList_GetItem(bondlist,i),PyInt_FromLong(j));
@@ -240,9 +240,10 @@ geoext_sblist(PyObject *self, PyObject *args)
 	double dx,dy,dz,distance;
 	double pdx,pdy,pdz;
 	double ax,ay,az,bx,by,bz,cx,cy,cz;
+	double tolerance=1.1;
 	
 	
-	if(!PyArg_ParseTuple(args, "O!O!O!O!", &PyArray_Type, &pos, &PyArray_Type,&lattice, &PyList_Type, &types, &PyList_Type, &CORAD))
+	if(!PyArg_ParseTuple(args, "O!O!O!O!|d", &PyArray_Type, &pos, &PyArray_Type,&lattice, &PyList_Type, &types, &PyList_Type, &CORAD, &tolerance))
 		return NULL;
 	if (pos->nd !=2 || pos->descr->type_num != PyArray_DOUBLE
 			|| pos->dimensions[1]!=3){
@@ -293,7 +294,7 @@ geoext_sblist(PyObject *self, PyObject *args)
 						pdz=dz+(k*az)+(l*bz)+(m*cz);
 						distance=sqrt((pdx*pdx)+(pdy*pdy)+(pdz*pdz));
 						typeb=PyInt_AsLong(PyList_GetItem(	types, j));
-						blen=(1.1* (double)PyFloat_AsDouble( PyList_GetItem(	CORAD, typeb))+rada)/5.291772e-01;
+						blen=(tolerance* (double)PyFloat_AsDouble( PyList_GetItem(	CORAD, typeb))+rada)/5.291772e-01;
 						if (distance < blen)
 						{
 							PyList_Append(PyList_GetItem(bondlist,i),PyInt_FromLong(j));

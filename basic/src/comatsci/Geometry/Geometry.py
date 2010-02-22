@@ -1527,10 +1527,14 @@ class Geometry:
 
 
 
-	def bondlist(self):
-		"""return list of lists containg bond partners for each atom"""
-		if self._blist==None:
-			self._calcbondlist()
+	def bondlist(self, tolerance=1.1):
+		"""
+		@type tolerance: float
+		@param tolerance: tolerance threshold by which to multiply canonical bond lengths when detecting bonds
+		@return: list of lists containg bond partners for each atom"""
+		if self._blist==None or self._bltolerance!=tolerance:
+			self._calcbondlist(tolerance)
+			self._bltolerance=tolerance
 		return self._blist
 
 
@@ -1588,16 +1592,19 @@ class Geometry:
 
 
 
-	def _calcbondlist(self):
+	def _calcbondlist(self,tolerance=1.1):
 		"""build list of lists containg bondpartners for each atom,
-		calculated from geometry and Covalent radii."""
+		calculated from geometry and Covalent radii.
+		@type tolerance: float
+		@param tolerance: tolearance threshold by which to multiply canonical bond lenths to still detect a bond
+		@return: list of atomcount lists, containing bond partner atom indices for each atom"""
 		#reimplementation using c extension to calculate all interatomic distances
 		#and check for bond on the fly, without having to store and traverse distance
 		#matrices. Conserves LOTS of memory for large geometries
 		if self.Mode=="C":
-			self._blist=gx.blist(array(self.Geometry),self.AtomTypes,self.CORAD)
+			self._blist=gx.blist(array(self.Geometry),self.AtomTypes,self.CORAD, tolerance)
 		elif self.Mode=="S":
-			self._blist=gx.sblist(array(self.Geometry), self.Lattice, self.AtomTypes, self.CORAD)
+			self._blist=gx.sblist(array(self.Geometry), self.Lattice, self.AtomTypes, self.CORAD, tolerance)
 
 
 

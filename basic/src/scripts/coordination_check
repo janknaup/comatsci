@@ -13,8 +13,8 @@ import os,sys
 
 versionname="python%d.%d" % sys.version_info[0:2]
 
-sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
-		"../lib/",versionname,"site-packages"))
+#sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
+#		"../lib/",versionname,"site-packages"))
 
 from comatsci import Geometry
 
@@ -36,7 +36,10 @@ parser.add_option("-l","--layer",
 		help="Write only atoms from layer L into output geometry. default: write whole geometry")
 parser.add_option("-e","--element",
 		action="store", metavar="E", dest="element", type="int", default=None,
-		help="Write only atoms of lement E into output geometry. default: write all elements")		
+		help="Write only atoms of lement E into output geometry. default: write all elements")
+parser.add_option("-t", "--tolerance",
+		action="store", metavar="T", dest="tolerance", type="float", default=1.1,
+		help="Detect bonds if distance is T times the canonical bond length")
 
 
 (options,args) = parser.parse_args()
@@ -74,4 +77,6 @@ else:
 	dotpos=outfilename.rfind('.')
 	outfilename=os.path.basename(outfilename)[0:dotpos]+".pdb"
 		
-outgeo.writepdb(outfilename, beta=outgeo.atom_coordination_differences, writebondlist=True)
+
+print "Using bond detection tolerance of %f"%options.tolerance
+outgeo.writepdb(outfilename, beta=outgeo.get_atom_coordination_differences(options.tolerance), writebondlist=True)

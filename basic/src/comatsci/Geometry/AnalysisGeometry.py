@@ -213,9 +213,12 @@ class AnalysisGeometry(Geometry):
 
 
 
-	def atom_bondcounts(self):
-		"""return a list of bond coutns per atom"""
-		bl=self.bondlist()
+	def atom_bondcounts(self,tolerance=1.1):
+		"""
+		@type tolerance: float
+		@param toleracne: tolerance threshold by which to multiply canonical bond lengths when detecting bonds
+		@return: a list of bond coutns per atom"""
+		bl=self.bondlist(tolerance)
 		bc=[]
 		for i in bl:
 			bc.append(len(i))
@@ -223,11 +226,13 @@ class AnalysisGeometry(Geometry):
 
 
 
-	def get_atom_coordination_differences(self):
+	def get_atom_coordination_differences(self, bondtolerance=1.1):
 		"""return a list of the differences between atomic coorninations and their standard number of valences (does not account for double bonds)
+		@type bondtolerance: float
+		@param bondtolerace: factor applied to canonical bond lengths when counting neighbors as bonded
 		@return: per atom array of coordination difference from standard"""
 		# first get the atom bond counts and construct an array of standard valence counts
-		bondcounts=array(self.atom_bondcounts())
+		bondcounts=array(self.atom_bondcounts(bondtolerance))
 		valences=zeros(self.Atomcount, Float)
 		for i in range(len(valences)):
 			valences[i]=self.VALENCES[self.AtomTypes[i]]
