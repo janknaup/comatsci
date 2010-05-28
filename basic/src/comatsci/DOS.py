@@ -50,6 +50,8 @@ class DOS:
 	
 	
 	def  __init__(self):
+		self.eigenValues=None
+		self.fillings=None
 		pass
 
 
@@ -202,6 +204,15 @@ class DOS:
 		pass
 
 
+	def hasEigenValues(self):
+		"""check if Eigenvalues have been read
+		@return: boolean, TRUE if eigenvalues have been read, FALSE otherwise
+		"""
+		return bool(self.eigenValues!=None)
+	
+
+
+
 	###############################################################################
 	# some useful properties
 	###############################################################################
@@ -308,5 +319,134 @@ class DOS:
 			  occDOS[j]+=rawdos*self.fillings[i]
 			  unoccDOS[j]+=rawdos*(2-self.fillings[i])
 		# finished, return combined array
-		return num.array((energies,gaussDOS,unoccDOS),num.Float)
+		return num.array((energies,gaussDOS,occDOS,unoccDOS),num.Float)
 
+
+
+class PDOS(DOS):
+	"""Representation for a projected Density of states
+	"""
+	
+	#define a set of expected AO lables for DFTB+ eigenvec.out files
+	AOLabels=("S1","P1","P2","P3","D1","D2","D3","D4","D5","F1","F2","F3","F4","F5","F6","F7")
+	
+	
+	def __init__(self):
+		# generic simple multiple inheritance constructor
+		for i in self.__class__.__bases__:
+			i.__init__(self)
+	
+	
+	
+	def readEigenvecOut(self, filename="eigenvec.out"):
+		"""reads basis function Mulliken populations per MO from DFTB+ eingencev.out file
+		Eigenvalues must have already been loaded into the instance.
+		@type filename: string
+		@param filename: name of the input file, default "eigenvec.out"
+		"""
+		# check that a set of eigenvalues has been read before trying to read PDOS
+		if not self.hasEigenValues():
+			raise ValueError("Attempt to read eigenvectors without reading eigenvalues first.")
+		# check if input file exists
+		if not os.path.exists(filename):
+			raise ValueError("Specified DFTB+ eigenvector file '%s' does not exist"%filename)
+		# open compressed files transparently (but without automatic compressed file extension replacement)
+		EVfile=utils.compressedopen(filename,autodetect=False)
+		# read whole file into memory and close file object. May waste memory but mich easier to implement
+		EVlines=EVfile.readlines()
+		EVfile.close()
+		# the first line contains junk (human readable header), 2nd line is empty
+		#    check first line, if we find the expected junk
+		if not EVlines[0][:60]=="Coefficients and Mulliken populations of the atomic orbitals":
+			raise ValueError("did not found expected header in eigenvector file '%s'."%filename)
+		# The number of eigenvectors should be the same as the number of eigenvalues
+		# we have to determine the number of atoms and orbitals from the first eigenvalue block
+		#   first check line 3 if it shows Eigenvector: 1 and Spin: 1
+		print EVlines[2].split()
+		if not len(EVlines[2].split()) >=3 or not(int(EVlines[2].split()[1])==1) or not (int(EVlines[2].split()[3][0])==1):
+			raise ValueError("Did not find expected Eigenvector 1 Spin 1 component in line 3 of file '%s'"%filename)
+		# initialize list of orbitals per atom, number of atoms
+		orbitalsperAtom=[]
+		tempcoefficients=[]
+		tempmulliken=[]
+		atomcount=0
+		# start processing from fourth line
+		currentline=3
+		tempmulliken.append([])
+		tempcoefficients.append([])
+		while not (len(EVlines[currentline].split()) > 0 and EVlines[currentline].split()[0]=="Eigenvector:"):
+			lineParts=EVlines[currentline].split()
+			if len(lineParts)==0:
+				if currentline!=3:
+					orbitalsperAtom.append(orbitalindex)
+				atomcount+=1
+				orbitalindex=0
+				currentline+=1
+				continue
+			else:
+				if not lineParts[0].strip()==self.AOLabels[orbitalindex]:
+					raise ValueError("Expected did not find expected orbital %s at line %d of file '%s'"%(self.AOLabels[orbitalindex],currentline+1,filename))
+				tempcoefficients[-1].append(float(lineParts[1]))
+				tempmulliken[-1].append(float(lineParts[2]))
+				orbitalindex+=1
+				currentline+=1
+				continue
+		# the above loop increased the atom count by 1 too much
+		atomcount-=1
+		orbitalsperatom=num.array(orbitalsperAtom,num.Float)
+		# calculate the number of orbitals __before__ the index atom
+		orbitalsum=orbitalsperatom.cumsum()-orbitalsperatom
+		numOrbitals=int(orbitalsperatom.cumsum()[-1])
+		# sanity-check if calculated number of orbitals is equal to number of eigenvalues
+		if numOrbitals!=len(self.eigenValues):
+			raise ValueError("Number of orbitals in eigenvector file does not equal number of eigenvalues from eigenvalue file.")
+		# one eigenvector block contains one line per atomic orbital plus one blank line per atom plus two header lines
+		blockLength=int(numOrbitals+atomcount+2)
+		# we understand two possibilities for the eigenvector file length:
+		#  either it is a one spin-component file or a two spin-component file which has double the number of eigenvalue blocks
+		if len(EVlines)==2+blockLength*numOrbitals:		# the file has 2 header lines before the eigenvector blocks
+			numSpins=1
+		elif len(EVlines)==2+2*blockLength*numOrbitals:
+			numSpins=2
+		else:
+			raise ValueError("Unexpected number of lines in file '%s' file is probably malformed."%filename)
+		# allocate data arrays
+		self.orbitalCoeficients=num.zeros(numSpins*numOrbitals**2,num.Float)
+		self.orbitalMulliken=num.zeros(numSpins*numOrbitals**2,num.Float)
+		# store the number of orbitals and orbitals per atom as member variables
+		self.numOrbitals=numOrbitals
+		self.orbitalsPerAtom=orbitalsperatom
+		del tempcoefficients
+		del tempmulliken
+		# read all eigenvector blocks (re-reading the first block, this is easier than catching the case of two spin components)
+		# iterate eigenvalues
+		for EVindex in range(self.numOrbitals):
+			# iterate spin components per eigenvalue
+			for spinIndex in range(numSpins):
+				blockBase=2+blockLength*(EVindex+spinIndex)
+				# check for expected eigenvalue block header (file indices count from 1)
+				if not len(EVlines[blockBase].split()) >=3 or not(int(EVlines[blockBase].split()[1])==EVindex+1) or not (int(EVlines[blockBase].split()[3][0])==spinIndex+1):
+					raise ValueError("Did not find expected Eigenvector %d Spin %d component in line %d of file '%s'"%(EVindex+1,spinIndex+1,lineindex+1,filename))
+				# iterate atoms per spin eigenvalue
+				for atomIndex in range(atomcount):
+					# iterate orbitals per atom
+					for aoIndex in range(int(self.orbitalsPerAtom[atomIndex])):
+						# calculate coefficient index
+						coeffIndex=(EVindex+spinIndex)*numOrbitals+orbitalsum[atomIndex]+aoIndex
+						#split the current line
+						lineIndex=blockBase+int(orbitalsum[atomIndex])+2+atomIndex+aoIndex
+						lineParts=EVlines[lineIndex].split()
+						if not lineParts[0].strip()==self.AOLabels[aoIndex]:
+							raise ValueError("Did not find expected atomic orbital '%s' in line %d of egenvector file '%s'"%(self.AOLabels[aoIndex],lineIndex+1,filename))
+						else:
+							try:
+								self.orbitalCoeficients[coeffIndex]=float(lineParts[1])
+								self.orbitalMulliken[coeffIndex]=float(lineParts[2])
+							except:
+								raise ValueError("failed to parse line %d of eigenvector file '%s'"%(lineIndex+1,filename))
+								raise
+		# done
+
+
+
+	
