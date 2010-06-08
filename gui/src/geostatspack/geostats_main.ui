@@ -21,7 +21,8 @@ Python:import linkLayersHCS
 Python:import linkLayersBCTC
 Python:import chargeConstraintsWizard
 Python:import anglesWizard
-Python:import bondlengthsWizard</comment>
+Python:import bondlengthsWizard
+Python:import codecs</comment>
 <author>Jan M. Knaup</author>
 <widget class="QMainWindow">
     <property name="name">

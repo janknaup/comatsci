@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'geostats_main.ui'
+# Form implementation generated from reading ui file '/home/knaup/src/comatsci/gui/src/geostatspack/geostats_main.ui'
 #
-# Created: Mi Jul 22 18:05:54 2009
-#      by: The PyQt User Interface Compiler (pyuic) 3.17.6
+# Created: Di Jun 8 16:48:30 2010
+#      by: The PyQt User Interface Compiler (pyuic) 3.18.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -31,6 +31,7 @@ import linkLayersBCTC
 import chargeConstraintsWizard
 import anglesWizard
 import bondlengthsWizard
+import codecs
 
 image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
@@ -449,8 +450,9 @@ class MainWindow(QMainWindow):
         
 
     def SaveStatistics(self):
-        	statsfile=open("geostats.htm","w")
-        	statsfile.write(str(self.textBrowser1.text()))
+        	statsfile=codecs.open("geostats.htm","wb","utf-8")
+        	statsfile.write(unicode(self.textBrowser1.text()))
+        	statsfile.close()
         
 
     def fileread(self,a0):

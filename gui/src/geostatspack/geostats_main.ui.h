@@ -86,8 +86,9 @@ void Form1::helpAbout()
 
 void MainWindow::SaveStatistics()
 {
-	statsfile=open("geostats.htm","w")
-	statsfile.write(str(self.textBrowser1.text()))
+	statsfile=codecs.open("geostats.htm","wb","utf-8")
+	statsfile.write(unicode(self.textBrowser1.text()))
+	statsfile.close()
 }
 
 
