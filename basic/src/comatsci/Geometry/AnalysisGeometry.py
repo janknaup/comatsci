@@ -181,10 +181,10 @@ class AnalysisGeometry(Geometry):
 
 
 
-	def reduced_bondlist(self):
+	def reduced_bondlist(self,tolerance=1.1):
 		"""return bondlist cleared of double counts"""
 		if self._rbl==None:
-			self._rbl=copy.deepcopy(self.bondlist())
+			self._rbl=copy.deepcopy(self.bondlist(tolerance))
 			for i in range(self.Atomcount):
 				for j in (self._rbl[i]):
 					self._rbl[j].remove(i)
@@ -732,7 +732,7 @@ class AnalysisGeometry(Geometry):
 	def bondLengthStatistics(self):
 		"""calculate statistics on Element-Element bond length distributions
 		@return: dictionary with keys (Z1,Z2) element-element combinations and values dictionaries with sting keys and bond length statistical data.
-		
+	
 		Currently implemented statistics are:
 			* B{"mean"} mean bond length
 			* B{"sigma"} standard deviation
@@ -756,3 +756,25 @@ class AnalysisGeometry(Geometry):
 		return blstats
 	
 
+
+
+	def RMSD(self,othergeo,**kwargs):
+		"""calculate RMS displacement between self and othergeo. If specified, only regard atoms from atomlist
+		@return: RMS displacement of specified atoms in atomic units
+		@rtype: float
+		
+		@type othergeo: Geometry
+		@param othergeo: Geometry object to calculate RMSD od self against
+		@param atomlist: sequence of atom indices (counting from 0) to include in RMSD calculation
+		@type atomlist: sequence of integers
+		"""
+		# check both geometries for compatibility
+		self.compatcheck(othergeo)
+		# sum square displacements per atom
+		alist=kwargs.get("atomlist",range(self.Atomcount)) #: list of atoms to iterate over
+		MSD=0.0 #: mean square displacement
+		for i in alist:
+			dispVect=numpy.array(self.Geometry[i])-numpy.array(othergeo.Geometry[i]) #: displacement vector
+			MSD+=numpy.dot(dispVect,dispVect)
+		# calculate mean of square displacements and 
+		return numpy.sqrt(MSD/float(len(alist)))
