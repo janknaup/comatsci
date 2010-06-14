@@ -1769,7 +1769,7 @@ class Geometry:
 ##					if remainder(latticeFactors[i],1.)>1E-8:
 ##						raise ValueError("Vector %d of core lattice not integer multiple of surround lattice vector"%i)
 ##				# if everything is fine, let us 
-		# TODO: add check to ennsure that embedded and surrounding geometry coordinates no not extend bezond one lattice cell
+		# TODO: add check to ensure that embedded and surrounding geometry coordinates do not extend beyond one lattice cell
 		# map layers of surround to self: If layer index exists in self, map to that layer, if index does not exist, create new layer:
 		for i in surround.LayerDict.keys():
 			if not self.LayerDict.has_key(i):
@@ -1868,5 +1868,4 @@ class Geometry:
 		for i in range(self.Atomcount):
 			self.Geometry[i]=latticePos[i]*array(self.Lattice)
 		# done.
-
 
