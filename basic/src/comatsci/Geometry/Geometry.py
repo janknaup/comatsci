@@ -194,6 +194,16 @@ class Geometry:
 	1.96,	1.74,	1.44,	1.36,	1.25,	1.27,	1.39,	1.25,	1.26,	1.21,	1.38,	1.31,	1.26,	1.22,	1.19,	1.16,	1.14,	1.10,
 	2.11,	1.92,	1.62,	1.48,	1.37,	1.45,	1.56,	1.26,	1.35,	1.31,	1.53,	1.48,	1.44,	1.41,	1.38,	1.35,	1.33,	2.16,
 	2.25,	1.98]
+	
+	#single bond covalent radii. Table ends after Ba!
+	#from P. Pyykko and M. Atsumi, Chem. Eur. J. 15 (2009) 186, doi 10.1002/chem.200800987
+	SBCR=[100.0,
+	0.32,	0.46,
+	1.33,	1.02,	0.85,	0.75,	0.71,	0.63,	0.64,	0.67,
+	1.55,	1.39,	1.26,	1.16,	1.11,	1.03,	0.99,	0.96,
+	1.96,	1.71,	1.48,	1.36,	1.34,	1.22,	1.19,	1.16,	1.11,	1.10,	1.12,	1.18,	1.24,	1.21,	1.21,	1.16,	1.14,	1.17,
+	2.10,	1.85,	1.63,	1.54,	1.47,	1.38,	1.28,	1.25,	1.25,	1.20,	1.28,	1.36,	1.42,	1.40,	1.40,	1.36,	1.33,	1.31,
+	2.32,	1.96]
 
 
 	#Reverste PTE, to get Ordinal Number from Atom Symbol
@@ -1602,9 +1612,9 @@ class Geometry:
 		#and check for bond on the fly, without having to store and traverse distance
 		#matrices. Conserves LOTS of memory for large geometries
 		if self.Mode=="C":
-			self._blist=gx.blist(array(self.Geometry),self.AtomTypes,self.CORAD, tolerance)
+			self._blist=gx.blist(array(self.Geometry),self.AtomTypes,self.SBCR, tolerance)
 		elif self.Mode=="S":
-			self._blist=gx.sblist(array(self.Geometry), self.Lattice, self.AtomTypes, self.CORAD, tolerance)
+			self._blist=gx.sblist(array(self.Geometry), self.Lattice, self.AtomTypes, self.SBCR, tolerance)
 
 
 
