@@ -243,6 +243,47 @@ class AnalysisGeometry(Geometry):
 
 
 
+	def coordinationAnalysis(self, bondtolerance=1.1):
+		"""summarize coordination differences by element type
+		@type bondtolerance: float
+		@param bondtolerance: factor applied to canonical bond lengths when counting neighbors as bonded
+		@returntype: dictionary
+		@return: dictionary of per-element coordination difference histograms, stored as dictionaries
+		
+		The format of the returned dictionary is:
+		
+			- B{stats}
+				- B{devMax}: maximum coordination deviation over all elements
+				- B{devMin}: minimum (i.e. largest negative) coordination deviation over all elements
+			- I{[element]}:
+				- I{[deviation]}: number of atoms deviationg by I{deviation} bonds from their canonical valences count
+			
+		Note that the dictionary is sparse, i.e. no I{deviation} entries for deviation count zero are present.	
+		"""
+		#get coordination Differences vector
+		coordDiffs=self.get_atom_coordination_differences(bondtolerance)
+		#initialize return dictionary and statisticsw variables
+		analysisDict={}
+		for i in self.getatomsymlistdict()[0]:
+			analysisDict[i]={}
+		deviationMinimum=0
+		deviationMaximum=0
+		#iterate through coordination difference vector
+		for i in range(self.Atomcount):
+			if coordDiffs[i]<deviationMinimum: deviationMinimum=coordDiffs[i]
+			if coordDiffs[i]>deviationMaximum: deviationMaximum=coordDiffs[i]
+			analysisDict[self.AtomTypes[i]][coordDiffs[i]]=analysisDict[self.AtomTypes[i]].get(coordDiffs[i],0)+1
+		# append general data to anaysis results
+		analysisDict["stats"]={
+			"devMax": deviationMaximum,
+			"devMin": deviationMinimum
+		}
+		# finished. return
+		return analysisDict
+
+
+
+
 	def histogram(self, data, bins, stepsfunction=None, progressfunction=None):
 		"""return a tuple of bins and item counts and outside count, binning data into bins. returnvalue[2] contains the number of items outside the range
 		@param data: 1D array or list containing the data to analyze

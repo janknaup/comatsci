@@ -236,7 +236,7 @@ parser.add_option("--silence",
 
 parser.add_option("--coordinations",
 		action="store_true", dest="coordinations", default=False,
-		help="write coordination deviations from ideal into beta column pathcoordinations.pdb file")
+		help="write coordination deviations from ideal into beta column pathcoordinations.pdb file and a coordinations analysis into pathcoordinations-[element].dat files")
 
 
 parser.add_option("--anglehists",
@@ -461,11 +461,43 @@ if options.bondcounts:
 if options.coordinations:
 	# write atomic differences of coordinationm from ideal into beta column of pathcoordinations.pdb
 	print "Writing multiframe .pdb file pathcoordinations.pdb containing atomic coordination differeces"
+	# open output file for geometries and initialize coordination analyses list
 	coordinationsfile=open("pathcoordinations.pdb","w")
+	coordinationAnalyses=[]
+	# initialize analysis range variables
+	minDev=0
+	maxDev=0
+	# iterate through images, write geometries and store analysis Results
+	print "Analyzing Path images."
+	progressMeter=comatsci.utils.ProgressMeter(total=path.numimages(),unit="images")
 	for i in range(path.numimages()):
 		coord_diffs=path.geos[i].atom_coordination_differences
 		print >> coordinationsfile,path.geos[i].getPDBString(beta=coord_diffs)
+		coordinationAnalyses.append(path.geos[i].coordinationAnalysis(1.2))
+		if coordinationAnalyses[-1]["stats"]["devMin"]<minDev: minDev=coordinationAnalyses[-1]["stats"]["devMin"]
+		if coordinationAnalyses[-1]["stats"]["devMax"]>maxDev: maxDev=coordinationAnalyses[-1]["stats"]["devMax"]
+		progressMeter.update(1)
+
+	#finished with coordinations file, close it
 	coordinationsfile.close()
+	#write coordination analysis files
+	deviationsrange=range(minDev,maxDev+1)
+	elementlist=path.geos[0].getatomsymlistdict()[0]
+	print "Writing element coordination analysis files, this may take some time."
+	progressMeter=comatsci.utils.ProgressMeter(total=len(elementlist)*path.numimages())
+	for i in elementlist:
+		analysisFile=open("pathcoordinations-%s.dat"%path.geos[0].PTE[i],"w")
+		print >>analysisFile,"#",
+		for j in deviationsrange:
+				print >>analysisFile, "%3d\t"%j,
+		print >> analysisFile, ""
+		for k in range(path.numimages()):
+				for j in deviationsrange:
+						print >>analysisFile, "%d\t"%coordinationAnalyses[k][i].get(j,0),
+				print >> analysisFile, ""
+				progressMeter.update(1)
+		analysisFile.close()
+		#finished
 
 
 if options.anglehists!=None:
