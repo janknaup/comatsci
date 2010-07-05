@@ -543,6 +543,7 @@ class Geometry:
 
 	def parseXyzString(self, xyzstring):
 		"""parse geometry string in cyz format
+		@type xyzstring: string
 		@param xyzstring: string containing Atomic coordinated in xmol .xyz format
 		"""
 		# prepare temporary variables
