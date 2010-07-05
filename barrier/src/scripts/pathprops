@@ -462,7 +462,8 @@ if options.coordinations:
 	# write atomic differences of coordinationm from ideal into beta column of pathcoordinations.pdb
 	print "Writing multiframe .pdb file pathcoordinations.pdb containing atomic coordination differeces"
 	# open output file for geometries and initialize coordination analyses list
-	coordinationsfile=open("pathcoordinations.pdb","w")
+	coordinationsfile=open("pathcoordinations.pdb","w") #: .pdb trajectory with coordinations differences in beta column
+	coordinationsTrace=open("pathcoordinations-differences.dat","w") #: ascii file with coordination differences, one column per atom, one line per image
 	coordinationAnalyses=[]
 	# initialize analysis range variables
 	minDev=0
@@ -473,6 +474,9 @@ if options.coordinations:
 	for i in range(path.numimages()):
 		coord_diffs=path.geos[i].atom_coordination_differences
 		print >> coordinationsfile,path.geos[i].getPDBString(beta=coord_diffs)
+		for j in coord_diffs:
+				print >> coordinationsTrace,"%4d\t"%(j,),
+		print >> coordinationsTrace, ""
 		coordinationAnalyses.append(path.geos[i].coordinationAnalysis(1.2))
 		if coordinationAnalyses[-1]["stats"]["devMin"]<minDev: minDev=coordinationAnalyses[-1]["stats"]["devMin"]
 		if coordinationAnalyses[-1]["stats"]["devMax"]>maxDev: maxDev=coordinationAnalyses[-1]["stats"]["devMax"]
@@ -480,6 +484,7 @@ if options.coordinations:
 
 	#finished with coordinations file, close it
 	coordinationsfile.close()
+	coordinationsTrace.close()
 	#write coordination analysis files
 	deviationsrange=range(minDev,maxDev+1)
 	elementlist=path.geos[0].getatomsymlistdict()[0]
@@ -497,7 +502,9 @@ if options.coordinations:
 				print >> analysisFile, ""
 				progressMeter.update(1)
 		analysisFile.close()
-		#finished
+	#print extremal coordination defetcs for user
+	print "Largest undercoordination: %d\nLargest overcoordination:  %d"%(minDev,maxDev)
+	#finished
 
 
 if options.anglehists!=None:
