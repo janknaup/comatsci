@@ -226,7 +226,7 @@ class AnalysisGeometry(Geometry):
 
 
 
-	def get_atom_coordination_differences(self, bondtolerance=1.1):
+	def get_atom_coordination_differences(self, bondtolerance=1.2):
 		"""return a list of the differences between atomic coorninations and their standard number of valences (does not account for double bonds)
 		@type bondtolerance: float
 		@param bondtolerace: factor applied to canonical bond lengths when counting neighbors as bonded
