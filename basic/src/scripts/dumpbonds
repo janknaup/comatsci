@@ -1,0 +1,79 @@
+#!/usr/bin/env python
+##############################################################################
+# dumpbonds
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+import os,sys
+
+versionname="python%d.%d" % sys.version_info[0:2]
+
+#sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
+#		"../lib/",versionname,"site-packages"))
+
+from comatsci import Geometry,constants
+from optparse import OptionParser
+
+programname=os.path.basename(sys.argv[0]).lower()
+
+# initialize working geometry instantce
+geo=Geometry.AnalysisGeometry()
+
+# parse options
+
+usage="usage: %prog [options] <input files>\nDumps all bonds in the specified input geometry\nLicensed under the Non-Profit Open Software License version 3.0"
+
+parser=OptionParser(usage)
+
+parser.add_option("-l","--layer",
+		action="store", metavar="L", dest="layer", type="int", default=None,
+		help="Analyze only the specified layer. default: whole geometry")
+parser.add_option("-e","--elements",
+		action="store", metavar="E", dest="elements", type="int", nargs=2, default=None,
+		help="Write only bonds between the specified elements. Not sensitive to element ordering. default: show all bonds")
+parser.add_option("-t", "--tolerance",
+		action="store", metavar="T", dest="tolerance", type="float", default=1.1,
+		help="Detect bonds if distance is T times the canonical bond length")
+
+
+(options,args) = parser.parse_args()
+
+# check if exactly one positional argument (the input file name) was specified
+if len(args)!=1:
+	print "Error: expecting exactly one input file name argument."
+	print usage
+	sys.exit(1)
+
+# read input file
+try:
+	geo.readfile(args[0])
+except:
+	print "Error reading specified input file: '%s'" % (args[0])
+	raise
+
+# limit to sublayer if requested by command line option
+if options.layer!=None:
+	geo.geo.layersubgeometry(options.layer)
+	
+# calculate bond list
+
+blist=geo.reduced_bondlist(options.tolerance)
+#calculate distance matrix
+distmat=geo.distancematrix()
+
+# print header line
+print "Atoms\t| Elements\t| Length[Angstrom]"
+
+# iterate through bond list
+for i in range(geo.Atomcount):
+	for j in blist[i]:
+		if options.elements==None or (geo.AtomTypes[i] in options.elements and geo.AtomTypes[j] in options.elements):
+			distance=distmat[i][j]*constants.ANGSTROM
+			print "%d-%d\t| %2s<->%-2s\t| %9.6f"%(i+1,j+1,geo.PTE[geo.AtomTypes[i]],geo.PTE[geo.AtomTypes[j]],distance)
+
+#finished.
