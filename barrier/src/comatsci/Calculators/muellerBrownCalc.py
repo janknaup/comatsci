@@ -23,7 +23,9 @@ class muellerBrownCalc(Calculator):
 
 	def __init__(self, verbosity=0):
 		"""Initialize Mueller Brown potential calculator
-		@param verbosity: c.f. base class (default 1)		
+		@param verbosity: c.f. base class (default 1)
+		@type laplace: boolean
+		@param laplace: calculate laplacian of the potential (delfault False)
 """
 		Calculator.__init__(self,verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
@@ -51,9 +53,10 @@ class muellerBrownCalc(Calculator):
 		y0=[0.,0.5,1.5,1.]
 		# set status flag to "running"
 		self._status=CALCSTATUS_RUNNING
-		# initialize forces array and energy variable
+		# initialize forces array and laplace and energy variables
 		tempforces=zeros((Geometry.Atomcount,3),Float)
 		tempenergy=0.0
+		templaplace=0.0
 		# iterate through atoms
 		for i in range(Geometry.Atomcount):
 			# iterate through Mueller-Brown potential terms
@@ -62,12 +65,17 @@ class muellerBrownCalc(Calculator):
 				expoterm=A[j]*exp(a[j]*(Geometry.Geometry[i][0]-x0[j])**2 + b[j]*(Geometry.Geometry[i][0]-x0[j])*(Geometry.Geometry[i][1]-y0[j])+c[j]*(Geometry.Geometry[i][1]-y0[j])**2)
 				# store energy contribution
 				tempenergy+=expoterm
-				# calculate and store froce contributions
-				tempforces[i][0]-=expoterm*(2*a[j]*(Geometry.Geometry[i][0]-x0[j])+b[j]*(Geometry.Geometry[i][1]-y0[j]))
-				tempforces[i][1]-=expoterm*(2*c[j]*(Geometry.Geometry[i][1]-y0[j])+b[j]*(Geometry.Geometry[i][0]-x0[j]))
+				# calculate and store froce contributions, store derivative prefactor for use in laplacian
+				vx=(2*a[j]*(Geometry.Geometry[i][0]-x0[j])+b[j]*(Geometry.Geometry[i][1]-y0[j]))
+				vy=(2*c[j]*(Geometry.Geometry[i][1]-y0[j])+b[j]*(Geometry.Geometry[i][0]-x0[j]))
+				tempforces[i][0]-=expoterm*vx
+				tempforces[i][1]-=expoterm*vy
+				# calculate laplacian contribution
+				templaplace+=expoterm*(vx*2*a[j]+vy*2*c[j])
 		# finish iterations
 		self.etot=tempenergy
 		self.gradients=tempforces
+		self.laplace=templaplace
 		self._status=CALCSTATUS_FINISHED
 
 
@@ -75,3 +83,15 @@ class muellerBrownCalc(Calculator):
 	def runfg(self,Geometry, steplabel, charge=0, Erep=None):
 		"""directly calculates energy and forces, see start()"""
 		self.start(Geometry, steplabel, charge)
+
+
+
+	def getplace(self):
+		"""@return: laplacian vector from last calculation, if laplacian calculation was enabled upon initialization
+		"""
+		if not self._calcLaplace:
+			raise RuntimeError("Attempt to retrieve laplacian from Mueller-Brown calculator that was not initialized to calculate it.")
+		else:
+			return self.laplace
+	
+

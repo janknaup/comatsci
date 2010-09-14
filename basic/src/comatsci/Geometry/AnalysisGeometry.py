@@ -51,7 +51,7 @@ class AnalysisGeometry(Geometry):
 
 	def atomcoordinations(self):
 		"""return list of coordination numbers per atom"""
-		bl=self.bondlist()
+		bl=self.bondlist(tolerance=1.2)
 		coordinations=[]
 		for i in bl:
 			coordinations.append(len(i))
@@ -93,7 +93,7 @@ class AnalysisGeometry(Geometry):
 		dummy2={}
 		for i in elelc.keys():
 			elelc[i]=copy.deepcopy(dummy2.fromkeys(symlist,0.0))
-		bl=self.bondlist()
+		bl=self.bondlist(tolerance=1.2)
 		for i in range(self.Atomcount):
 			for j in bl[i]:
 				elelc[self.AtomTypes[i]][self.AtomTypes[j]]+=1.
@@ -104,7 +104,7 @@ class AnalysisGeometry(Geometry):
 	def bondcount(self):
 		"""return total number of bonds"""
 		bc=0
-		bl=self.bondlist()
+		bl=self.bondlist(tolerance=1.2)
 		for i in bl:
 			bc+=len(i)
 		return bc/2
@@ -118,7 +118,7 @@ class AnalysisGeometry(Geometry):
 		el_coord_c=dummy1.fromkeys(symlist)
 		for i in el_coord_c.keys():
 			el_coord_c[i]={}
-		bl=self.bondlist()
+		bl=self.bondlist(tolerance=1.2)
 		for i in range(self.Atomcount):
 			el=self.AtomTypes[i]
 			cn=len(bl[i])
@@ -181,7 +181,7 @@ class AnalysisGeometry(Geometry):
 
 
 
-	def reduced_bondlist(self,tolerance=1.1):
+	def reduced_bondlist(self,tolerance=1.2):
 		"""return bondlist cleared of double counts"""
 		if self._rbl==None:
 			self._rbl=copy.deepcopy(self.bondlist(tolerance))
@@ -194,7 +194,7 @@ class AnalysisGeometry(Geometry):
 
 	def rt_bondlist(self):
 		"""returns the bondlist as html rich text"""
-		bl=self.bondlist()
+		bl=self.bondlist(tolerance=1.2)
 		bc=self.atom_bondcounts()
 		bcols=max(bc)
 		lines=['<H2>Bond List</H2>','<table rules=all border=2>']
@@ -213,7 +213,7 @@ class AnalysisGeometry(Geometry):
 
 
 
-	def atom_bondcounts(self,tolerance=1.1):
+	def atom_bondcounts(self,tolerance=1.2):
 		"""
 		@type tolerance: float
 		@param toleracne: tolerance threshold by which to multiply canonical bond lengths when detecting bonds
