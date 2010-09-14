@@ -819,3 +819,54 @@ class AnalysisGeometry(Geometry):
 			MSD+=numpy.dot(dispVect,dispVect)
 		# calculate mean of square displacements and 
 		return numpy.sqrt(MSD/float(len(alist)))
+
+
+
+
+	def locateVacancies(self, specvalences=None, tolerance=1.2, ignoreUnknownCanonical=True):
+		"""find lattice vacancies by grouping undercoordinated atoms
+		@rtype: Geometry subclass of same type as instance that locateVacancies was invoked on
+		@return: Geometry object, containing one Atom of Type X for each located vacancy
+		
+		@type  specvalences: dictionary of integers
+		@param specvalences: mapping of element ordinal (Z) to canonical valence count. Atoms with less bond partners will be considered neighbors to a vacancy. Elements, for which no canoncial valence count is given, will use default values, which are probably not useful for transition metals.
+		@type  tolerance: float
+		@param tolerance: bond length tolerance factor for bond detection. Default 1.2
+		@type  ignoreUnknownCanonical: boolean
+		@param ignoreUnknownCanonical: if True, ignore atoms that have no known canonical valence count. Default: True
+		"""
+		# if no special valences are given, construct empty dictionary
+		if specvalences==None:
+			specvalences={}
+		# initialize geometry object to return
+		returnGeo=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
+		# get bond list
+		blist=self.bondlist()
+		#iterate through bond list and add all undercoordinated atoms to undercoordinated atom list
+		underList=[]
+		for i in range(self.Atomcount):
+			# get canonical valence count for current atom, if requested, ignore unknown canonical counts but at least warn.
+			try:
+				canonicalValences=specvalences.get(self.AtomTypes[i],self.VALENCES[i])
+			except KeyError:
+				if ignoreUnknownCanonical:
+					print >> sys.stderr, "WARNING: no canonical valence count for element %s. Ignoring atom Number %d." %(self.PTE[self.AtomTypes[i]],i+1)
+					canonicalValences=-1
+				else:
+					print >> sys.stderr, "ERROR: no canonical valence count for element %s (atom %d). Aborting."%(self.PTE[self.AtomTypes[i]],i+1)
+					raise
+			except:
+				raise
+			# check if current atom is undercoordinated and if yes, append its index to the list of undercorrdinated atoms
+			if len(blist[i])<canonicalValences:
+				underList.append(i)
+		# if no undercoordinated atoms are found, no further actions are needed. Immediately return empty geometry instance in that case
+		if len(underList==1):
+			return returnGeo
+		# construct a subgeometry containing only the undercoordinated atoms and calculate their distance matrix
+		tempGeo=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
+		for atom in underList:
+			tempGeo.addAtom(self.AtomTypes[atom], self.Geometry[atom], None, self.AtomCharges[atom], self.AtomSubTypes[atom],LPop=None,checkConsistency=True)
+		distMatrix=tempGeo.distancematrix()
+		print distMatrix
+		
