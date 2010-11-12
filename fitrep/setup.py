@@ -16,7 +16,7 @@ URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 # alias name strings
 aliases={}
 
-distrib=setup (	name="comatsci-base",
+distrib=setup (	name="comatsci-fitrep",
 		version=VERSIONTAG,
 #		packages=[],
 #		package_dir={},
