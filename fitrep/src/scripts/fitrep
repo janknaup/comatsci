@@ -339,17 +339,17 @@ def MC_opt():
 			print "mutated E_rep improves on previous E_rep"
 			improvecount+=1
 			write_erepcheckpoint(ereps,"bestereps")
-			if options.gnuplot:
-				nrgdiff=energydiffs(refset,fitset)
-				plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1, with="boxes")
-				frcdiff=forcediffs(refset,fitset)
-				plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1, with="boxes")
-				plotereps=[]
-				for j in mutables:
-					plottitle=str(j[0])+"-"+str(j[1])
-					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],smooth="cspl",title="",inline=1))
-					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],with="p",title=plottitle,inline=1))
-				plotfunc()
+#			if options.gnuplot:
+#				nrgdiff=energydiffs(refset,fitset)
+#				plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1, with="boxes")
+#				frcdiff=forcediffs(refset,fitset)
+#				plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1, with="boxes")
+#				plotereps=[]
+#				for j in mutables:
+#					plottitle=str(j[0])+"-"+str(j[1])
+#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],smooth="cspl",title="",inline=1))
+#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],with="p",title=plottitle,inline=1))
+#				plotfunc()
 		if options.quiet:
 			if i%100==0:
 				print "--mark-- iteration %d" % i
@@ -479,20 +479,20 @@ def GEN_opt():
 			print "new child is fitter than previous generations"
 			improvecount+=1
 			write_erepcheckpoint(ereps,"bestereps")
-		if options.gnuplot:
-			plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1,with="boxes")
-			plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1,with="boxes")
-			plotereps=[]
-			if not options.keepbreeders:
-				for j in mutables:
-					plottitle="best "+str(j[0])+"-"+str(j[1])
-					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],smooth="cspl",title="",inline=1))
-					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],with="p",title=plottitle,inline=1))
-			for j in mutables:
-				plottitle="last "+str(j[0])+"-"+str(j[1])
-				plotereps.append(Gnuplot.Data(population[0][1][j][0],population[0][1][j][1],smooth="cspl",title="",inline=1))
-				plotereps.append(Gnuplot.Data(population[0][1][j][0],population[0][1][j][1],with="p",title=plottitle,inline=1))
-			plotfunc()
+#		if options.gnuplot:
+#			plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1,with="boxes")
+#			plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1,with="boxes")
+#			plotereps=[]
+#			if not options.keepbreeders:
+#				for j in mutables:
+#					plottitle="best "+str(j[0])+"-"+str(j[1])
+#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],smooth="cspl",title="",inline=1))
+#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],with="p",title=plottitle,inline=1))
+#			for j in mutables:
+#				plottitle="last "+str(j[0])+"-"+str(j[1])
+#				plotereps.append(Gnuplot.Data(population[0][1][j][0],population[0][1][j][1],smooth="cspl",title="",inline=1))
+#				plotereps.append(Gnuplot.Data(population[0][1][j][0],population[0][1][j][1],with="p",title=plottitle,inline=1))
+#			plotfunc()
 		if options.quiet:
 			if i%100==0:
 				print "--mark-- generation %d" % i
@@ -548,7 +548,7 @@ parser.add_option("-s","--mutationscale",
 		help="Amplitude of mutations, default = %default")
 parser.add_option("--gnuplot",
 		action="store_true", dest="gnuplot",
-		help="live plot of progress information (depends on installed gnuploit python and gnuplot")
+		help="live plot of progress information (depends on installed gnuplot python and gnuplot")
 parser.add_option("-u","--mutator",
 		action="store", metavar="M", dest="mutator", type="string", default="jan",
 		help="Amplitude of mutations, default = %default")
@@ -746,11 +746,11 @@ if options.gnuplot:
 	for i in mutables:
 		plottitle=str(i[0])+"-"+str(i[1])
 		plotereps.append(Gnuplot.Data(ereps[i][0],ereps[i][1],title="",smooth="cspl",inline=1))
-		plotereps.append(Gnuplot.Data(ereps[i][0],ereps[i][1],with="p",title=plottitle,inline=1))
+#		plotereps.append(Gnuplot.Data(ereps[i][0],ereps[i][1],with="p",title=plottitle,inline=1))
 	nrgdiff=energydiffs(refset,fitset)
-	plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1, with="boxes")
+#	plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1, with="boxes")
 	frcdiff=forcediffs(refset,fitset)
-	plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1, with="boxes")
+#	plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1, with="boxes")
 	plotfunc=gnuplotprogress
 	gnuplotprogress()
 else:

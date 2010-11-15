@@ -3,6 +3,7 @@ MANIFEST
 MANIFEST.in
 README
 epydoc-html.ini
+epydoc-html.py
 fmg.dtd
 fmg.xsd
 setup.cfg
@@ -19,6 +20,7 @@ src/comatsci/Geometry/__init__.py
 src/extensions/geoext.c
 src/extensions/splext.c
 src/scripts/coordination_check
+src/scripts/dumpbonds
 src/scripts/geoconv
 src/scripts/splderive
 src/scripts/splresample

@@ -4,15 +4,14 @@ import os,sys
 
 startpath=os.getcwd()
 
-VERSIONTAG="1.0.0-b4"
+VERSIONTAG="1.0.0-b5"
 AUTHOR="Jan M. Knaup"
 AU_EMAIL="Knaup@bccms.uni-bremen.de"
 URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 
 distrib=setup (	name="comatsci-barriers",
 		version=VERSIONTAG,
-		py_modules = ['comatsci.Schedulers',],
-		packages=['comatsci.Calculators','comatsci.Path',],
+		packages=['comatsci.Calculators','comatsci.Path','comatsci.Schedulers'],
 		package_dir={'comatsci':'src/comatsci',},
 		scripts=['src/scripts/pastafarian','src/scripts/pathprepare',
 			'src/scripts/pathprops','src/scripts/multiaverage'],
