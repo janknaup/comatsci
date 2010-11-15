@@ -825,6 +825,11 @@ class AnalysisGeometry(Geometry):
 
 	def locateVacancies(self, specvalences=None, tolerance=1.2, ignoreUnknownCanonical=True):
 		"""find lattice vacancies by grouping undercoordinated atoms
+		
+		CAVEAT: CURRENT VERSION IS QUITE DUMB AND IS PRONE TO FAIL IF SEVERAL VACANCIES ARE CLOSE TO EACH OTHER!
+		
+		TODO: ADD k-means clustering of centroids
+		
 		@rtype: Geometry subclass of same type as instance that locateVacancies was invoked on
 		@return: Geometry object, containing one Atom of Type X for each located vacancy
 		
@@ -847,7 +852,7 @@ class AnalysisGeometry(Geometry):
 		for i in range(self.Atomcount):
 			# get canonical valence count for current atom, if requested, ignore unknown canonical counts but at least warn.
 			try:
-				canonicalValences=specvalences.get(self.AtomTypes[i],self.VALENCES[i])
+				canonicalValences=specvalences.get(self.AtomTypes[i],self.VALENCES[self.AtomTypes[i]])
 			except KeyError:
 				if ignoreUnknownCanonical:
 					print >> sys.stderr, "WARNING: no canonical valence count for element %s. Ignoring atom Number %d." %(self.PTE[self.AtomTypes[i]],i+1)
@@ -861,12 +866,46 @@ class AnalysisGeometry(Geometry):
 			if len(blist[i])<canonicalValences:
 				underList.append(i)
 		# if no undercoordinated atoms are found, no further actions are needed. Immediately return empty geometry instance in that case
-		if len(underList==1):
+		if len(underList)==0:
 			return returnGeo
 		# construct a subgeometry containing only the undercoordinated atoms and calculate their distance matrix
 		tempGeo=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
 		for atom in underList:
-			tempGeo.addAtom(self.AtomTypes[atom], self.Geometry[atom], None, self.AtomCharges[atom], self.AtomSubTypes[atom],LPop=None,checkConsistency=True)
+			tempGeo.addatom(self.AtomTypes[atom], self.Geometry[atom], None, self.AtomCharges[atom], self.AtomSubTypes[atom],LPop=None,checkConsistency=True)
 		distMatrix=tempGeo.distancematrix()
+		print self.AtomTypes
+		print underList
+		print tempGeo.AtomTypes
 		print distMatrix
-		
+		# 
+		# Build a list of neighbor atoms belonging to a vacancy. This will work
+		# for distant vacancies and can probably serve as a good initial guess
+		# for k-means assignment, if that should ever get implemented
+		#
+		# initialize a boolean mask to mark atoms already assigned to a vacancy
+		mask=[]
+		for i in range(tempGeo.Atomcount): mask.append(True)
+		# initialize list of vacancies
+		vacancies=[]
+		# iterate through upper triangle of distance matrix, assigning atoms to vacancies
+		for i in range(0,tempGeo.Atomcount):   # iterate through all lines of distance matrix
+			if mask[i]:						   # if atom is already assigned a vacancy, the whole line can be skipped
+				mask[i]=False				   # if not, start a new vacancy and mask out atom i
+				vacancy=[i]
+				for j in range(i+1,tempGeo.Atomcount): # now check all column atoms for proximity (leavinf out masked atoms)
+					if mask[j] and distMatrix[i,j]<vacancyDiameter:
+						mask[j]=False					# add proximate atom and mask it out
+						vacancy.append(j)
+			vacancies.append[vacancy]			# this vacancy is finished, store it
+		# for each vacancy, calculate the centroid
+		for i in range(len(vacancies)):
+			# warn about vacancies consisting of exactly two atoms, they may be higher-order bonds
+			if len(vacancies[i])==2:
+				print >> sys.stderr, "WARNING: Vacancy with two neighbors found, this may actually be a double- or triple bond."
+			# skip vacancies consisting of only one atom but warn
+			if len(vacancies[i])==1:
+				print >> sys.stderr, "WARNING: Isolated undercoordinated atom found. Check Vacancy radius parameter."
+			# treat cluster and supercell geometries differently
+			elif self.Mode=="S":
+				centroid=zeros(3,Float)
+				
