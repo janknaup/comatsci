@@ -20,6 +20,8 @@ import copy
 import math
 ##import xml.dom.minidom
 import bisect
+import numpy
+import numpy.linalg as linalg
 
 #complicated import statement to make it work with python 2.4 and 2.5
 #  see if python 2.5's elementTree implementation is present
@@ -1857,26 +1859,53 @@ class Geometry:
 
 	def foldToCell(self):
 		"""Fold coordinates back into periodic unit cell.
-		Requires the current Geometry instance to have Mode=="S" and
-		the lattice to be orthorhombic with lattice vectors parallel to x,y and z.
+		Requires the Geometry instance to have Mode=="S"
 		"""
 		# check if self is a periodic geometry
 		if not self.Mode=="S":
 			raise GeometryError("Fold back to unit cell requested on a non-periodic Geometry.")
-		# calculate atomic positions in lattice coordinates
-		latticePos=zeros(self.Geometry.shape)
-		for i in range(self.Atomcount):
-			print divide(array(self.Geometry[i]),array(self.Lattice))
-			latticePos[i]=divide(array(self.Geometry[i]),array(self.Lattice))
-		# take all lattice coordinates modulo 1, this yields coordinates within ]-1...1[
-		latticePos=fmod(latticePos,1.0)
-		# shift negative lattice coordinates by 1.0 to arrive at lattice coordinates in [0..1]
-		for i in range(self.Atomcount):
-			for j in (1,2,3):
-				if latticePos[i][j]<0.0:
-					latticePos[i][j]+=1.0 # is there an array funtion for this nested loop?
-		# finally, transform positions back into carthesian real-space coordinates and store
-		for i in range(self.Atomcount):
-			self.Geometry[i]=latticePos[i]*array(self.Lattice)
-		# done.
+		# get backfolded coordinates and overwrite current Geometry
+		self.setcoordinates(self.getFoldedBackCoordinates())
 
+
+
+	def getFoldedBackCoordinates(self):
+		"""return array of Geometry coordinates folded back into the unit cell.
+		Requires Geometry instance to have mode=="S"
+		"""
+		# check if self is a periodic geometry
+		if not self.Mode=="S":
+			raise GeometryError("backfolded coordinates requested on a non-periodic Geometry.")
+		# get fractional coordinates
+		fractionalCoordinates=self.getFractionalCoordinates()
+		# fold back by removing integer components of lattice vectors from fractional coordinates
+		# (folds back to fractional coordinates [0...1]. module would fold back to [-1...1])
+		foldedFractionalCoordinates=fractionalCoordinates-fractionalCoordinates//1.0
+		# project back-folded coordinates back to carthesian space
+		foldedCoordinates=numpy.dot(foldedFractionalCoordinates,self.Lattice)
+		# finished. return
+		return foldedCoordinates
+
+
+
+	def getFractionalCoordinates(self):
+		"""return array of fractional coordinates of the geometry.
+		
+		can only be used for Mode=="S" geometries
+		"""
+		# check if Geometry is in supercell mode
+		#: GeometryError may be caught and ignored, as unity matrix is used as default Lattice for cluster geometries
+		if not self.Mode=="S":
+			raise GeometryError("Attempt to calculate fractional coordinates on cluster geometry")
+		# calculate inverse of lattice vectors
+		inverseLattice=linalg.inv(self.Lattice)
+		# project coordintes onto inverse lattice
+		fractionalCoordinates=numpy.dot(self.Geometry,inverseLattice)
+		# finished, return
+		return fractionalCoordinates
+	
+	fractionalGeometry=property(getFractionalCoordinates,None,None,"Geometry in fractional coordinates. Raises Geometry Error if accessed on cluster Geometries.")
+	
+	
+	
+	

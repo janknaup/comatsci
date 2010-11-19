@@ -67,7 +67,11 @@ parser.set_defaults(append=None)
 parser.add_option("-a","--append",
 		action="append", metavar="F L", dest="append", type="string", nargs=2,
 		help="Append geometry from file F to input geometry into layer named L. L _must_ be specified, if L ist not present in primary input geometry, it will be created in the output geometry. The special layer name 'default' specifies the .fmg default layer 0.")	
-#.................................................		
+#.................................................
+parser.set_defaults(foldback=False)
+parser.add_option("-F","--foldback",
+		 action="store_true", dest="foldback",
+		 help="Fold periodic geometry back into unit cell.")
 parser.add_option("--chargeconstraints",
 		action="store_true", dest="chargeconstraints",
 		help="Print charge constraints string for specified atoms")
@@ -214,6 +218,15 @@ if options.scale!=None:
 		outgeo.Geometry*=options.scale
 		if outgeo.Mode=="S":
 				outgeo.Lattice*=options.scale
+				
+
+if options.foldback:
+	if outgeo.Mode!="S":
+		print "Ignoring fold-back request as geometry is not periodic"
+	else:
+		print "folding coordinates back into unit cell...",
+		outgeo.foldToCell()
+		print "done."
 	
 if (len(args)==2):
 	outfilename=os.path.abspath(args[1])
