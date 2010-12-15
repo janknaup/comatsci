@@ -117,7 +117,7 @@ def readerep(filename):
 def read_ranges(rangesFileName,verbosity=comatsci.constants.VBL_QUIET):
 	"""read and parse parameter ranges definition file
 	@param rangesFileName: filename to read parameter ranges from
-	@param: verbosity=comatsci.constants.VBL_QUIET verbosity level
+	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level
 	"""
 	ranges={}
 	# read ranges file to list of lines

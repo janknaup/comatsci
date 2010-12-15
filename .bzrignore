@@ -23,3 +23,7 @@ test_regr/mbtest/*.gif
 test_regr/mbtest/*.avi
 test_regr/mbtest/plots
 doc-src/embedbib.bib.bak
+fitrep/src/scripts/fitrep_mopsoc
+fitrep/src/scripts/fitrepc
+fitrep/MANIFEST
+gui/MANIFEST
