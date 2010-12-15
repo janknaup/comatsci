@@ -72,7 +72,7 @@ def optImageList(arg,path,lineNumber):
 	check if image numbers are in range of path
 	@param arg: option argument string to parse
 	@param path: Path object to apply target function to
-	@param lineNumer: line number in input file, in which option appears
+	@param lineNumber: line number in input file, in which option appears
 	"""
 	#iniutialize return list
 	indexList=[]
@@ -116,8 +116,8 @@ def readerep(filename):
 
 def read_ranges(rangesFileName,verbosity=comatsci.constants.VBL_QUIET):
 	"""read and parse parameter ranges definition file
-	@param rangedFileName: filename to read parameter ranges from
-	@param: verbosity=comatsci.constants.VBL_QUIET verbosity level
+	@param rangesFileName: filename to read parameter ranges from
+	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level
 	"""
 	ranges={}
 	# read ranges file to list of lines
@@ -156,8 +156,8 @@ def read_ranges(rangesFileName,verbosity=comatsci.constants.VBL_QUIET):
 
 def read_repulsives(repsFileName="repulsives",verbosity=comatsci.constants.VBL_QUIET):
 	"""read and parse repulsives specification config file
-	@param: repsFileName="repulsives" filename to read repulsives definitions from
-	@param: verbosity=comatsci.constants.VBL_QUIET verbosity level"""
+	@param repsFileName: default="repulsives" filename to read repulsives definitions from
+	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level"""
 	# initalize repulsives dictionary
 	ereps={}
 	# initialize optimization parameter map
@@ -229,8 +229,8 @@ T_OPTPARSERS={
 
 def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIET):
 	"""read target definitions from target file
-	@param: targetsFileName="repulsives" filename to read targets definitions from
-	@param: verbosity=comatsci.constants.VBL_QUIET verbosity level"""
+	@param targetsFileName: default="repulsives" filename to read targets definitions from
+	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level"""
 	#initialize target paths list
 	targetPaths=[]
 	#we also need identical copies for our objective calculations
@@ -342,7 +342,7 @@ def calc_Objectives(targetPaths, objectivePaths, targets, objectiveCount,sched):
 	@param targetPaths: the fitting target paths storing target energies and gradients
 	@param objectivePaths: the objective paths that will be calculated
 	@param targets: the target functions to be combined into the objectives
-	@param objectivecount: the number of elements that the returned objectives list should have
+	@param objectiveCount: the number of elements that the returned objectives list should have
 	@param sched: scheduler object to carry out energies and forces calculations
 	@return: list of objective function values"""
 	# initialize objective function values
