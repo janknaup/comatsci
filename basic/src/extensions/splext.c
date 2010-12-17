@@ -1,5 +1,5 @@
 #include <Python.h>
-#include "numpy/oldnumeric.h"
+#include "/usr/lib64/python2.4/site-packages/numpy/core/include/numpy/oldnumeric.h"
 
 #include <math.h>
 #include <stdlib.h>
