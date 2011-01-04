@@ -174,8 +174,49 @@ class Reactionpath:
 				raise
 		#finished
 
-
-
+#_MANU[
+        def readcpmdframes(self, filename,geoconstructor=Geometry.Geometry):
+		""" this is a copy of readXyzPath combined with the _readforces
+		"""
+		# read the whole xyz file into memory, store as a list and prune trailing empty line
+		infile=utils.compressedopen(filename,"r")
+		inlist=list(infile)
+		infile.close()
+		if inlist[-1].strip()=="":
+			del inlist[-1]
+		# parse atom count from first line and check if total number of lines is consistent with that
+		try:
+			atomcount=int(inlist[0].strip())
+		except:
+			print "Atom count '%s' from line 1 of xyz path file '%s' could not be parsed. Abort." % (inlist[1],filename,)
+			raise
+		blocklength=atomcount+2
+		if len(inlist)%blocklength!=0:
+			raise(ValueError,"Number of lines in input file '%s' does not match atom count. Abort." % (filename,))
+		# iterate through xyz blocks, parse and append geometries and forces
+		imagecount=(len(inlist))//(atomcount+2)
+                gradients=[]
+		for image in range(imagecount):
+			temp=geoconstructor()
+			try:
+				temp.parseXyzString("".join(inlist[image*blocklength:(image+1)*blocklength]))
+			except:
+				print "Parsing of xyz path image number %d failed. Abort." % (image+1)
+				raise
+			try:
+				self.appendGeoObject(temp,checkCompat=True)
+			except:
+				print "Inconsistancy in xyz Path file at image %d detected. Abort." % (image+1)
+				raise
+                        gradsbuf=[]
+                        for line in inlist[(image*blocklength+2):(image+1)*blocklength]:
+                                buf=line.split()
+                                gradsbuf.append([ float(s) for s in buf[4:7] ])
+                        gradients.append(array(gradsbuf))        
+                self.realforces=gradients
+                                
+		#finished
+#_MANU]
 
 
 	def pathinterpolate(self, nimages):
