@@ -492,87 +492,8 @@ type '%prog --help' for more information"""
 	calc=comatsci.Calculators.erepcalc(ereps)
 	sched=comatsci.Schedulers.serialScheduler(calc)
 	
-	# *** initialize MOPSO ***
-	
-	# population size
-##	popsize=100
-	# archive size
-##	archsize=100
-	# number of generations
-##	generations=1000
-	# number of parameters
-	paramcount=len(paramap)
-	# number of objectives
-	objcount=3
-##	# craziness factor
-####	craziness=10
-##	# start MOPSO process
 
-	
-	#check, whether the mutation factor is in range:
-	if options.craziness <0.0 or options.craziness > 1.0:
-		raise "specified mutation factor %f out of range." % (options.craziness)
-	
-	if options.verbosity>=comatsci.constants.VBL_NORMAL:
-		print " starting mopso wrapper script"
-	
-	if not os.path.exists("./mopsowrap.sh"):
-		raise "mopso wrapper script ./mopsowrap.sh not found, abort!"
-	
-	mopso=popen2.Popen3("./mopsowrap.sh",0)
-	
-	if options.verbosity>=comatsci.constants.VBL_NORMAL:
-		print "mopso started"
-	
-	# send global mopso options
-	print >> mopso.tochild, "%d %d %d %d %d %d 42" % (
-		options.population,
-		options.repsize,
-		options.maxit, 
-		paramcount, 
-		objcount, 
-		options.craziness)
-	mopso.tochild.flush()
-	if options.verbosity>=comatsci.constants.VBL_TALKY:
-		print "MOPSO init parameters: %d %d %d %d %d %d 42" % (
-			options.population,
-			options.repsize,
-			options.maxit, 
-			paramcount, 
-			objcount, 
-			options.craziness)
-	#=======================================================================================
-	# determine parameter ranges:
-	# read user defined ranges, if specified
-	if options.ranges!=None:
-		if not os.path.exists(options.ranges):
-			print "Error, specified parameter ranges file '%s' does not exist. Abort."
-			sys.exit(1)
-		else:
-			rangedict=read_ranges(options.ranges)
-	# no ranges file is specified, initialize dictionary to be empty
-	else:
-		rangedict={}
-	#=======================================================================================	
-	# send parameter definitions
-##	for (El1, El2, i) in paramap:
-##		print >> mopso.tochild, "%d-%d: %3d %f %f"%(El1,El2,i,0.6*ereps[(El1,El2)][1][i],
-##			1.4*ereps[(El1,El2)][1][i])
-##		if options.verbosity>=comatsci.constants.VBL_TALKY:
-##			print "%d-%d: %3d %f %f"%(El1,El2,i,0.6*ereps[(El1,El2)][1][i],
-##				1.4*ereps[(El1,El2)][1][i])
-	for i in range(len(paramap)):
-		(El1,El2,idx)=paramap[i]
-		if rangedict.has_key(i):
-			(lo,hi)=rangedict[i]
-		else:
-			lo=0.6*ereps[(El1,El2)][1][idx]
-			hi=1.4*ereps[(El1,El2)][1][idx]
-		line="%d-%d: %3d %f %f"%(El1,El2,idx,lo,hi)
-		print >> mopso.tochild, line
-		if options.verbosity>=comatsci.constants.VBL_TALKY:
-			print line
-	mopso.tochild.flush()
+
 	# ************************************************************************************
 	# Optimization debug: write repulsive potentials histories to outputfiles
 	# initialize output files
@@ -581,85 +502,7 @@ type '%prog --help' for more information"""
 		for i in ereps.keys():
 			od_repfiles.append(open("repdbg_%d-%d"%i,"w")) # key of ereps is a 2-tuple of ints
 	# ************************************************************************************
-	#LOOP MOPSO
-	mopsoLoop=True
-	while mopsoLoop:
-		# wait for parameters from MOPSO
-		wait=True
-		while wait:
-			line=mopso.fromchild.readline().strip()
-			if options.verbosity>=comatsci.constants.VBL_DEBUG2:
-				print "from mopso: "+line
-			if line[0:5]=='PARAM':
-				if options.verbosity>=comatsci.constants.VBL_DEBUG1:
-					print "PARAM"
-				wait=False
-			elif line[0:8]=="FINISHED":
-				wait=False
-				mopsoLoop=False
-				if options.verbosity>=comatsci.constants.VBL_NORMAL:
-					print "FINISHED"
-				continue
-			else:
-				#kill mopso
-				os.kill(mopso.pid,signal.SIGKILL)
-				raise "Unexpected message from MOPSO received: %s" % line
-		if not mopsoLoop:
-			continue #skip the rest of the loop to avoid waiting for a defunct mopso
-		# read parameters from MOPSO
-		params=[]
-		while len(params)<paramcount:
-			dummy=mopso.fromchild.readline()
-			for i in dummy.split():
-				params.append(float(i))
-		# make a copy of ereps for this calculation
-		tempEreps=copy.deepcopy(ereps)
-##		print tempEreps.keys()
-		# map MOPSO parameters into temporary E_reps
-		for i in range(paramcount):
-			(e1, e2, index) = paramap[i]
-			tempEreps[(e1,e2)][1][index]=params[i]
-		# ************************************************************************************
-		# Optimization debug: Write mapped repulsive potentials to debug files
-		#
-		if options.optdebug:
-			for od_i in range(len(tempEreps.keys())):
-				repkey=tempEreps.keys()[od_i]
-				for od_j in range(len(tempEreps[repkey][0])):
-					print >> od_repfiles[od_i], "%20.12e\t%20.12e" % (tempEreps[repkey][0][od_j],tempEreps[repkey][1][od_j])
-				print >> od_repfiles[od_i], "\n" # two newlines to separate blocks for gnuplot
-		# ************************************************************************************
-		# set repulsive Potentials and calculate objective values
-		calc._setEreps(tempEreps)
-		objectiveValues=calc_Objectives(targetPaths, objectivePaths, targets, objcount,sched)
-		if options.verbosity>=comatsci.constants.VBL_DEBUG1:
-			print "calculated objectives"+str(objectiveValues)
-		# wait for MOPSO to ask for objectives
-		wait=True
-		while wait and mopsoLoop:
-			if mopso.poll()==-1:
-				line=mopso.fromchild.readline().strip()
-			else:
-				wait=False
-				mopsoLoop=False
-				line="mopso process has exited unexpectedly"
-				print mopso.poll()
-			if options.verbosity>=comatsci.constants.VBL_DEBUG2:
-				print "from mopso: "+line
-			if line[0:3]=='OBJ':
-				wait=False
-				if options.verbosity>=comatsci.constants.VBL_DEBUG1:
-					print "OBJ"
-				# pass objective values to MOPSO
-				for i in objectiveValues:
-					print >> mopso.tochild, "%20.12e" % (i)
-				mopso.tochild.flush()
-			elif line[0:8]=="FINISHED":
-				wait=False
-				mopsoLoop=False
-				if options.verbosity>=comatsci.constants.VBL_NORMAL:
-					print "FINISHED"
-				continue #skip the rest of the loop to avoid waiting for a defunct mopso
+
 	
 	# ************************************************************************************
 	# Optimization debug: close repulsive potantial trajectory files
@@ -668,10 +511,3 @@ type '%prog --help' for more information"""
 		for od_i in od_repfiles:
 			od_i.close()
 	# ************************************************************************************
-
-	if options.verbosity>=comatsci.constants.VBL_NORMAL:
-		print "stopping mopso..."
-	#FINALIZE MOPSO
-	os.kill(mopso.pid,signal.SIGKILL)
-	if options.verbosity>=comatsci.constants.VBL_NORMAL:
-		print "done."
