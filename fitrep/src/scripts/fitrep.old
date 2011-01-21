@@ -1,0 +1,771 @@
+#!/usr/bin/python
+##############################################################################
+# fitrep
+# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# all rights reserved
+##############################################################################
+# redistribution prohibited
+# see file LICENSE for details.
+##############################################################################
+
+
+import os,sys,shutil
+
+versionname="python%d.%d" % sys.version_info[0:2]
+
+sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
+		"../lib/",versionname,"site-packages"))
+
+import comatsci
+
+import numpy.oldnumeric as num
+
+from optparse import OptionParser
+
+import random as rnd
+
+import copy
+
+import time
+
+from math import *
+
+
+def mutate(ereps, mutables, mutator, scale, mutparms):
+	"""return repulsive potentials dictionary with all ereps specified in mutables mutated
+		***arguments***
+	ereps:		dictionary of repulsive potentials
+	mutables:	list of erep keys  that should be mutated
+	mutator:		single E_rep mutator function
+	scale:		scale parameter for the mutator function
+	mutparms:	tuple of mutation parameters, passed to the mutator function"""
+	outreps=copy.deepcopy(ereps)
+	i=rnd.choice(mutables)
+	outreps[i]=mutator(ereps[i],scale,mutparms[i])
+	return outreps
+
+
+
+def localmutate(inrep,scale,mutparms):
+	"""return mutated repulsive potential
+		***arguments***
+	inrep:		input repulsive potential
+	scale=1:		weight of randomized position
+	mutparms:	tuple of lowest and highest E_rep datapoint index to mutate
+	borders are treated specially, see documentation"""
+	if scale>1.:
+		raise "local mutator scale must be in 0.0..1.0"
+	outrep=copy.deepcopy(inrep)
+	if mutparms[1]<0:
+		mutparms=(mutparms[0],len(inrep[1])+mutparms[1])
+		if mutparms[1]<1:
+			print "Negative outer deadzone larger than erep array. abort."
+			sys.exit(1)
+	n=rnd.randint(mutparms[0],mutparms[1])
+	if n==0:
+		offset=rnd.uniform(-1,1)*scale*(inrep[1][0])
+		oldrelative=-inrep[1][n-1]
+	elif n==len(inrep[1])-1:
+		offset=rnd.uniform(0,1)*(-inrep[1][n-1])
+		oldrelative=0
+	else:
+		r=rnd.uniform(-1,1)
+		if r < 0:
+			offset=r*(inrep[1][n-1] - inrep[1][n])
+		else:
+			offset=r*(inrep[1][n] - inrep[1][n+1])
+		oldrelative=inrep[1][n]-inrep[1][n-1]
+	outrep[1][n]=(offset)*scale +oldrelative + inrep[1][n-1]
+	return outrep
+
+
+
+def looselocalmutate(inrep,scale,mutparms):
+	"""return locally mutated repulsive potential, not enforcing monotony
+		***arguments***
+	inrep:		input repulsive potential
+	scale=1:		weight of randomized position
+	mutparms:	tuple of lowest and highest E_rep datapoint index to mutate
+	borders are treated specially, see documentation"""
+	if scale>1.:
+		raise "local mutator scale must be in 0.0..1.0"
+	outrep=copy.deepcopy(inrep)
+	if mutparms[1]<0:
+		mutparms=(mutparms[0],len(inrep[1])+mutparms[1])
+		if mutparms[1]<1:
+			print "Negative outer deadzone larger than erep array. abort."
+			sys.exit(1)
+	n=rnd.randint(mutparms[0],mutparms[1])
+	outrep[1][n]=rnd.uniform(-1,1)*scale*inrep[1][n]+inrep[1][n]
+	return outrep
+
+
+def erepmutate(inrep,scale,mutparms):
+	"""return mutated repulsive potential
+	parameters:
+	inrep:	input repulsive potential
+	scale:	amplitude of mutation
+	mutparms:	tuple of lowest and highest datapoint index to modify
+	borders are treated specially, see code"""
+	outrep=copy.deepcopy(inrep)
+	if mutparms[1]<0:
+		mutparms=(mutparms[0],len(inrep[1])+mutparms[1])
+		if mutparms[1]<1:
+			print "Negative outer deadzone larger than erep array. abort."
+			sys.exit(1)
+	cut=rnd.randint(mutparms[0],mutparms[1])
+	offset=rnd.uniform(-scale,scale)
+	outrep[1][mutparms[0]:cut]+=(offset)*inrep[1][cut]
+	#make sure to keep E-rep monotonic
+	if cut>=0:
+		delta=outrep[1][cut]-outrep[1][cut-1]
+	else:
+		delta=-outrep[0]
+	if delta >0:
+		outrep[1][mutparms[0]:cut]+=delta*1.618033988 #golden section
+	for i in range(1,len(inrep[0])-1):
+		newx=outrep[0][i]+rnd.uniform(-0.1*scale,0.1*scale)
+		if newx<outrep[0][i+1] and newx>outrep[0][i-1]:
+			outrep[0][i]=newx
+	return outrep
+
+
+
+def readerep(filename):
+	"""return E_rep array from input file
+		***arguments***
+	filename:	input file name"""
+	erepfile=open(filename,'r')
+	replines=list(erepfile)
+	erepfile.close()
+	rlist=[]
+	elist=[]
+	for i in replines:
+		# ignore common comment markers
+		firstchar=i.lstrip()[0]
+		if not (firstchar=="#" or firstchar==";"):
+			dummy=i.split()
+			if not (dummy[0].lstrip()[0]=='*' or dummy[1].lstrip()[0]=='*'):
+				rlist.append(float(dummy[0]))
+				elist.append(float(dummy[1]))
+	return num.array([num.array(rlist),num.array(elist)])
+
+
+
+def erepcombine(father, mother):
+	"""return the offspring of two repulsive potentials
+		***arguments***
+	father:	first E_rep, inner part of child will come from this
+	mother:	second E_rep, outer part of child will come from here"""
+	outrep=copy.deepcopy(father)
+	length=num.shape(father)[1]
+	cut=rnd.randint(-length,length)
+	outrep[1][cut:]=mother[1][cut:]
+	return outrep
+
+
+
+def combine(father,mother, mutables):
+	"""combine E_rep sets, calls erepcombine
+		***arguments***
+	father:	E_rep dictionary, from which fathers will be taken
+	mother:	dictionary of E_reps, from which mothers will be taken
+	muables:	list of mutable E_rep keys"""
+	outreps=copy.deepcopy(ereps)
+	for i in mutables:
+		outreps[i]=erepcombine(father[i],mother[i])
+	return outreps
+
+
+
+def writeerep(erep, filename):
+	"""write repulsive potential to file
+		***arguments***
+	erep:		repulsive potential to write out
+	filename:	output filename"""
+	outfile=open(filename,"w")
+	for i in range(len(erep[0])):
+		print >> outfile, "%12.6f\t%12.6f" % (erep[0][i],erep[1][i])
+	outfile.close()
+
+
+
+def write_erepcheckpoint(ereps, directory):
+	"""write all repulsive potentials from ereps into directory
+		***arguments***
+	ereps:		repulsive potentials dicitonary
+	directory:	output files directroy"""
+	if not os.path.isdir(directory):
+		os.mkdir(directory)
+	for i in ereps.keys():
+		filename=directory+'/'+str(i[0])+'-'+str(i[1])
+		writeerep(ereps[i],filename)
+
+
+
+def squares(fitpath, targetpath):
+	"""sqared force difference + squared total energies difference function
+		***arguments***
+	fitpath:		first path to compare
+	targetpath:	second path to compare"""
+	return forcesquares(fitpath,targetpath)+energysquares(fitpath,targetpath)
+
+
+
+def forcesquares(fitpath, targetpath):
+	"""return sum of squares of force difference btw fitpath and targetpath
+		***arguments***
+	fitpath:		first path to compare
+	targetpath:	second path to compare"""
+	Ff=num.array(fitpath.realforces).ravel()
+	Ft=num.array(targetpath.realforces).ravel()
+	dF=Ff-Ft
+	return num.dot(dF,dF)
+
+
+
+def forcerms(fitpath, targetpath):
+	"""return rms of force deifference btw. fitpath and targetpath
+		***arguments***
+	fitpath:		first path to compare
+	targetpath:	second path to compare"""
+	return sqrt(forcesquares(fitpath,targetpath)/(fitpath.geos[0].Atomcount*fitpath.numimages()))
+
+
+
+def energysquares(fitpath, targetpath):
+	"""return squared energy difference btw. fitpath and targetpath
+		***arguments***
+	fitpath:		first path to compare
+	targetpath:	second path to compare"""
+	Ef=num.array(fitpath.energies).ravel()
+	Et=num.array(targetpath.energies).ravel()
+	dE=Ef-Et
+	return num.dot(dE,dE)
+
+
+
+def energyrms(fitpath, targetpath):
+	"""return rms energy difference btw. fitpath and targetpath
+		***arguments***
+	fitpath:		first path to compare
+	targetpath:	second path to compare"""
+	return sqrt(forcesquares(fitpath,targetpath)/(fitpath.numimages()))
+
+
+
+def rms(fitpath, targetpath):
+	"""return sum of rms energies and forces differences btw. fitpath and targetpath
+		***arguments***
+	fitpath:		first path to compare
+	targetpath:	second path to compare"""
+	return energyrms(fitpath, targetpath)+forcerms(fitpath, targetpath)
+
+
+
+def totalfitness(fitset, refset):
+	"""return total fitness for a list of (path,fitfunc,weight)
+	tuples and a list of refpaths
+		***arguments***
+	fitset:		list of (Reactionpath, fitness function, fitness weight) tuples
+	refset:		list of reference Reactionpath objects"""
+	tf=0.0
+	for i in range(len(fitset)):
+		tf+=fitset[i][1](fitset[i][0],refset[i])*fitset[i][2]
+	return tf
+
+
+
+def calcfitsetenergiesforces(fitset, calc):
+	"""execute energies and forces calculations for each element fitset using calc
+		***arguments***
+	fitset:	list of (Reactionpath, fitness function, fitness weight tuples
+	calc:	calculator function"""
+	for i in fitset:
+		i[0].calcenergiesforces(calc)
+
+
+
+def gnuplotprogress():
+	"""plot progress of optimization via gnuplot py
+	uses _LOTS_ of globals"""
+	global plot
+	global GNuplot
+	global plotereps
+	global plotnrg
+	global plotfrc
+	global options
+	plot("set multiplot")
+	plot("set size 1.0,0.33")
+	plot("set origin 0.0,0.33")
+	plot("set key top")
+	plot.plot(plotnrg)
+	plot("set origin 0.0,0.00")
+	plot("set key top")
+	plot.plot(plotfrc)
+	plot("set origin 0.0,0.67")
+	plot.plot(*plotereps)
+	
+
+
+def MC_opt():
+	"""Monte-Carlo optimiziation of E_rep
+	uses _LOTS_ of globals"""
+	global refset, fitset
+	global mutator, plotfunc, calc
+	global options
+	global ereps
+	global mutables, mutparms
+	global plotereps, plotnrg, plotref, plotfrc
+	global mutationcount, improvecount
+	
+	print "starting Monte-Carlo E_rep optimization"
+	calcfitsetenergiesforces(fitset,calc)
+	oldfitness=totalfitness(fitset,refset)
+	inifitness=oldfitness
+	print "initial fitness function value: %12.6f" % (oldfitness)
+	if options.gnuplot:
+		plotfunc()
+	for i in range(options.maxit):
+		testerep=(mutate(ereps,mutables,mutator,options.mutationscale,mutparms))
+		mutationcount+=1
+		calc._setEreps(testerep)
+		calcfitsetenergiesforces(fitset,calc)
+		fitness=totalfitness(fitset,refset)
+		if fitness < oldfitness:
+			ereps=testerep
+			oldfitness=fitness
+			print "mutated E_rep improves on previous E_rep"
+			improvecount+=1
+			write_erepcheckpoint(ereps,"bestereps")
+#			if options.gnuplot:
+#				nrgdiff=energydiffs(refset,fitset)
+#				plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1, with="boxes")
+#				frcdiff=forcediffs(refset,fitset)
+#				plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1, with="boxes")
+#				plotereps=[]
+#				for j in mutables:
+#					plottitle=str(j[0])+"-"+str(j[1])
+#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],smooth="cspl",title="",inline=1))
+#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],with="p",title=plottitle,inline=1))
+#				plotfunc()
+		if options.quiet:
+			if i%100==0:
+				print "--mark-- iteration %d" % i
+		else:
+			print "target function value: %12.6f" % (fitness)
+		sys.stdout.flush()
+	return (oldfitness,inifitness)
+
+
+
+def populationkey(element):
+	"""helper function to sort (fitness,Erep) tuples
+		***arguments***
+	element:	(fitness value, repulsive potantials dictionary) tuple"""
+	return element[0]
+
+
+
+def fitsetenergies(fitset):
+	"""return list of all image total energies in fitset
+		***arguments***
+	fitset:		list of (Reactionpath, fitness function, fitness weight) tuples"""
+	nrgs=[]
+	for i in fitset:
+		nrgs+=i[0].energies
+	return nrgs
+
+
+
+def refsetenergies(refset):
+	"""return list of all image total energies in reference set"""
+	nrgs=[]
+	for i in refset:
+		nrgs+=i.energies
+	return nrgs
+
+
+
+def energydiffs(refset,fitset):
+	"""return energy differences btw. refset and fitset"""
+	diffs=[]
+	ref=refsetenergies(refset)
+	fit=fitsetenergies(fitset)
+	for i in range(len(ref)):
+		diffs.append(fit[i]-ref[i])
+	return diffs
+
+
+
+def forcediffs(refset,fitset):
+	"""return imagewise force differences btw refset and fitset"""
+	diffs=[]
+	for i in range(len(refset)):
+		for j in range(refset[i].numimages()):
+			Ff=num.array(fitset[i][0].realforces[j],num.Float).ravel()
+			Fr=num.array(refset[i].realforces[j],num.Float).ravel()
+			delta=Ff-Fr
+			diffs.append(num.sqrt(num.dot(delta,delta)))
+	return diffs
+
+
+
+def GEN_opt():
+	"""optimization of E_rep by genetic algorithm
+	uses _LOTS_ of globals"""
+	global refset, fitset
+	global mutator, plotfunc, calc
+	global options
+	global ereps
+	global mutables, mutparms
+	global plotereps, plotnrg, plotref, plotfrc
+	global mutationcount, improvecount
+	
+	print "starting Genetic E_rep optimization"
+	calcfitsetenergiesforces(fitset,calc)
+	oldfitness=totalfitness(fitset,refset)
+	inifitness=oldfitness
+	nrgdiff=energydiffs(refset,fitset)
+	frcdiff=forcediffs(refset,fitset)
+	print "initial fitness function value: %12.6f" % (oldfitness)
+	
+	print "generating initial population"
+	population=[(inifitness,ereps)]
+	for i in range(1,options.population):
+		temperep=mutate(ereps,mutables,mutator,options.mutationscale,mutparms)
+		calc._setEreps(temperep)
+		mutationcount+=1
+		calcfitsetenergiesforces(fitset,calc)
+		fitness=totalfitness(fitset,refset)
+		population.append((fitness,temperep))
+	population.sort(key=populationkey)
+	
+	print "Initial population fitness ranges from %f to %f"%(population[0][0],population[options.population-1][0])
+	print "Breeder maximum fitness is %f"%(population[options.breeders-1][0])
+	
+	for i in range(options.maxit):
+		if not options.quiet:
+			print "New generation:"
+		if options.keepbreeders:
+			if not options.quiet:
+				print"Keeping breeders"
+			firstchild=options.breeders
+			newgenminfitness=oldfitness
+		else:
+			firstchild=0
+			newgenminfitness=99999999999999.0 # something really large, this is dirty
+		for j in range(firstchild,options.population):
+			# first choose parents, we allow for hermaphroditic procreation for now
+			dad=rnd.randint(0,options.breeders-1)
+			mom=rnd.randint(0,options.breeders-1)
+			# now combine, mutate and measure fitness
+			temperep=combine(population[dad][1],population[mom][1],mutables)
+			child=mutate(temperep,mutables,mutator,options.mutationscale,mutparms)
+			mutationcount+=1
+			calc._setEreps(child)
+			calcfitsetenergiesforces(fitset,calc)
+			fitness=totalfitness(fitset,refset)
+			population[j]=(fitness,child)
+			#this should provide the current generations best energies trajectory for plotting
+			if fitness<newgenminfitness:
+				nrgdiff=energydiffs(refset,fitset)
+				frcdiff=forcediffs(refset,fitset)
+		population.sort(key=populationkey)
+		if population[0][0] < oldfitness:
+			ereps=population[0][1]
+			oldfitness=population[0][0]
+			print "new child is fitter than previous generations"
+			improvecount+=1
+			write_erepcheckpoint(ereps,"bestereps")
+#		if options.gnuplot:
+#			plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1,with="boxes")
+#			plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1,with="boxes")
+#			plotereps=[]
+#			if not options.keepbreeders:
+#				for j in mutables:
+#					plottitle="best "+str(j[0])+"-"+str(j[1])
+#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],smooth="cspl",title="",inline=1))
+#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],with="p",title=plottitle,inline=1))
+#			for j in mutables:
+#				plottitle="last "+str(j[0])+"-"+str(j[1])
+#				plotereps.append(Gnuplot.Data(population[0][1][j][0],population[0][1][j][1],smooth="cspl",title="",inline=1))
+#				plotereps.append(Gnuplot.Data(population[0][1][j][0],population[0][1][j][1],with="p",title=plottitle,inline=1))
+#			plotfunc()
+		if options.quiet:
+			if i%100==0:
+				print "--mark-- generation %d" % i
+		else:
+			print "best fitness function value: %12.6f" % (population[0][0])
+			print "Breeder maximum fitness is %f"%(population[options.breeders-1][0])
+		sys.stdout.flush()
+	return (oldfitness,inifitness)
+
+
+
+def ischeckpoint(name):
+	"""check if specified path points to a checkpoint directory
+		***arguments***
+	name:	name of directory to check"""
+	return (os.path.isdir(name) 
+		and os.path.exists(name+"/neb.nrg") 
+		and os.path.exists(name+"/neb.frc"))
+
+
+#
+# define user-selectable functions here
+# function keys must be lowercase
+#
+
+# optmiziation functions
+optimizers={"mc": MC_opt, "gen": GEN_opt}
+# mutator functions
+mutators={"jan": erepmutate, "local": localmutate, "looselocal": looselocalmutate}
+# fitness functions
+fitnesses={"sq": squares, "fsq": forcesquares, "esq": energysquares, "rms": rms, "frms": forcerms, "erms": energyrms}
+
+
+#
+# Main Program starts here
+#
+
+print """\t\t*** fitrep.py ***
+Tool to fit repulsive potentials to reference paths\n\n"""
+
+
+#Parse Options
+
+usage="usage: %prog [options] <target> <input erep directory> <mutables>\n<target> must specify _one_ target checkpoint or multi-target specification file.\n<mutables> must specify _one_ E_rep in Z:Z format or a multi mutables specification file."
+
+parser=OptionParser(usage)
+
+parser.add_option("-m","--maxit",
+		action="store", metavar="N", dest="maxit", type="int", default=10,
+		help="maximum number of iterations, default = %default")
+parser.add_option("-s","--mutationscale",
+		action="store", metavar="s", dest="mutationscale", type="float", default=.1,
+		help="Amplitude of mutations, default = %default")
+parser.add_option("--gnuplot",
+		action="store_true", dest="gnuplot",
+		help="live plot of progress information (depends on installed gnuplot python and gnuplot")
+parser.add_option("-u","--mutator",
+		action="store", metavar="M", dest="mutator", type="string", default="jan",
+		help="Amplitude of mutations, default = %default")
+parser.add_option("-p","--population",
+		action="store", metavar="N", dest="population", type="int", default=20,
+		help="Total number of E_rep sets to keep use, default = %default")
+parser.add_option("-b","--breeders",
+		action="store", metavar="N", dest="breeders", type="int", default=5,
+		help="The fittest N E_rep sets from the population will be allowed to breed, default = %default")
+parser.add_option("--keep-breeders",
+		action="store_true", dest="keepbreeders",
+		help="If specified, the breeders will be included in the new generation")
+parser.add_option("-o","--optimizer",
+		action="store", metavar="OPT", dest="optimizer", type="string", default="mc",
+		help="Use OPT to optimize E_rep, default = %default")
+parser.add_option("-f","--fitnessfunc",
+		action="store", metavar="F", dest="fitnessfunc", type="string", default="sq",
+		help="Use F as the (default) fitness function, default = %default")
+parser.add_option("--innerdeadzone",
+		action="store", metavar="N", dest="innerdeadzone", type="int", default=0,
+		help="only mutate E_rep points with index > N, default = %default")
+parser.add_option("--outerdeadzone",
+		action="store", metavar="N", dest="outerdeadzone", type="int", default=-1,
+		help="only mutate E_rep points with index < N, negative values count from the end of the data set. default = %default")
+parser.add_option("-q","--quiet",
+		action="store_true", dest="quiet",
+		help="reduced output, skip nearly all periodic output")
+
+(options,args) = parser.parse_args()
+
+
+if len(args)!=3:
+	parser.print_usage()
+	sys.exit(1)
+
+
+#set desired mutator function
+if options.mutator.lower() in mutators.keys():
+	mutator=mutators[options.mutator.lower()]
+else:
+	print "mutator function unknown, known mutators are:"
+	for i in mutators.keys():
+		print i
+	raise "mutator function unknown"
+
+#set list of mutable repusive potentials
+if args[2].find(':')>-1:
+	dummy=args[2].split(':')
+	tmp1=int(dummy[0])
+	tmp2=int(dummy[1])
+	if tmp2>=tmp1:
+		mutables=[(tmp1,tmp2)]
+	else:
+		mutables=[(tmp2,tmp1)]
+	mutparms={mutables[0]: (options.innerdeadzone,options.outerdeadzone)}
+elif os.path.exists(args[2]):
+	mutfile=open(args[2])
+	mutlines=list(mutfile)
+	mutfile.close()
+	mutables=[]
+	mutparms={}
+	for i in mutlines:
+		if (i.lstrip()[0]!='#'):
+			dummy=i.split()
+			tmp1=int(dummy[0])
+			tmp2=int(dummy[1])
+			if tmp2>=tmp1:
+				mutables.append((tmp1,tmp2))
+			else:
+				mutables.append((tmp2,tmp1))
+			if len(dummy)>2:
+				tmp1=int(dummy[2])
+			else:
+				tmp1=options.innerdeadzone
+			if len(dummy)>3:
+				tmp2=int(dummy[3])
+			else:
+				tmp2=options.outerdeadzone
+			mutparms[mutables[-1]]=(tmp1,tmp2)
+else:
+	print """Mutables specification "%s" cannot be parsed. Abort.""" % args[2]
+	parser.print_usage()
+	sys.exit(1)
+print "Mutating the following E_rep-s:%s"%(str(mutables))
+
+#choose optimizer
+if options.optimizer.lower() in optimizers.keys():
+	optimizer=optimizers[options.optimizer.lower()]
+else:
+	print "optimizer unknown, known optimizers are:"
+	for i in mutators.keys():
+		print i
+	raise "optimizer unknown"
+
+#set desired fitness function
+if options.fitnessfunc in fitnesses.keys():
+	fitnessfunc=fitnesses[options.fitnessfunc.lower()]
+else:
+	print """Unknown fitness function specification "%s" in targets file.""" % (dummy[1].strip().lower())
+	print "known fitness functions are:"
+	for j in fitnesses.keys():
+		print j
+	sys.exit(1)
+
+#construct fit paths and references
+refset=[]
+fitset=[]
+
+print "Reading target and fit paths"
+if ischeckpoint(args[0]):
+	print "single target mode, reading target from specified checkpoint"
+	fitset.append((comatsci.Path.Reactionpath('',[],'s',1.,1.,1),fitnessfunc,1.0))
+	fitset[0][0].readcheckpoint(args[0])
+	refset.append(comatsci.Path.Reactionpath('',[],'s',1.,1.,1))
+	refset[0].readcheckpoint(args[0])
+	offset=-min(refset[0].energies)
+	for i in range(len(refset[0].energies)):
+		refset[0].energies[i]+=offset
+		fitset[0][0].energies[i]+=offset
+elif os.path.exists(args[0]):
+	print "reading target specifications from input file"
+	targetfile=open(args[0],"r")
+	targetlines=list(targetfile)
+	targetfile.close()
+	for i in targetlines:
+		if i.lstrip()[0]!='#':
+			dummy=i.split()
+			trg=dummy[0].strip()
+			if not ischeckpoint(trg):
+				print """target "%s" is not a valid checkpoint. abort.""" %(trg)
+				sys.exit(1)
+			ffstr=dummy[1].strip().lower()
+			if not ffstr in fitnesses.keys():
+				print """Unknown fitness function specification "%s" in targets file.""" % (ffstr)
+				print "known fitness functions are:"
+				for j in fitnesses.keys():
+					print j
+				sys.exit(1)
+			else:
+				ff=fitnesses[ffstr]
+			refset.append(comatsci.Path.Reactionpath('',[],'s',1.,1.,1))
+			refset[-1].readcheckpoint(trg)
+			fitset.append((comatsci.Path.Reactionpath('',[],'s',1.,1.,1),ff,float(dummy[2])))
+			fitset[-1][0].readcheckpoint(trg)
+	print "read %d paths" % (len(refset))
+	for j in range(len(refset)):
+		offset=-min(refset[j].energies)
+		for i in range(len(refset[j].energies)):
+			refset[j].energies[i]+=offset
+			fitset[j][0].energies[i]+=offset
+else:
+	print """target not found: "%s" """ % (args[0])
+	parser.print_usage()
+	sys.exit(1)
+	
+
+print "reading initial ereps from %s" %(args[1])
+
+#construct list of ereps to load and load them
+typeslist=[]
+for j in range(len(refset)):
+	for i in refset[j].geos[0].AtomTypes:
+		if i not in typeslist:
+			typeslist.append(i)
+ereps={}
+
+for i in typeslist:
+	for j in typeslist:
+		if j>i:
+			repindex=(i,j)
+		else:
+			repindex=(j,i)
+		filename=args[1]+'/'+str(repindex[0])+'-'+str(repindex[1])
+		ereps[repindex]=readerep(filename)
+
+#initialize calculator
+print "initializing calculator"
+calc=comatsci.Calculators.erepcalc(ereps)
+
+#if quiet, reduce verbosity of fitpath
+if options.quiet:
+	for i in fitset:
+		i[0].verbosity=0
+
+#if specified, initalize gnuplot python
+if options.gnuplot:
+	print "Initializing gnuplot"
+	import Gnuplot
+	from Numeric import *
+	plot=Gnuplot.Gnuplot(debug=0,persist=1)
+	plot("set data style linespoints")
+	plot("set multiplot")
+	plot("set style fill solid 1.0")
+	plotereps=[]
+	for i in mutables:
+		plottitle=str(i[0])+"-"+str(i[1])
+		plotereps.append(Gnuplot.Data(ereps[i][0],ereps[i][1],title="",smooth="cspl",inline=1))
+#		plotereps.append(Gnuplot.Data(ereps[i][0],ereps[i][1],with="p",title=plottitle,inline=1))
+	nrgdiff=energydiffs(refset,fitset)
+#	plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1, with="boxes")
+	frcdiff=forcediffs(refset,fitset)
+#	plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1, with="boxes")
+	plotfunc=gnuplotprogress
+	gnuplotprogress()
+else:
+	plotfunc=dummy
+
+mutationcount=0
+improvecount=0
+startclock=time.clock()
+startwalltime=time.time()
+
+(min_fitness,inifitness)=optimizer()
+	
+endclock=time.clock()
+endwalltime=time.time()
+
+print "Finished after %d mutations (%d of which were improvements)" % (mutationcount,improvecount)
+print "Runtime %f seconds CPU, %f seconds wall time" % (endclock-startclock,endwalltime-startwalltime)
+print "Minimum target function value %f\nThis run improved fitness by %f" % (min_fitness,inifitness-min_fitness)
