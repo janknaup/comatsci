@@ -34,6 +34,8 @@ import time
 
 import popen2
 
+import Optimizers
+
 #*************
 #* Constants *
 #*************
@@ -41,10 +43,10 @@ import popen2
 # Target Functions
 # API convention: target functions must provide named option "opt" to pass additional options dictionary
 TARGETFUNCTIONS={
-	"forcesquares":			(comatsci.AnalysisPath.AnalysisPath.forceSquares,),
-	"forcerms" :				(comatsci.AnalysisPath.AnalysisPath.forceRms,),
-	"reactionsquares": 	(comatsci.AnalysisPath.AnalysisPath.allDeltaESquares,),
-	"sqreaction":				(comatsci.AnalysisPath.AnalysisPath.sqreaction,),
+	"forcesquares":			(comatsci.Path.AnalysisPath.forceSquares,),
+	"forcerms" :				(comatsci.Path.AnalysisPath.forceRms,),
+	"reactionsquares": 	(comatsci.Path.AnalysisPath.allDeltaESquares,),
+	"sqreaction":				(comatsci.Path.AnalysisPath.sqreaction,),
 }
 # Options allowed for target functions
 T_VALIDOPTIONS={
@@ -62,9 +64,53 @@ T_REQUIREDOPTIONS={
 }
 
 
+
 #************************
 #* Function Definitions *
 #************************
+
+
+def randomLocalMutate(options,inVec):
+	"""return vector mutated by random shift of one single element
+	@return mutated vector
+	"""
+	outVec=copy.deepcopy(inVec)
+	index=rnd.randint(0,len(inVec)-1)
+	outVec[index]+=options["scale"]* rnd.uniform(-1,1)
+	return outVec
+
+
+
+def randomGlobalMutate(options,inVec):
+	"""return vector mutated by random shifting every element
+	@return mutated vector
+	"""
+	outVec=copy.deepcopy(inVec)
+	for i in range(len(outVec)):
+		outVec[i]+=options["scale"]*rnd.uniform(-1,1)
+	return outVec
+
+
+def lrCombine(options,father,mother):
+	"""return combination of fater and mother by taking randon number of right elements from father and left elemets from mother
+	@return combined vector
+	"""
+	child=copy.deepcopy(father)
+	for i in range(rnd.randint(0,len(father)-1),len(father)):
+		child[i]=mother[i]
+	return child
+
+
+def randomCombine(options,father,mother):
+	"""return combination of father and mother by randomly choosing father's or mother's element
+	@return combined vector
+	"""
+	child=copy.deepcopy(father)
+	for i in range(len(father)):
+		if rnd.gauss(0,1.0) > 0:
+			child[i]=mother[i]
+	return child
+
 
 
 def optImageList(arg,path,lineNumber):
@@ -277,8 +323,8 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 						if verbosity >= comatsci.constants.VBL_QUIET:
 							print " *** WARNING *** No target functions defined for last target path!"
 					#initialize new path Objects in mode "external scheduler"
-					tempPath=comatsci.AnalysisPath.AnalysisPath("d")
-					tempObjectivePath=comatsci.AnalysisPath.AnalysisPath("d")
+					tempPath=comatsci.Path.AnalysisPath("d")
+					tempObjectivePath=comatsci.Path.AnalysisPath("d")
 					#read target path file
 					tempPath.readfmgpath(targetFileName,checkCompat=False)
 					tempObjectivePath.readfmgpath(targetFileName,checkCompat=False)
@@ -293,8 +339,8 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 					currentTargetPath=len(targetPaths)-1
 					lastPath=True
 					hasPath=True
-			#for a target function def, we need at least function, objective ref. and weight
-			elif (len(tokens)>2):
+			#for a target function def, we need at least function and weight
+			elif (len(tokens)>1):
 				if not hasPath:
 					raise "Invalid target function definition in line %d of targets: target function declared without prior path definition" %(i+1)
 				else:
@@ -303,13 +349,12 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 				if not TARGETFUNCTIONS.has_key(functionName):
 					raise "Invalid target function definition in line %d of targets: unknown function definition." %(i+1)
 				else:
-					#convert objective index and weight
-					objIndex=int(tokens[1])
-					objWeight=float(tokens[2])
+					#convert weight
+					objWeight=float(tokens[1])
 					#parse options and check
 					tempOptions={}
 					#cycle through option tokens list
-					for option in tokens[3:]:
+					for option in tokens[2:]:
 						#split option name and arguments
 						optTokens=option.split("=")
 						optName=optTokens[0].lower()
@@ -328,7 +373,7 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 							if not option in tempOptions:
 								raise "Invalid target function definition in line %d of targets: option %s for target function %s is missing." % (i+1,functionName,option)
 					#append the target function definition
-					targets.append((currentTargetPath,TARGETFUNCTIONS[functionName][0],objIndex,objWeight,tempOptions))
+					targets.append((currentTargetPath,TARGETFUNCTIONS[functionName][0],objWeight,tempOptions))
 			#catch malformed lines
 			else:
 				raise "Invalid target function definition in line %d of targets: need at least function, objective reference and objective weight." %(i+1)
@@ -337,36 +382,49 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 	
 
 
-def calc_Objectives(targetPaths, objectivePaths, targets, objectiveCount,sched):
-	"""calculate objective function values
+def calc_MetaFitness(options,X):
+	"""calculate weighted sum of defined Fitnesses per target
 	@param targetPaths: the fitting target paths storing target energies and gradients
-	@param objectivePaths: the objective paths that will be calculated
-	@param targets: the target functions to be combined into the objectives
-	@param objectiveCount: the number of elements that the returned objectives list should have
+	@param targets: the target functions
 	@param sched: scheduler object to carry out energies and forces calculations
-	@return: list of objective function values"""
+	@return: fitness value"""
 	# initialize objective function values
-	objectiveValues=[]
-	for i in range(objectiveCount):
-		objectiveValues.append(0.0)
+	fitness=0.0;
+	# construct temporary set of repulsive potentials from parameters and set in calculator
+	tempereps=copy.deepcopy(options["repulsives"])
+	for i in range(len(options["paramap"])):
+		(E1,E2,index)=options["paramap"][i]
+		tempereps[(E1,E2)][1][i]=X[i]
+	options["sched"]._worker._setEreps(tempereps)
+	for i in options["targetPaths"]:
+		i.realforcesfunc(options["sched"])
 	# do E_rep calculations on objectivePaths
-	for i in objectivePaths:
-		# dirty: reset energies to force calculation of all images :-/
-		i.energies=[]
-		i.realforcesfunc(sched)
 	# now iterate through targets, adding up the objective function values
-	for (pathIndex, targetFunction, objIndex, objWeight,options) in targets:
-		tempObjective=targetFunction(objectivePaths[pathIndex],targetpath=targetPaths[pathIndex],opt=options)
-		objectiveValues[objIndex]+=objWeight*tempObjective
-	return objectiveValues
+	for (pathIndex, targetFunction, targetWeight, fitOpts) in options["targets"]:
+		fitness+=targetFunction(options["objectivePaths"][pathIndex],targetpath=options["targetPaths"][pathIndex],opt=fitOpts)*targetWeight
+	return fitness
 	
 
 #
-# 
+# FUNCTIONS TO UI NAME MAPS
 #
 
+
+# Mutator functions
+MUTFUNCS = {
+	"local": 	randomLocalMutate,
+	"global":	randomGlobalMutate,
+}
+
+# Combiner functions
+COMBFUNCS = {
+	"lr":		lrCombine,
+	"rnd":		randomCombine
+}
+
+
 #
-# MAIN LOOP
+# MAIN PROGRAM
 #
 if __name__ == '__main__':
 	
@@ -385,23 +443,28 @@ type '%prog --help' for more information"""
 			action="store", metavar="N", dest="maxit", type="int", default=1000,
 			help="Maximum number of iterations, default = %default")
 	
-##	parser.add_option("-c","--craziness",
-##			action="store", metavar="C", dest="craziness", type="int", default=10,
-##			help="Crazyness factor, default = %default")
-##
-	
 	# internally we still call this craziness, as it replaces the old craziness parameter
 	parser.add_option("-u","--mutation",
 			action="store", metavar="M", dest="craziness", type="float", default=0.1,
 			help="Mutation factor, must be 0.0<M<1.0, default = %default")
 
-	parser.add_option("-r","--repository-size",
-			action="store", metavar="R", dest="repsize", type="int", default=100,
-			help="Maximum number of Parameter sets to store in the repository, default = %default")
+	#parser.add_option("-r","--repository-size",
+	#		action="store", metavar="R", dest="repsize", type="int", default=100,
+	#		help="Maximum number of Parameter sets to store in the repository, default = %default")
 
 	parser.add_option("-p","--population",
 			action="store", metavar="N", dest="population", type="int", default=100,
 			help="Total number of E_rep sets to use, default = %default")
+
+
+	parser.add_option("-c","--combiner",
+					  action="store", metavar="C", dest="combiner",choices=COMBFUNCS.keys() , type="choice", default=COMBFUNCS.keys()[0],
+					  help="Method used to combine parents, either lr or rnd, default=%default")
+	
+	parser.add_option("-t","--mutator",
+					  action="store", metavar="M", dest="mutator",choices=MUTFUNCS.keys(), type="choice", default=MUTFUNCS.keys()[0],
+					  help="Method used to mutate specimens, wither local or global, default=%default")
+
 
 	parser.add_option("-v", 
 			action="count", dest="verbosity", default=comatsci.constants.VBL_NORMAL,
@@ -432,6 +495,7 @@ type '%prog --help' for more information"""
 ##			help="Set maximum number of concurrent parallel threads in thread scheduling mode. 0:= no limit. default=%default")
 	
 	(options,args) = parser.parse_args()
+
 	
 	# catch unexpected positional arguments:
 	if len(args)>2:
@@ -454,15 +518,18 @@ type '%prog --help' for more information"""
 	
 	ereps, paramap = read_repulsives(repulsivesFileName,options.verbosity)
 	
+	X = []
+	
 	#paramap is a list of tuples containing: 
 	#Element_1, Element_2, index
 	if options.verbosity>=comatsci.constants.VBL_NORMAL:
 		print "Parameters :\nE_rep\tr\t\tE(r)"
 		for (El1, El2, i) in paramap:
 			print "%d-%d:\t%f\t%f"%(El1,El2,ereps[(El1,El2)][0][i],ereps[(El1,El2)][1][i])
+			X.append(ereps[(El1,El2)][1][i])
 	
 	if options.verbosity>=comatsci.constants.VBL_NORMAL:
-		print "reading repulsives definitions from %s" % targetsFileName
+		print "reading targets definitions from %s" % targetsFileName
 	targetPaths, objectivePaths, targets = read_targets(targetsFileName,options.verbosity)
 	
 	#TODO: Add targets listing here
@@ -489,20 +556,65 @@ type '%prog --help' for more information"""
 	# ************************************************************************************
 
 	# *** initialize calculator and scheduler ***
-	calc=comatsci.Calculators.erepcalc(ereps)
-	sched=comatsci.Schedulers.serialScheduler(calc)
+	calc=comatsci.Calculators.erepcalc(ereps,verbosity=options.verbosity)
+	sched=comatsci.Schedulers.serialScheduler(calc,verbosity=options.verbosity)
+
+
+	# *** initialize optimizer ***
+	MutatorOptions={
+		"scale":	options.craziness,
+		"mutparms":	(0,-1)
+	}
+	FitnessOptions={
+		"repulsives":		ereps,
+		"sched":			sched,
+		"paramap":			paramap,
+		"targets":			targets,
+		"targetPaths":		targetPaths,
+		"objectivePaths":	objectivePaths
+	}
+	CombinerOptions={}
+	OptimizerOptions={
+		"maxF": 0.1,
+		"mutator": MUTFUNCS[options.mutator],
+		"mutatorOptions": MutatorOptions,
+		"fitness": calc_MetaFitness ,
+		"fitnessOptions": FitnessOptions,
+		"combiner": COMBFUNCS[options.combiner],
+		"combinerOptions": CombinerOptions,
+		"populationSize": options.population,
+		"breederCount": 5,
+		"keepFitterElders": False,
+		"verbosity": options.verbosity,
+		"maxIterations": options.maxit,
+	}
+	optimizer = Optimizers.singleObjectiveGeneticOptimizer(OptimizerOptions)
 	
+		
+	#
+	#
+	#
+		
+	#
+	# MAIN LOOP
+	#
+	
+	while not optimizer.converged:
+		X=optimizer.optStep(X,calc_MetaFitness,None,None)
+		print "Iteration %5d - best fitness: %f " % (optimizer.getIterations(),optimizer.solutions[0][0])
+		
+		# ************************************************************************************
+		# Optimization debug: write repulsive potentials histories to outputfiles
+		# initialize output files
+		if options.optdebug:
+			od_repfiles=[]
+			for i in ereps.keys():
+				od_repfiles.append(open("repdbg_%d-%d"%i,"w")) # key of ereps is a 2-tuple of ints
+		# ************************************************************************************
 
-
-	# ************************************************************************************
-	# Optimization debug: write repulsive potentials histories to outputfiles
-	# initialize output files
-	if options.optdebug:
-		od_repfiles=[]
-		for i in ereps.keys():
-			od_repfiles.append(open("repdbg_%d-%d"%i,"w")) # key of ereps is a 2-tuple of ints
-	# ************************************************************************************
-
+	
+	# OPTIMIZATION FINISHED
+	# TODO: At this point the optimized repulsives should probably be written
 	
 	# ************************************************************************************
 	# Optimization debug: close repulsive potantial trajectory files
