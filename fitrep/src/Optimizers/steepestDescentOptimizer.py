@@ -15,7 +15,8 @@
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
 
-from Optimizers import *
+from Optimizer import Optimizer,constants
+
 
 class steepestDescentOptimizer(Optimizer):
 	"""Optimize X so that F(X) becomes zero by following dF/dX"""

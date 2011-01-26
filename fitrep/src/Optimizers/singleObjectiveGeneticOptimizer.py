@@ -15,7 +15,8 @@
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
 
-from Optimizer import *
+from Optimizer import Optimizer,constants,populationKey
+import copy,random
 
 
 class singleObjectiveGeneticOptimizer(Optimizer):
@@ -32,9 +33,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		<em>All parameters inside options dictionary.</em>
 		@param options dictionary of optimizer options <b>contains all further 
 		parameters</b>, also see base class for global options!
-		@param maxF report convergence if abs of largest dF/dX component <=maxF,
-		for Dynamics simulation, set maxF and/or maxFRMS negative and set hardConvergence
-		True
+		@param maxF report convergence if fittest specimen has fitness <=maxF,
 		@param mutator fuction with parameters mutator(options,X) returning 
 		vector X suitable as argument of F(X)
 		@param mutatorOptions dictionary of options to pass to the mutator function
@@ -159,6 +158,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 			if self._verbosity >= constants.VBL_DEBUG2:
 				print "SOGA Optimizer: generating inital population"
 			self.__initialPopulate(X)
+			self._lastSolutions=self._bestPopulation
 			return self._bestPopulation[0][1]
 		else:
 		#otherwise combine, mutate, and evaluate required number of offspring
@@ -185,6 +185,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 				newPopulation+=self._lastPopulation[self._breederCount:]
 				newPopulation.sort(key=populationKey)
 				self._lastPopulation=newPopulation[:self._populationSize]
+			self._lastSolutions=self._lastPopulation
 			return self._lastPopulation[0][1]
 
 

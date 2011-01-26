@@ -54,7 +54,7 @@ class Optimizer:
 		"""optimizer base constructor
 		always call in derived classes! <em>All parameters inside options dictionary.</em>
 		@param options dictionary of optimizer options <b>contains all further parameters</b>
-		@param verbositty=constants.VBL_QUIET output verbosity level, only warnings and fatal errors by default
+		@param verbosity=constants.VBL_QUIET output verbosity level, only warnings and fatal errors by default
 		@param maxIterations Maximum number of interations until convergence due to iteration count is reported"""
 		self._converged = False
 		self._verbosity=options.get("verbosity",constants.VBL_QUIET)
