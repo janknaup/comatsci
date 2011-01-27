@@ -623,3 +623,23 @@ type '%prog --help' for more information"""
 		for od_i in od_repfiles:
 			od_i.close()
 	# ************************************************************************************
+
+
+	print "Optimization finished with result: '%s'" % (optimizer.getConvReason())
+	
+	# remap best specimen to repulsives
+	finalreps=copy.deepcopy(ereps)
+	for i in range(len(paramap)):
+		(E1,E2,index)=paramap[i]
+		finalreps[(E1,E2)][1][index]=X[i]
+	
+	print "Writing final repulsive potentials: *",
+	for i in finalreps.keys():
+		print "\b.",
+		repfilename="final-%s-%s.rep"%(comatsci.Geometry.Geometry.PTE[i[0]],comatsci.Geometry.Geometry.PTE[i[1]])
+		repfile=open(repfilename,"w")
+		for j in range(len(ereps[i][0])):
+			print >> repfile, "%14.10f   %14.10f" % (finalreps[i][0][j],finalreps[i][1][j])
+		repfile.close()
+		print "\b\b:",
+	print "\b* done."
