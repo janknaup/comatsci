@@ -133,6 +133,7 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 			self._bestFitness=self._fitness(self._fitnessOptions,X)
 			self._lastFitness=copy.deepcopy(self._bestFitness)
 			self._bestX=copy.deepcopy(X)
+			self._lastSolutions=((self._bestFitness,self._bestX),)
 			return X
 		else:
 		#otherwise mutate X, calculate new fitness and return the fitter X
@@ -145,13 +146,15 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 			self._lastFitness=self._fitness(self._fitnessOptions,newX)
 			if self._lastFitness<self._bestFitness:
 				self._bestFitness=copy.deepcopy(self._lastFitness)
+				self._bestX=newX
 				if self._verbosity >= constants.VBL_DEBUG2:
 					print "SOMC Optimizer: mutated X is fitter, returning X'"
-				return newX
 			else:
 				if self._verbosity >= constants.VBL_DEBUG2:
 					print "SOMC Optimizer: mutated X is not fitter, returning X"
-				return X
+				self._lastSolutions=copy.deepcopy(X)
+			self._lastSolutions=((self._bestFitness,self._bestX),)
+			return self._bestX
 
 
 	
