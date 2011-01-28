@@ -64,6 +64,12 @@ T_REQUIREDOPTIONS={
 }
 
 
+# Optimizers
+OPTIMIZERS={
+	"genetic":		Optimizers.singleObjectiveGeneticOptimizer,
+	"mc":			Optimizers.singleObjectiveMonteCarloOptimizer
+}
+
 
 #************************
 #* Function Definitions *
@@ -428,7 +434,7 @@ COMBFUNCS = {
 #
 if __name__ == '__main__':
 	
-	from optparse import OptionParser
+	from optparse import OptionParser,OptionGroup
 	
 	# *** Parse Options ***
 
@@ -437,35 +443,21 @@ repulsives:\toptional filename of repulsives definition file, default = "repulsi
 targets:\t\toptional filename of targets definition file, default = "targets"
 type '%prog --help' for more information"""
 	
+	#
+	# GROUP options for better usability
+	#
+	
+	#
+	# GENERAL options not directly optimization specific
+	#
+	
 	parser=OptionParser(usage)
 	
-	parser.add_option("-m","--maxit",
-			action="store", metavar="N", dest="maxit", type="int", default=1000,
-			help="Maximum number of iterations, default = %default")
+	parser.add_option("-o","--optimizer",
+			action="store", metavar="OPT", dest="optimizer", type="choice",
+			choices=OPTIMIZERS.keys(), default="genetic",
+			help="Select which optimizer to use for fitting the repulsive potential. Default=%default")
 	
-	# internally we still call this craziness, as it replaces the old craziness parameter
-	parser.add_option("-u","--mutation",
-			action="store", metavar="M", dest="craziness", type="float", default=0.1,
-			help="Mutation factor, must be 0.0<M<1.0, default = %default")
-
-	#parser.add_option("-r","--repository-size",
-	#		action="store", metavar="R", dest="repsize", type="int", default=100,
-	#		help="Maximum number of Parameter sets to store in the repository, default = %default")
-
-	parser.add_option("-p","--population",
-			action="store", metavar="N", dest="population", type="int", default=100,
-			help="Total number of E_rep sets to use, default = %default")
-
-
-	parser.add_option("-c","--combiner",
-					  action="store", metavar="C", dest="combiner",choices=COMBFUNCS.keys() , type="choice", default=COMBFUNCS.keys()[0],
-					  help="Method used to combine parents, either lr or rnd, default=%default")
-	
-	parser.add_option("-t","--mutator",
-					  action="store", metavar="M", dest="mutator",choices=MUTFUNCS.keys(), type="choice", default=MUTFUNCS.keys()[0],
-					  help="Method used to mutate specimens, wither local or global, default=%default")
-
-
 	parser.add_option("-v", 
 			action="count", dest="verbosity", default=comatsci.constants.VBL_NORMAL,
 			help="Increase verbosity level, default=%default")
@@ -482,10 +474,6 @@ type '%prog --help' for more information"""
 			action="store_true", default=False,  dest="optdebug",
 			help="Optimization debug: write various files recording the optimization history. !OUTPUT FILES ARE LARGE! default=%default.")
 
-	parser.add_option("-g","--ranges",
-			action="store", default=None,  dest="ranges", type="string", metavar = "R",
-			help="Read parameter range definitions from file R. default: use automatic +-40% of inital ranges.")
-
 ##	parser.add_option("-d","--scheduler",
 ##			action="store", type="string", dest="scheduler", default="s",
 ##			help="Choose scheduler to manage execution of single calculations. Choices are 's': serial, 'p': MPI parallel, 't': threading parallel. default=%default")
@@ -493,8 +481,82 @@ type '%prog --help' for more information"""
 ##	parser.add_option("-t","--maxworkthreads",
 ##			action="store", type="int", dest="maxthreads", default=0,
 ##			help="Set maximum number of concurrent parallel threads in thread scheduling mode. 0:= no limit. default=%default")
+#*****************  end  inactive options ***********************************************************************************************
+
+	#
+	# Optimizer common options
+	#
+	
+	optimizerCommonOptions=OptionGroup(parser,"common options","options common to all optimizer types")
+	
+	optimizerCommonOptions.add_option("-m","--maxit",
+			action="store", metavar="N", dest="maxit", type="int", default=1000,
+			help="Maximum number of iterations, default = %default")
+	
+	# internally we still call this craziness, as it replaces the old craziness parameter
+	optimizerCommonOptions.add_option("-u","--mutation",
+			action="store", metavar="M", dest="craziness", type="float", default=0.1,
+			help="Mutation factor, must be 0.0<M<1.0, default = %default")
+		
+	optimizerCommonOptions.add_option("-t","--mutator",
+					  action="store", metavar="M", dest="mutator",choices=MUTFUNCS.keys(), type="choice", default=MUTFUNCS.keys()[0],
+					  help="Method used to mutate specimens, wither local or global, default=%default")
+	
+	#***************** begin inactive options *******************************************************************************************	
+	#optimizerCommonOptions.add_option("-g","--ranges",
+	#		action="store", default=None,  dest="ranges", type="string", metavar = "R",
+	#		help="Read parameter range definitions from file R. default: use automatic +-40% of inital ranges.")
+	#*****************  end  inactive options *******************************************************************************************
+	
+	parser.add_option_group(optimizerCommonOptions)
+	
+	#
+	# Genetic Optimizer options
+	#
+	optimizerGeneticOptions=OptionGroup(parser,"gentic optimizer options","options only relevant to genetic optimization")
+
+	optimizerGeneticOptions.add_option("-p","--population",
+			action="store", metavar="POP", dest="population", type="int", default=100,
+			help="Total number of E_rep sets to use, default = %default")
+	
+	optimizerGeneticOptions.add_option("-b","--breeders",
+			action="store", metavar="B", dest="breedercount", type="int", default=20,
+			help="Total number of E_rep sets to choose for the breeder group, default = %default")
+	
+	optimizerGeneticOptions.add_option("--keep-elders",
+			action="store_true", dest="keep_elders",  default=False,
+			help="If selected, non-breeders fitter than offspring will survive into next generation, default = %default")
+	
+	optimizerGeneticOptions.add_option("-c","--combiner",
+					  action="store", metavar="C", dest="combiner",choices=COMBFUNCS.keys() , type="choice", default=COMBFUNCS.keys()[0],
+					  help="Method used to combine parents, either lr or rnd, default=%default")
+	
+	#***************** begin inactive options *******************************************************************************************	
+	#optimizerGeneticOptions.add_option("-r","--repository-size",
+	#		action="store", metavar="R", dest="repsize", type="int", default=100,
+	#		help="Maximum number of Parameter sets to store in the repository, default = %default")
+	#*****************  end  inactive options *******************************************************************************************
+	
+	parser.add_option_group(optimizerGeneticOptions)
+	
+	#
+	# Monte-Carlo Optimizer options
+	#
+	optimizerMcOptions=OptionGroup(parser,"mc optimizer options", "options only relevant to monte-carlo optimization")
+
+	#***************** begin inactive options *******************************************************************************************
+	
+	#*****************  end  inactive options *******************************************************************************************
+
+	#parser.add_option_group(optimizerMcOptions)
 	
 	(options,args) = parser.parse_args()
+	
+	# limit breeder count to population size
+	if options.breedercount > options.population:
+		if options.verbosity >= comatsci.constants.VBL_SILENCE:
+			print "*****\nWARNING: breeder count larger than population was lowered to population size.\n*****"
+		options.breedercount=options.population
 
 	
 	# catch unexpected positional arguments:
@@ -556,8 +618,8 @@ type '%prog --help' for more information"""
 	# ************************************************************************************
 
 	# *** initialize calculator and scheduler ***
-	calc=comatsci.Calculators.erepcalc(ereps,verbosity=options.verbosity)
-	sched=comatsci.Schedulers.serialScheduler(calc,verbosity=options.verbosity)
+	calc=comatsci.Calculators.erepcalc(ereps,verbosity=options.verbosity-3)
+	sched=comatsci.Schedulers.serialScheduler(calc,verbosity=options.verbosity-2)
 
 
 	# *** initialize optimizer ***
@@ -583,12 +645,12 @@ type '%prog --help' for more information"""
 		"combiner": COMBFUNCS[options.combiner],
 		"combinerOptions": CombinerOptions,
 		"populationSize": options.population,
-		"breederCount": 5,
-		"keepFitterElders": False,
+		"breederCount": options.breedercount,
+		"keepFitterElders": options.keep_elders,
 		"verbosity": options.verbosity,
 		"maxIterations": options.maxit,
 	}
-	optimizer = Optimizers.singleObjectiveGeneticOptimizer(OptimizerOptions)
+	optimizer = OPTIMIZERS[options.optimizer](OptimizerOptions)
 	
 		
 	#
@@ -601,7 +663,8 @@ type '%prog --help' for more information"""
 	
 	while not optimizer.converged:
 		X=optimizer.optStep(X,calc_MetaFitness,None,None)
-		print "Iteration %5d - best fitness: %f " % (optimizer.getIterations(),optimizer.solutions[0][0])
+		print "Iteration %5d - best fitness: %f - acceptance rate: %f" % (optimizer.getIterations(),optimizer.solutions[0][0],optimizer.getAcceptanceRate())
+		sys.stdout.flush()
 		
 		# ************************************************************************************
 		# Optimization debug: write repulsive potentials histories to outputfiles
@@ -626,6 +689,8 @@ type '%prog --help' for more information"""
 
 
 	print "Optimization finished with result: '%s'" % (optimizer.getConvReason())
+	print "Total number of mutations  :\t%d" % optimizer._mutations
+	print "Final acceptance rate      :\t%12.6f" % optimizer.getAcceptanceRate()
 	
 	# remap best specimen to repulsives
 	finalreps=copy.deepcopy(ereps)
