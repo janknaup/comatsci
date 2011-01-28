@@ -181,10 +181,21 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 			#population, re-sort and slice to the desired population size
 			if not self._keepFitterElders:
 				self._lastPopulation=newPopulation
+				self._accepted+=len(newPopulation)-self._breederCount
 			else:
 				newPopulation+=self._lastPopulation[self._breederCount:]
 				newPopulation.sort(key=populationKey)
 				self._lastPopulation=newPopulation[:self._populationSize]
+				# kinda dirty trick to obtain acceptance-ratio:
+				# compare fitness values between new population and the last surviving copy of the old population, stored in _lastSolutions
+				# this assumes that exact floating point fitness is unique for solutions
+				tempaccepted=self._populationSize-self._breederCount
+				for i in range(self._breederCount,len(self._lastSolutions)):
+					for j in range(self._breederCount,len(self._lastPopulation)):
+						if self._lastSolutions[i][0]==self._lastPopulation[j][0]:
+							tempaccepted-=1
+							break
+				self._accepted+=tempaccepted
 			self._lastSolutions=self._lastPopulation
 			return self._lastPopulation[0][1]
 
@@ -192,7 +203,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 	
 	def getAcceptanceRate(self):
 		"""return total acceptance rate of trial soluations"""
-		return float(self._accepted/float(self.iterations))
+		return float(self._accepted/float(self._mutations+0.000000000000000001))
 	acceptanceRate=property(getAcceptanceRate)
 
 

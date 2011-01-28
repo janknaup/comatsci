@@ -81,6 +81,7 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 		self._bestX=None
 		# statistics
 		self._accepted=0
+		self._mutations=0
 		
 		if self._verbosity >= constants.VBL_DEBUG1:
 			print "SOMC Optimizer: initialized"
@@ -141,12 +142,14 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 			if self._verbosity >= constants.VBL_DEBUG2:
 				print "SOMC Optimizer: mutating X"
 			newX=self._mutator(self._mutatorOptions,X)
+			self._mutations+=1
 			if self._verbosity >= constants.VBL_DEBUG2:
 				print "SOMC Optimizer: calculating fitness of mutated X"
 			self._lastFitness=self._fitness(self._fitnessOptions,newX)
 			if self._lastFitness<self._bestFitness:
 				self._bestFitness=copy.deepcopy(self._lastFitness)
 				self._bestX=newX
+				self._accepted+=1
 				if self._verbosity >= constants.VBL_DEBUG2:
 					print "SOMC Optimizer: mutated X is fitter, returning X'"
 			else:
@@ -160,7 +163,7 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 	
 	def getAcceptanceRate(self):
 		"""return total acceptance rate of trial soluations"""
-		return float(self._accepted/float(self.iterations))
+		return float(self._accepted/float(self._mutations+0.000000000000000001))
 	acceptanceRate=property(getAcceptanceRate)
 
 
