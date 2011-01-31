@@ -1,0 +1,24 @@
+# Target specification file
+# A target block comprises one line specifying a target path file
+# and an arbitrary number of lines, specifying objective functions to
+# calculate on that path
+
+# forces target paths:
+SKtargets/benzene.fmg
+forcesquares 0.166667
+
+SKtargets/ethane1.fmg
+forcesquares 1.0
+
+SKtargets/ethane2.fmg
+forcesquares 1.0
+
+SKtargets/ethene.fmg
+forcesquares 1.0
+
+SKtargets/ethyne.fmg
+forcesquares 1.0
+
+#isodesmic reactions
+#/home/hoffmann/work/SKPARAM/targets/ethene-isodesmic.fmg
+#reactionsquares 0 1000.0

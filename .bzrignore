@@ -27,3 +27,8 @@ fitrep/src/scripts/fitrep_mopsoc
 fitrep/src/scripts/fitrepc
 fitrep/MANIFEST
 gui/MANIFEST
+help
+final-*
+test_regr/newfitrep/fit.log
+^Cst_regr/newfitrep/finals_*
+test_regr/newfitrep/finals_*

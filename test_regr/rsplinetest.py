@@ -1,5 +1,5 @@
-import pypath
-path=pypath.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+import comatsci
+path=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
 path.readfmgpath("preppath.fmg")
 path._genRsplineRep()
 parms=[]
