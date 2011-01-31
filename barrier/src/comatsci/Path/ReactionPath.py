@@ -211,7 +211,7 @@ class Reactionpath:
                         gradsbuf=[]
                         for line in inlist[(image*blocklength+2):(image+1)*blocklength]:
                                 buf=line.split()
-                                gradsbuf.append([ float(s) for s in buf[4:7] ])
+                                gradsbuf.append([ float(s)/0.529177 for s in buf[4:7] ])
                         gradients.append(array(gradsbuf))        
                 self.realforces=gradients
                                 
