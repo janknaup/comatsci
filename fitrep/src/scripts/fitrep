@@ -140,7 +140,7 @@ def optImageList(arg,path,lineNumber):
 			raise
 		#index can be out of range of images in path
 		if index >=path.numImages:
-			raise "Invalid target function definition in line %d of targets: image index out of range" % (lineNumber)
+			raise IndexError("Invalid target function definition in line %d of targets: image index out of range" % (lineNumber))
 		indexList.append(index)
 	return indexList
 
@@ -185,9 +185,9 @@ def read_ranges(rangesFileName,verbosity=comatsci.constants.VBL_QUIET):
 			dummy=lines[i].strip().split()
 			# expecting parameter number (counting from 1), lowbound, highbund
 			if (len(dummy) > 3):
-				raise "unexpected colunms in line %d of ranges definition file" % (i+1)
+				raise ValueError("unexpected colunms in line %d of ranges definition file" % (i+1))
 			elif (len(dummy) < 3):
-					raise "missing column(s) in line %d of ranges definition file" % (i+1)
+					raise ValueError("missing column(s) in line %d of ranges definition file" % (i+1))
 			# try converting numbers, give number of offending line, if this fails
 			try:
 				idx=int(dummy[0])
@@ -198,7 +198,7 @@ def read_ranges(rangesFileName,verbosity=comatsci.constants.VBL_QUIET):
 				raise
 			# check for duplicate range definitions
 			if ranges.has_key(idx):
-				raise "Duplicate range definition for parameter %d in line %d of ranges definition file." % (idx,i)
+				raise ValueError("Duplicate range definition for parameter %d in line %d of ranges definition file." % (idx,i))
 			# if everything is okay, add range spec to return dictionary
 			ranges[i]=(lo,hi)
 	# done
@@ -231,9 +231,9 @@ def read_repulsives(repsFileName="repulsives",verbosity=comatsci.constants.VBL_Q
 			dummy=repLines[i].strip().split()
 			# expecting E_1 E_2 Filename inner <outer>
 			if (len(dummy)==4 and int(dummy[3])!=-1):
-				raise "Invalid E_rep specification in line %d of repulsives: expecting inner and outer optimization range" % (i+1)
+				raise ValueError("Invalid E_rep specification in line %d of repulsives: expecting inner and outer optimization range" % (i+1))
 			elif len(dummy)!=5 and len(dummy)!=4:
-				raise "Invalid E_rep specification in line %d of repulsives: expecting E_1 E_2 Filename inner <outer>, inner must be -1 if E_rep is to be fixed" % (i+1)
+				raise ValueError("Invalid E_rep specification in line %d of repulsives: expecting E_1 E_2 Filename inner <outer>, inner must be -1 if E_rep is to be fixed" % (i+1))
 			# Check, if Element numbers can be parsed as integers
 			try:
 				e1=int(dummy[0])
@@ -249,7 +249,7 @@ def read_repulsives(repsFileName="repulsives",verbosity=comatsci.constants.VBL_Q
 			# Check if E_rep file exists
 			erepFileName=dummy[2]
 			if not os.path.exists(erepFileName):
-				raise "Invalid E_rep specification in line %d of repulsives: E_rep file '%s' not found." % (i+1,erepFileName)
+				raise ValueError("Invalid E_rep specification in line %d of repulsives: E_rep file '%s' not found." % (i+1,erepFileName))
 			else:
 				erep=readerep(erepFileName)
 			# Elemtents and repulsive specification have been read
@@ -322,7 +322,7 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 				targetFileName=tokens[0]
 				#check if target file exitsts
 				if not os.path.exists(targetFileName):
-					raise "Invalid target path specification in line %d of targets: target path file '%s' not found." % (i+1,targetFileName)
+					raise ValueError("Invalid target path specification in line %d of targets: target path file '%s' not found." % (i+1,targetFileName))
 				else:
 					#sanity check: did we read a target path in the last line?
 					if lastPath:
@@ -348,12 +348,12 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 			#for a target function def, we need at least function and weight
 			elif (len(tokens)>1):
 				if not hasPath:
-					raise "Invalid target function definition in line %d of targets: target function declared without prior path definition" %(i+1)
+					raise ValueError("Invalid target function definition in line %d of targets: target function declared without prior path definition" %(i+1))
 				else:
 					lastPath=False
 				functionName=tokens[0].strip().lower()
 				if not TARGETFUNCTIONS.has_key(functionName):
-					raise "Invalid target function definition in line %d of targets: unknown function definition." %(i+1)
+					raise ValueError("Invalid target function definition in line %d of targets: unknown function definition." %(i+1))
 				else:
 					#convert weight
 					objWeight=float(tokens[1])
@@ -372,17 +372,17 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 						if optName in T_VALIDOPTIONS[functionName]:
 							tempOptions[optName]=T_OPTPARSERS[optName](arg=optArgs,path=targetPaths[currentTargetPath],lineNumber=i+1)
 						else:
-							raise "Invalid target function definition in line %d of targets: unexpected option %s for target function %s." % (i+1,functionName,optTokens[0])
+							raise ValueError("Invalid target function definition in line %d of targets: unexpected option %s for target function %s." % (i+1,functionName,optTokens[0]))
 					#finally, check if all required options were specified, if required options are present
 					if T_REQUIREDOPTIONS[functionName]:
 						for option in T_REQUIREDOPTIONS[functionName]:
 							if not option in tempOptions:
-								raise "Invalid target function definition in line %d of targets: option %s for target function %s is missing." % (i+1,functionName,option)
+								raise ValueError("Invalid target function definition in line %d of targets: option %s for target function %s is missing." % (i+1,functionName,option))
 					#append the target function definition
 					targets.append((currentTargetPath,TARGETFUNCTIONS[functionName][0],objWeight,tempOptions))
 			#catch malformed lines
 			else:
-				raise "Invalid target function definition in line %d of targets: need at least function, objective reference and objective weight." %(i+1)
+				raise ValueError("Invalid target function definition in line %d of targets: need at least function, objective reference and objective weight." %(i+1))
 	#finished parsing, return paths and targets
 	return (targetPaths,objectivePaths,targets)
 	
@@ -561,7 +561,7 @@ type '%prog --help' for more information"""
 	
 	# catch unexpected positional arguments:
 	if len(args)>2:
-		raise "Unexpected arguments in command line: %s" % str(args[2:])
+		raise ValueError("Unexpected arguments in command line: %s" % str(args[2:]))
 	
 	# set targets and frepulsives filenames from arguments if given, else default
 	if len(args)<2:
