@@ -9,7 +9,8 @@
 ##############################################################################
 
 # define the list of known calculators here, also import base classes Calculator and CalcError
-__all__=["dftbcalc", "noodlecalc", "siestacalc", "gaussiancalc", "erepcalc",  "muellerBrownCalc",  "Calculator",  "CalcError" ]
+__all__=["dftbcalc", "noodlecalc", "siestacalc", "gaussiancalc", "erepcalc",  "muellerBrownCalc",  "Calculator",  "CalcError", \
+          "pairPotentialCalc" ]
 
 # to maintain api compatibility with previous versions, import all calculatir classes into the Calculators namespace
 # @note: old-version dftb calculator removed from official distribution. noodle is now the officially supported DFTB version
