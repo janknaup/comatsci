@@ -11,7 +11,7 @@ URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 
 distrib=setup (	name="comatsci-barriers",
 		version=VERSIONTAG,
-		packages=['comatsci.Calculators','comatsci.Path','comatsci.Schedulers'],
+		packages=['comatsci.Calculators','comatsci.Calculators.Potentials','comatsci.Path','comatsci.Schedulers'],
 		package_dir={'comatsci':'src/comatsci',},
 		scripts=['src/scripts/pastafarian','src/scripts/pathprepare',
 			'src/scripts/pathprops','src/scripts/multiaverage'],
