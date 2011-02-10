@@ -105,7 +105,7 @@ class potentialFunction:
                 """ @return list with all parameters allowed to change """
                 raise NotImplementedError()
 
-        def returnMutables(self,mutated):
+        def updateMutables(self,mutated):
                 """ @parameter mutated: list with updated parameters to write back
                 into self._parameters
                 """
