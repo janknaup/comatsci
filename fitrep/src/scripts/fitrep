@@ -401,6 +401,7 @@ def calc_MetaFitness(options,X):
 	for i in range(len(options["paramap"])):
 		(E1,E2,index)=options["paramap"][i]
 		tempereps[(E1,E2)][1][i]=X[i]
+	#FIXME: this is not worrable in parallel mode, find better way to communicate E-reps to calculators
 	options["sched"]._worker._setEreps(tempereps)
 	for i in options["targetPaths"]:
 		i.realforcesfunc(options["sched"])
@@ -620,6 +621,7 @@ type '%prog --help' for more information"""
 	# *** initialize calculator and scheduler ***
 	calc=comatsci.Calculators.erepcalc(ereps,verbosity=options.verbosity-3)
 	sched=comatsci.Schedulers.serialScheduler(calc,verbosity=options.verbosity-2)
+	#sched=comatsci.Schedulers.threadScheduler(comatsci.Calculators.erepcalc,((ereps),{"verbosity":options.verbosity-3}),2,options.verbosity-2,)
 
 
 	# *** initialize optimizer ***
