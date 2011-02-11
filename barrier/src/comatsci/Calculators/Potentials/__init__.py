@@ -9,17 +9,19 @@
 ##############################################################################
 
 # define the list of known potentials here
-__all__=["polynomFunction", "potentialFunction" ]
+__all__=["polynomFunction", "xySplineFunction","potentialFunction" ]
 
 # manually import potential functions
 
 from potentialFunction import potentialFunction
 from polynomFunction import polynomFunction
+from xySplineFunction import xySplineFunction
 
 
 # define map of known potential functions
 POTENTIALLABELMAP={
-  "&polynom&": polynomFunction 
+  "&polynom&"   :    polynomFunction,
+  "&xyspline&"  :    xySplineFunction
 }
 
 
@@ -38,11 +40,10 @@ def getPotentialFromFile(filename):
         if name[0]!="&" or name[-1]!="&":
           raise ValueError("Malformed potential file: Pair potential type indicator not found in line 1")
         else:
-          # try to construct potentialfunction from label, catch key errors from invalid potential labels and convert to ValueErrors
-          try:
-            returnPotential= POTENTIALLABELMAP[name]({})
-          except KeyError as detail:
-            raise ValueError("Unknown pair potential function %s" % detail.args[0][1:-1])
-        returnPotential.parseString("\n".join(inlines))
+          # check if potentialFunction is known
+          if not POTENTIALLABELMAP.has_key(name):
+            raise ValueError("Unknown potential function '%s' specified" % name[1:-1])
+          returnPotential= POTENTIALLABELMAP[name]({})
+          returnPotential.parseString("\n".join(inlines))
         return returnPotential
 
