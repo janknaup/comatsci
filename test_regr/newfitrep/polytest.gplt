@@ -1,0 +1,13 @@
+rcut=2.6
+c2=0.10
+c3=0.10
+c4=0.10
+c5=0.01
+c6=0.01
+c7=0.01
+c8=0.0
+c9=0.0
+erep(r)=c2*(rcut-r)**2+c3*(rcut-r)**3+c4*(rcut-r)**4+c5*(rcut-r)**5+c6*(rcut-r)**6+c7*(rcut-r)**7+c8*(rcut-r)**8+c9*(rcut-r)**9
+
+plot [0:rcut] erep(x)
+

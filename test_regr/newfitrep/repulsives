@@ -4,7 +4,7 @@
 # Element#1 Element#2 filename index1 index2 | for E_rep[index1..index2] to be optimized
 # Example for C,H System:
 # Unchanged H-H and H-C repulsives
-1   1  H-H.rep -1
-1   6  H-C.rep -1
+1   1  H-H.xys
+1   6  H-C.xys
 # C-C repulsive with 12 free repulsive energies (first two and all tailing E(r) fixed
-6   6  C-C.rep 2 12
+6   6  C-C.xys
