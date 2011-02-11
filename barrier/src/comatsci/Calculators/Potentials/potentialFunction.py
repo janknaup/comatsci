@@ -30,7 +30,7 @@ class potentialFunction:
                         self._parameters=parameters
                 # the boundaries dictionary sets boundaries to toe parameters
                 # being subject to optimization
-                self._boundaries=self._paramaters.pop("boundaries",{})
+                self._boundaries=self._parameters.pop("boundaries",{})
 
 
 
