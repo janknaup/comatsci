@@ -32,10 +32,17 @@ def getPotentialFromFile(filename):
         infile=open(filename,"r")
         inlines=list(infile)
         infile.close()
-        """ first line should contain &POTENTIALLABEL& in the first field """
+        #first line should contain &POTENTIALLABEL& in the first field
         name=inlines[0].split()[0].strip()
-        returnPotential= POTENTIALLABELMAP[name]({}) 
-
+        # check if first line actually contains a potential label
+        if name[0]!="&" or name[-1]!="&":
+          raise ValueError("Malformed potential file: Pair potential type indicator not found in line 1")
+        else:
+          # try to construct potentialfunction from label, catch key errors from invalid potential labels and convert to ValueErrors
+          try:
+            returnPotential= POTENTIALLABELMAP[name]({})
+          except KeyError as detail:
+            raise ValueError("Unknown pair potential function %s" % detail.args[0][1:-1])
         returnPotential.parseString("\n".join(inlines))
         return returnPotential
 
