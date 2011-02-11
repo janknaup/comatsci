@@ -22,5 +22,6 @@ from erepcalc   import *
 from muellerBrownCalc  import *
 from Calculator   import *
 from CalcError import *
+from pairPotentialCalc import pairPotentialCalc
 import Potentials
 
