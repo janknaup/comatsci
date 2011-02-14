@@ -85,7 +85,7 @@ class polynomFunction(potentialFunction):
     dummy=0.0
     if (r <= self._parameters['cutoff']):
       for i in range(self._parameters['order']+1):
-        dummy=dummy+self._parameters['c'+str(i)]*r**i
+        dummy=dummy+self._parameters['c'+str(i)]*(self._parameters['cutoff']-r)**i
     return dummy
            
 
@@ -98,7 +98,7 @@ class polynomFunction(potentialFunction):
     dummy=0.0
     if (r <= self._parameters['cutoff']):
       for i in range(self._parameters['order']+1):
-        dummy=dummy+i*self._parameters['c'+str(i)]*r**(i-1)
+        dummy=dummy+i*self._parameters['c'+str(i)]*(self._parameters['cutoff']-r)**(i-1)
     return dummy
     
     
