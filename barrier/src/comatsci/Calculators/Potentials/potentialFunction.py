@@ -101,7 +101,7 @@ class potentialFunction:
 
                 raise NotImplementedError()
 
-        def getMutables(self):
+        def updateMutables(self):
                 """ @return list with all parameters allowed to change """
                 raise NotImplementedError()
 
