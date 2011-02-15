@@ -1,0 +1,34 @@
+set multiplot layout 2,2 rowsfirst title "H-O Potential Comparison"
+
+firstpot="before.dat"
+firstlab="mio-1-0 poly"
+secondpot="after.dat"
+secondlab="after 20 generations"
+innercut=1.0
+outercut=2.8
+
+set grid
+set grid mytics
+
+set title "linscale U(r)"
+unset logscale
+set xlabel "r [a.u.]"
+set ylabel "U(r) [H]"
+plot [innercut:outercut] [0:*] firstpot u 1:2 w l t firstlab, secondpot u 1:2 w l t secondlab
+
+set title "linscale dU(r)/dr"
+set ylabel "U'(r) [H/a.u.]"
+plot [innercut:outercut] [*:0] firstpot u 1:3 w l t firstlab, secondpot u 1:3 w l t secondlab
+
+set logscale y
+set title "logscale U(r)"
+set xlabel "r [a.u.]"
+set ylabel "U(r) [H]"
+plot [innercut:outercut] [1e-3:*] firstpot u 1:2 w l t firstlab, secondpot u 1:2 w l t secondlab
+
+set title "logscale dU(r)/dr"
+set ylabel "-U'(r) [H/a.u.]"
+plot [innercut:outercut] [1e-3:*] firstpot u 1:(-$3) w l t firstlab, secondpot u 1:(-$3) w l t secondlab
+unset logscale
+unset multiplot
+
