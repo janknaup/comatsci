@@ -653,6 +653,9 @@ type '%prog --help' for more information"""
 	for (label, length) in paramap:
 		if options.verbosity>=comatsci.constants.VBL_NORMAL:
 			print "%d-%d:\t%d mutable parameters"%(label[0],label[1],length)
+			if length > 0:
+				print "parameters including non-mutables:"
+				print comatsci.utils.dictionaryPrettyPrint(initPotentials[label].getParameters())
 		X+=initPotentials[label].getMutables()
 	
 	if options.verbosity>=comatsci.constants.VBL_NORMAL:
@@ -767,10 +770,17 @@ type '%prog --help' for more information"""
 		Mutes=Mutes[length:len(Mutes)]
 		finalPotentials[index].updateMutables(repMutes)
 	
-	print "Writing final repulsive potentials: *",
-	for i in finalPotentials.keys():
-		print "\b.",
-		repfilename="final-%s-%s.rep"%(comatsci.Geometry.Geometry.PTE[i[0]],comatsci.Geometry.Geometry.PTE[i[1]])
-		pass
-		print "\b\b:",
-	print "\b* done."
+	print "Writing final repulsive potentials:",
+	for (index,length) in paramap:
+		if length >0:
+#		print "\b.",
+			repfilename="final-%s-%s.rep"%(comatsci.Geometry.Geometry.PTE[index[0]],comatsci.Geometry.Geometry.PTE[index[1]])
+			pass
+			try:
+				print finalPotentials[index].getString()
+			except NotImplementedError:
+				print "can't get potential string for %s" % (repfilename)
+				print "final parameters are:"
+				print comatsci.utils.dictionaryPrettyPrint(finalPotentials[index].getParameters())
+#		print "\b\b:",
+#	print "\b* done."
