@@ -114,4 +114,15 @@ class potentialFunction:
 
 
 
+        def getString(self):
+                """@return string representation of the potential that can be read back in from a file"""
+                raise NotImplementedError()
 
+
+
+        def writeFile(self,filename):
+                """write file representation of current instance that can be read back in
+                @parameter filename: name of the file to be written"""
+                outfile=open(fineame,"w")
+                print >> outfile, self.getString()
+                outfile.close()
