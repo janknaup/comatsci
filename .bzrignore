@@ -32,3 +32,10 @@ final-*
 test_regr/newfitrep/fit.log
 ^Cst_regr/newfitrep/finals_*
 test_regr/newfitrep/finals_*
+test_miopoly
+test_randompoly
+test_xyspline
+stupiditytest.py
+C-C-resample.dat
+C-C-MIO.potplot.dat
+C-C-XYS.potplot.dat

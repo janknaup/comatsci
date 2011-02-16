@@ -25,12 +25,11 @@ class pairPotentialCalc(Calculator):
 		to of arrays[2][N] values, where i,j are element numbers with i<=j
 		and the arrays contain total energies in Hartree over radii in Bohr.
 		@param Potential: dictionary of Repulsive potentials
-		@param verbosity: c.f. base class (default 1)		
-                """
+		@param verbosity: c.f. base class (default 1)"""
 		if not isinstance(Potentials,dict):
 			raise CalcError("Potential is not of type dictionary")
 		else:
-			self._setPotentials(Potential)
+			self._setPotentials(Potentials)
 		Calculator.__init__(self,verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
 			print "initializing E_rep calculator"
@@ -107,5 +106,6 @@ class pairPotentialCalc(Calculator):
 		self.potentialsOutercut={}
 		for i in indict.keys():
 			(self.potentialsInnercut[i],self.potentialsOutercut[i])=indict[i].getCutoffs()
-                
+			
+			
 

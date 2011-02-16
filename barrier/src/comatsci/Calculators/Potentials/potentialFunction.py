@@ -30,7 +30,7 @@ class potentialFunction:
                         self._parameters=parameters
                 # the boundaries dictionary sets boundaries to toe parameters
                 # being subject to optimization
-                self._boundaries={}        
+                self._boundaries=self._parameters.pop("boundaries",{})
 
 
 
@@ -105,7 +105,7 @@ class potentialFunction:
                 """ @return list with all parameters allowed to change """
                 raise NotImplementedError()
 
-        def returnMutables(self,mutated):
+        def updateMutables(self,mutated):
                 """ @parameter mutated: list with updated parameters to write back
                 into self._parameters
                 """
@@ -114,4 +114,15 @@ class potentialFunction:
 
 
 
+        def getString(self):
+                """@return string representation of the potential that can be read back in from a file"""
+                raise NotImplementedError()
 
+
+
+        def writeFile(self,filename):
+                """write file representation of current instance that can be read back in
+                @parameter filename: name of the file to be written"""
+                outfile=open(fineame,"w")
+                print >> outfile, self.getString()
+                outfile.close()

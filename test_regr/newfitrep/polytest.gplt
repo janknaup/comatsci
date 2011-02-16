@@ -1,0 +1,15 @@
+rcut=3.4
+c2=0.10
+c3=0.10
+c4=0.10
+c5=0.01
+c6=0.01
+c7=0.01
+c8=0.1
+c9=0.0
+erep(r)=c2*(rcut-r)**2+c3*(rcut-r)**3+c4*(rcut-r)**4+c5*(rcut-r)**5+c6*(rcut-r)**6+c7*(rcut-r)**7+c8*(rcut-r)**8+c9*(rcut-r)**9
+
+fit [1.3:2.6] erep(x) "C-C-miospline.dat" using 1:2 via c2,c3,c4,c5,c6,c7,c8
+
+plot [1:rcut] erep(x) t "polynomial", "C-C-miospline.dat" w p t "MIO-0-1"
+

@@ -32,8 +32,6 @@ import copy
 
 import time
 
-import popen2
-
 import Optimizers
 
 #*************
@@ -140,100 +138,161 @@ def optImageList(arg,path,lineNumber):
 			raise
 		#index can be out of range of images in path
 		if index >=path.numImages:
-			raise "Invalid target function definition in line %d of targets: image index out of range" % (lineNumber)
+			raise IndexError("Invalid target function definition in line %d of targets: image index out of range" % (lineNumber))
 		indexList.append(index)
 	return indexList
 
 
 
-def readerep(filename):
-	"""return E_rep array from input file
-	@param filename: input file name"""
-	erepfile=open(filename,'r')
-	replines=list(erepfile)
-	erepfile.close()
-	rlist=[]
-	elist=[]
-	for i in replines:
-		# ignore common comment markers
-		firstchar=i.lstrip()[0]
-		if not (firstchar=="#" or firstchar==";"):
-			dummy=i.split()
-			if not (dummy[0].lstrip()[0]=='*' or dummy[1].lstrip()[0]=='*'):
-				rlist.append(float(dummy[0]))
-				elist.append(float(dummy[1]))
-	return num.array([num.array(rlist),num.array(elist)])
+#def readerep(filename):
+#	"""return E_rep array from input file
+#	@param filename: input file name"""
+#	erepfile=open(filename,'r')
+#	replines=list(erepfile)
+#	erepfile.close()
+#	rlist=[]
+#	elist=[]
+#	for i in replines:
+#		# ignore common comment markers
+#		firstchar=i.lstrip()[0]
+#		if not (firstchar=="#" or firstchar==";"):
+#			dummy=i.split()
+#			if not (dummy[0].lstrip()[0]=='*' or dummy[1].lstrip()[0]=='*'):
+#				rlist.append(float(dummy[0]))
+#				elist.append(float(dummy[1]))
+#	return num.array([num.array(rlist),num.array(elist)])
+#
+#
+#
+#def read_ranges(rangesFileName,verbosity=comatsci.constants.VBL_QUIET):
+#	"""read and parse parameter ranges definition file
+#	@param rangesFileName: filename to read parameter ranges from
+#	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level
+#	"""
+#	ranges={}
+#	# read ranges file to list of lines
+#	rangesfile=open(rangesFileName,"r")
+#	lines=list(rangesfile)
+#	rangesfile.close()
+#	# iterate through ranges lines
+#	for i in range(len(lines)):
+#		#skip comments and empty lines
+#		if len(lines[i].strip())==0 or lines[i].strip()[0]=="#" :
+#			continue
+#		else:
+#			dummy=lines[i].strip().split()
+#			# expecting parameter number (counting from 1), lowbound, highbund
+#			if (len(dummy) > 3):
+#				raise ValueError("unexpected colunms in line %d of ranges definition file" % (i+1))
+#			elif (len(dummy) < 3):
+#					raise ValueError("missing column(s) in line %d of ranges definition file" % (i+1))
+#			# try converting numbers, give number of offending line, if this fails
+#			try:
+#				idx=int(dummy[0])
+#				lo=float(dummy[1])
+#				hi=float(dummy[2])
+#			except:
+#				print"Cannot parse line %d of repulsives:" % (i+1)
+#				raise
+#			# check for duplicate range definitions
+#			if ranges.has_key(idx):
+#				raise ValueError("Duplicate range definition for parameter %d in line %d of ranges definition file." % (idx,i))
+#			# if everything is okay, add range spec to return dictionary
+#			ranges[i]=(lo,hi)
+#	# done
+#	return ranges
+#
+#
+#
+#def read_repulsives(repsFileName="repulsives",verbosity=comatsci.constants.VBL_QUIET):
+#	"""read and parse repulsives specification config file
+#	@param repsFileName: default="repulsives" filename to read repulsives definitions from
+#	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level"""
+#	# initalize repulsives dictionary
+#	ereps={}
+#	# initialize optimization parameter map
+#	# @optimization parameter map is stored as a list of (e1,e2,index) tuples
+#	paramap=[]
+#	# read config file lines into memory
+#	repulsiveConfig=open(repsFileName)
+#	repLines=list(repulsiveConfig)
+#	repulsiveConfig.close()
+#	# now parse each line (do not iterate over lines 
+#	# to have correct line-number to report to the 
+#	# user, in case of an error
+#	for i in range(len(repLines)):
+#		# skip comment lines
+#		if len(repLines[i].strip())==0 or repLines[i].strip()[0]=="#" :
+#			continue
+#		else:
+#			# split line into components
+#			dummy=repLines[i].strip().split()
+#			# expecting E_1 E_2 Filename inner <outer>
+#			if (len(dummy)==4 and int(dummy[3])!=-1):
+#				raise ValueError("Invalid E_rep specification in line %d of repulsives: expecting inner and outer optimization range" % (i+1))
+#			elif len(dummy)!=5 and len(dummy)!=4:
+#				raise ValueError("Invalid E_rep specification in line %d of repulsives: expecting E_1 E_2 Filename inner <outer>, inner must be -1 if E_rep is to be fixed" % (i+1))
+#			# Check, if Element numbers can be parsed as integers
+#			try:
+#				e1=int(dummy[0])
+#				e2=int(dummy[1])
+#			except:
+#				print"Invalid E_rep specification in line %d of repulsives:" % (i+1)
+#				raise
+#			# Element numbers are stored in ascending order
+#			if e2>=e1:
+#				elems=(e1,e2)
+#			else:
+#				elems=(e2,e1)
+#			# Check if E_rep file exists
+#			erepFileName=dummy[2]
+#			if not os.path.exists(erepFileName):
+#				raise ValueError("Invalid E_rep specification in line %d of repulsives: E_rep file '%s' not found." % (i+1,erepFileName))
+#			else:
+#				erep=readerep(erepFileName)
+#			# Elemtents and repulsive specification have been read
+#			# now store them for the E_rep calculator
+#			# (warn if overwriting previously specified E_rep)
+#			if ereps.has_key(elems):
+#				if verbosity >= comatsci.constants.VBL_QUIET:
+#					print "*** WARNING: double definition of E_rep for %s interation in repulsives line: %d" %(str(elems),i+1)
+#			ereps[elems]=erep
+#			# Now take care of the optimization parameter mapping
+#			# ( inner mutable index -1 means fixed E_rep )
+#			if int(dummy[3])!=-1:
+#				# user indices are 1... while program indices are 0...
+#				for param in range(int(dummy[3])-1,int(dummy[4])):
+#					paramap.append((elems[0],elems[1],param))
+#			# Input line parsed
+#	# repulsives file parsed
+#	return (ereps,paramap)
 
 
 
-def read_ranges(rangesFileName,verbosity=comatsci.constants.VBL_QUIET):
-	"""read and parse parameter ranges definition file
-	@param rangesFileName: filename to read parameter ranges from
-	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level
-	"""
-	ranges={}
-	# read ranges file to list of lines
-	rangesfile=open(rangesFileName,"r")
-	lines=list(rangesfile)
-	rangesfile.close()
-	# iterate through ranges lines
-	for i in range(len(lines)):
-		#skip comments and empty lines
-		if len(lines[i].strip())==0 or lines[i].strip()[0]=="#" :
-			continue
-		else:
-			dummy=lines[i].strip().split()
-			# expecting parameter number (counting from 1), lowbound, highbund
-			if (len(dummy) > 3):
-				raise "unexpected colunms in line %d of ranges definition file" % (i+1)
-			elif (len(dummy) < 3):
-					raise "missing column(s) in line %d of ranges definition file" % (i+1)
-			# try converting numbers, give number of offending line, if this fails
-			try:
-				idx=int(dummy[0])
-				lo=float(dummy[1])
-				hi=float(dummy[2])
-			except:
-				print"Cannot parse line %d of repulsives:" % (i+1)
-				raise
-			# check for duplicate range definitions
-			if ranges.has_key(idx):
-				raise "Duplicate range definition for parameter %d in line %d of ranges definition file." % (idx,i)
-			# if everything is okay, add range spec to return dictionary
-			ranges[i]=(lo,hi)
-	# done
-	return ranges
-
-
-
-def read_repulsives(repsFileName="repulsives",verbosity=comatsci.constants.VBL_QUIET):
+def readPairPotentials(potentialsFileName="repulsives",verbosity=comatsci.constants.VBL_QUIET):
 	"""read and parse repulsives specification config file
-	@param repsFileName: default="repulsives" filename to read repulsives definitions from
-	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level"""
-	# initalize repulsives dictionary
-	ereps={}
-	# initialize optimization parameter map
-	# @optimization parameter map is stored as a list of (e1,e2,index) tuples
-	paramap=[]
-	# read config file lines into memory
-	repulsiveConfig=open(repsFileName)
+	@param potentialsFileName: default="repulsives" filename to read repulsives definitions from
+	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level
+	@return dictionary of initial pair potentials indexed by (Z1,Z2) keys with Zn integer element numbers Z1<Z2"""
+	# initalize potentials dictionary
+	potentials={}
+	# read input file lines into memory
+	repulsiveConfig=open(potentialsFileName)
 	repLines=list(repulsiveConfig)
 	repulsiveConfig.close()
 	# now parse each line (do not iterate over lines 
 	# to have correct line-number to report to the 
 	# user, in case of an error
 	for i in range(len(repLines)):
-		# skip comment lines
+		# skip empty and comment lines
 		if len(repLines[i].strip())==0 or repLines[i].strip()[0]=="#" :
 			continue
 		else:
-			# split line into components
+			# split line into tokens
 			dummy=repLines[i].strip().split()
-			# expecting E_1 E_2 Filename inner <outer>
-			if (len(dummy)==4 and int(dummy[3])!=-1):
-				raise "Invalid E_rep specification in line %d of repulsives: expecting inner and outer optimization range" % (i+1)
-			elif len(dummy)!=5 and len(dummy)!=4:
-				raise "Invalid E_rep specification in line %d of repulsives: expecting E_1 E_2 Filename inner <outer>, inner must be -1 if E_rep is to be fixed" % (i+1)
+			# expecting E_1 E_2 Filename
+			if (len(dummy)!=3):
+				raise ValueError("Invalid E_rep specification in line %d of repulsives: expecting E_1 E_2 Filename" % (i+1))
 			# Check, if Element numbers can be parsed as integers
 			try:
 				e1=int(dummy[0])
@@ -247,29 +306,29 @@ def read_repulsives(repsFileName="repulsives",verbosity=comatsci.constants.VBL_Q
 			else:
 				elems=(e2,e1)
 			# Check if E_rep file exists
-			erepFileName=dummy[2]
-			if not os.path.exists(erepFileName):
-				raise "Invalid E_rep specification in line %d of repulsives: E_rep file '%s' not found." % (i+1,erepFileName)
+			potentialFileName=dummy[2]
+			if not os.path.exists(potentialFileName):
+				raise ValueError("Invalid E_rep specification in line %d of repulsives: E_rep file '%s' not found." % (i+1,potentialFileName))
 			else:
-				erep=readerep(erepFileName)
-			# Elemtents and repulsive specification have been read
-			# now store them for the E_rep calculator
+				potential=comatsci.Calculators.Potentials.getPotentialFromFile(potentialFileName)
+			# Elemtents and potential specification have been read
+			# now store them for the pair potential calculator
 			# (warn if overwriting previously specified E_rep)
-			if ereps.has_key(elems):
+			if potentials.has_key(elems):
 				if verbosity >= comatsci.constants.VBL_QUIET:
 					print "*** WARNING: double definition of E_rep for %s interation in repulsives line: %d" %(str(elems),i+1)
-			ereps[elems]=erep
-			# Now take care of the optimization parameter mapping
-			# ( inner mutable index -1 means fixed E_rep )
-			if int(dummy[3])!=-1:
-				# user indices are 1... while program indices are 0...
-				for param in range(int(dummy[3])-1,int(dummy[4])):
-					paramap.append((elems[0],elems[1],param))
+			potentials[elems]=potential
 			# Input line parsed
 	# repulsives file parsed
-	return (ereps,paramap)
-
-
+	# construct map of slices for each potential
+	potentialsList=potentials.keys()
+	potentialsList.sort()
+	paramap=[]
+	sliceIndex=0
+	for i in potentialsList:
+		paramap.append((i,len(potentials[i].getMutables())))
+	
+	return (potentials,paramap)
 
 
 # Functions to parse and check target function options
@@ -322,7 +381,7 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 				targetFileName=tokens[0]
 				#check if target file exitsts
 				if not os.path.exists(targetFileName):
-					raise "Invalid target path specification in line %d of targets: target path file '%s' not found." % (i+1,targetFileName)
+					raise ValueError("Invalid target path specification in line %d of targets: target path file '%s' not found." % (i+1,targetFileName))
 				else:
 					#sanity check: did we read a target path in the last line?
 					if lastPath:
@@ -348,12 +407,12 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 			#for a target function def, we need at least function and weight
 			elif (len(tokens)>1):
 				if not hasPath:
-					raise "Invalid target function definition in line %d of targets: target function declared without prior path definition" %(i+1)
+					raise ValueError("Invalid target function definition in line %d of targets: target function declared without prior path definition" %(i+1))
 				else:
 					lastPath=False
 				functionName=tokens[0].strip().lower()
 				if not TARGETFUNCTIONS.has_key(functionName):
-					raise "Invalid target function definition in line %d of targets: unknown function definition." %(i+1)
+					raise ValueError("Invalid target function definition in line %d of targets: unknown function definition." %(i+1))
 				else:
 					#convert weight
 					objWeight=float(tokens[1])
@@ -372,17 +431,17 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 						if optName in T_VALIDOPTIONS[functionName]:
 							tempOptions[optName]=T_OPTPARSERS[optName](arg=optArgs,path=targetPaths[currentTargetPath],lineNumber=i+1)
 						else:
-							raise "Invalid target function definition in line %d of targets: unexpected option %s for target function %s." % (i+1,functionName,optTokens[0])
+							raise ValueError("Invalid target function definition in line %d of targets: unexpected option %s for target function %s." % (i+1,functionName,optTokens[0]))
 					#finally, check if all required options were specified, if required options are present
 					if T_REQUIREDOPTIONS[functionName]:
 						for option in T_REQUIREDOPTIONS[functionName]:
 							if not option in tempOptions:
-								raise "Invalid target function definition in line %d of targets: option %s for target function %s is missing." % (i+1,functionName,option)
+								raise ValueError("Invalid target function definition in line %d of targets: option %s for target function %s is missing." % (i+1,functionName,option))
 					#append the target function definition
 					targets.append((currentTargetPath,TARGETFUNCTIONS[functionName][0],objWeight,tempOptions))
 			#catch malformed lines
 			else:
-				raise "Invalid target function definition in line %d of targets: need at least function, objective reference and objective weight." %(i+1)
+				raise ValueError("Invalid target function definition in line %d of targets: need at least function, objective reference and objective weight." %(i+1))
 	#finished parsing, return paths and targets
 	return (targetPaths,objectivePaths,targets)
 	
@@ -396,12 +455,16 @@ def calc_MetaFitness(options,X):
 	@return: fitness value"""
 	# initialize objective function values
 	fitness=0.0;
+	# copy X to allow destructibe
+	Mutes=list(X)
 	# construct temporary set of repulsive potentials from parameters and set in calculator
 	tempereps=copy.deepcopy(options["repulsives"])
-	for i in range(len(options["paramap"])):
-		(E1,E2,index)=options["paramap"][i]
-		tempereps[(E1,E2)][1][i]=X[i]
-	options["sched"]._worker._setEreps(tempereps)
+	for (index,length) in options["paramap"]:
+		repMutes=Mutes[0:length]
+		Mutes=Mutes[length:len(Mutes)]
+		tempereps[index].updateMutables(repMutes)
+	#FIXME: this is not worrable in parallel mode, find better way to communicate E-reps to calculators
+	options["sched"]._worker._setPotentials(tempereps)
 	for i in options["targetPaths"]:
 		i.realforcesfunc(options["sched"])
 	# do E_rep calculations on objectivePaths
@@ -542,7 +605,8 @@ type '%prog --help' for more information"""
 	#
 	# Monte-Carlo Optimizer options
 	#
-	optimizerMcOptions=OptionGroup(parser,"mc optimizer options", "options only relevant to monte-carlo optimization")
+	# *** No MC specific options defined, so everything commented out ***
+	#optimizerMcOptions=OptionGroup(parser,"mc optimizer options", "options only relevant to monte-carlo optimization")
 
 	#***************** begin inactive options *******************************************************************************************
 	
@@ -561,7 +625,7 @@ type '%prog --help' for more information"""
 	
 	# catch unexpected positional arguments:
 	if len(args)>2:
-		raise "Unexpected arguments in command line: %s" % str(args[2:])
+		raise ValueError("Unexpected arguments in command line: %s" % str(args[2:]))
 	
 	# set targets and frepulsives filenames from arguments if given, else default
 	if len(args)<2:
@@ -578,7 +642,7 @@ type '%prog --help' for more information"""
 	if options.verbosity>=comatsci.constants.VBL_NORMAL:
 		print "reading repulsives definitions from %s" % repulsivesFileName
 	
-	ereps, paramap = read_repulsives(repulsivesFileName,options.verbosity)
+	(initPotentials,paramap) = readPairPotentials(repulsivesFileName,options.verbosity)
 	
 	X = []
 	
@@ -586,9 +650,13 @@ type '%prog --help' for more information"""
 	#Element_1, Element_2, index
 	if options.verbosity>=comatsci.constants.VBL_NORMAL:
 		print "Parameters :\nE_rep\tr\t\tE(r)"
-		for (El1, El2, i) in paramap:
-			print "%d-%d:\t%f\t%f"%(El1,El2,ereps[(El1,El2)][0][i],ereps[(El1,El2)][1][i])
-			X.append(ereps[(El1,El2)][1][i])
+	for (label, length) in paramap:
+		if options.verbosity>=comatsci.constants.VBL_NORMAL:
+			print "%d-%d:\t%d mutable parameters"%(label[0],label[1],length)
+			if length > 0:
+				print "parameters including non-mutables:"
+				print comatsci.utils.dictionaryPrettyPrint(initPotentials[label].getParameters())
+		X+=initPotentials[label].getMutables()
 	
 	if options.verbosity>=comatsci.constants.VBL_NORMAL:
 		print "reading targets definitions from %s" % targetsFileName
@@ -618,8 +686,10 @@ type '%prog --help' for more information"""
 	# ************************************************************************************
 
 	# *** initialize calculator and scheduler ***
-	calc=comatsci.Calculators.erepcalc(ereps,verbosity=options.verbosity-3)
+	#calc=comatsci.Calculators.erepcalc(ereps,verbosity=options.verbosity-3)
+	calc=comatsci.Calculators.pairPotentialCalc(initPotentials,verbosity=options.verbosity-3)
 	sched=comatsci.Schedulers.serialScheduler(calc,verbosity=options.verbosity-2)
+	#sched=comatsci.Schedulers.threadScheduler(comatsci.Calculators.erepcalc,((ereps),{"verbosity":options.verbosity-3}),2,options.verbosity-2,)
 
 
 	# *** initialize optimizer ***
@@ -628,7 +698,7 @@ type '%prog --help' for more information"""
 		"mutparms":	(0,-1)
 	}
 	FitnessOptions={
-		"repulsives":		ereps,
+		"repulsives":		initPotentials,
 		"sched":			sched,
 		"paramap":			paramap,
 		"targets":			targets,
@@ -693,18 +763,24 @@ type '%prog --help' for more information"""
 	print "Final acceptance rate      :\t%12.6f" % optimizer.getAcceptanceRate()
 	
 	# remap best specimen to repulsives
-	finalreps=copy.deepcopy(ereps)
-	for i in range(len(paramap)):
-		(E1,E2,index)=paramap[i]
-		finalreps[(E1,E2)][1][index]=X[i]
+	finalPotentials=copy.deepcopy(initPotentials)
+	Mutes=list(X)
+	for (index,length) in paramap:
+		repMutes=Mutes[0:length]
+		Mutes=Mutes[length:len(Mutes)]
+		finalPotentials[index].updateMutables(repMutes)
 	
-	print "Writing final repulsive potentials: *",
-	for i in finalreps.keys():
-		print "\b.",
-		repfilename="final-%s-%s.rep"%(comatsci.Geometry.Geometry.PTE[i[0]],comatsci.Geometry.Geometry.PTE[i[1]])
-		repfile=open(repfilename,"w")
-		for j in range(len(ereps[i][0])):
-			print >> repfile, "%14.10f   %14.10f" % (finalreps[i][0][j],finalreps[i][1][j])
-		repfile.close()
-		print "\b\b:",
-	print "\b* done."
+	print "Writing final repulsive potentials:",
+	for (index,length) in paramap:
+		if length >0:
+#		print "\b.",
+			repfilename="final-%s-%s.rep"%(comatsci.Geometry.Geometry.PTE[index[0]],comatsci.Geometry.Geometry.PTE[index[1]])
+			pass
+			try:
+				print finalPotentials[index].getString()
+			except NotImplementedError:
+				print "can't get potential string for %s" % (repfilename)
+				print "final parameters are:"
+				print comatsci.utils.dictionaryPrettyPrint(finalPotentials[index].getParameters())
+#		print "\b\b:",
+#	print "\b* done."
