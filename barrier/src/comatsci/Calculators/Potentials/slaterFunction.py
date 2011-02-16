@@ -103,6 +103,32 @@ class slaterFunction(potentialFunction):
     # number of slater functions in the expansion is determined from the number of parameter lines just read in
     self._parameters['noslaters']=counter-1                                        
 
+
+
+  def getString(self):
+    """@return string representation of the potential that can be read back in from a file"""
+    lines=[]
+    lines.append(' &slater&')
+    if (self._boundaries['cutoff'] != None):
+      li=[str(self._parameters['cutoff']),str(self._boundaries['cutoff'][0]),str(self._boundaries['cutoff'][1])]
+      lines.append('\t'.join(li))
+    else:
+      lines.append(str(self._parameters['cutoff']))
+    for i in range(1,self._parameters['noslaters']+1):
+      li=[str(self._parameters['n'+str(i)]),str(self._parameters['c'+str(i)])]
+
+      if (self._boundaries['c'+str(i)] != None):
+        li.append(str(self._boundaries['c'+str(i)][0]));li.append(str(self._boundaries['c'+str(i)][1]))
+      
+      li.append(str(self._parameters['z'+str(i)]))
+      if (self._boundaries['z'+str(i)] != None):
+        li.append(str(self._boundaries['z'+str(i)][0]));li.append(str(self._boundaries['z'+str(i)][1]))
+      
+      lines.append('\t'.join(li))
+    
+    return ' \n'.join(lines)
+
+
         
   def value(self,r):
     """ calculates the value of the slater expansion
