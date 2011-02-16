@@ -9,18 +9,20 @@
 ##############################################################################
 
 # define the list of known potentials here
-__all__=["polynomFunction", "xySplineFunction","potentialFunction" ]
+__all__=["polynomFunction", "slaterFunction", "xySplineFunction", "potentialFunction" ]
 
 # manually import potential functions
 
 from potentialFunction import potentialFunction
 from polynomFunction import polynomFunction
+from slaterFunction import slaterFunction
 from xySplineFunction import xySplineFunction
 
 
 # define map of known potential functions
 POTENTIALLABELMAP={
-  "&polynom&"   :    polynomFunction,
+  "&polynom&": polynomFunction ,
+  "&slater&": slaterFunction 
   "&xyspline&"  :    xySplineFunction
 }
 
