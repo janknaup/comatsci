@@ -76,6 +76,23 @@ class polynomFunction(potentialFunction):
     # maximum power in the polynom is determined from the number of parameters just read in
     self._parameters['order']=counter-2                                        
 
+  def getString(self):
+    """@return string representation of the potential that can be read back in from a file"""
+    lines=[]
+    lines.append(' &polynom&')
+    if (self._boundaries['cutoff'] != None):
+      li=[str(self._parameters['cutoff']),str(self._boundaries['cutoff'][0]),str(self._boundaries['cutoff'][1])]
+      lines.append('\t'.join(li))
+    else:
+      lines.append(str(self._parameters['cutoff']))
+    for i in range(self._parameters['order']+1):
+      if (self._boundaries['c'+str(i)] != None):
+        li=[str(self._parameters['c'+str(i)]),str(self._boundaries['c'+str(i)][0]),str(self._boundaries['c'+str(i)][1])]
+        lines.append('\t'.join(li))
+      else:
+        lines.append(str(self._parameters['c'+str(i)]))
+    
+    return ' \n'.join(lines)
         
   def value(self,r):
     """ calculates the value of the polynom
