@@ -22,7 +22,7 @@ from xySplineFunction import xySplineFunction
 # define map of known potential functions
 POTENTIALLABELMAP={
   "&polynom&": polynomFunction ,
-  "&slater&": slaterFunction 
+  "&slater&": slaterFunction, 
   "&xyspline&"  :    xySplineFunction
 }
 
