@@ -72,13 +72,6 @@ class potentialFunction:
 
 
 
-        def writeFile(self,filename):
-                """ write potential parameters to file
-                @parameter filename: string containing output file name"""
-                
-                outfile=open(filename,"w")
-                outfile.write(self.getString())
-                outfile.close()
 
 
 
@@ -123,6 +116,6 @@ class potentialFunction:
         def writeFile(self,filename):
                 """write file representation of current instance that can be read back in
                 @parameter filename: name of the file to be written"""
-                outfile=open(fineame,"w")
+                outfile=open(filename,"w")
                 print >> outfile, self.getString()
                 outfile.close()
