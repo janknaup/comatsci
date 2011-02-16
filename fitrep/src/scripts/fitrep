@@ -777,7 +777,7 @@ type '%prog --help' for more information"""
 			repfilename="final-%s-%s.rep"%(comatsci.Geometry.Geometry.PTE[index[0]],comatsci.Geometry.Geometry.PTE[index[1]])
 			pass
 			try:
-				print finalPotentials[index].getString()
+				finalPotentials[index].writeFile(repfilename)
 			except NotImplementedError:
 				print "can't get potential string for %s" % (repfilename)
 				print "final parameters are:"
