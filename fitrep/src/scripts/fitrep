@@ -559,7 +559,7 @@ type '%prog --help' for more information"""
 	# internally we still call this craziness, as it replaces the old craziness parameter
 	optimizerCommonOptions.add_option("-u","--mutation",
 			action="store", metavar="M", dest="craziness", type="float", default=0.1,
-			help="Mutation factor, must be 0.0<M<1.0, default = %default")
+			help="Mutation factor, default = %default")
 		
 	optimizerCommonOptions.add_option("-t","--mutator",
 					  action="store", metavar="M", dest="mutator",choices=MUTFUNCS.keys(), type="choice", default=MUTFUNCS.keys()[0],
@@ -593,6 +593,15 @@ type '%prog --help' for more information"""
 	optimizerGeneticOptions.add_option("-c","--combiner",
 					  action="store", metavar="C", dest="combiner",choices=COMBFUNCS.keys() , type="choice", default=COMBFUNCS.keys()[0],
 					  help="Method used to combine parents, either lr or rnd, default=%default")
+	
+	optimizerGeneticOptions.add_option("--initialmutation",
+			action="store", metavar="M", dest="initialcraziness", type="float",
+			help="Mutation factor, default use same factor as for evolution")
+		
+	optimizerGeneticOptions.add_option("--initialmutator",
+					  action="store", metavar="M", dest="initialmutator",choices=list(MUTFUNCS.keys())+["same"], type="choice", default="same",
+					  help="Method used to mutate specimens, either local or global or same as for evolution, default=%default")
+	
 	
 	#***************** begin inactive options *******************************************************************************************	
 	#optimizerGeneticOptions.add_option("-r","--repository-size",
@@ -692,11 +701,26 @@ type '%prog --help' for more information"""
 	#sched=comatsci.Schedulers.threadScheduler(comatsci.Calculators.erepcalc,((ereps),{"verbosity":options.verbosity-3}),2,options.verbosity-2,)
 
 
+	# digest complex options
+	# if "same" was selected for initialmutator, set the real value
+	INITIALMUTATORS=dict(MUTFUNCS)
+	INITIALMUTATORS["same"]=MUTFUNCS[options.mutator]
+
 	# *** initialize optimizer ***
 	MutatorOptions={
 		"scale":	options.craziness,
 		"mutparms":	(0,-1)
 	}
+	
+	initialmutation=options.initialcraziness
+	if initialmutation==None:
+		initialmutation=options.craziness
+	
+	InitialMutatorOptions={
+		"scale": initialmutation,
+		"mutparms": (0,-1)
+	}
+	
 	FitnessOptions={
 		"repulsives":		initPotentials,
 		"sched":			sched,
@@ -719,6 +743,8 @@ type '%prog --help' for more information"""
 		"keepFitterElders": options.keep_elders,
 		"verbosity": options.verbosity,
 		"maxIterations": options.maxit,
+		"initialMutator": INITIALMUTATORS[options.initialmutator],
+		"initialMutatorOptions": InitialMutatorOptions
 	}
 	optimizer = OPTIMIZERS[options.optimizer](OptimizerOptions)
 	

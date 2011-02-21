@@ -49,6 +49,10 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		@param keepFitterElders=False if true, keep all members of the parent generation
 		that are fitter than the children, otherwise keep exactly the breeders, replace
 		all other specimens
+		@param initialMutator: mutator function used to generate initial population,
+		default use same as evolution mutator
+		@param initalMutatorOptions: dictionary of options to pass to the mutator function,
+		default use same options as for evolution mutator
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
 			print "SOGA Optimizer: initializing."
@@ -100,6 +104,9 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		self._keepFitterElders=options.get("keepFitterElders",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
 			print "SOGA Optimizer: keeping fitter elders: %s." % (str(self._keepFitterElders))
+		
+		self._initialMutator=options.get("initalMutator",self._mutator)
+		self._initialMutatorOptions=options.get("initialMutatorOptions",self._mutatorOptions)
 		
 		# initialize internal valiables
 		self._lastPopulation=None
@@ -218,7 +225,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		self._lastPopulation=[(self._fitness(self._fitnessOptions,X),X),]
 		# now generate populationSize-1 mutants andcalculate their fitnesses
 		for i in range(1, self._populationSize):
-			newX=self._mutator(self._mutatorOptions,X)
+			newX=self._initialMutator(self._initialMutatorOptions,X)
 			self._mutations+=1
 			self._lastPopulation.append(tuple((self._fitness(self._fitnessOptions,newX),newX)))
 		# now sort population by fitness
