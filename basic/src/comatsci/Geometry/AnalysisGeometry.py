@@ -846,24 +846,25 @@ class AnalysisGeometry(Geometry):
 		# initialize geometry object to return
 		returnGeo=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
 		# get bond list
-		blist=self.bondlist()
+		blist=self.bondlist(tolerance=tolerance)
 		#iterate through bond list and add all undercoordinated atoms to undercoordinated atom list
 		underList=[]
 		for i in range(self.Atomcount):
 			# get canonical valence count for current atom, if requested, ignore unknown canonical counts but at least warn.
-			try:
-				canonicalValences=specvalences.get(self.AtomTypes[i],self.VALENCES[self.AtomTypes[i]])
-			except KeyError:
+			if self.AtomTypes[i]<len(self.VALENCES):
+				canonicalValence=self.VALENCES[self.AtomTypes[i]]
+			else:
+				canonicalValence=None
+			canonicalValence=specvalences.get(self.AtomTypes[i],canonicalValence)
+			if canonicalValence==None:
 				if ignoreUnknownCanonical:
 					print >> sys.stderr, "WARNING: no canonical valence count for element %s. Ignoring atom Number %d." %(self.PTE[self.AtomTypes[i]],i+1)
 					canonicalValences=-1
 				else:
 					print >> sys.stderr, "ERROR: no canonical valence count for element %s (atom %d). Aborting."%(self.PTE[self.AtomTypes[i]],i+1)
-					raise
-			except:
-				raise
+					raise ValueError("no canonical valence found for atom")
 			# check if current atom is undercoordinated and if yes, append its index to the list of undercorrdinated atoms
-			if len(blist[i])<canonicalValences:
+			if len(blist[i])<canonicalValence:
 				underList.append(i)
 		# if no undercoordinated atoms are found, no further actions are needed. Immediately return empty geometry instance in that case
 		if len(underList)==0:
@@ -872,31 +873,38 @@ class AnalysisGeometry(Geometry):
 		tempGeo=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
 		for atom in underList:
 			tempGeo.addatom(self.AtomTypes[atom], self.Geometry[atom], None, self.AtomCharges[atom], self.AtomSubTypes[atom],LPop=None,checkConsistency=True)
-		distMatrix=tempGeo.distancematrix()
-		print self.AtomTypes
+		
+		print blist
 		print underList
 		print tempGeo.AtomTypes
-		print distMatrix
 		# 
 		# Build a list of neighbor atoms belonging to a vacancy. This will work
 		# for distant vacancies and can probably serve as a good initial guess
 		# for k-means assignment, if that should ever get implemented
 		#
 		# initialize a boolean mask to mark atoms already assigned to a vacancy
+		distMatrix=tempGeo.distancematrix()
+		blist=tempGeo.bondlist(tolerance=2.05)
+		imagecoordinates=list(tempGeo._imagecoordlist)
+		print blist
+		print imagecoordinates
 		mask=[]
 		for i in range(tempGeo.Atomcount): mask.append(True)
 		# initialize list of vacancies
 		vacancies=[]
 		# iterate through upper triangle of distance matrix, assigning atoms to vacancies
-		for i in range(0,tempGeo.Atomcount):   # iterate through all lines of distance matrix
-			if mask[i]:						   # if atom is already assigned a vacancy, the whole line can be skipped
+		for i in range(tempGeo.Atomcount):     # iterate through all lines of distance matrix
+			if mask[i]==True:				   # if atom is already assigned a vacancy, the whole line can be skipped
 				mask[i]=False				   # if not, start a new vacancy and mask out atom i
 				vacancy=[i]
-				for j in range(i+1,tempGeo.Atomcount): # now check all column atoms for proximity (leavinf out masked atoms)
-					if mask[j] and distMatrix[i,j]<vacancyDiameter:
+				for j in range(i+1,tempGeo.Atomcount): # now check all column atoms for proximity (leaving out masked atoms)
+					if j in blist[i]:
+					##if mask[j] and distMatrix[i,j]< 2.0*( self.SBCR[self.AtomTypes[i]]+self.SBCR[self.AtomTypes[j]])/constants.ANGSTROM:
 						mask[j]=False					# add proximate atom and mask it out
 						vacancy.append(j)
-			vacancies.append[vacancy]			# this vacancy is finished, store it
+				vacancies.append(vacancy)			# this vacancy is finished, store it
+		print vacancies
+		latticeArray=array(tempGeo.Lattice)
 		# for each vacancy, calculate the centroid
 		for i in range(len(vacancies)):
 			# warn about vacancies consisting of exactly two atoms, they may be higher-order bonds
@@ -905,7 +913,29 @@ class AnalysisGeometry(Geometry):
 			# skip vacancies consisting of only one atom but warn
 			if len(vacancies[i])==1:
 				print >> sys.stderr, "WARNING: Isolated undercoordinated atom found. Check Vacancy radius parameter."
+			# calculate centroid of vacancy:
+			centroid=zeros(3,Float)
 			# treat cluster and supercell geometries differently
-			elif self.Mode=="S":
-				centroid=zeros(3,Float)
-				
+			if self.Mode=="S":
+				# in the supercell, use the vacancy atom's bond partners at their appropriate image coordinates
+				coordCount=0
+				for atom in vacancies[i]:
+					for partner in range(len(blist[atom])):
+						coordArray=array(imagecoordinates[atom][partner])
+						addLattice=(latticeArray.transpose()*coordArray)
+						addvector=add.reduce(addLattice)
+						coordCount+=1
+						for ii in range(3):
+							centroid[ii]+=tempGeo.Geometry[blist[atom][partner]][ii]
+							centroid[ii]+=addvector[ii]
+				centroid/=coordCount
+			else:
+				for atom in vacancies[i]:
+					for ii in range(3):
+						centroid[ii]+=tempGeo.Geometry[atom][ii]
+				centroid/=len(vacancies[i])
+			returnGeo.addatom(0,centroid,None,0,"X")
+		
+		returnGeo.foldToCell()
+		
+		return returnGeo
