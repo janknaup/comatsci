@@ -81,7 +81,13 @@ if options.fileType!=None:
 path=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
 print "reading input geometries"
 if len(args)==1:
-	path.readfmgpath(args[0])
+	if ".xyz" in args[0][-8:].lower():
+		path.readXyzPath(args[0])
+	elif ".fmg" in args[0][-8:].lower():
+		path.readfmgpath(args[0])
+	else:
+		print "ERROR: unknown path file format."
+		sys.exit(1)
 else:
 	for i in args:
 		path.appendgeofile(i,checkCompat=options.checkCompat,TypeSpec=options.fileType)
