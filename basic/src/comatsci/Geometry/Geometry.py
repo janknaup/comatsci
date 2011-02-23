@@ -1616,8 +1616,9 @@ class Geometry:
 		#matrices. Conserves LOTS of memory for large geometries
 		if self.Mode=="C":
 			self._blist=gx.blist(array(self.Geometry),self.AtomTypes,self.SBCR, tolerance)
+			self._imagecoordlist=None
 		elif self.Mode=="S":
-			self._blist=gx.sblist(array(self.Geometry), self.Lattice, self.AtomTypes, self.SBCR, tolerance)
+			(self._blist,self._imagecoordlist)=gx.sblist(array(self.Geometry), self.Lattice, self.AtomTypes, self.SBCR, tolerance)
 
 
 

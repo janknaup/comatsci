@@ -1,6 +1,8 @@
 #include <Python.h>
 #include "numpy/oldnumeric.h"
 
+/*#include <stdio.h>*/
+
 #include <math.h>
 
 static PyObject *
@@ -222,6 +224,7 @@ geoext_blist(PyObject *self, PyObject *args)
 			}
 		}
 	}
+	
 	return bondlist;
 }
 
@@ -234,11 +237,14 @@ geoext_sblist(PyObject *self, PyObject *args)
 	PyListObject  *CORAD;
 	PyListObject  *types;
 	PyListObject  *bondlist;
+	PyListObject  *imagelist;
+	PyTupleObject *imageCoordinates;
+	PyTupleObject *returnTuple;
+	
 	long natoms,typea,typeb;
 	double rada,blen;
 	long i,j,k,l,m;
 	double dx,dy,dz,distance;
-	double pdx,pdy,pdz;
 	double ax,ay,az,bx,by,bz,cx,cy,cz;
 	double tolerance=1.1;
 	
@@ -262,6 +268,13 @@ geoext_sblist(PyObject *self, PyObject *args)
 	{
 		PyList_SET_ITEM(	bondlist, i, PyList_New(0));
 	}
+	/*initialize list of bond partner periodic image coordinates as list of empty lists */
+	imagelist=PyList_New(natoms);
+	for (i=0;i<natoms;i++)
+	{
+		PyList_SET_ITEM(	imagelist, i, PyList_New(0));
+	}
+	
 	ax= *(double *)(lattice->data);
 	ay= *(double *)(lattice->data+lattice->strides[1]);
 	az= *(double *)(lattice->data+2*lattice->strides[1]);
@@ -277,35 +290,48 @@ geoext_sblist(PyObject *self, PyObject *args)
 		rada=PyFloat_AsDouble(PyList_GetItem(	CORAD, typea));
 		for (j=i+1;j<natoms;j++)
 		{
-			dx=*(double *)(pos->data + i * pos->strides[0])
-				- *(double *)(pos->data + j * pos->strides[0]);
-			dy=*(double *)(pos->data + i * pos->strides[0] + pos->strides[1])
-				- *(double *)(pos->data + j * pos->strides[0] + pos->strides[1]);
-			dz=*(double *)(pos->data + i * pos->strides[0] + 2 * pos->strides[1])
-				- *(double *)(pos->data + j * pos->strides[0] + 2 * pos->strides[1]);
+			typeb=PyInt_AsLong(PyList_GetItem(	types, j));
+			blen=(tolerance* (double)PyFloat_AsDouble( PyList_GetItem(	CORAD, typeb))+rada)/5.291772e-01;
 			for (k=-1;k<2;k++)
 			{
 				for (l=-1;l<2;l++)
 				{
 					for (m=-1;m<2;m++)
 					{
-						pdx=dx+(k*ax)+(l*bx)+(m*cx);
-						pdy=dy+(k*ay)+(l*by)+(m*cy);
-						pdz=dz+(k*az)+(l*bz)+(m*cz);
-						distance=sqrt((pdx*pdx)+(pdy*pdy)+(pdz*pdz));
-						typeb=PyInt_AsLong(PyList_GetItem(	types, j));
-						blen=(tolerance* (double)PyFloat_AsDouble( PyList_GetItem(	CORAD, typeb))+rada)/5.291772e-01;
+						dx=*(double *)(pos->data + i * pos->strides[0])
+							- (*(double *)(pos->data + j * pos->strides[0])+(k*ax)+(l*bx)+(m*cx));
+						dy=*(double *)(pos->data + i * pos->strides[0] + pos->strides[1])
+							- (*(double *)(pos->data + j * pos->strides[0] + pos->strides[1])+(k*ay)+(l*by)+(m*cy));
+						dz=*(double *)(pos->data + i * pos->strides[0] + 2 * pos->strides[1])
+							- (*(double *)(pos->data + j * pos->strides[0] + 2 * pos->strides[1])+(k*az)+(l*bz)+(m*cz));
+						distance=sqrt((dx*dx)+(dy*dy)+(dz*dz));
 						if (distance < blen)
 						{
 							PyList_Append(PyList_GetItem(bondlist,i),PyInt_FromLong(j));
 							PyList_Append(PyList_GetItem(bondlist,j),PyInt_FromLong(i));
+							/*construct tuple of bond partner periodic image coordinates*/
+							imageCoordinates=PyTuple_New(3);
+							PyTuple_SET_ITEM(imageCoordinates, 0, PyInt_FromLong(k));
+							PyTuple_SET_ITEM(imageCoordinates, 1, PyInt_FromLong(l));
+							PyTuple_SET_ITEM(imageCoordinates, 2, PyInt_FromLong(m));
+							/*append coordinate tuples to bond partners*/
+							PyList_Append(PyList_GetItem(imagelist,i),imageCoordinates);
+							imageCoordinates=PyTuple_New(3);
+							PyTuple_SET_ITEM(imageCoordinates, 0, PyInt_FromLong(k));
+							PyTuple_SET_ITEM(imageCoordinates, 1, PyInt_FromLong(l));
+							PyTuple_SET_ITEM(imageCoordinates, 2, PyInt_FromLong(m));
+							PyList_Append(PyList_GetItem(imagelist,j),imageCoordinates);
 						}
 					}
 				}
 			}
 		}
 	}
-	return bondlist;
+	/*initialize tuple to return*/
+	returnTuple=PyTuple_New(2);
+	PyTuple_SET_ITEM(returnTuple, 0, bondlist);
+	PyTuple_SET_ITEM(returnTuple, 1, imagelist);
+	return returnTuple;
 }
 
 
@@ -319,7 +345,7 @@ static PyMethodDef GeoExtMethods[] = {
 	{"blist", geoext_blist, METH_VARARGS,
 		"return the per-atom list of bond parter lists, molecule version"},
 	{"sblist", geoext_sblist, METH_VARARGS,
-		"return the per-atom list of bond parter lists, supercell version"},
+		"return a tuple of the per-atom list of bond parter lists and bond partner periodic image coordinates, supercell version"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
