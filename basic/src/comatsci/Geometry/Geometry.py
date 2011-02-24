@@ -277,7 +277,7 @@ class Geometry:
 		else:
 			self.AtomCharges=iAtomCharges
 		if iGeometry==None:
-			self.Geometry=[]
+			self.Geometry=zeros((0,3),Float)
 		else:
 			self.Geometry=iGeometry
 		if iAtomSubTypes==None:
