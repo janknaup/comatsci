@@ -1055,3 +1055,45 @@ class Reactionpath:
 		self._rSplineRep=None
 		self.realforces=None
 
+
+
+	def movingAverageResample(self,windowsize):
+		"""resample the path by averaging over windowsize images.
+		New path has numimages-windowsize images
+		@type windowsize: integer
+		@param windowsize: number of images to average for each new image
+		"""
+		# first check if enough images are present for the requiested resampling
+		if self.numimages() <= windowsize:
+			raise ValueError("Not enough images present in reaction path to perform requested moving average")
+		# build initial list of coordinate-vectors
+		cVectors=["dummy"]
+		for i in range(windowsize-1):
+			cVectors.append(array(self.geos[i].Geometry.flat))
+		# store some values for generation of new geometriy objects
+		geoshape=self.geos[0].Geometry.shape
+		geoclass=self.geos[0].__class__
+		AtomTypes=self.geos[0].AtomTypes
+		Mode=self.geos[0].Mode
+		Origin=self.geos[0].Origin
+		AtomSubTypes=self.geos[0].AtomSubTypes
+		AtomLayers=self.geos[0].AtomLayers
+		LayerDict=self.geos[0].LayerDict
+		lattice=self.geos[0].Lattice
+		# now iterate through new images
+		newgeos=[]
+		for i in range(windowsize-1,self.numimages()):
+			del cVectors[0]
+			cVectors.append(array(self.geos[i].Geometry.flat))
+			newCoordinates=reshape(average(array(cVectors),0),geoshape)
+			##print newCoordinates
+			##print newCoordinates-self.geos[i].Geometry
+			tempgeo=geoclass(Mode,self.Atomcount,AtomTypes,Origin,lattice,newCoordinates,
+				iAtomLayers=AtomLayers,iLayerDict=LayerDict,iAtomCharges=None,iAtomSubTypes=AtomSubTypes)
+			newgeos.append(tempgeo)
+		# finished resampling, set new geometries etc
+		self.geos=newgeos
+		self.energies=[]
+		self.splineRep=None
+		self._rSplineRep=None
+		self.realforces=None
