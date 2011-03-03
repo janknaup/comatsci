@@ -34,10 +34,10 @@ class AnalysisGeometry(Geometry):
 	__geoFeatures__=("analysis", )
 
 	def __init__(self, iMode="C", iAtomcount=0, iAtomTypes=None, iOrigin=None,
-				iLattice=None, iGeometry=None):
+				iLattice=None, iGeometry=None,**kwargs):
 		"""initialize AnalysisGeometry
 		c.f. base class"""
-		Geometry.__init__(self, iMode, iAtomcount, iAtomTypes, iOrigin, iLattice, iGeometry)
+		Geometry.__init__(self, iMode, iAtomcount, iAtomTypes, iOrigin, iLattice, iGeometry, **kwargs)
 		self._reset_derived()
 
 
@@ -823,7 +823,84 @@ class AnalysisGeometry(Geometry):
 
 
 
-	def locateVacancies(self, specvalences=None, tolerance=1.2, ignoreUnknownCanonical=True):
+	def locateVacancies(self, neighborMethod="bondCount",
+						groupMethod="distance",
+						**kwargs):
+		"""locate vacancies in self
+		@type neighborMethod: string
+		@param neighborMethod: indicate which method to use to select vacancy neighbor atoms must be one of bondCount,neighborTypes
+		@type groupMethod: string
+		@param groupMethod: indicate which method to use to group neighbors to vacancies, must be one of distance
+		@return: Geometry containing the virtual vacancy atoms found in self
+		"""
+		if neighborMethod=="bondCount":
+			neighbors=self.vacancyNeighorsByBondCount(**kwargs)
+		elif neighborMethod=="neighborTypes":
+			neighbors=self.vacanyNeighborsByBondPartners(**kwargs)
+		elif neighborMethod=="none":
+			neighbors=copy.deepcopy(self)
+		else:
+			raise ValueError("unknown vacancy neighbor detection method specified")
+		
+		if groupMethod=="distance":
+			return neighbors.groupNeighborsToVacancies_distancegroup(**kwargs)
+		elif groupMethod=="reference_d":
+			return neighbors.groupVacanciesByReference(style="distsort",**kwargs)
+		elif groupMethod=="reference_b":
+			return neighbors.groupVacanciesByReference(style="bondgroup",**kwargs)
+		else:
+			raise ValueError("unknown neighbors to vacancy grouping method specified")
+
+
+
+
+
+	def vacanyNeighborsByBondPartners(self,canonicalNeighbors,**kwargs):
+		"""locate vacancies by analyzing each atom's nearest neighbors. If an atom's neghbor elements deviate from canon, it
+		is regarded as a vacancy neighbor. (only works for at least binary compounds and in the absence of interstitials)
+		@type canonicalNeighbors: dictionary with integer keys
+		@parameter canonical: canonicalNeighbors: maps ordinal numbers to neighbor element count maps
+		@return AnalysisGeometry containing all atoms that are neighbors of a vacancy
+		"""
+		# initialite Geometry object to return
+		returnGeo=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
+		# get the distance matrix
+		dmat=self.distancematrix().transpose()
+		# initialize a list of wrongly coordinated atoms
+		wrongNeighborAtoms=[]
+		# for each atom, examine the neighbors
+		for i in range(self.Atomcount):
+			# construct temporary map of expected neighbors
+			thisElement=self.AtomTypes[i]
+			expectedNeighbors=[]
+			for j in canonicalNeighbors[thisElement].keys():
+				for k in range(canonicalNeighbors[thisElement][j]):
+					expectedNeighbors.append(j)
+			# map distance vector for self into a dictionary by distance
+			distanceMap=[]
+			for j in range(self.Atomcount):
+				distanceMap.append((dmat[i][j],j))
+			distanceMap.sort(key=lambda x: x[0])		#lambda expression to distance from list element tuple
+			neighbors=[]
+			for j in range(1,len(expectedNeighbors)+1): # skip 0th neighbor which is the central atom at distance 0
+				neighbors.append(distanceMap[j][1])
+			# check the number of nearest neighbors we expect
+			for j in neighbors:
+				if self.AtomTypes[j] in expectedNeighbors:
+					expectedNeighbors.remove(self.AtomTypes[j])
+				else:
+					wrongNeighborAtoms.append(i)
+					break
+		# now populate the return geometry and return it
+		for atom in wrongNeighborAtoms:
+			returnGeo.addatom(self.AtomTypes[atom], self.Geometry[atom], None, self.AtomCharges[atom], self.AtomSubTypes[atom],LPop=None,checkConsistency=True)
+		return returnGeo
+
+	
+
+
+
+	def vacancyNeighorsByBondCount(self,specvalences=None, tolerance=1.2, ignoreUnknownCanonical=True,**kwargs):
 		"""find lattice vacancies by grouping undercoordinated atoms
 		
 		CAVEAT: CURRENT VERSION IS QUITE DUMB AND IS PRONE TO FAIL IF SEVERAL VACANCIES ARE CLOSE TO EACH OTHER!
@@ -831,7 +908,7 @@ class AnalysisGeometry(Geometry):
 		TODO: ADD k-means clustering of centroids
 		
 		@rtype: Geometry subclass of same type as instance that locateVacancies was invoked on
-		@return: Geometry object, containing one Atom of Type X for each located vacancy
+		@return: Geometry object, containing each atom that is the neighbor of a vacancy (or an interstitial, or is an interatitial itself...)
 		
 		@type  specvalences: dictionary of integers
 		@param specvalences: mapping of element ordinal (Z) to canonical valence count. Atoms with less bond partners will be considered neighbors to a vacancy. Elements, for which no canoncial valence count is given, will use default values, which are probably not useful for transition metals.
@@ -874,68 +951,214 @@ class AnalysisGeometry(Geometry):
 		for atom in underList:
 			tempGeo.addatom(self.AtomTypes[atom], self.Geometry[atom], None, self.AtomCharges[atom], self.AtomSubTypes[atom],LPop=None,checkConsistency=True)
 		
-		print blist
-		print underList
-		print tempGeo.AtomTypes
+		return tempGeo
+
+	
+
+
+
+	def groupNeighborsToVacancies_distancegroup(self,tolerance,refold=False,**kwargs):
+		"""find lattice vacancies by grouping neighbor atoms by distance
+		
+		TODO: ADD k-means clustering of centroids
+		
+		@rtype: Geometry subclass of same type as instance that locateVacancies was invoked on
+		@return: Geometry object, containing one Atom of Type X for each located vacancy
+		
+		@type tolerance: float
+		@parameter tolerance: distance tolerance factor
+		"""
 		# 
 		# Build a list of neighbor atoms belonging to a vacancy. This will work
 		# for distant vacancies and can probably serve as a good initial guess
 		# for k-means assignment, if that should ever get implemented
 		#
+		# initialize Geometry object to return
+		returnGeo=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
 		# initialize a boolean mask to mark atoms already assigned to a vacancy
-		distMatrix=tempGeo.distancematrix()
-		blist=tempGeo.bondlist(tolerance=2.05)
-		imagecoordinates=list(tempGeo._imagecoordlist)
-		print blist
-		print imagecoordinates
+		distMatrix=self.distancematrix()
+		blist=self.bondlist(tolerance=2.05*tolerance)
+		if self.Mode=="S":
+			imagecoordinates=list(self._imagecoordlist)
 		mask=[]
-		for i in range(tempGeo.Atomcount): mask.append(True)
+		for i in range(self.Atomcount): mask.append(True)
 		# initialize list of vacancies
 		vacancies=[]
 		# iterate through upper triangle of distance matrix, assigning atoms to vacancies
-		for i in range(tempGeo.Atomcount):     # iterate through all lines of distance matrix
+		for i in range(self.Atomcount):     # iterate through all lines of distance matrix
 			if mask[i]==True:				   # if atom is already assigned a vacancy, the whole line can be skipped
 				mask[i]=False				   # if not, start a new vacancy and mask out atom i
 				vacancy=[i]
-				for j in range(i+1,tempGeo.Atomcount): # now check all column atoms for proximity (leaving out masked atoms)
+				for j in range(i+1,self.Atomcount): # now check all column atoms for proximity (leaving out masked atoms)
 					if j in blist[i]:
 					##if mask[j] and distMatrix[i,j]< 2.0*( self.SBCR[self.AtomTypes[i]]+self.SBCR[self.AtomTypes[j]])/constants.ANGSTROM:
 						mask[j]=False					# add proximate atom and mask it out
 						vacancy.append(j)
 				vacancies.append(vacancy)			# this vacancy is finished, store it
-		print vacancies
-		latticeArray=array(tempGeo.Lattice)
+##		print vacancies
+		latticeArray=array(self.Lattice)
 		# for each vacancy, calculate the centroid
 		for i in range(len(vacancies)):
 			# warn about vacancies consisting of exactly two atoms, they may be higher-order bonds
-			if len(vacancies[i])==2:
-				print >> sys.stderr, "WARNING: Vacancy with two neighbors found, this may actually be a double- or triple bond."
-			# skip vacancies consisting of only one atom but warn
-			if len(vacancies[i])==1:
-				print >> sys.stderr, "WARNING: Isolated undercoordinated atom found. Check Vacancy radius parameter."
-			# calculate centroid of vacancy:
-			centroid=zeros(3,Float)
-			# treat cluster and supercell geometries differently
-			if self.Mode=="S":
-				# in the supercell, use the vacancy atom's bond partners at their appropriate image coordinates
-				coordCount=0
-				for atom in vacancies[i]:
-					for partner in range(len(blist[atom])):
-						coordArray=array(imagecoordinates[atom][partner])
-						addLattice=(latticeArray.transpose()*coordArray)
-						addvector=add.reduce(addLattice)
-						coordCount+=1
+#			if len(vacancies[i])==2:
+#				print >> sys.stderr, "WARNING: Vacancy with two neighbors found, this may actually be a double- or triple bond."
+#			# skip vacancies consisting of only one atom but warn
+#			elif len(vacancies[i])==1:
+#				print >> sys.stderr, "WARNING: Isolated undercoordinated atom found. Check Vacancy radius parameter."
+#			else:
+				# calculate centroid of vacancy:
+				centroid=zeros(3,Float)
+				# treat cluster and supercell geometries differently
+				if self.Mode=="S":
+					# in the supercell, use the vacancy atom's bond partners at their appropriate image coordinates
+					coordCount=0
+					for atom in vacancies[i]:
+						for partner in range(len(blist[atom])):
+							coordArray=array(imagecoordinates[atom][partner])
+							addLattice=(latticeArray.transpose()*coordArray)
+							addvector=add.reduce(addLattice)
+							coordCount+=1
+							for ii in range(3):
+								centroid[ii]+=self.Geometry[blist[atom][partner]][ii]
+								centroid[ii]+=addvector[ii]
+					centroid/=coordCount
+				else:
+					for atom in vacancies[i]:
 						for ii in range(3):
-							centroid[ii]+=tempGeo.Geometry[blist[atom][partner]][ii]
-							centroid[ii]+=addvector[ii]
-				centroid/=coordCount
-			else:
-				for atom in vacancies[i]:
-					for ii in range(3):
-						centroid[ii]+=tempGeo.Geometry[atom][ii]
-				centroid/=len(vacancies[i])
-			returnGeo.addatom(0,centroid,None,0,"X")
+							centroid[ii]+=self.Geometry[atom][ii]
+					centroid/=len(vacancies[i])
+				returnGeo.addatom(0,centroid,None,0,"X")
 		
-		returnGeo.foldToCell()
-		
+		if self.Mode=="S" and refold==True:
+			returnGeo.foldToCell()
 		return returnGeo
+	
+
+	
+		
+		
+	def groupVacanciesByReference(self,reference,interstitialLayer=False,tolerance=0.49,style="bondgroup",**kwargs):
+		"""
+		compare slef to reference geometry, map each atom of self to the closest atom of same element in reference.
+		return all unassigned reference atoms as vacancies
+		@type reference: Geometry instance
+		@param reference: reference Geometry
+		@type interstitialLayer: boolean
+		@param interstitialLayer: if true, add a Layer called "INTER", containing all interstitial atoms to output geometry
+		@type tolerance: float
+		@param tolerance: intergeometry bond detection distance cutoff. Default 0.49 covalent radii, resulting in binning of atoms within 0.98 covalent radii of lattice position
+		@type style: string out of "bondgroup" or "distsort"
+		@param style: selects which method of assigning self atoms to reference atoms should be used, can be bond grouping or distance sorting, default bond grouping
+		"""
+		# check type of reference
+		if not isinstance(reference,Geometry):
+			raise TypeError("reference must be a Geometry object")
+		# get the set of all atom types present in self and reference
+		presentElements=set(self.AtomTypes).union(set(reference.AtomTypes))
+		# initialize vacancy and interstitioal output geometries
+		vacancies=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
+		interstitials=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
+		# for each element type
+		for element in presentElements:
+			# get element subgeometries of reference and self
+			subGeo=self.elementsubgeometry(element)
+			subGeo.foldToCell()
+			atomsOfElement=int(subGeo.Atomcount)
+			subRef=reference.elementsubgeometry(element)
+			subRef.foldToCell()
+			refAtomsOfElement=subRef.Atomcount
+			# get a list of all subgeometry atoms within 1 covalent radius of a reference atom
+			if style=="bondgroup":
+				(assignedSubAtoms,assignedRefAtoms)=subGeo._refBondGroup(reference=subRef,tolerance=tolerance,**kwargs)
+			elif style=="distsort":
+				(assignedSubAtoms,assignedRefAtoms)=subGeo._refDistSort(reference=subRef,tolerance=tolerance,**kwargs)
+			else:
+				raise ValueError("Unknown stlye of atoms to reference assignment selected")
+			assignedSubAtoms.sort()
+			assignedSubAtoms.reverse()
+			assignedRefAtoms.sort()
+			assignedRefAtoms.reverse()
+			for r in assignedSubAtoms:
+				subGeo.delatom(r)
+			for r in assignedRefAtoms:
+				subRef.delatom(r)
+			if subGeo.Atomcount > 0:
+				interstitials.appendgeometryflat(subGeo)
+			if subRef.Atomcount > 0:
+				vacancies.appendgeometryflat(subRef)
+		# finished building defect geometries, return:
+		if interstitialLayer:
+			il=vacancies.addlayer("INTERSTITIAL")
+			vacancies.appendgeometryflat(interstitials,il)
+		return vacancies
+		#done.
+
+
+
+	def _refBondGroup(self,reference,tolerance,**kwargs):
+		"""
+		@type reference: Geometry instance
+		@param reference: reference Geometry
+		type tolerance: float
+		@param tolerance: intergeometry bond detection distance cutoff.
+		@return: tuple of non-interstitial atoms of self and non-vacancy atoms of reference
+		"""
+		bothGeo=copy.deepcopy(self)
+		bothGeo.foldToCell()
+		bothGeo.appendgeometryflat(reference)
+		blist=bothGeo.bondlist(tolerance=tolerance)[self.Atomcount:]
+		assignedSubAtoms=[]
+		assignedRefAtoms=[]
+		for i in range(len(blist)):
+			for partner in blist[i]:
+				if partner > self.Atomcount:
+					blist[i].remove(partner)
+			if len(blist[i])==1:
+				assignedSubAtoms.append(blist[i][0])
+				assignedRefAtoms.append(i)
+		return (assignedSubAtoms,assignedRefAtoms)
+		
+	
+	
+	
+	def _refDistSort(self, reference,**kwargs):
+		"""
+		compare slef to reference geometry, map each atom of self to the closest atom of same element in reference.
+		return all unassigned reference atoms as vacancies
+		@type reference: Geometry instance
+		@param reference: reference Geometry
+		"""
+		# calculate matrix of all self<->reference atom distances
+		bothGeo=copy.deepcopy(self)
+		bothGeo.foldToCell()
+		bothGeo.appendgeometryflat(reference)
+		dmat=bothGeo.distancematrix()
+		dmshape=dmat.shape
+		interdistances=array(dmat[0:self.Atomcount][:,self.Atomcount:])
+		# free up some memory
+		del bothGeo
+		del dmat
+		# make a sortable list of all unique interatom distances and the involved atom indices
+		distances=[]
+		for i in range(interdistances.shape[0]):
+			for j in range(i,interdistances.shape[1]):
+				distances.append((interdistances[i][j],i,j))
+		distances.sort(key=lambda x: x[0])
+		# stupid loopidyloop solution but I can't think of anything better right now
+		# start at beginning of sorted distance list, eliminate all forther mentions of the involved atoms
+		# in parallel, pop the respective atoms from subGeo and subRef
+		# anything left in subRef should be vacancies, anything left in subGeo should be interstitial
+		# (assuming that reference is the perfect structure)
+		assignedSubAtoms=[]
+		assignedRefAtoms=[]
+		while (len(distances)>0):
+			subAtom=distances[0][1]
+			refAtom=distances[0][2]
+			assignedSubAtoms.append(subAtom)
+			assignedRefAtoms.append(refAtom)
+			removes=[]
+			for r in distances:
+				if r[1]==subAtom or r[2]==refAtom:
+					removes.append(r)
+			for r in removes: distances.remove(r)
+		return (assignedSubAtoms,assignedRefAtoms)
