@@ -420,6 +420,7 @@ class NEBPath(Reactionpath):
 		if self.tangfunc!=self._calcweightedtangents:
 			self._checkovershoot(self._fixatoms(self.nebforces))
 		self.writecheckpoint(self.checkpointdir)
+		self.writexyzpath("lastpath.xyz")
 		self.nstep+=1
 		# kill possibly stored spline representation
 		self.splineRep=None
