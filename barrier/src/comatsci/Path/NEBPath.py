@@ -577,30 +577,25 @@ class NEBPath(Reactionpath):
 	def cubicfit(self):
 		"""Fit a cubic polinomial to the path as described in the 
 		appendix of J. Chem Phys. 113, 9978 (2000)"""
-		self._calcweightedtangents()
+		#self._calcweightedtangents()
+		self._calctangents()
 		lengths=[]
 		# first calculate path segment lengths, approximated by
 		# linear difference between images, projected onto the 
 		# vector connecting start- and endstructure
-		direction=self.geos[self.numimages()-1].Geometry.ravel()-self.geos[0].Geometry.ravel()
-		direction/=sqrt(dot(direction,direction))
 		for i in range(self.numimages()-1):
 			xplus=self.geos[i+1].Geometry.ravel()
 			x=self.geos[i].Geometry.ravel()
 			diff=xplus-x
-			projdiff=diff*dot(diff,direction)
-##			R=dot(projdiff,projdiff)
 			R=dot(diff,diff)
 			R=sqrt(R)
 			lengths.append(R)
-##		# for now, we assume images are evenly spaced
-##		for i in range(self.numimages()-1):
-##			lengths.append(float(1.0/(float(self.numimages())-1.0)))
 		# secondly, get the absolute tangent force for each image
 		F=[]
 		tangforce=self.realtangentforces()
 		for i in range (self.numimages()):
-			F.append(sqrt(abs(dot(tangforce[i].ravel(),tangforce[i].ravel()))))
+			#F.append(sqrt(dot(tangforce[i].ravel(),tangforce[i].ravel())))
+			F.append(dot(tangforce[i].ravel(),self.tangents[i].ravel()))
 		# now calculate the Fit constants for each segment
 		cubicparms=[]
 		for i in range(self.numimages()-1):
