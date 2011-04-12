@@ -810,3 +810,25 @@ type '%prog --help' for more information"""
 				print comatsci.utils.dictionaryPrettyPrint(finalPotentials[index].getParameters())
 #		print "\b\b:",
 #	print "\b* done."
+
+	if options.optimizer=="genetic":
+		population=copy.deepcopy(optimizer._bestPopulation)
+		print "Writing final populations"
+		for j in range(len(population)):
+			offset=0
+			for (index,length) in paramap:
+				if length > 0:
+					popfilename="population-%s-%s.rep" %(comatsci.Geometry.Geometry.PTE[index[0]],comatsci.Geometry.Geometry.PTE[index[1]])
+					if j==0:
+						popfile=open(popfilename,"w")
+					else:
+						popfile=open(popfilename,"a")
+					tempPotentials=copy.deepcopy(initPotentials)
+					print >> popfile,"# fitness: %12.6f"%population[j][0]
+					Mutes=list(population[j][1])
+					repMutes=Mutes[offset:length]
+					tempPotentials[index].updateMutables(repMutes)
+					popfile.write(tempPotentials[index].getString())
+					popfile.close()
+				offset+=length
+		print "done writing final populations."
