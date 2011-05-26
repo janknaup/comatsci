@@ -257,7 +257,9 @@ parser.add_option("--lengthstats",
 		help="write per bond type bond length statistics trajectories.")
 
 
-
+parser.add_option("--trackvacancy",
+				  action="store", type="string", dest="trackvacancy", default=None, metavar="R",
+				  help="locate vacancies in every single frame by comparison to reference geometry read from file R. Write vacancy postions for each frame to 'vacancies.xyz'")
 
 
 (options,args) = parser.parse_args()
@@ -650,6 +652,44 @@ if options.lengthstats:
 				print >> ofile,""
 		# finished, close output file
 		ofile.close()
+
+
+if options.trackvacancy!=None:
+	#initialize reference geometry object
+	print "calculating vacancy trajectory..."
+	
+	sys.stdout.flush()
+
+	progress=comatsci.utils.ProgressMeter(total=path.numimages())
+	
+	refgeo=comatsci.Geometry.Geometry()
+	refgeo.readfile(options.trackvacancy)
+	
+	#initialize vacancy position path object
+	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+	vac=path.geos[0].locateVacancies(neighborMethod="none",groupMethod="reference_b",
+			specvalences={22:6,8:3},tolerance=0.49,
+			canonicalNeighbors={22:{8:6},8:{22:3}},refold=True,reference=refgeo)
+	lastvac=vac
+	initvaccount=int(vac.Atomcount)
+	vpath.appendGeoObject(vac,checkCompat=False)
+	progress.update(1)
+	#locate vacancies in each frame
+	for i in range(1,path.numimages()):
+		vac=path.geos[i].locateVacancies(neighborMethod="none",groupMethod="reference_b",
+			specvalences={22:6,8:3},tolerance=0.49,
+			canonicalNeighbors={22:{8:6},8:{22:3}},refold=True,reference=refgeo)
+	
+		if vac.Atomcount!=initvaccount:
+			vpath.appendGeoObject(lastvac,checkCompat=False)
+		else:
+			vpath.appendGeoObject(vac,checkCompat=False)
+			lastvac=vac
+		progress.update(1)
+	#write vacancy location path
+	vpath.writexyzpath("vacancies.xyz")
+	#finished.
+	print "done."
 
 
 print "Finished requested operations."

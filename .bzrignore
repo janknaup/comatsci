@@ -27,3 +27,4 @@ fitrep/src/scripts/fitrep_mopsoc
 fitrep/src/scripts/fitrepc
 fitrep/MANIFEST
 gui/MANIFEST
+test_regr/vactrack/longtracktest/vacancies.xyz
