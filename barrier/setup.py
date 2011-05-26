@@ -4,7 +4,7 @@ import os,sys
 
 startpath=os.getcwd()
 
-VERSIONTAG="1.0.0-b5"
+VERSIONTAG="1.1.0-rc1"
 AUTHOR="Jan M. Knaup"
 AU_EMAIL="Knaup@bccms.uni-bremen.de"
 URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
