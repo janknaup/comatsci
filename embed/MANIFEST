@@ -1,8 +1,11 @@
 LICENSE
 MANIFEST
 MANIFEST.in
+MANIFEST.~1~
 README
 setup.py
+setup.py.~1~
+setup.py.~2~
 doc/comatsci-embed.pdf
 doc/run.sh.example
 src/embedGeo/EmbedGeometry.py
