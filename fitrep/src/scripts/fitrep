@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ##############################################################################
-# fitrep
+# fitrep_mopso
 # Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
 # (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
 # all rights reserved
@@ -10,6 +10,9 @@
 ##############################################################################
 
 
+#
+# IMPORTS
+#
 import os,sys,shutil
 
 versionname="python%d.%d" % sys.version_info[0:2]
@@ -29,743 +32,803 @@ import copy
 
 import time
 
-from math import *
+import Optimizers
+
+#*************
+#* Constants *
+#*************
+
+# Target Functions
+# API convention: target functions must provide named option "opt" to pass additional options dictionary
+TARGETFUNCTIONS={
+	"forcesquares":			(comatsci.Path.AnalysisPath.forceSquares,),
+	"forcerms" :				(comatsci.Path.AnalysisPath.forceRms,),
+	"reactionsquares": 	(comatsci.Path.AnalysisPath.allDeltaESquares,),
+	"sqreaction":				(comatsci.Path.AnalysisPath.sqreaction,),
+}
+# Options allowed for target functions
+T_VALIDOPTIONS={
+	"forcesquares":None,
+	"forcerms":None,
+	"reactionsquares":None,
+	"sqreaction": ("products","educts"),
+}
+# Options required by target functions
+T_REQUIREDOPTIONS={
+	"forcesquares":None,
+	"forcerms":None,
+	"reactionsquares":None,
+	"sqreaction": ("products","educts"),
+}
 
 
-def mutate(ereps, mutables, mutator, scale, mutparms):
-	"""return repulsive potentials dictionary with all ereps specified in mutables mutated
-		***arguments***
-	ereps:		dictionary of repulsive potentials
-	mutables:	list of erep keys  that should be mutated
-	mutator:		single E_rep mutator function
-	scale:		scale parameter for the mutator function
-	mutparms:	tuple of mutation parameters, passed to the mutator function"""
-	outreps=copy.deepcopy(ereps)
-	i=rnd.choice(mutables)
-	outreps[i]=mutator(ereps[i],scale,mutparms[i])
-	return outreps
+# Optimizers
+OPTIMIZERS={
+	"genetic":		Optimizers.singleObjectiveGeneticOptimizer,
+	"mc":			Optimizers.singleObjectiveMonteCarloOptimizer
+}
+
+
+#************************
+#* Function Definitions *
+#************************
+
+
+def randomLocalMutate(options,inVec):
+	"""return vector mutated by random shift of one single element
+	@return mutated vector
+	"""
+	outVec=copy.deepcopy(inVec)
+	index=rnd.randint(0,len(inVec)-1)
+	outVec[index]+=options["scale"]* rnd.uniform(-1,1)
+	return outVec
 
 
 
-def localmutate(inrep,scale,mutparms):
-	"""return mutated repulsive potential
-		***arguments***
-	inrep:		input repulsive potential
-	scale=1:		weight of randomized position
-	mutparms:	tuple of lowest and highest E_rep datapoint index to mutate
-	borders are treated specially, see documentation"""
-	if scale>1.:
-		raise "local mutator scale must be in 0.0..1.0"
-	outrep=copy.deepcopy(inrep)
-	if mutparms[1]<0:
-		mutparms=(mutparms[0],len(inrep[1])+mutparms[1])
-		if mutparms[1]<1:
-			print "Negative outer deadzone larger than erep array. abort."
-			sys.exit(1)
-	n=rnd.randint(mutparms[0],mutparms[1])
-	if n==0:
-		offset=rnd.uniform(-1,1)*scale*(inrep[1][0])
-		oldrelative=-inrep[1][n-1]
-	elif n==len(inrep[1])-1:
-		offset=rnd.uniform(0,1)*(-inrep[1][n-1])
-		oldrelative=0
-	else:
-		r=rnd.uniform(-1,1)
-		if r < 0:
-			offset=r*(inrep[1][n-1] - inrep[1][n])
+def randomGlobalMutate(options,inVec):
+	"""return vector mutated by random shifting every element
+	@return mutated vector
+	"""
+	outVec=copy.deepcopy(inVec)
+	for i in range(len(outVec)):
+		outVec[i]+=options["scale"]*rnd.uniform(-1,1)
+	return outVec
+
+
+def lrCombine(options,father,mother):
+	"""return combination of fater and mother by taking randon number of right elements from father and left elemets from mother
+	@return combined vector
+	"""
+	child=copy.deepcopy(father)
+	for i in range(rnd.randint(0,len(father)-1),len(father)):
+		child[i]=mother[i]
+	return child
+
+
+def randomCombine(options,father,mother):
+	"""return combination of father and mother by randomly choosing father's or mother's element
+	@return combined vector
+	"""
+	child=copy.deepcopy(father)
+	for i in range(len(father)):
+		if rnd.gauss(0,1.0) > 0:
+			child[i]=mother[i]
+	return child
+
+
+
+def optImageList(arg,path,lineNumber):
+	"""convert comma separated image numers counting from unity (1) to internal indices,
+	check if image numbers are in range of path
+	@param arg: option argument string to parse
+	@param path: Path object to apply target function to
+	@param lineNumber: line number in input file, in which option appears
+	"""
+	#iniutialize return list
+	indexList=[]
+	#indices must be comma-separated
+	imgTokens=arg.split(",")
+	#convert to integer index counting from 0 and check
+	for i in imgTokens:
+		#integer conversion can fail
+		try:
+			index=int(i)-1
+		except:
+			print "Invalid target function definition in line %d of targets: integer conversion error" % (lineNumber)
+			raise
+		#index can be out of range of images in path
+		if index >=path.numImages:
+			raise IndexError("Invalid target function definition in line %d of targets: image index out of range" % (lineNumber))
+		indexList.append(index)
+	return indexList
+
+
+
+#def readerep(filename):
+#	"""return E_rep array from input file
+#	@param filename: input file name"""
+#	erepfile=open(filename,'r')
+#	replines=list(erepfile)
+#	erepfile.close()
+#	rlist=[]
+#	elist=[]
+#	for i in replines:
+#		# ignore common comment markers
+#		firstchar=i.lstrip()[0]
+#		if not (firstchar=="#" or firstchar==";"):
+#			dummy=i.split()
+#			if not (dummy[0].lstrip()[0]=='*' or dummy[1].lstrip()[0]=='*'):
+#				rlist.append(float(dummy[0]))
+#				elist.append(float(dummy[1]))
+#	return num.array([num.array(rlist),num.array(elist)])
+#
+#
+#
+#def read_ranges(rangesFileName,verbosity=comatsci.constants.VBL_QUIET):
+#	"""read and parse parameter ranges definition file
+#	@param rangesFileName: filename to read parameter ranges from
+#	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level
+#	"""
+#	ranges={}
+#	# read ranges file to list of lines
+#	rangesfile=open(rangesFileName,"r")
+#	lines=list(rangesfile)
+#	rangesfile.close()
+#	# iterate through ranges lines
+#	for i in range(len(lines)):
+#		#skip comments and empty lines
+#		if len(lines[i].strip())==0 or lines[i].strip()[0]=="#" :
+#			continue
+#		else:
+#			dummy=lines[i].strip().split()
+#			# expecting parameter number (counting from 1), lowbound, highbund
+#			if (len(dummy) > 3):
+#				raise ValueError("unexpected colunms in line %d of ranges definition file" % (i+1))
+#			elif (len(dummy) < 3):
+#					raise ValueError("missing column(s) in line %d of ranges definition file" % (i+1))
+#			# try converting numbers, give number of offending line, if this fails
+#			try:
+#				idx=int(dummy[0])
+#				lo=float(dummy[1])
+#				hi=float(dummy[2])
+#			except:
+#				print"Cannot parse line %d of repulsives:" % (i+1)
+#				raise
+#			# check for duplicate range definitions
+#			if ranges.has_key(idx):
+#				raise ValueError("Duplicate range definition for parameter %d in line %d of ranges definition file." % (idx,i))
+#			# if everything is okay, add range spec to return dictionary
+#			ranges[i]=(lo,hi)
+#	# done
+#	return ranges
+#
+#
+#
+#def read_repulsives(repsFileName="repulsives",verbosity=comatsci.constants.VBL_QUIET):
+#	"""read and parse repulsives specification config file
+#	@param repsFileName: default="repulsives" filename to read repulsives definitions from
+#	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level"""
+#	# initalize repulsives dictionary
+#	ereps={}
+#	# initialize optimization parameter map
+#	# @optimization parameter map is stored as a list of (e1,e2,index) tuples
+#	paramap=[]
+#	# read config file lines into memory
+#	repulsiveConfig=open(repsFileName)
+#	repLines=list(repulsiveConfig)
+#	repulsiveConfig.close()
+#	# now parse each line (do not iterate over lines 
+#	# to have correct line-number to report to the 
+#	# user, in case of an error
+#	for i in range(len(repLines)):
+#		# skip comment lines
+#		if len(repLines[i].strip())==0 or repLines[i].strip()[0]=="#" :
+#			continue
+#		else:
+#			# split line into components
+#			dummy=repLines[i].strip().split()
+#			# expecting E_1 E_2 Filename inner <outer>
+#			if (len(dummy)==4 and int(dummy[3])!=-1):
+#				raise ValueError("Invalid E_rep specification in line %d of repulsives: expecting inner and outer optimization range" % (i+1))
+#			elif len(dummy)!=5 and len(dummy)!=4:
+#				raise ValueError("Invalid E_rep specification in line %d of repulsives: expecting E_1 E_2 Filename inner <outer>, inner must be -1 if E_rep is to be fixed" % (i+1))
+#			# Check, if Element numbers can be parsed as integers
+#			try:
+#				e1=int(dummy[0])
+#				e2=int(dummy[1])
+#			except:
+#				print"Invalid E_rep specification in line %d of repulsives:" % (i+1)
+#				raise
+#			# Element numbers are stored in ascending order
+#			if e2>=e1:
+#				elems=(e1,e2)
+#			else:
+#				elems=(e2,e1)
+#			# Check if E_rep file exists
+#			erepFileName=dummy[2]
+#			if not os.path.exists(erepFileName):
+#				raise ValueError("Invalid E_rep specification in line %d of repulsives: E_rep file '%s' not found." % (i+1,erepFileName))
+#			else:
+#				erep=readerep(erepFileName)
+#			# Elemtents and repulsive specification have been read
+#			# now store them for the E_rep calculator
+#			# (warn if overwriting previously specified E_rep)
+#			if ereps.has_key(elems):
+#				if verbosity >= comatsci.constants.VBL_QUIET:
+#					print "*** WARNING: double definition of E_rep for %s interation in repulsives line: %d" %(str(elems),i+1)
+#			ereps[elems]=erep
+#			# Now take care of the optimization parameter mapping
+#			# ( inner mutable index -1 means fixed E_rep )
+#			if int(dummy[3])!=-1:
+#				# user indices are 1... while program indices are 0...
+#				for param in range(int(dummy[3])-1,int(dummy[4])):
+#					paramap.append((elems[0],elems[1],param))
+#			# Input line parsed
+#	# repulsives file parsed
+#	return (ereps,paramap)
+
+
+
+def readPairPotentials(potentialsFileName="repulsives",verbosity=comatsci.constants.VBL_QUIET):
+	"""read and parse repulsives specification config file
+	@param potentialsFileName: default="repulsives" filename to read repulsives definitions from
+	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level
+	@return dictionary of initial pair potentials indexed by (Z1,Z2) keys with Zn integer element numbers Z1<Z2"""
+	# initalize potentials dictionary
+	potentials={}
+	# read input file lines into memory
+	repulsiveConfig=open(potentialsFileName)
+	repLines=list(repulsiveConfig)
+	repulsiveConfig.close()
+	# now parse each line (do not iterate over lines 
+	# to have correct line-number to report to the 
+	# user, in case of an error
+	for i in range(len(repLines)):
+		# skip empty and comment lines
+		if len(repLines[i].strip())==0 or repLines[i].strip()[0]=="#" :
+			continue
 		else:
-			offset=r*(inrep[1][n] - inrep[1][n+1])
-		oldrelative=inrep[1][n]-inrep[1][n-1]
-	outrep[1][n]=(offset)*scale +oldrelative + inrep[1][n-1]
-	return outrep
+			# split line into tokens
+			dummy=repLines[i].strip().split()
+			# expecting E_1 E_2 Filename
+			if (len(dummy)!=3):
+				raise ValueError("Invalid E_rep specification in line %d of repulsives: expecting E_1 E_2 Filename" % (i+1))
+			# Check, if Element numbers can be parsed as integers
+			try:
+				e1=int(dummy[0])
+				e2=int(dummy[1])
+			except:
+				print"Invalid E_rep specification in line %d of repulsives:" % (i+1)
+				raise
+			# Element numbers are stored in ascending order
+			if e2>=e1:
+				elems=(e1,e2)
+			else:
+				elems=(e2,e1)
+			# Check if E_rep file exists
+			potentialFileName=dummy[2]
+			if not os.path.exists(potentialFileName):
+				raise ValueError("Invalid E_rep specification in line %d of repulsives: E_rep file '%s' not found." % (i+1,potentialFileName))
+			else:
+				potential=comatsci.Calculators.Potentials.getPotentialFromFile(potentialFileName)
+			# Elemtents and potential specification have been read
+			# now store them for the pair potential calculator
+			# (warn if overwriting previously specified E_rep)
+			if potentials.has_key(elems):
+				if verbosity >= comatsci.constants.VBL_QUIET:
+					print "*** WARNING: double definition of E_rep for %s interation in repulsives line: %d" %(str(elems),i+1)
+			potentials[elems]=potential
+			# Input line parsed
+	# repulsives file parsed
+	# construct map of slices for each potential
+	potentialsList=potentials.keys()
+	potentialsList.sort()
+	paramap=[]
+	sliceIndex=0
+	for i in potentialsList:
+		paramap.append((i,len(potentials[i].getMutables())))
+	
+	return (potentials,paramap)
 
 
-
-def looselocalmutate(inrep,scale,mutparms):
-	"""return locally mutated repulsive potential, not enforcing monotony
-		***arguments***
-	inrep:		input repulsive potential
-	scale=1:		weight of randomized position
-	mutparms:	tuple of lowest and highest E_rep datapoint index to mutate
-	borders are treated specially, see documentation"""
-	if scale>1.:
-		raise "local mutator scale must be in 0.0..1.0"
-	outrep=copy.deepcopy(inrep)
-	if mutparms[1]<0:
-		mutparms=(mutparms[0],len(inrep[1])+mutparms[1])
-		if mutparms[1]<1:
-			print "Negative outer deadzone larger than erep array. abort."
-			sys.exit(1)
-	n=rnd.randint(mutparms[0],mutparms[1])
-	outrep[1][n]=rnd.uniform(-1,1)*scale*inrep[1][n]+inrep[1][n]
-	return outrep
+# Functions to parse and check target function options
+T_OPTPARSERS={
+	"products":optImageList,
+	"educts":optImageList,
+}
 
 
-def erepmutate(inrep,scale,mutparms):
-	"""return mutated repulsive potential
-	parameters:
-	inrep:	input repulsive potential
-	scale:	amplitude of mutation
-	mutparms:	tuple of lowest and highest datapoint index to modify
-	borders are treated specially, see code"""
-	outrep=copy.deepcopy(inrep)
-	if mutparms[1]<0:
-		mutparms=(mutparms[0],len(inrep[1])+mutparms[1])
-		if mutparms[1]<1:
-			print "Negative outer deadzone larger than erep array. abort."
-			sys.exit(1)
-	cut=rnd.randint(mutparms[0],mutparms[1])
-	offset=rnd.uniform(-scale,scale)
-	outrep[1][mutparms[0]:cut]+=(offset)*inrep[1][cut]
-	#make sure to keep E-rep monotonic
-	if cut>=0:
-		delta=outrep[1][cut]-outrep[1][cut-1]
-	else:
-		delta=-outrep[0]
-	if delta >0:
-		outrep[1][mutparms[0]:cut]+=delta*1.618033988 #golden section
-	for i in range(1,len(inrep[0])-1):
-		newx=outrep[0][i]+rnd.uniform(-0.1*scale,0.1*scale)
-		if newx<outrep[0][i+1] and newx>outrep[0][i-1]:
-			outrep[0][i]=newx
-	return outrep
-
-
-
-def readerep(filename):
-	"""return E_rep array from input file
-		***arguments***
-	filename:	input file name"""
-	erepfile=open(filename,'r')
-	replines=list(erepfile)
-	erepfile.close()
-	rlist=[]
-	elist=[]
-	for i in replines:
-		# ignore common comment markers
-		firstchar=i.lstrip()[0]
-		if not (firstchar=="#" or firstchar==";"):
-			dummy=i.split()
-			if not (dummy[0].lstrip()[0]=='*' or dummy[1].lstrip()[0]=='*'):
-				rlist.append(float(dummy[0]))
-				elist.append(float(dummy[1]))
-	return num.array([num.array(rlist),num.array(elist)])
-
-
-
-def erepcombine(father, mother):
-	"""return the offspring of two repulsive potentials
-		***arguments***
-	father:	first E_rep, inner part of child will come from this
-	mother:	second E_rep, outer part of child will come from here"""
-	outrep=copy.deepcopy(father)
-	length=num.shape(father)[1]
-	cut=rnd.randint(-length,length)
-	outrep[1][cut:]=mother[1][cut:]
-	return outrep
-
-
-
-def combine(father,mother, mutables):
-	"""combine E_rep sets, calls erepcombine
-		***arguments***
-	father:	E_rep dictionary, from which fathers will be taken
-	mother:	dictionary of E_reps, from which mothers will be taken
-	muables:	list of mutable E_rep keys"""
-	outreps=copy.deepcopy(ereps)
-	for i in mutables:
-		outreps[i]=erepcombine(father[i],mother[i])
-	return outreps
-
-
-
-def writeerep(erep, filename):
-	"""write repulsive potential to file
-		***arguments***
-	erep:		repulsive potential to write out
-	filename:	output filename"""
-	outfile=open(filename,"w")
-	for i in range(len(erep[0])):
-		print >> outfile, "%12.6f\t%12.6f" % (erep[0][i],erep[1][i])
-	outfile.close()
-
-
-
-def write_erepcheckpoint(ereps, directory):
-	"""write all repulsive potentials from ereps into directory
-		***arguments***
-	ereps:		repulsive potentials dicitonary
-	directory:	output files directroy"""
-	if not os.path.isdir(directory):
-		os.mkdir(directory)
-	for i in ereps.keys():
-		filename=directory+'/'+str(i[0])+'-'+str(i[1])
-		writeerep(ereps[i],filename)
-
-
-
-def squares(fitpath, targetpath):
-	"""sqared force difference + squared total energies difference function
-		***arguments***
-	fitpath:		first path to compare
-	targetpath:	second path to compare"""
-	return forcesquares(fitpath,targetpath)+energysquares(fitpath,targetpath)
-
-
-
-def forcesquares(fitpath, targetpath):
-	"""return sum of squares of force difference btw fitpath and targetpath
-		***arguments***
-	fitpath:		first path to compare
-	targetpath:	second path to compare"""
-	Ff=num.array(fitpath.realforces).ravel()
-	Ft=num.array(targetpath.realforces).ravel()
-	dF=Ff-Ft
-	return num.dot(dF,dF)
-
-
-
-def forcerms(fitpath, targetpath):
-	"""return rms of force deifference btw. fitpath and targetpath
-		***arguments***
-	fitpath:		first path to compare
-	targetpath:	second path to compare"""
-	return sqrt(forcesquares(fitpath,targetpath)/(fitpath.geos[0].Atomcount*fitpath.numimages()))
-
-
-
-def energysquares(fitpath, targetpath):
-	"""return squared energy difference btw. fitpath and targetpath
-		***arguments***
-	fitpath:		first path to compare
-	targetpath:	second path to compare"""
-	Ef=num.array(fitpath.energies).ravel()
-	Et=num.array(targetpath.energies).ravel()
-	dE=Ef-Et
-	return num.dot(dE,dE)
-
-
-
-def energyrms(fitpath, targetpath):
-	"""return rms energy difference btw. fitpath and targetpath
-		***arguments***
-	fitpath:		first path to compare
-	targetpath:	second path to compare"""
-	return sqrt(forcesquares(fitpath,targetpath)/(fitpath.numimages()))
-
-
-
-def rms(fitpath, targetpath):
-	"""return sum of rms energies and forces differences btw. fitpath and targetpath
-		***arguments***
-	fitpath:		first path to compare
-	targetpath:	second path to compare"""
-	return energyrms(fitpath, targetpath)+forcerms(fitpath, targetpath)
-
-
-
-def totalfitness(fitset, refset):
-	"""return total fitness for a list of (path,fitfunc,weight)
-	tuples and a list of refpaths
-		***arguments***
-	fitset:		list of (Reactionpath, fitness function, fitness weight) tuples
-	refset:		list of reference Reactionpath objects"""
-	tf=0.0
-	for i in range(len(fitset)):
-		tf+=fitset[i][1](fitset[i][0],refset[i])*fitset[i][2]
-	return tf
-
-
-
-def calcfitsetenergiesforces(fitset, calc):
-	"""execute energies and forces calculations for each element fitset using calc
-		***arguments***
-	fitset:	list of (Reactionpath, fitness function, fitness weight tuples
-	calc:	calculator function"""
-	for i in fitset:
-		i[0].calcenergiesforces(calc)
-
-
-
-def gnuplotprogress():
-	"""plot progress of optimization via gnuplot py
-	uses _LOTS_ of globals"""
-	global plot
-	global GNuplot
-	global plotereps
-	global plotnrg
-	global plotfrc
-	global options
-	plot("set multiplot")
-	plot("set size 1.0,0.33")
-	plot("set origin 0.0,0.33")
-	plot("set key top")
-	plot.plot(plotnrg)
-	plot("set origin 0.0,0.00")
-	plot("set key top")
-	plot.plot(plotfrc)
-	plot("set origin 0.0,0.67")
-	plot.plot(*plotereps)
+def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIET):
+	"""read target definitions from target file
+	@param targetsFileName: default="repulsives" filename to read targets definitions from
+	@param verbosity: default=comatsci.constants.VBL_QUIET verbosity level"""
+	#initialize target paths list
+	targetPaths=[]
+	#we also need identical copies for our objective calculations
+	objectivePaths=[]
+	
+	#initialize targets list
+	#a target in this list is a sequence of path reference, 
+	#function reference, objective index, target weight, and a tuple of parameters
+	targets=[]
+	
+	# read config file lines into memory
+	targetsConfig=open(targetsFileName)
+	trgLines=list(targetsConfig)
+	targetsConfig.close()
+	
+	# now parse each line (do not iterate over lines 
+	# we need primitive stateful parsing here: keep track of the 
+	# current target path, set an invalid target for initialization
+	currentTargetPath=-1
+	# also track if we have read a target definition or 
+	# a target path in the last line
+	lastPath=False
+	hasPath=False
+	# to have correct line-number to report to the 
+	# user, in case of an error
+	for i in range(len(trgLines)):
+		# skip comment lines
+		if len(trgLines[i].strip())==0 or trgLines[i].strip()[0]=="#":
+			continue
+		else:
+			# split line into tokens
+			tokens=trgLines[i].strip().split()
+			#We either expect a target path filename or 
+			#a target definition referring to the last target path
+			#just one token means, we have just a path filename (hopefully)
+			if len(tokens)==1:
+				targetFileName=tokens[0]
+				#check if target file exitsts
+				if not os.path.exists(targetFileName):
+					raise ValueError("Invalid target path specification in line %d of targets: target path file '%s' not found." % (i+1,targetFileName))
+				else:
+					#sanity check: did we read a target path in the last line?
+					if lastPath:
+						if verbosity >= comatsci.constants.VBL_QUIET:
+							print " *** WARNING *** No target functions defined for last target path!"
+					#initialize new path Objects in mode "external scheduler"
+					tempPath=comatsci.Path.AnalysisPath("d")
+					tempObjectivePath=comatsci.Path.AnalysisPath("d")
+					#read target path file
+					tempPath.readfmgpath(targetFileName,checkCompat=False)
+					tempObjectivePath.readfmgpath(targetFileName,checkCompat=False)
+					#warn if no energies or forces in target path
+					if not tempPath.has_energies:
+						print " *** WARNING *** Path %s in line %d has no energies!"%(targetFileName,i+1)
+					if not tempPath.has_realforces:
+						print " *** WARNING *** Path %s in line %d has no real forces!"%(targetFileName,i+1)
+					#append path and store new state
+					targetPaths.append(tempPath)
+					objectivePaths.append(tempObjectivePath)
+					currentTargetPath=len(targetPaths)-1
+					lastPath=True
+					hasPath=True
+			#for a target function def, we need at least function and weight
+			elif (len(tokens)>1):
+				if not hasPath:
+					raise ValueError("Invalid target function definition in line %d of targets: target function declared without prior path definition" %(i+1))
+				else:
+					lastPath=False
+				functionName=tokens[0].strip().lower()
+				if not TARGETFUNCTIONS.has_key(functionName):
+					raise ValueError("Invalid target function definition in line %d of targets: unknown function definition." %(i+1))
+				else:
+					#convert weight
+					objWeight=float(tokens[1])
+					#parse options and check
+					tempOptions={}
+					#cycle through option tokens list
+					for option in tokens[2:]:
+						#split option name and arguments
+						optTokens=option.split("=")
+						optName=optTokens[0].lower()
+						optArgs=optTokens[1]
+						#check if option is allowed and parse its arguments
+						print optTokens
+						print optArgs
+						
+						if optName in T_VALIDOPTIONS[functionName]:
+							tempOptions[optName]=T_OPTPARSERS[optName](arg=optArgs,path=targetPaths[currentTargetPath],lineNumber=i+1)
+						else:
+							raise ValueError("Invalid target function definition in line %d of targets: unexpected option %s for target function %s." % (i+1,functionName,optTokens[0]))
+					#finally, check if all required options were specified, if required options are present
+					if T_REQUIREDOPTIONS[functionName]:
+						for option in T_REQUIREDOPTIONS[functionName]:
+							if not option in tempOptions:
+								raise ValueError("Invalid target function definition in line %d of targets: option %s for target function %s is missing." % (i+1,functionName,option))
+					#append the target function definition
+					targets.append((currentTargetPath,TARGETFUNCTIONS[functionName][0],objWeight,tempOptions))
+			#catch malformed lines
+			else:
+				raise ValueError("Invalid target function definition in line %d of targets: need at least function, objective reference and objective weight." %(i+1))
+	#finished parsing, return paths and targets
+	return (targetPaths,objectivePaths,targets)
 	
 
 
-def MC_opt():
-	"""Monte-Carlo optimiziation of E_rep
-	uses _LOTS_ of globals"""
-	global refset, fitset
-	global mutator, plotfunc, calc
-	global options
-	global ereps
-	global mutables, mutparms
-	global plotereps, plotnrg, plotref, plotfrc
-	global mutationcount, improvecount
+def calc_MetaFitness(options,X):
+	"""calculate weighted sum of defined Fitnesses per target
+	@param targetPaths: the fitting target paths storing target energies and gradients
+	@param targets: the target functions
+	@param sched: scheduler object to carry out energies and forces calculations
+	@return: fitness value"""
+	# initialize objective function values
+	fitness=0.0;
+	# copy X to allow destructibe
+	Mutes=list(X)
+	# construct temporary set of repulsive potentials from parameters and set in calculator
+	tempereps=copy.deepcopy(options["repulsives"])
+	for (index,length) in options["paramap"]:
+		repMutes=Mutes[0:length]
+		Mutes=Mutes[length:len(Mutes)]
+		tempereps[index].updateMutables(repMutes)
+	#FIXME: this is not worrable in parallel mode, find better way to communicate E-reps to calculators
+	options["sched"]._worker._setPotentials(tempereps)
+	for i in options["targetPaths"]:
+		i.realforcesfunc(options["sched"])
+	# do E_rep calculations on objectivePaths
+	# now iterate through targets, adding up the objective function values
+	for (pathIndex, targetFunction, targetWeight, fitOpts) in options["targets"]:
+		fitness+=targetFunction(options["objectivePaths"][pathIndex],targetpath=options["targetPaths"][pathIndex],opt=fitOpts)*targetWeight
+	return fitness
 	
-	print "starting Monte-Carlo E_rep optimization"
-	calcfitsetenergiesforces(fitset,calc)
-	oldfitness=totalfitness(fitset,refset)
-	inifitness=oldfitness
-	print "initial fitness function value: %12.6f" % (oldfitness)
-	if options.gnuplot:
-		plotfunc()
-	for i in range(options.maxit):
-		testerep=(mutate(ereps,mutables,mutator,options.mutationscale,mutparms))
-		mutationcount+=1
-		calc._setEreps(testerep)
-		calcfitsetenergiesforces(fitset,calc)
-		fitness=totalfitness(fitset,refset)
-		if fitness < oldfitness:
-			ereps=testerep
-			oldfitness=fitness
-			print "mutated E_rep improves on previous E_rep"
-			improvecount+=1
-			write_erepcheckpoint(ereps,"bestereps")
-#			if options.gnuplot:
-#				nrgdiff=energydiffs(refset,fitset)
-#				plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1, with="boxes")
-#				frcdiff=forcediffs(refset,fitset)
-#				plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1, with="boxes")
-#				plotereps=[]
-#				for j in mutables:
-#					plottitle=str(j[0])+"-"+str(j[1])
-#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],smooth="cspl",title="",inline=1))
-#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],with="p",title=plottitle,inline=1))
-#				plotfunc()
-		if options.quiet:
-			if i%100==0:
-				print "--mark-- iteration %d" % i
-		else:
-			print "target function value: %12.6f" % (fitness)
+
+#
+# FUNCTIONS TO UI NAME MAPS
+#
+
+
+# Mutator functions
+MUTFUNCS = {
+	"local": 	randomLocalMutate,
+	"global":	randomGlobalMutate,
+}
+
+# Combiner functions
+COMBFUNCS = {
+	"lr":		lrCombine,
+	"rnd":		randomCombine
+}
+
+
+#
+# MAIN PROGRAM
+#
+if __name__ == '__main__':
+	
+	from optparse import OptionParser,OptionGroup
+	
+	# *** Parse Options ***
+
+	usage="""usage: %prog [options] [<repulsives>] [<targets>] [<ranges>]
+repulsives:\toptional filename of repulsives definition file, default = "repulsives"
+targets:\t\toptional filename of targets definition file, default = "targets"
+type '%prog --help' for more information"""
+	
+	#
+	# GROUP options for better usability
+	#
+	
+	#
+	# GENERAL options not directly optimization specific
+	#
+	
+	parser=OptionParser(usage)
+	
+	parser.add_option("-o","--optimizer",
+			action="store", metavar="OPT", dest="optimizer", type="choice",
+			choices=OPTIMIZERS.keys(), default="genetic",
+			help="Select which optimizer to use for fitting the repulsive potential. Default=%default")
+	
+	parser.add_option("-v", 
+			action="count", dest="verbosity", default=comatsci.constants.VBL_NORMAL,
+			help="Increase verbosity level, default=%default")
+	
+	parser.add_option("-q", "--quiet",
+			action="store_const", const=comatsci.constants.VBL_QUIET, dest="verbosity",
+			help="Limit output to fatal errors and critical warnings, no status output at all")
+			
+	parser.add_option("--silence",
+			action="store_const", const=comatsci.constants.VBL_SILENCE, dest="verbosity",
+			help="Limit output to fatal errors only. Not even warnings.")			
+	
+	parser.add_option("--optdebug",
+			action="store_true", default=False,  dest="optdebug",
+			help="Optimization debug: write various files recording the optimization history. !OUTPUT FILES ARE LARGE! default=%default.")
+
+##	parser.add_option("-d","--scheduler",
+##			action="store", type="string", dest="scheduler", default="s",
+##			help="Choose scheduler to manage execution of single calculations. Choices are 's': serial, 'p': MPI parallel, 't': threading parallel. default=%default")
+##
+##	parser.add_option("-t","--maxworkthreads",
+##			action="store", type="int", dest="maxthreads", default=0,
+##			help="Set maximum number of concurrent parallel threads in thread scheduling mode. 0:= no limit. default=%default")
+#*****************  end  inactive options ***********************************************************************************************
+
+	#
+	# Optimizer common options
+	#
+	
+	optimizerCommonOptions=OptionGroup(parser,"common options","options common to all optimizer types")
+	
+	optimizerCommonOptions.add_option("-m","--maxit",
+			action="store", metavar="N", dest="maxit", type="int", default=1000,
+			help="Maximum number of iterations, default = %default")
+	
+	# internally we still call this craziness, as it replaces the old craziness parameter
+	optimizerCommonOptions.add_option("-u","--mutation",
+			action="store", metavar="M", dest="craziness", type="float", default=0.1,
+			help="Mutation factor, default = %default")
+		
+	optimizerCommonOptions.add_option("-t","--mutator",
+					  action="store", metavar="M", dest="mutator",choices=MUTFUNCS.keys(), type="choice", default=MUTFUNCS.keys()[0],
+					  help="Method used to mutate specimens, wither local or global, default=%default")
+	
+	#***************** begin inactive options *******************************************************************************************	
+	#optimizerCommonOptions.add_option("-g","--ranges",
+	#		action="store", default=None,  dest="ranges", type="string", metavar = "R",
+	#		help="Read parameter range definitions from file R. default: use automatic +-40% of inital ranges.")
+	#*****************  end  inactive options *******************************************************************************************
+	
+	parser.add_option_group(optimizerCommonOptions)
+	
+	#
+	# Genetic Optimizer options
+	#
+	optimizerGeneticOptions=OptionGroup(parser,"gentic optimizer options","options only relevant to genetic optimization")
+
+	optimizerGeneticOptions.add_option("-p","--population",
+			action="store", metavar="POP", dest="population", type="int", default=100,
+			help="Total number of E_rep sets to use, default = %default")
+	
+	optimizerGeneticOptions.add_option("-b","--breeders",
+			action="store", metavar="B", dest="breedercount", type="int", default=20,
+			help="Total number of E_rep sets to choose for the breeder group, default = %default")
+	
+	optimizerGeneticOptions.add_option("--keep-elders",
+			action="store_true", dest="keep_elders",  default=False,
+			help="If selected, non-breeders fitter than offspring will survive into next generation, default = %default")
+	
+	optimizerGeneticOptions.add_option("-c","--combiner",
+					  action="store", metavar="C", dest="combiner",choices=COMBFUNCS.keys() , type="choice", default=COMBFUNCS.keys()[0],
+					  help="Method used to combine parents, either lr or rnd, default=%default")
+	
+	optimizerGeneticOptions.add_option("--initialmutation",
+			action="store", metavar="M", dest="initialcraziness", type="float",
+			help="Mutation factor, default use same factor as for evolution")
+		
+	optimizerGeneticOptions.add_option("--initialmutator",
+					  action="store", metavar="M", dest="initialmutator",choices=list(MUTFUNCS.keys())+["same"], type="choice", default="same",
+					  help="Method used to mutate specimens, either local or global or same as for evolution, default=%default")
+	
+	
+	#***************** begin inactive options *******************************************************************************************	
+	#optimizerGeneticOptions.add_option("-r","--repository-size",
+	#		action="store", metavar="R", dest="repsize", type="int", default=100,
+	#		help="Maximum number of Parameter sets to store in the repository, default = %default")
+	#*****************  end  inactive options *******************************************************************************************
+	
+	parser.add_option_group(optimizerGeneticOptions)
+	
+	#
+	# Monte-Carlo Optimizer options
+	#
+	# *** No MC specific options defined, so everything commented out ***
+	#optimizerMcOptions=OptionGroup(parser,"mc optimizer options", "options only relevant to monte-carlo optimization")
+
+	#***************** begin inactive options *******************************************************************************************
+	
+	#*****************  end  inactive options *******************************************************************************************
+
+	#parser.add_option_group(optimizerMcOptions)
+	
+	(options,args) = parser.parse_args()
+	
+	# limit breeder count to population size
+	if options.breedercount > options.population:
+		if options.verbosity >= comatsci.constants.VBL_SILENCE:
+			print "*****\nWARNING: breeder count larger than population was lowered to population size.\n*****"
+		options.breedercount=options.population
+
+	
+	# catch unexpected positional arguments:
+	if len(args)>2:
+		raise ValueError("Unexpected arguments in command line: %s" % str(args[2:]))
+	
+	# set targets and frepulsives filenames from arguments if given, else default
+	if len(args)<2:
+		targetsFileName="targets"
+	else:
+		targetsFileName=args[1]
+	if len(args)<1:
+		repulsivesFileName="repulsives"
+	else:
+		repulsivesFileName=args[0]
+	
+	# *** read input files ***
+	
+	if options.verbosity>=comatsci.constants.VBL_NORMAL:
+		print "reading repulsives definitions from %s" % repulsivesFileName
+	
+	(initPotentials,paramap) = readPairPotentials(repulsivesFileName,options.verbosity)
+	
+	X = []
+	
+	#paramap is a list of tuples containing: 
+	#Element_1, Element_2, index
+	if options.verbosity>=comatsci.constants.VBL_NORMAL:
+		print "Parameters :\nE_rep\tr\t\tE(r)"
+	for (label, length) in paramap:
+		if options.verbosity>=comatsci.constants.VBL_NORMAL:
+			print "%d-%d:\t%d mutable parameters"%(label[0],label[1],length)
+			if length > 0:
+				print "parameters including non-mutables:"
+				print comatsci.utils.dictionaryPrettyPrint(initPotentials[label].getParameters())
+		X+=initPotentials[label].getMutables()
+	
+	if options.verbosity>=comatsci.constants.VBL_NORMAL:
+		print "reading targets definitions from %s" % targetsFileName
+	targetPaths, objectivePaths, targets = read_targets(targetsFileName,options.verbosity)
+	
+	#TODO: Add targets listing here
+	
+##	if options.verbosity>=comatsci.constants.VBL_NORMAL:
+##		print "target definitions:"
+##		for i in targetPaths:
+##			
+	
+	# ************************************************************************************
+	# Optimization debug: write target paths to plotable files
+	if options.optdebug:
+		for od_i in range(len(targetPaths)):
+			od_frcfile=open("target-%03d.frc"%od_i,"w")
+			od_nrgfile=open("target-%03d.nrg"%od_i,"w")
+			for od_j in range(targetPaths[od_i].numimages()):
+				print >> od_nrgfile, targetPaths[od_i].energies[od_j]
+				frcflat=num.array(targetPaths[od_i].realforces[od_j]).ravel()
+				for od_k in frcflat:
+					print >> od_frcfile, "%20.12e" %(od_k,)
+				print >> od_frcfile, "\n" # double newline to separate gnuplot data blocks
+			od_frcfile.close()
+			od_nrgfile.close()
+	# ************************************************************************************
+
+	# *** initialize calculator and scheduler ***
+	#calc=comatsci.Calculators.erepcalc(ereps,verbosity=options.verbosity-3)
+	calc=comatsci.Calculators.pairPotentialCalc(initPotentials,verbosity=options.verbosity-3)
+	sched=comatsci.Schedulers.serialScheduler(calc,verbosity=options.verbosity-2)
+	#sched=comatsci.Schedulers.threadScheduler(comatsci.Calculators.erepcalc,((ereps),{"verbosity":options.verbosity-3}),2,options.verbosity-2,)
+
+
+	# digest complex options
+	# if "same" was selected for initialmutator, set the real value
+	INITIALMUTATORS=dict(MUTFUNCS)
+	INITIALMUTATORS["same"]=MUTFUNCS[options.mutator]
+
+	# *** initialize optimizer ***
+	MutatorOptions={
+		"scale":	options.craziness,
+		"mutparms":	(0,-1)
+	}
+	
+	initialmutation=options.initialcraziness
+	if initialmutation==None:
+		initialmutation=options.craziness
+	
+	InitialMutatorOptions={
+		"scale": initialmutation,
+		"mutparms": (0,-1)
+	}
+	
+	FitnessOptions={
+		"repulsives":		initPotentials,
+		"sched":			sched,
+		"paramap":			paramap,
+		"targets":			targets,
+		"targetPaths":		targetPaths,
+		"objectivePaths":	objectivePaths
+	}
+	CombinerOptions={}
+	OptimizerOptions={
+		"maxF": 0.1,
+		"mutator": MUTFUNCS[options.mutator],
+		"mutatorOptions": MutatorOptions,
+		"fitness": calc_MetaFitness ,
+		"fitnessOptions": FitnessOptions,
+		"combiner": COMBFUNCS[options.combiner],
+		"combinerOptions": CombinerOptions,
+		"populationSize": options.population,
+		"breederCount": options.breedercount,
+		"keepFitterElders": options.keep_elders,
+		"verbosity": options.verbosity,
+		"maxIterations": options.maxit,
+		"initialMutator": INITIALMUTATORS[options.initialmutator],
+		"initialMutatorOptions": InitialMutatorOptions
+	}
+	optimizer = OPTIMIZERS[options.optimizer](OptimizerOptions)
+	
+		
+	#
+	#
+	#
+		
+	#
+	# MAIN LOOP
+	#
+	
+	while not optimizer.converged:
+		X=optimizer.optStep(X,calc_MetaFitness,None,None)
+		print "Iteration %5d - best fitness: %f - acceptance rate: %f" % (optimizer.getIterations(),optimizer.solutions[0][0],optimizer.getAcceptanceRate())
 		sys.stdout.flush()
-	return (oldfitness,inifitness)
+		
+		# ************************************************************************************
+		# Optimization debug: write repulsive potentials histories to outputfiles
+		# initialize output files
+		if options.optdebug:
+			od_repfiles=[]
+			for i in ereps.keys():
+				od_repfiles.append(open("repdbg_%d-%d"%i,"w")) # key of ereps is a 2-tuple of ints
+		# ************************************************************************************
 
-
-
-def populationkey(element):
-	"""helper function to sort (fitness,Erep) tuples
-		***arguments***
-	element:	(fitness value, repulsive potantials dictionary) tuple"""
-	return element[0]
-
-
-
-def fitsetenergies(fitset):
-	"""return list of all image total energies in fitset
-		***arguments***
-	fitset:		list of (Reactionpath, fitness function, fitness weight) tuples"""
-	nrgs=[]
-	for i in fitset:
-		nrgs+=i[0].energies
-	return nrgs
-
-
-
-def refsetenergies(refset):
-	"""return list of all image total energies in reference set"""
-	nrgs=[]
-	for i in refset:
-		nrgs+=i.energies
-	return nrgs
-
-
-
-def energydiffs(refset,fitset):
-	"""return energy differences btw. refset and fitset"""
-	diffs=[]
-	ref=refsetenergies(refset)
-	fit=fitsetenergies(fitset)
-	for i in range(len(ref)):
-		diffs.append(fit[i]-ref[i])
-	return diffs
-
-
-
-def forcediffs(refset,fitset):
-	"""return imagewise force differences btw refset and fitset"""
-	diffs=[]
-	for i in range(len(refset)):
-		for j in range(refset[i].numimages()):
-			Ff=num.array(fitset[i][0].realforces[j],num.Float).ravel()
-			Fr=num.array(refset[i].realforces[j],num.Float).ravel()
-			delta=Ff-Fr
-			diffs.append(num.sqrt(num.dot(delta,delta)))
-	return diffs
-
-
-
-def GEN_opt():
-	"""optimization of E_rep by genetic algorithm
-	uses _LOTS_ of globals"""
-	global refset, fitset
-	global mutator, plotfunc, calc
-	global options
-	global ereps
-	global mutables, mutparms
-	global plotereps, plotnrg, plotref, plotfrc
-	global mutationcount, improvecount
 	
-	print "starting Genetic E_rep optimization"
-	calcfitsetenergiesforces(fitset,calc)
-	oldfitness=totalfitness(fitset,refset)
-	inifitness=oldfitness
-	nrgdiff=energydiffs(refset,fitset)
-	frcdiff=forcediffs(refset,fitset)
-	print "initial fitness function value: %12.6f" % (oldfitness)
+	# OPTIMIZATION FINISHED
+	# TODO: At this point the optimized repulsives should probably be written
 	
-	print "generating initial population"
-	population=[(inifitness,ereps)]
-	for i in range(1,options.population):
-		temperep=mutate(ereps,mutables,mutator,options.mutationscale,mutparms)
-		calc._setEreps(temperep)
-		mutationcount+=1
-		calcfitsetenergiesforces(fitset,calc)
-		fitness=totalfitness(fitset,refset)
-		population.append((fitness,temperep))
-	population.sort(key=populationkey)
+	# ************************************************************************************
+	# Optimization debug: close repulsive potantial trajectory files
+	#
+	if options.optdebug:
+		for od_i in od_repfiles:
+			od_i.close()
+	# ************************************************************************************
+
+
+	print "Optimization finished with result: '%s'" % (optimizer.getConvReason())
+	print "Total number of mutations  :\t%d" % optimizer._mutations
+	print "Final acceptance rate      :\t%12.6f" % optimizer.getAcceptanceRate()
 	
-	print "Initial population fitness ranges from %f to %f"%(population[0][0],population[options.population-1][0])
-	print "Breeder maximum fitness is %f"%(population[options.breeders-1][0])
+	# remap best specimen to repulsives
+	finalPotentials=copy.deepcopy(initPotentials)
+	Mutes=list(X)
+	for (index,length) in paramap:
+		repMutes=Mutes[0:length]
+		Mutes=Mutes[length:len(Mutes)]
+		finalPotentials[index].updateMutables(repMutes)
 	
-	for i in range(options.maxit):
-		if not options.quiet:
-			print "New generation:"
-		if options.keepbreeders:
-			if not options.quiet:
-				print"Keeping breeders"
-			firstchild=options.breeders
-			newgenminfitness=oldfitness
-		else:
-			firstchild=0
-			newgenminfitness=99999999999999.0 # something really large, this is dirty
-		for j in range(firstchild,options.population):
-			# first choose parents, we allow for hermaphroditic procreation for now
-			dad=rnd.randint(0,options.breeders-1)
-			mom=rnd.randint(0,options.breeders-1)
-			# now combine, mutate and measure fitness
-			temperep=combine(population[dad][1],population[mom][1],mutables)
-			child=mutate(temperep,mutables,mutator,options.mutationscale,mutparms)
-			mutationcount+=1
-			calc._setEreps(child)
-			calcfitsetenergiesforces(fitset,calc)
-			fitness=totalfitness(fitset,refset)
-			population[j]=(fitness,child)
-			#this should provide the current generations best energies trajectory for plotting
-			if fitness<newgenminfitness:
-				nrgdiff=energydiffs(refset,fitset)
-				frcdiff=forcediffs(refset,fitset)
-		population.sort(key=populationkey)
-		if population[0][0] < oldfitness:
-			ereps=population[0][1]
-			oldfitness=population[0][0]
-			print "new child is fitter than previous generations"
-			improvecount+=1
-			write_erepcheckpoint(ereps,"bestereps")
-#		if options.gnuplot:
-#			plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1,with="boxes")
-#			plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1,with="boxes")
-#			plotereps=[]
-#			if not options.keepbreeders:
-#				for j in mutables:
-#					plottitle="best "+str(j[0])+"-"+str(j[1])
-#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],smooth="cspl",title="",inline=1))
-#					plotereps.append(Gnuplot.Data(ereps[j][0],ereps[j][1],with="p",title=plottitle,inline=1))
-#			for j in mutables:
-#				plottitle="last "+str(j[0])+"-"+str(j[1])
-#				plotereps.append(Gnuplot.Data(population[0][1][j][0],population[0][1][j][1],smooth="cspl",title="",inline=1))
-#				plotereps.append(Gnuplot.Data(population[0][1][j][0],population[0][1][j][1],with="p",title=plottitle,inline=1))
-#			plotfunc()
-		if options.quiet:
-			if i%100==0:
-				print "--mark-- generation %d" % i
-		else:
-			print "best fitness function value: %12.6f" % (population[0][0])
-			print "Breeder maximum fitness is %f"%(population[options.breeders-1][0])
-		sys.stdout.flush()
-	return (oldfitness,inifitness)
+	print "Writing final repulsive potentials:",
+	for (index,length) in paramap:
+		if length >0:
+#		print "\b.",
+			repfilename="final-%s-%s.rep"%(comatsci.Geometry.Geometry.PTE[index[0]],comatsci.Geometry.Geometry.PTE[index[1]])
+			pass
+			try:
+				finalPotentials[index].writeFile(repfilename)
+			except NotImplementedError:
+				print "can't get potential string for %s" % (repfilename)
+				print "final parameters are:"
+				print comatsci.utils.dictionaryPrettyPrint(finalPotentials[index].getParameters())
+#		print "\b\b:",
+#	print "\b* done."
 
-
-
-def ischeckpoint(name):
-	"""check if specified path points to a checkpoint directory
-		***arguments***
-	name:	name of directory to check"""
-	return (os.path.isdir(name) 
-		and os.path.exists(name+"/neb.nrg") 
-		and os.path.exists(name+"/neb.frc"))
-
-
-#
-# define user-selectable functions here
-# function keys must be lowercase
-#
-
-# optmiziation functions
-optimizers={"mc": MC_opt, "gen": GEN_opt}
-# mutator functions
-mutators={"jan": erepmutate, "local": localmutate, "looselocal": looselocalmutate}
-# fitness functions
-fitnesses={"sq": squares, "fsq": forcesquares, "esq": energysquares, "rms": rms, "frms": forcerms, "erms": energyrms}
-
-
-#
-# Main Program starts here
-#
-
-print """\t\t*** fitrep.py ***
-Tool to fit repulsive potentials to reference paths\n\n"""
-
-
-#Parse Options
-
-usage="usage: %prog [options] <target> <input erep directory> <mutables>\n<target> must specify _one_ target checkpoint or multi-target specification file.\n<mutables> must specify _one_ E_rep in Z:Z format or a multi mutables specification file."
-
-parser=OptionParser(usage)
-
-parser.add_option("-m","--maxit",
-		action="store", metavar="N", dest="maxit", type="int", default=10,
-		help="maximum number of iterations, default = %default")
-parser.add_option("-s","--mutationscale",
-		action="store", metavar="s", dest="mutationscale", type="float", default=.1,
-		help="Amplitude of mutations, default = %default")
-parser.add_option("--gnuplot",
-		action="store_true", dest="gnuplot",
-		help="live plot of progress information (depends on installed gnuplot python and gnuplot")
-parser.add_option("-u","--mutator",
-		action="store", metavar="M", dest="mutator", type="string", default="jan",
-		help="Amplitude of mutations, default = %default")
-parser.add_option("-p","--population",
-		action="store", metavar="N", dest="population", type="int", default=20,
-		help="Total number of E_rep sets to keep use, default = %default")
-parser.add_option("-b","--breeders",
-		action="store", metavar="N", dest="breeders", type="int", default=5,
-		help="The fittest N E_rep sets from the population will be allowed to breed, default = %default")
-parser.add_option("--keep-breeders",
-		action="store_true", dest="keepbreeders",
-		help="If specified, the breeders will be included in the new generation")
-parser.add_option("-o","--optimizer",
-		action="store", metavar="OPT", dest="optimizer", type="string", default="mc",
-		help="Use OPT to optimize E_rep, default = %default")
-parser.add_option("-f","--fitnessfunc",
-		action="store", metavar="F", dest="fitnessfunc", type="string", default="sq",
-		help="Use F as the (default) fitness function, default = %default")
-parser.add_option("--innerdeadzone",
-		action="store", metavar="N", dest="innerdeadzone", type="int", default=0,
-		help="only mutate E_rep points with index > N, default = %default")
-parser.add_option("--outerdeadzone",
-		action="store", metavar="N", dest="outerdeadzone", type="int", default=-1,
-		help="only mutate E_rep points with index < N, negative values count from the end of the data set. default = %default")
-parser.add_option("-q","--quiet",
-		action="store_true", dest="quiet",
-		help="reduced output, skip nearly all periodic output")
-
-(options,args) = parser.parse_args()
-
-
-if len(args)!=3:
-	parser.print_usage()
-	sys.exit(1)
-
-
-#set desired mutator function
-if options.mutator.lower() in mutators.keys():
-	mutator=mutators[options.mutator.lower()]
-else:
-	print "mutator function unknown, known mutators are:"
-	for i in mutators.keys():
-		print i
-	raise "mutator function unknown"
-
-#set list of mutable repusive potentials
-if args[2].find(':')>-1:
-	dummy=args[2].split(':')
-	tmp1=int(dummy[0])
-	tmp2=int(dummy[1])
-	if tmp2>=tmp1:
-		mutables=[(tmp1,tmp2)]
-	else:
-		mutables=[(tmp2,tmp1)]
-	mutparms={mutables[0]: (options.innerdeadzone,options.outerdeadzone)}
-elif os.path.exists(args[2]):
-	mutfile=open(args[2])
-	mutlines=list(mutfile)
-	mutfile.close()
-	mutables=[]
-	mutparms={}
-	for i in mutlines:
-		if (i.lstrip()[0]!='#'):
-			dummy=i.split()
-			tmp1=int(dummy[0])
-			tmp2=int(dummy[1])
-			if tmp2>=tmp1:
-				mutables.append((tmp1,tmp2))
-			else:
-				mutables.append((tmp2,tmp1))
-			if len(dummy)>2:
-				tmp1=int(dummy[2])
-			else:
-				tmp1=options.innerdeadzone
-			if len(dummy)>3:
-				tmp2=int(dummy[3])
-			else:
-				tmp2=options.outerdeadzone
-			mutparms[mutables[-1]]=(tmp1,tmp2)
-else:
-	print """Mutables specification "%s" cannot be parsed. Abort.""" % args[2]
-	parser.print_usage()
-	sys.exit(1)
-print "Mutating the following E_rep-s:%s"%(str(mutables))
-
-#choose optimizer
-if options.optimizer.lower() in optimizers.keys():
-	optimizer=optimizers[options.optimizer.lower()]
-else:
-	print "optimizer unknown, known optimizers are:"
-	for i in mutators.keys():
-		print i
-	raise "optimizer unknown"
-
-#set desired fitness function
-if options.fitnessfunc in fitnesses.keys():
-	fitnessfunc=fitnesses[options.fitnessfunc.lower()]
-else:
-	print """Unknown fitness function specification "%s" in targets file.""" % (dummy[1].strip().lower())
-	print "known fitness functions are:"
-	for j in fitnesses.keys():
-		print j
-	sys.exit(1)
-
-#construct fit paths and references
-refset=[]
-fitset=[]
-
-print "Reading target and fit paths"
-if ischeckpoint(args[0]):
-	print "single target mode, reading target from specified checkpoint"
-	fitset.append((comatsci.Path.Reactionpath('',[],'s',1.,1.,1),fitnessfunc,1.0))
-	fitset[0][0].readcheckpoint(args[0])
-	refset.append(comatsci.Path.Reactionpath('',[],'s',1.,1.,1))
-	refset[0].readcheckpoint(args[0])
-	offset=-min(refset[0].energies)
-	for i in range(len(refset[0].energies)):
-		refset[0].energies[i]+=offset
-		fitset[0][0].energies[i]+=offset
-elif os.path.exists(args[0]):
-	print "reading target specifications from input file"
-	targetfile=open(args[0],"r")
-	targetlines=list(targetfile)
-	targetfile.close()
-	for i in targetlines:
-		if i.lstrip()[0]!='#':
-			dummy=i.split()
-			trg=dummy[0].strip()
-			if not ischeckpoint(trg):
-				print """target "%s" is not a valid checkpoint. abort.""" %(trg)
-				sys.exit(1)
-			ffstr=dummy[1].strip().lower()
-			if not ffstr in fitnesses.keys():
-				print """Unknown fitness function specification "%s" in targets file.""" % (ffstr)
-				print "known fitness functions are:"
-				for j in fitnesses.keys():
-					print j
-				sys.exit(1)
-			else:
-				ff=fitnesses[ffstr]
-			refset.append(comatsci.Path.Reactionpath('',[],'s',1.,1.,1))
-			refset[-1].readcheckpoint(trg)
-			fitset.append((comatsci.Path.Reactionpath('',[],'s',1.,1.,1),ff,float(dummy[2])))
-			fitset[-1][0].readcheckpoint(trg)
-	print "read %d paths" % (len(refset))
-	for j in range(len(refset)):
-		offset=-min(refset[j].energies)
-		for i in range(len(refset[j].energies)):
-			refset[j].energies[i]+=offset
-			fitset[j][0].energies[i]+=offset
-else:
-	print """target not found: "%s" """ % (args[0])
-	parser.print_usage()
-	sys.exit(1)
-	
-
-print "reading initial ereps from %s" %(args[1])
-
-#construct list of ereps to load and load them
-typeslist=[]
-for j in range(len(refset)):
-	for i in refset[j].geos[0].AtomTypes:
-		if i not in typeslist:
-			typeslist.append(i)
-ereps={}
-
-for i in typeslist:
-	for j in typeslist:
-		if j>i:
-			repindex=(i,j)
-		else:
-			repindex=(j,i)
-		filename=args[1]+'/'+str(repindex[0])+'-'+str(repindex[1])
-		ereps[repindex]=readerep(filename)
-
-#initialize calculator
-print "initializing calculator"
-calc=comatsci.Calculators.erepcalc(ereps)
-
-#if quiet, reduce verbosity of fitpath
-if options.quiet:
-	for i in fitset:
-		i[0].verbosity=0
-
-#if specified, initalize gnuplot python
-if options.gnuplot:
-	print "Initializing gnuplot"
-	import Gnuplot
-	from Numeric import *
-	plot=Gnuplot.Gnuplot(debug=0,persist=1)
-	plot("set data style linespoints")
-	plot("set multiplot")
-	plot("set style fill solid 1.0")
-	plotereps=[]
-	for i in mutables:
-		plottitle=str(i[0])+"-"+str(i[1])
-		plotereps.append(Gnuplot.Data(ereps[i][0],ereps[i][1],title="",smooth="cspl",inline=1))
-#		plotereps.append(Gnuplot.Data(ereps[i][0],ereps[i][1],with="p",title=plottitle,inline=1))
-	nrgdiff=energydiffs(refset,fitset)
-#	plotnrg=Gnuplot.Data(range(len(nrgdiff)),nrgdiff,title="Delta E",inline=1, with="boxes")
-	frcdiff=forcediffs(refset,fitset)
-#	plotfrc=Gnuplot.Data(range(len(frcdiff)),frcdiff,title="Delta F",inline=1, with="boxes")
-	plotfunc=gnuplotprogress
-	gnuplotprogress()
-else:
-	plotfunc=dummy
-
-mutationcount=0
-improvecount=0
-startclock=time.clock()
-startwalltime=time.time()
-
-(min_fitness,inifitness)=optimizer()
-	
-endclock=time.clock()
-endwalltime=time.time()
-
-print "Finished after %d mutations (%d of which were improvements)" % (mutationcount,improvecount)
-print "Runtime %f seconds CPU, %f seconds wall time" % (endclock-startclock,endwalltime-startwalltime)
-print "Minimum target function value %f\nThis run improved fitness by %f" % (min_fitness,inifitness-min_fitness)
+	if options.optimizer=="genetic":
+		population=copy.deepcopy(optimizer._bestPopulation)
+		print "Writing final populations"
+		for j in range(len(population)):
+			offset=0
+			for (index,length) in paramap:
+				if length > 0:
+					popfilename="population-%s-%s.rep" %(comatsci.Geometry.Geometry.PTE[index[0]],comatsci.Geometry.Geometry.PTE[index[1]])
+					if j==0:
+						popfile=open(popfilename,"w")
+					else:
+						popfile=open(popfilename,"a")
+					tempPotentials=copy.deepcopy(initPotentials)
+					print >> popfile,"# fitness: %12.6f"%population[j][0]
+					Mutes=list(population[j][1])
+					repMutes=Mutes[offset:length]
+					tempPotentials[index].updateMutables(repMutes)
+					popfile.write(tempPotentials[index].getString())
+					popfile.close()
+				offset+=length
+		print "done writing final populations."

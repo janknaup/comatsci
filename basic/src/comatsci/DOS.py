@@ -201,7 +201,34 @@ class DOS:
 		"""Read eigenstates from SIESTA .EIG file
 		@param filename: name of the file to read (can be .gz or .bz2 compressed)
 		"""
-		pass
+		#open .EIG file, read all lines, concatenate and split into tokens
+		try:
+			eigFile=utils.compressedopen(filename,"r")
+		except:
+			print "could not open input file '%s'. abort." % (filename)
+			raise
+		eigLines=list(eigFile)
+		eigFile.close()
+		eigString=" ".join(eigLines)
+		eigTokens=eigString.split()
+		tempEigenvalues=[]
+		tempFillings=[]
+		# parse header information
+		self.fermiEnergy=float(eigTokens.pop(0))
+		orbitalcount=int(eigTokens.pop(0))
+		spincount=int(eigTokens.pop(0))
+		kcount=int(eigTokens.pop(0))
+		# drop k label
+		eigTokens.pop(0)
+		for i in range(orbitalcount):
+			eigenValue=float(eigTokens.pop(0))
+			tempEigenvalues.append(eigenValue)
+			if eigenValue<=self.fermiEnergy:
+				tempFillings.append(2.0/spincount)
+			else:
+				tempFillings.append(0.0)
+		self.eigenValues=num.array(tempEigenvalues,num.Float)
+		self.fillings=num.array(tempFillings,num.Float)
 
 
 	def hasEigenValues(self):

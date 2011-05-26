@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE fmg>
+<fmg>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>10.06031</x> <y>0.105034</y> <z>-11.85673</z>
+		<el>6</el>
+		<st>C</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.417419</x> <y>1.11021</y> <z>-11.599946</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.800732</x> <y>-0.61299</y> <z>-11.482485</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.042938</x> <y>0.026651</y> <z>-12.949946</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.678135</x> <y>-0.161176</y> <z>-11.251669</z>
+		<el>6</el>
+		<st>C</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.333617</x> <y>-1.159485</y> <z>-11.554067</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.953333</x> <y>0.5501</y> <z>-11.670601</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.665199</x> <y>-0.05985</y> <z>-9.722965</z>
+		<el>6</el>
+		<st>C</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.972703</x> <y>0.939463</y> <z>-9.390312</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.666444</x> <y>-0.25422</y> <z>-9.315195</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>9.356015</x> <y>-0.783737</y> <z>-9.272851</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>10.073677</x> <y>0.0</y> <z>-11.819998</z>
+		<el>6</el>
+		<st>C</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>9.042934</x> <y>0.0</y> <z>-11.45559</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.589042</x> <y>0.892646</y> <z>-11.45557</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.589041</x> <y>-0.892646</y> <z>-11.45557</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.073691</x> <y>0.0</y> <z>-12.913261</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>0.765259</x> <y>0.0</y> <z>0.0</z>
+		<el>6</el>
+		<st>C</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.765259</x> <y>0.0</y> <z>0.0</z>
+		<el>6</el>
+		<st>C</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.164356</x> <y>-0.086299</y> <z>-1.017278</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.164356</x> <y>0.924138</y> <z>0.433902</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.164356</x> <y>-0.837839</y> <z>0.583376</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.164356</x> <y>0.086295</y> <z>1.017278</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.164356</x> <y>0.837841</y> <z>-0.583373</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.164356</x> <y>-0.924136</y> <z>-0.433905</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>0.765259</x> <y>0.0</y> <z>0.0</z>
+		<el>6</el>
+		<st>C</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.765259</x> <y>0.0</y> <z>0.0</z>
+		<el>6</el>
+		<st>C</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.164356</x> <y>-0.086299</y> <z>-1.017278</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.164356</x> <y>0.924138</y> <z>0.433902</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.164356</x> <y>-0.837839</y> <z>0.583376</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.164356</x> <y>0.086295</y> <z>1.017278</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.164356</x> <y>0.837841</y> <z>-0.583373</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.164356</x> <y>-0.924136</y> <z>-0.433905</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<trjstep>
+	<nrg>-110.892313887</nrg>
+</trjstep>
+<trjstep>
+	<nrg>-37.2811570015</nrg>
+</trjstep>
+<trjstep>
+	<nrg>-74.0865739627</nrg>
+</trjstep>
+<trjstep>
+	<nrg>-74.0865739627</nrg>
+</trjstep>
+
+</fmg>
+

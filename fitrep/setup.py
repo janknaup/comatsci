@@ -5,9 +5,9 @@ import os
 
 startpath=os.getcwd()
 
-VERSIONTAG="1.0.0-b5"
+VERSIONTAG="1.1.0-rc1"
 AUTHOR="Jan M. Knaup"
-AU_EMAIL="Knaup@bccms.uni-bremen.de"
+AU_EMAIL="janknaup@gmail.com"
 URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 
 # define a list of script aliases, these will be installed either by copying
@@ -18,13 +18,12 @@ aliases={}
 
 distrib=setup (	name="comatsci-fitrep",
 		version=VERSIONTAG,
-#		packages=[],
-#		package_dir={},
+		packages=["Optimizers"],
+		package_dir={"Optimizers": "src/Optimizers"},
 #		ext_package='comatsci',
 #		ext_modules=[Extension('Geometry.geoext',['src/extensions/geoext.c']),
 #			Extension('splext',['src/extensions/splext.c'])],
-		scripts=['src/scripts/fitrep',
-                         'src/scripts/fitrep_mopso'],
+		scripts=['src/scripts/fitrep',],
 #		data_files=[],
 		description="Computational Materials Science Toolkit - Repulsive Potential Fitting Tools",
 		author=AUTHOR,
