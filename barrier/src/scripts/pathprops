@@ -666,6 +666,7 @@ if options.lengthstats:
 
 if options.trackvacancy!=None:
 	#initialize reference geometry object
+	
 	print "calculating vacancy trajectory..."
 	
 	sys.stdout.flush()
@@ -714,12 +715,14 @@ if options.vmdcharges:
 
 
 if options.vmdbondcounts:
-		print "writing per atom bond counts to bondcounts.vmd"
+		print "writing per atom bond counts to bondcounts.vmd:"
+		progress=comatsci.utils.ProgressMeter(total=path.numimages())
 		vmdbcfile=open("bondcounts.vmd","w")
 		for i in range(path.numimages()):
 				for j in range(path.Atomcount):
 						print >> vmdbcfile, len(path.geos[i].bondlist()[j])," ",
 				print >> vmdbcfile, ""
+				progress.update(1)
 		vmdbcfile.close()
 		print "done."
 
