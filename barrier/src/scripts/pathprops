@@ -261,6 +261,14 @@ parser.add_option("--trackvacancy",
 				  action="store", type="string", dest="trackvacancy", default=None, metavar="R",
 				  help="locate vacancies in every single frame by comparison to reference geometry read from file R. Write vacancy postions for each frame to 'vacancies.xyz'")
 
+parser.add_option("--vmd-charges",
+				  action="store_true", dest="vmdcharges", default=False,
+				  help="write atomic charges to 'charges.vmd' suitable to be read into vmd user data fields")
+
+parser.add_option("--vmd-bondcounts",
+				  action="store_true", dest="vmdbondcounts", default=False,
+				  help="write per atom covalent bond counts to 'bondcounts.vmd' suitable to be read into vmd user data fields")
+
 
 (options,args) = parser.parse_args()
 
@@ -279,7 +287,9 @@ elif os.path.exists(args[0]):
 	if args[0][-3:].lower()=="fmg" or args[0][-6:].lower()=="fmg.gz" or args[0][-6:].lower()=="fmg.bz2":
 		path.readfmgpath(args[0],checkCompat=(not options.checkCompat),GeoConstructor=comatsci.Geometry.AnalysisGeometry)
 	elif args[0][-3:].lower()=="xyz" or args[0][-6:].lower()=="xyz.gz" or args[0][-6:].lower()=="xyz.bz2":
-		path.readXyzPath(args[0],geoconstructor=comatsci.Geometry.AnalysisGeometry)
+		print "reading .xyz path:"
+		path.readXyzPath(args[0],progressFunction=comatsci.utils.ProgressMeter,stepsFunction=comatsci.utils.ProgressMeter.update,geoconstructor=comatsci.Geometry.AnalysisGeometry)
+		print "done."
 	else:
 		print 'Unknown file format of path file "%s". abort.' % (args[0])
 		sys.exit(1)
@@ -691,5 +701,26 @@ if options.trackvacancy!=None:
 	#finished.
 	print "done."
 
+
+if options.vmdcharges:
+		print "writing atomic charges to charges.vmd:"
+		vmdchrfile=open("charges.vmd","w")
+		for i in range(path.numimages()):
+				for j in range(path.Atomcount):
+						print >> vmdchrfile, path.geos[i].AtomCharges[j]," ",
+				print >> vmdchrfile, ""
+		vmdchrfile.close()
+		print "done."
+
+
+if options.vmdbondcounts:
+		print "writing per atom bond counts to bondcounts.vmd"
+		vmdbcfile=open("bondcounts.vmd","w")
+		for i in range(path.numimages()):
+				for j in range(path.Atomcount):
+						print >> vmdbcfile, len(path.geos[i].bondlist()[j])," ",
+				print >> vmdbcfile, ""
+		vmdbcfile.close()
+		print "done."
 
 print "Finished requested operations."

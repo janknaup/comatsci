@@ -138,7 +138,7 @@ class Reactionpath:
 
 
 
-	def readXyzPath(self, filename, geoconstructor=Geometry.Geometry):
+	def readXyzPath(self, filename, geoconstructor=Geometry.Geometry,progressFunction=None,stepsFunction=None):
 		"""read path in xyz format (i.e. A file containing N concatenated xyz geometry strings)
 		@param filename: name of the multi-frame xyz file to read
 		@param geoconstructor: allows to pass a different geometry object constructor than that of Geometry, e.g. the AnalysisGeometry constructor to analyze a path or trajectory (default Geometry.Geometry)
@@ -160,6 +160,7 @@ class Reactionpath:
 			raise(ValueError,"Number of lines in input file '%s' does not match atom count. Abort." % (filename,))
 		# iterate through xyz blocks, parse and append geometries
 		imagecount=(len(inlist))//(atomcount+2)
+		if progressFunction != None: progress=progressFunction(total=imagecount)
 		for image in range(imagecount):
 			temp=geoconstructor()
 			try:
@@ -172,6 +173,7 @@ class Reactionpath:
 			except:
 				print "Inconsistancy in xyz Path file at image %d detected. Abort." % (image+1)
 				raise
+			if stepsFunction != None : stepsFunction(progress,1)
 		#finished
 
 #_MANU[
