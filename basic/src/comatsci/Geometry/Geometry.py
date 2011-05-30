@@ -588,7 +588,7 @@ class Geometry:
 			# DFTB specialty: try parsing coulumn 6 as atomic charge, ignore if unsuccessful
 			if len(line)>5:
 				try:
-					tempAtomCharges.append(float(line[5]))
+					tempAtomCharges.append(float(line[4]))
 				except:
 					tempAtomCharges.append(0.0)
 			else:
