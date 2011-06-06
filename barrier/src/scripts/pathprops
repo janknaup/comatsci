@@ -269,6 +269,10 @@ parser.add_option("--vmd-bondcounts",
 				  action="store_true", dest="vmdbondcounts", default=False,
 				  help="write per atom covalent bond counts to 'bondcounts.vmd' suitable to be read into vmd user data fields")
 
+parser.add_option("--count-hops",
+				  action="store_true", dest="counthops", default=False,
+				  help="count atomic hopping events and print number of hops to standard out")
+
 
 (options,args) = parser.parse_args()
 
@@ -699,6 +703,7 @@ if options.trackvacancy!=None:
 		progress.update(1)
 	#write vacancy location path
 	vpath.writexyzpath("vacancies.xyz")
+	print "counted %d vacancy hops along the path." % vpath.hopCount()
 	#finished.
 	print "done."
 
@@ -725,5 +730,10 @@ if options.vmdbondcounts:
 				progress.update(1)
 		vmdbcfile.close()
 		print "done."
+
+
+if options.counthops:
+	print "Counted %d hops along the path." % path.hopCount()
+
 
 print "Finished requested operations."

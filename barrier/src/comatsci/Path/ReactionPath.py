@@ -1140,3 +1140,31 @@ class Reactionpath:
 		self.splineRep=None
 		self._rSplineRep=None
 		self.realforces=None
+
+
+
+	def hopCount(self, tolerance=0.1):
+		"""
+		count atomic position change events along the path.
+		A position change is defines as any atomic coordinate changing by more than toleracne between two images
+		CAVEAT: This method is designed for use on vacancz position paths from ideal reference comparison and similar paths. It will absolute ly not work on MD trajectories.
+		@param tolerance: position change detection threshold
+		@return: total number of position change events along the path
+		"""
+		# Initialize
+		lastgeo=self.geos[0].Geometry
+		hopcounter=0
+		# loop through all images except the first one
+		for i in range(1,self.numimages()):
+			# compare current Geometry to last image
+			geoDifference=abs(self.geos[i].Geometry-lastgeo)
+			# first create an per atom araray of the number of coordinates that changed by more than tolerance 
+			temp1=add.reduce((geoDifference > 1),1)
+			# now get hop count from counting all atoms which had mopre zan 0 coordinates change
+			hopcounter+=add.reduce(temp1 > 0)
+			# advance last image pointer
+			lastgeo=self.geos[i].Geometry
+		# finished, return
+		return hopcounter
+
+
