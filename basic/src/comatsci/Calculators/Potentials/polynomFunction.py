@@ -1,7 +1,7 @@
 ##############################################################################
 # polynom.py
-# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
 ##############################################################################
 # Licensed under the Non-Profit Open Software License version 3.0
@@ -9,10 +9,10 @@
 ##############################################################################
 
 
-#@author: Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+#@author: Jan M. Knaup <janknaup@gmail.com>
 #@organization: Bremen Center for Compuational Materials Science
 #@license: Open Software License version 3.0
-#@copyright: Jan M. Knaup  <Knaup@bccms.uni-bremen.de>
+#@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
 from potentialFunction import potentialFunction
 from comatsci.Calculators.CalcError import *

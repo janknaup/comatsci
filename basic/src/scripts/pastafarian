@@ -1,8 +1,8 @@
 #!/usr/bin/python
 ##############################################################################
 # pastafarian
-# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
 ##############################################################################
 # Licensed under the Non-Profit Open Software License version 3.0
@@ -90,7 +90,7 @@ def nebrun(mode="s"):
                  *** pastafarian %10s ***
                  ******************************
 
-(c) Jan M. Knaup <Jan.Knaup@bccms.uni-bremen.de>
+(c) Jan M. Knaup <janknaup@gmail.com>
 Licensed under the Non-Profit Open Software License version 3.0
 see attached LICENSE file for details
 

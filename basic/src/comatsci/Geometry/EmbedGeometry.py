@@ -1,7 +1,7 @@
 ##############################################################################
 # EmbedGeometry.py
-# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
 ##############################################################################
 # Licensed under a free for non-commericial use, do not distribute basis

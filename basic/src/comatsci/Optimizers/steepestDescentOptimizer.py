@@ -1,7 +1,7 @@
 ##############################################################################
 # SteepestDescentOptimizer.py
 # Part of comatsci computational materials science toolkit
-# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
 ##############################################################################
 # Licensed under the Non-Profit Open Software License version 3.0

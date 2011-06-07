@@ -18,7 +18,8 @@ aliases={"geoconv":["togen","toxyz","tofmg","tofdf","topdb","toxyzq","totm"]}
 
 distrib=setup (	name="comatsci-base",
 		version=VERSIONTAG,
-		packages=['comatsci', 'comatsci.Geometry'],
+		packages=['comatsci', 'comatsci.Geometry',"comatsci.Path","comatsci.Optimizers",
+			  "comatsci.Schedulers","comatsci.Calculators","comatsci.Calculators.Potentials"],
 		package_dir={'comatsci':'src/comatsci',},
 		ext_package='comatsci',
 		ext_modules=[Extension('Geometry.geoext',['src/extensions/geoext.c']),
