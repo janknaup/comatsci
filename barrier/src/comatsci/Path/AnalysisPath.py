@@ -100,7 +100,7 @@ class AnalysisPath(Reactionpath):
 			raise "AnalysisPath: AnalysisPath has no energies!"
 		"""return rms energy difference btw. self and targetpath
 		@param: targetpath:	second path to compare self against"""
-		return math.sqrt(energySquares(targetpath)/(self.numImages))
+		return math.sqrt(self.energySquares(targetpath)/(self.numImages))
 
 
 

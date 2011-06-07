@@ -187,7 +187,7 @@ class Dimer(geo):
 		if self.isInitialized:
 			try: 
 				self.compatcheck(value)
-			except Geometry.GeometryError,inst:
+			except GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					if self.verbosity>constants.VBL_SILENCE:
 						print "ReactionPath warning: Geometry lattice mismatch"
@@ -263,7 +263,7 @@ class Dimer(geo):
 		# origin is stupid anway
 		try: 
 			R1.compatcheck(R2)
-		except Geometry.GeometryError,inst:
+		except GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					if self.verbosity>constants.VBL_SILENCE:
 						print "ReactionPath warning: Geometry lattice mismatch"
@@ -334,7 +334,7 @@ class Dimer(geo):
 		if self.Geometry!=None:
 			try: 
 				self.compatcheck(value)
-			except Geometry.GeometryError,inst:
+			except GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					if self.verbosity>constants.VBL_SILENCE:
 						print "ReactionPath warning: Geometry lattice mismatch"
@@ -373,7 +373,7 @@ class Dimer(geo):
 		if self.Geometry!=None:
 			try: 
 				self.Geometry.compatcheck(value)
-			except Geometry.GeometryError,inst:
+			except GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					if self.verbosity>constants.VBL_SILENCE:
 						print "ReactionPath warning: Geometry lattice mismatch"
@@ -542,7 +542,7 @@ class Dimer(geo):
 		self.Phi=self.fN/math.sqrt(num.dot(self.fN,self.fN))
 		# extrapolate E2 using proper formula, depending on rotation gradient calculation setting
 		if self.noGradInRot:
-			self.E2=2.*self.E1-E0+3.*self.displacement*num.dot(self.direction,self.f0)
+			self.E2=2.*self.E1-self.E0+3.*self.displacement*num.dot(self.direction,self.f0)
 			self.C0=2.*(self.E1 -self.E0+num.dot(self.f0,self.direction)*self.displacement)/self.displacement**2
 		else:
 			self.E2=2.*(self.E0-0.25*self.displacement*num.dot(self.f1-self.f2,self.direction))-self.E1
@@ -555,7 +555,7 @@ class Dimer(geo):
 	def _rotationStep(self,scheduler):
 		"""rotate dimer into lowest curvature direction"""
 		#save old position
-		oldDeltaR=self.DeltaR
+		self.oldDeltaR=self.DeltaR
 		#
 		if self.noGradInRot:
 			tempDimer=copy.deepcopy(self)

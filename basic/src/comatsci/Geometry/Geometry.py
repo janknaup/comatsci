@@ -330,7 +330,7 @@ class Geometry:
 		elif len(self.AtomCharges) != self.Atomcount:
 			raise GeometryError('Atom charges count mismatch')
 		elif len(self.AtomSubTypes) != self.Atomcount:
-			raise GeometrError('Atom subtypes count mismatch')
+			raise GeometryError('Atom subtypes count mismatch')
 		elif self.LPops!=None:
 			if len(self.LPops)!=self.Atomcount:
 				raise GeometryError('Atom l-shell populations mismatch')
@@ -534,7 +534,7 @@ class Geometry:
 			self.Origin=array((0.,0.,0.),Float)
 			self.Lattice=array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),Float)
 		defaultlayer=GeoLayer("default layer")
-		self.LayerDict=={0: defaultlayer}
+		self.LayerDict={0: defaultlayer}
 		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
@@ -604,7 +604,7 @@ class Geometry:
 		self.Lattice=array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),Float)
 		self.Geometry=array((tempgeo))
 		defaultlayer=GeoLayer("default layer")
-		self.LayerDict=={0: defaultlayer}
+		self.LayerDict={0: defaultlayer}
 		self.AtomCharges=tempAtomCharges
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
@@ -1467,7 +1467,6 @@ class Geometry:
 			newgeo.Lattice=self.Lattice+position*(other.Lattice-self.Lattice)
 		if not_equal(self.Origin,other.Origin).any():
 			newgeo.Origin=self.Origin+position*(other.Origin-self.Origin)
-		newcoords=zeros((shape(self.Geometry)))
 		newcoords=self.Geometry*(1.0-(float(position)))+other.Geometry*(float(position))
 		newgeo.setcoordinates(newcoords)
 		return newgeo
@@ -1649,13 +1648,13 @@ class Geometry:
 		@return: geometry object with same mode and lattice as self, containing all atoms of _subtype_ in self. Returned geometry onbject will only have the default layer.
 		"""
 		# if mode is unspecified, use self.Mode
-		if mode==None:
-			mode=self.Mode
+		if Mode==None:
+			Mode=self.Mode
 		# construct geometry object to return
-		stsubgeo=self.__class__(iMode=mode,iLattice=self.Lattice,iOrigin=self.Origin)
+		stsubgeo=self.__class__(iMode=Mode,iLattice=self.Lattice,iOrigin=self.Origin)
 		# get list of subtype atoms and add its atoms to returned subgeometry
-		for i in self.getSubTypeAtomList(seubtype):
-			esubgeo.addatom(self.AtomTypes[i],self.Geometry[i],None,
+		for i in self.getSubTypeAtomList(subtype):
+			stsubgeo.addatom(self.AtomTypes[i],self.Geometry[i],None,
 				self.AtomCharges[i],self.AtomSubTypes[i])
 		# finished, return
 		return stsubgeo
