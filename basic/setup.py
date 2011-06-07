@@ -5,9 +5,9 @@ import os
 
 startpath=os.getcwd()
 
-VERSIONTAG="1.1.0-rc2"
+VERSIONTAG="1.2.0-pre001"
 AUTHOR="Jan M. Knaup"
-AU_EMAIL="Knaup@bccms.uni-bremen.de"
+AU_EMAIL="janknaup@gmail.com"
 URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 
 # define a list of script aliases, these will be installed either by copying
@@ -25,9 +25,15 @@ distrib=setup (	name="comatsci-base",
 			Extension('splext',['src/extensions/splext.c'])],
 		scripts=['src/scripts/geoconv',
                          'src/scripts/coordination_check','src/scripts/splresample',
-                         'src/scripts/splderive','src/scripts/dumpbonds'],
-		data_files=[("share/doc/comatsci",["doc/comatsci-basic.pdf"])],
-		description="Basic Computational Materials Science Toolkit",
+                         'src/scripts/splderive','src/scripts/dumpbonds','src/scripts/fitrep',
+			 "src/scripts/scale_linkdists","src/scripts/chargeanalys-2D",
+			 "src/scripts/dosanalys-2D","src/scripts/dosanalys-3D",
+			 'src/scripts/pastafarian','src/scripts/pathprepare',
+			'src/scripts/pathprops','src/scripts/multiaverage'],
+		data_files=[("share/doc/comatsci",["doc/comatsci-basic.pdf",
+						   "doc/comatsci-embed.pdf","doc/run.sh.example",
+						   "doc/comatsci-barrier.pdf"])],
+		description="Computational Materials Science Toolkit",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
 		url=URL, 
@@ -42,6 +48,8 @@ distrib=setup (	name="comatsci-base",
 			'Programming Language :: Python',
 			'Programming Language :: Python :: 2.4',
 			'Programming Language :: Python :: 2.5',
+			'Programming Language :: Python :: 2.6',
+			'Programming Language :: Python :: 2.7',
 			'Topic :: Scientific/Enginieering',
 			'Topic :: Scientific/Enginieering :: Physics',
 			'Topic :: Scientific/Enginieering :: Chemistry',

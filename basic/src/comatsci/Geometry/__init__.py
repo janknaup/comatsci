@@ -11,11 +11,4 @@
 # import the basic functionality
 from Geometry import *
 from AnalysisGeometry import  *
-
-#try to import Embedding support, ignore if not present in the current distribution
-try:
-	from EmbedGeometry import *
-except ImportError:
-	FullFeaturedGeometry=AnalysisGeometry
-else:
-	FullFeaturedGeometry=qmmmGeometry
+from EmbedGeometry import *

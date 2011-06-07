@@ -15,7 +15,7 @@
 #
 # comatsci Version
 #
-VERSION="1.1.0-rc2"
+VERSION="1.2.0-pre001"
 
 # Verbosity levels:
 # only fatal errors
