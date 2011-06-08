@@ -1,5 +1,5 @@
 ##############################################################################
-# comatsci/__init__.py
+# Path/__init__.py
 # Part of COmputational MAterials SCIence toolkit - comatsci
 # (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
@@ -8,20 +8,11 @@
 # see file LICENSE for details.
 ##############################################################################
 
-#import constants definitions first
-from constants import *
+# define the list of minimum functionality modules here
+__all__=[ "ReactionPath", "NEBPath", "AnalysisPath"]
 
-#import helper modules
-import utils
-import Spline
+# to maintain api compatibility with previous versions, import all calculatir classes into the Calculators namespace
+from ReactionPath import *
+from NEBPath import *
+from AnalysisPath import *
 
-#import basic functionality
-import Geometry
-import DOS
-from Path import *
-import Calculators
-import Schedulers
-import Dimer
-import Optimizers
-
-__all__=["Geometry","Spline","constants","utils","DOS","Path","Calculators","Schedulers","Optimizers"]

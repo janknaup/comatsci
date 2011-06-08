@@ -1,5 +1,5 @@
 ##############################################################################
-# comatsci/__init__.py
+# CalcError.py
 # Part of COmputational MAterials SCIence toolkit - comatsci
 # (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
@@ -8,20 +8,6 @@
 # see file LICENSE for details.
 ##############################################################################
 
-#import constants definitions first
-from constants import *
-
-#import helper modules
-import utils
-import Spline
-
-#import basic functionality
-import Geometry
-import DOS
-from Path import *
-import Calculators
-import Schedulers
-import Dimer
-import Optimizers
-
-__all__=["Geometry","Spline","constants","utils","DOS","Path","Calculators","Schedulers","Optimizers"]
+class CalcError(Exception):
+	"""Exception Class for Calculator Objects"""
+	pass

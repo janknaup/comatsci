@@ -1,7 +1,0 @@
-include src/embedGeo/EmbedGeometry.py
-include src/scripts *
-include doc/*
-global-exclude *.ui *.ui.h make*.sh *.bak
-prune doc-src
-prune api-doc
-prune test

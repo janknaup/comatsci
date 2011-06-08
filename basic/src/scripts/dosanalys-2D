@@ -1,0 +1,229 @@
+#!/usr/bin/python -O
+##############################################################################
+# donanalys-2D
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
+# all rights reserved
+##############################################################################
+# Licensed under a free for non-commericial use, do not distribute basis
+# see file LICENSE for details.
+#############################################################################
+
+from comatsci import DOS
+from comatsci import utils
+
+#for now, try importing Numeric, if numpy is not available. To be removed
+try:
+	from numpy import oldnumeric as num
+except ImportError:
+	import Numeric as num
+
+import sys
+import copy
+import os
+from optparse import OptionParser,SUPPRESS_HELP
+import re
+import bisect
+
+###############################################################################
+# some constants
+###############################################################################
+
+#dictionary of function to read eigenvalues from different file formats
+#values are tuples of (help string, DOS parsing function, filenames regular expression)
+
+READFUNCTIONS={
+	"band":	   ("DFTB+ band.out file(s).", DOS.DOS.readBandOut,"^band-([0-9]*\.[0-9]*)-([0-9]*\.[0-9]*)\.out"),
+	"tagged":  ("DFTB+ results.tag file(s).", DOS.DOS.readTaggedOut,"^results-([0-9]*\.[0-9]*)-([0-9]*\.[0-9]*)\.tag"),
+}
+
+
+###############################################################################
+# function definitions
+###############################################################################
+
+def dosCorrelate(DOSa,DOSb,emin=None,emax=None):
+	"""return cross-correlation of two energy/DOS arrays
+	@param DOSa first DOS array
+	@param DOSb second DOS array
+	@param emin minimum energy of comparison range
+	@param emax maximum energy of comparison range"""
+	# get energy step widths of bos DOS arrays and check if they are the same
+	stepA=DOSa[0][-1]-DOSa[0][-2]
+	stepB=DOSb[0][-1]-DOSb[0][-2]
+	if stepA-stepB>1E-12:
+		raise ValueError("step widths of DOS-es to correlate differ")
+	# get minimum and maximum energies
+	rangemin=min(DOSa[0][0],DOSb[0][0])
+	rangemax=max(DOSa[0][-1],DOSb[0][-1])
+	if emin==None:
+		emin=rangemin
+	if emax==None:
+		emax=rangemax
+	# initialize energy-aligned and zero-padded DOS arrays for correlation
+	tempA=num.zeros((int((emax-emin)/stepA)+2,),num.Float)
+	tempB=num.zeros((int((emax-emin)/stepA)+2,),num.Float)
+	stepsA=len(DOSa[1])
+	stepsB=len(DOSb[1])
+	offsetA=int((DOSa[0][0]-emin)/stepA)
+	offsetB=int((DOSb[0][0]-emin)/stepA)
+	tempA[offsetA:offsetA+stepsA]=DOSa[1]
+	tempB[offsetB:offsetB+stepsB]=DOSb[1]
+	# normalize both mapped DOS arrays to integrate to electron count in energy range
+	tempA*=stepA
+	tempB*=stepA
+	# build energy shifts array
+	erange=emax-emin
+	eshifts=num.arrayrange((-erange/2.)-stepA,(erange/2.),stepA)
+	# determine, which slice of the mapped DOS-arrays to use
+	minidx=int((emin-rangemin)//stepA)
+	maxidx=minidx+len(eshifts)
+	# calculate cross correlation
+	#   mode 1: len(output array) = len(largest input), zero-pad for calculation
+	crossCorrelation=num.cross_correlate(tempA[minidx:maxidx],tempB[minidx:maxidx],1)
+	# combine all to output array and return
+	return num.array((eshifts,crossCorrelation),num.Float)
+
+
+def readfunctionsHelp(option, opt, value, parser):
+	"""print a list of available eigenvalue read functions
+	@param option unused cf. optparse documentation
+	@param opt unused cf. optparse documentation
+	@param value unused cf. optparse documentation
+	@param parser unused cf. optparse documentation
+	"""
+	print "The following eigenvalue-containing file formats can be parsed:"
+	for i in READFUNCTIONS.keys():
+		print "%s\t:  %s" % (i,READFUNCTIONS[i][0])
+	print "---"
+	sys.exit(0)
+	
+
+# initialize option parser
+
+usage="usage: %prog [reference DOS]"
+parser=OptionParser(usage)
+
+parser.add_option("-f","--peak-function",
+			action="store", metavar="PF", dest="peakFunction", type="choice", choices=["gauss","lorentz"], default="lorentz",
+			help="Calculate the DOS as a superposition of this type of PFs at the eigenvalues. default=%default")
+
+parser.add_option("-w","--peak-width",
+			action="store", metavar="PF", dest="peakWidth", type="float", default="0.3",
+			help="Width parameter of the peak function (HWHM for lorentz, sigma for gauss). default=%default")
+
+parser.add_option("-s","--step-width",
+			action="store", metavar="SW", dest="stepWidth", type="float", default="0.1",
+			help="Sample the DOS-s at every SW eV. default=%default")
+
+parser.add_option("--min",
+			action="store", metavar="E", dest="emin", type="float",
+			help="Set lower bound of DOS range to E. default: lowest eigenvalue")
+
+parser.add_option("--max",
+			action="store", metavar="E", dest="emax", type="float",
+			help="Set upper bound of DOS range to E. default: highest eigenvalue")
+			
+parser.add_option("--shifted-range-states",
+			action="store", nargs=2, metavar="EL,EH", dest="srs", type="float",
+			help="calculate shifted DOS integral difference, between EL and EH, shifted by cross-correlation maximum position")
+
+parser.add_option("-F", "--format",
+			action="store", dest="format", type="choice", choices=READFUNCTIONS.keys(), default="band",
+			help="format of the eigenvalue files to parse. default=%default, see --help-readfunctions for further information")
+
+parser.add_option("--help-readfunctions", action="callback", callback=readfunctionsHelp,
+			help=SUPPRESS_HELP)
+
+
+# parse command line
+(options,args)=parser.parse_args()
+# sanity check arguments
+if len(args)!=1:
+  print "Must specify exactly one reference band.out file. Abort."
+  sys.exit(1)
+
+
+# evaluate peak function option
+if options.peakFunction=="gauss":
+	peakFunction=DOS.DOS.gaussianDOS
+elif options.peakFunction=="lorentz":
+	peakFunction=DOS.DOS.lorentzDOS
+else:
+	raise ValueError("Unknown Peakfunction specified")
+
+
+# initialize Geometry object and read reference data
+print "reading reference DOS...",
+sys.stdout.flush()
+refdos=DOS.DOS()
+READFUNCTIONS[options.format][1](refdos,args[0])
+refdata=peakFunction(refdos,options.stepWidth,options.peakWidth)
+print "done."
+
+# get lists of abscissas that were caluclated
+#  compile a regular expression to match against the files in cwd
+filenames_re=re.compile(READFUNCTIONS[options.format][2])
+
+#  construct empty lists of independent variables
+xlist=[]
+ylist=[]
+#  iterate through directory listing and store galculated gbw-s as strings
+for i in os.listdir("."):
+  match=filenames_re.match(i)
+  if match:
+     if not match.group(1) in xlist:
+       xlist.append(match.group(1))
+     if not match.group(2) in ylist:
+       ylist.append(match.group(2))
+xlist.sort()
+ylist.sort()
+
+
+##bandShifts=num.zeros((len(xlist),len(ylist)),num.Float)
+##maxCorrelations=num.zeros((len(xlist),len(ylist)),num.Float)
+
+
+bsfile=open("bandshifts.dat","w")
+mcfile=open("maxcorrelation.dat","w")
+
+# open shifted range states (difference) file, if requested
+if options.srs!=None:
+	srsfile=open("shiftedrangestates.dat","w")
+
+print("Analyzing %d eigenspectra..." % ((len(xlist)*len(ylist)),))
+sys.stdout.flush()
+
+progress=utils.ProgressMeter(total=len(xlist)*len(ylist))
+
+for i in range(len(xlist)):
+	for j in range(len(ylist)):
+		# initialize working DOS object
+		workdos=DOS.DOS()
+		READFUNCTIONS[options.format][1](workdos,"band-"+xlist[i]+"-"+ylist[j]+".out")
+		workdata=peakFunction(workdos,options.stepWidth,options.peakWidth,options.emin,options.emax)
+		cc=dosCorrelate(refdata,workdata)
+		shiftindex=num.argmax(cc[1])
+		shift=-cc[0][shiftindex]
+		maxcorr=cc[1][shiftindex]
+		print >> bsfile, "%s  %s  %f" % (xlist[i],ylist[j],shift)
+		print >> mcfile, "%s  %s  %f" % (xlist[i],ylist[j],maxcorr)
+		# calculate and write srd if requested
+		if options.srs!=None:
+			srslow=bisect.bisect_left(workdata[0],min(options.srs)+shift)
+			srshigh=bisect.bisect_left(workdata[0],max(options.srs)+shift)
+			srs=num.add.reduce(workdata[1][srslow:srshigh])*(options.stepWidth)
+			print >> srsfile, "%s  %s  %f" % (xlist[i],ylist[j],srs)
+		progress.update(1)
+	print >> bsfile
+	print >> mcfile
+	if options.srs!=None:
+		print >> srsfile
+
+# finished. clean up!
+bsfile.close()
+mcfile.close()
+if options.srs!=None:
+	srsfile.close()
+
+print("done.")
