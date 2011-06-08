@@ -32,7 +32,6 @@ import copy
 
 import time
 
-import Optimizers
 
 #*************
 #* Constants *
@@ -64,8 +63,8 @@ T_REQUIREDOPTIONS={
 
 # Optimizers
 OPTIMIZERS={
-	"genetic":		Optimizers.singleObjectiveGeneticOptimizer,
-	"mc":			Optimizers.singleObjectiveMonteCarloOptimizer
+	"genetic":		comatsci.Optimizers.singleObjectiveGeneticOptimizer,
+	"mc":			comatsci.Optimizers.singleObjectiveMonteCarloOptimizer
 }
 
 
