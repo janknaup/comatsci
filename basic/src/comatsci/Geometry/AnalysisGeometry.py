@@ -1126,39 +1126,47 @@ class AnalysisGeometry(Geometry):
 		compare slef to reference geometry, map each atom of self to the closest atom of same element in reference.
 		return all unassigned reference atoms as vacancies
 		@type reference: Geometry instance
-		@param reference: reference Geometry
+		@param reference: reference Geometry 
 		"""
 		# calculate matrix of all self<->reference atom distances
 		bothGeo=copy.deepcopy(self)
 		bothGeo.foldToCell()
 		bothGeo.appendgeometryflat(reference)
 		dmat=bothGeo.distancematrix()
-		dmshape=dmat.shape
-		interdistances=array(dmat[0:self.Atomcount][:,self.Atomcount:])
+		interdistances=numpy.ma.masked_invalid(dmat[0:self.Atomcount][:,self.Atomcount:])
 		# free up some memory
 		del bothGeo
 		del dmat
-		# make a sortable list of all unique interatom distances and the involved atom indices
-		distances=[]
-		for i in range(interdistances.shape[0]):
-			for j in range(i,interdistances.shape[1]):
-				distances.append((interdistances[i][j],i,j))
-		distances.sort(key=lambda x: x[0])
-		# stupid loopidyloop solution but I can't think of anything better right now
-		# start at beginning of sorted distance list, eliminate all forther mentions of the involved atoms
-		# in parallel, pop the respective atoms from subGeo and subRef
-		# anything left in subRef should be vacancies, anything left in subGeo should be interstitial
-		# (assuming that reference is the perfect structure)
-		assignedSubAtoms=[]
-		assignedRefAtoms=[]
-		while (len(distances)>0):
-			subAtom=distances[0][1]
-			refAtom=distances[0][2]
-			assignedSubAtoms.append(subAtom)
-			assignedRefAtoms.append(refAtom)
-			removes=[]
-			for r in distances:
-				if r[1]==subAtom or r[2]==refAtom:
-					removes.append(r)
-			for r in removes: distances.remove(r)
+		
+		# commented oud old and far too slow loopidyloop assignment
+		uniqueMapped = False
+		while (not uniqueMapped):
+			uniqueMapped = True
+			assignedSubAtoms=[]
+			assignedRefAtoms=[]
+			refClosest=numpy.ma.argmin(interdistances, 0, fill_value=1E20)
+			selfClosest=numpy.ma.argmin(interdistances, 1, fill_value=1E20)
+			if self.Atomcount >= reference.Atomcount:
+				for i in range(reference.Atomcount):
+					if selfClosest[refClosest[i]]!=i:
+						uniqueMapped = False
+						interdistances[refClosest[i]][selfClosest[refClosest[i]]]=numpy.ma.masked
+#						print "msk ",selfClosest[refClosest[i]],"  ",refClosest[i]
+					else:
+						assignedSubAtoms.append(refClosest[i])
+						assignedRefAtoms.append(i)
+			else:		
+				for i in range(self.Atomcount):
+					if refClosest[selfClosest[i]]!=i:
+						uniqueMapped = False
+						interdistances[refClosest[selfClosest[i]]][selfClosest[i]]=numpy.ma.masked
+#						print "msk ",selfClosest[refClosest[i]],"  ",refClosest[i]
+					else:
+						assignedSubAtoms.append(i)
+						assignedRefAtoms.append(selfClosest[i])
+			
+			if (len(assignedRefAtoms)==min(self.Atomcount,reference.Atomcount)):
+				uniqueMapped=True
+
+		# finished, return
 		return (assignedSubAtoms,assignedRefAtoms)

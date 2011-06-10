@@ -682,8 +682,8 @@ if options.trackvacancy!=None:
 	
 	#initialize vacancy position path object
 	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
-	vac=path.geos[0].locateVacancies(neighborMethod="none",groupMethod="reference_b",
-			specvalences={22:6,8:3},tolerance=0.49,
+	vac=path.geos[0].locateVacancies(neighborMethod="none",groupMethod="reference_d",
+			specvalences={22:6,8:3},tolerance=0.9,
 			canonicalNeighbors={22:{8:6},8:{22:3}},refold=True,reference=refgeo)
 	lastvac=vac
 	initvaccount=int(vac.Atomcount)
@@ -691,12 +691,14 @@ if options.trackvacancy!=None:
 	progress.update(1)
 	#locate vacancies in each frame
 	for i in range(1,path.numimages()):
-		vac=path.geos[i].locateVacancies(neighborMethod="none",groupMethod="reference_b",
-			specvalences={22:6,8:3},tolerance=0.49,
+		vac=path.geos[i].locateVacancies(neighborMethod="none",groupMethod="reference_d",
+			specvalences={22:6,8:3},tolerance=0.9,
 			canonicalNeighbors={22:{8:6},8:{22:3}},refold=True,reference=refgeo)
 	
 		if vac.Atomcount!=initvaccount:
 			vpath.appendGeoObject(lastvac,checkCompat=False)
+			if options.verbosity >= comatsci.constants.VBL_TALKY: print "Warning, vacancy count mismatch!"
+			if options.verbosity >= comatsci.constants.VBL_DEBUG1:  print vac.xyzstring()
 		else:
 			vpath.appendGeoObject(vac,checkCompat=False)
 			lastvac=vac
