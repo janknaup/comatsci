@@ -401,6 +401,7 @@ class PDOS(DOS):
 		currentline=3
 		tempmulliken.append([])
 		tempcoefficients.append([])
+		orbitalindex=0
 		while not (len(EVlines[currentline].split()) > 0 and EVlines[currentline].split()[0]=="Eigenvector:"):
 			lineParts=EVlines[currentline].split()
 			if len(lineParts)==0:
@@ -453,7 +454,7 @@ class PDOS(DOS):
 				blockBase=2+blockLength*(EVindex+spinIndex)
 				# check for expected eigenvalue block header (file indices count from 1)
 				if not len(EVlines[blockBase].split()) >=3 or not(int(EVlines[blockBase].split()[1])==EVindex+1) or not (int(EVlines[blockBase].split()[3][0])==spinIndex+1):
-					raise ValueError("Did not find expected Eigenvector %d Spin %d component in line %d of file '%s'"%(EVindex+1,spinIndex+1,lineindex+1,filename))
+					raise ValueError("Did not find expected Eigenvector %d Spin %d component in file '%s'"%(EVindex+1,spinIndex+1,filename))
 				# iterate atoms per spin eigenvalue
 				for atomIndex in range(atomcount):
 					# iterate orbitals per atom
