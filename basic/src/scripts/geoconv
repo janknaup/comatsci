@@ -21,6 +21,8 @@ from comatsci import Geometry
 
 from optparse import OptionParser
 
+import random
+
 programname=os.path.basename(sys.argv[0]).lower()
 
 geo=Geometry.Geometry()
@@ -82,6 +84,11 @@ parser.add_option("--tolayer",
 parser.add_option("--translate",
 		action="store", metavar="V", dest="trn", type="string", default=None,
 		help="Translate atoms defined by --atomindices or --atomlist by vector V. V must be in the form x:y:z. Either --atomindices or --atomlist must be given.")
+parser.set_defaults(randomvacancies=None)
+parser.add_option("--random-vacancies",
+				action="store", metavar="E,N", dest="randomvacancies", type="string",
+				nargs=2,
+				help="create N vacancies of element E by randomly removing atoms." )
 parser.add_option("--atomindices",
 		action="store", metavar="IDX", dest="atindices", type="string", default=None,
 		help="Declare, which single atoms are to be modified, argument is a whitespace delimited list of integer atom index numbers. Counts from 0. Mutually exlusive with --atomlist.")
@@ -98,7 +105,7 @@ parser.add_option("--addlayer",
 
 
 if (len(args) > 2):
-	print "unexpected arguments in command line : %s" % (string(args[2:]))
+	print "unexpected arguments in command line : %s" % (str(args[2:]))
 	print "aborting"
 	sys.exit(1)
 
@@ -227,6 +234,23 @@ if options.foldback:
 		print "folding coordinates back into unit cell...",
 		outgeo.foldToCell()
 		print "done."
+
+
+if options.randomvacancies!=None:
+	print "Creating random Vacancies:"
+	if options.randomvacancies[0].lower() in outgeo.RPTE:
+		vacElement=outgeo.RPTE[options.randomvacancies[0].lower()]
+	else:
+		raise ValueError("Specified Element is unknown: %s"%options.randomvacancies[0])
+	vacCount=int(options.randomvacancies[1])
+	if outgeo.elementsubgeometry(vacElement).Atomcount < vacCount:
+		raise ValueError("More vacancies requested than atoms of element present in geometry.")
+	for i in range(vacCount):
+		atomSelected=False
+		while not atomSelected:
+			trialindex=random.choice(range(outgeo.Atomcount))
+			if outgeo.AtomTypes[trialindex]==vacElement: atomSelected=True
+		outgeo.delatom(trialindex)
 	
 if (len(args)==2):
 	outfilename=os.path.abspath(args[1])
