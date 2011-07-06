@@ -48,6 +48,10 @@ def gaussian(x,s=1.,x0=0.):
 class DOS:
 	"""Class representing a density of states"""
 	
+	spreadfunctions={
+					"lorentz" :	lorentz,
+					"gauss" :	gaussian
+					}
 	
 	def  __init__(self):
 		self.eigenValues=None
@@ -79,17 +83,33 @@ class DOS:
 		# we only read 1st k-point and first spin for the moment
 		# TODO: extend to multiple k-points and spins
 		# initialize lists for temporary eigenvalue and fillings storage
-		tempEigenValues=[]
-		tempFillings=[]
+		tempEigenValues=[[[]]]
+		tempFillings=[[[]]]
+		self.spins=1
+		self.kpoints=1
+		kindex=0
+		spinindex=0
 		# iterate through input file lines, ignoring line 1. Abort if line format indicates the beginning of a new k-point/spin section
 		for i in range(1,len(eigenlines)):
 			dummy=eigenlines[i].split()
-			if len(dummy)==4:
-				# new section starts, abort reading.
-				break
+			if len(dummy)>=4:
+				try:
+					if int(dummy[3])-1>spinindex:
+						spinindex+=1
+						kindex=0
+						tempEigenValues.append([[]])
+						tempFillings.append([[]])
+					elif int(dummy[1])-1>kindex:
+						kindex+=1
+						tempEigenValues[spinindex].append([])
+						tempFillings[spinindex].append([])
+				except:
+					print 'Error parsing line %d of file "%s" in band.out format. Abort.' % (i+1,filename)
+					raise
+				continue
 			elif len(dummy)==0:
-			  # ignore empty lines
-			  continue
+				# ignore empty lines
+				continue
 			elif len(dummy)==1 and fakeFillings:
 				# dirty trick: on caller's request, fake filling values of zero, if filling column is missing
 				dummy.append("0.0")
@@ -99,22 +119,26 @@ class DOS:
 				sys.exit(1)
 			# try to convert energy and filling to floats
 			try:
-				tempEigenValues.append(float(dummy[0]))
+				tempEigenValues[spinindex][kindex].append(float(dummy[0]))
 			except:
 				print 'Could not parse eigenvalue "%s" in line %d of file "%s".' %(dummy[0],i+1,filename)
 				raise
 			try:
-				tempFillings.append(float(dummy[1]))
+				tempFillings[spinindex][kindex].append(float(dummy[1]))
 			except:
 				print 'Could not parse filling "%s" in line %d of file "%s".' %(dummy[1],i+1,filename)
 				raise
 			# end eigenvalue line parsing loop
-			# store internal data
-			self.eigenValues=num.array(tempEigenValues,num.Float)
-			self.fillings=num.array(tempFillings,num.Float)
-			# reset calculated properties, in case someone in reusing this instance
-			self.reset_calculated()
-			# finished
+		# store internal data
+		self.eigenValues=num.array(tempEigenValues)
+		self.fillings=num.array(tempFillings)
+		self.spins=len(self.eigenValues)
+		self.kpoints=len(self.eigenValues[0])
+		# set dummy k-point weights
+		self.kweights=num.ones((self.kpoints,), num.Float)/float(self.kpoints)
+		# reset calculated properties, in case someone in reusing this instance
+		self.reset_calculated()
+		# finished
 
 
 	def readDFTBEigFile(self, filename):
@@ -125,14 +149,14 @@ class DOS:
 		try:
 			bandoutfile=utils.compressedopen(filename,"r")
 		except:
-			print 'Could not open file "%s" in band.out format. Abort.' % filename
+			print 'Could not open file "%s" in .EIG format. Abort.' % filename
 			raise
 		eigenlines=list(bandoutfile)
 		bandoutfile.close()
 		# we only read 1st k-point and first spin for the moment
 		# initialize lists for temporary eigenvalue and fillings storage
-		tempEigenValues=[]
-		tempFillings=[]
+		tempEigenValues=[[[]]]
+		tempFillings=[[[]]]
 		# iterate through input file lines, ignoring line 1. Abort if line format indicates the beginning of a new k-point/spin section
 		for i in range(1,len(eigenlines)):
 			# ignore comment lines
@@ -148,18 +172,21 @@ class DOS:
 				sys.exit(1)
 			# try to convert energy and filling to floats
 			try:
-				tempEigenValues.append(float(dummy[0]))
+				tempEigenValues[0][0].append(float(dummy[0]))
 			except:
 				print 'Could not parse eigenvalue "%s" in line %d of file "%s".' %(i+1,dummy[0],filename)
 				raise
-			# eig files contain to filling, so just store zero
-			tempFillings.append(0.)
+			# eig files contain no filling, so just store zero
+			tempFillings[0][0].append(0.)
 			# end eigenvalue line parsing loop
 			# store internal data
 			self.eigenValues=num.array(tempEigenValues,num.Float)
 			self.fillings=num.array(tempFillings,num.Float)
+			self.kweights=num.array([1.0,])
 			# reset calculated properties, in case someone in reusing this instance
 			self.reset_calculated()
+			print self.eigenValues
+			print self.fillings
 			# finished
 
 
@@ -183,14 +210,21 @@ class DOS:
 		if eigenvalEntry==None:
 			raise ValueError("No eigenvalues in tagged.out file '%s'." % filename)
 		else:
-			self.eigenValues=num.array(eigenvalEntry.value[0],num.Float)
+			self.eigenValues=num.reshape(num.array(eigenvalEntry.value,num.Float),eigenvalEntry.shape).transpose()
+			#self.eigenValues=num.reshape(num.array(eigenvalEntry.value,num.Float),eigenvalEntry.shape)
+		self.eigenValues/=constants.EVOLT
 		fillingsEntry=tagresults.getEntry("fillings")
-		if eigenvalEntry==None:
-			self.fillings=num.ones(fillingsEntry.shape[0],num.Float)
+		if fillingsEntry==None:
+			self.fillings=num.ones(self.eigenValues.shape,num.Float)
 		else:
-			self.fillings=num.array(fillingsEntry.value[0],num.Float)
+			self.fillings=num.reshape(num.array(fillingsEntry.value,num.Float),fillingsEntry.shape).transpose()
 		if len(self.fillings) != len(self.eigenValues):
 			raise ValueError("Number of fillings in tagged.out file '%s' does not match number of eigenvalues!" % filename)
+		# set shape variables
+		self.spins=len(self.eigenValues)
+		self.kpoints=len(self.eigenValues[0])
+		# set dummy k-point weights
+		self.kweights=num.ones((self.kpoints,), num.Float)/float(self.kpoints)
 		# reset calculated properties, in case someone in reusing this instance
 		self.reset_calculated()
 		# finished
@@ -211,24 +245,28 @@ class DOS:
 		eigFile.close()
 		eigString=" ".join(eigLines)
 		eigTokens=eigString.split()
-		tempEigenvalues=[]
-		tempFillings=[]
+		tempEigenvalues=[[[]]]
+		tempFillings=[[[]]]
 		# parse header information
 		self.fermiEnergy=float(eigTokens.pop(0))
 		orbitalcount=int(eigTokens.pop(0))
-		spincount=int(eigTokens.pop(0))
-		kcount=int(eigTokens.pop(0))
-		# drop k label
-		eigTokens.pop(0)
-		for i in range(orbitalcount):
-			eigenValue=float(eigTokens.pop(0))
-			tempEigenvalues.append(eigenValue)
-			if eigenValue<=self.fermiEnergy:
-				tempFillings.append(2.0/spincount)
-			else:
-				tempFillings.append(0.0)
-		self.eigenValues=num.array(tempEigenvalues,num.Float)
-		self.fillings=num.array(tempFillings,num.Float)
+		self.spins=int(eigTokens.pop(0))
+		self.kpoints=int(eigTokens.pop(0))
+		for j in range(self.spins):
+			for k in range(self.kpoints):
+				# drop k label
+				eigTokens.pop(0)
+				for i in range(orbitalcount):
+					eigenValue=float(eigTokens.pop(0))
+					tempEigenvalues.append(eigenValue)
+					if eigenValue<=self.fermiEnergy:
+						tempFillings.append(2.0/self.spins)
+					else:
+						tempFillings.append(0.0)
+				self.eigenValues=num.array(tempEigenvalues,num.Float)
+				self.fillings=num.array(tempFillings,num.Float)
+		# set dummy k-point weights
+		self.kweights=num.ones((self.kpoints,), num.Float)/float(self.kpoints)
 
 
 	def hasEigenValues(self):
@@ -246,7 +284,7 @@ class DOS:
 	
 	def getMaxEigenValue(self):
 		if self.eigenValues!=None:
-			return max(self.eigenValues)
+			return num.amax(self.eigenValues)
 		else:
 			return None
 	
@@ -254,7 +292,7 @@ class DOS:
 	
 	def getMinEigenValue(self):
 		if self.eigenValues!=None:
-			return min(self.eigenValues)
+			return num.amin(self.eigenValues)
 		else:
 			return None
 	
@@ -266,14 +304,26 @@ class DOS:
 	# Contiuous DOS representations
 	###############################################################################
 	
-	def lorentzDOS(self,stepwidth=0.1,spread=0.1,emin=None, emax=None):
+	def spreadDOS(self, spreadfunction="lorentz",stepwidth=0.1,spread=0.1,emin=None, emax=None):
 		"""return de-discretized DOS using superposition of lorentz peaks
+		@type spreadfunction: string 
+		@param spreadfunction: name of the mathematical function describing DOS peaks
+			supported spread functions
+			* lorentz - Cauchy-Lorentz distribution
+			* gauss - Gaussian distribution
+		@type stepwidth: float  
 		@param stepwidth: step width of output array in eV (default 0.1)
+		@type spread: float
 		@param spread: peak spread of superposition, in eV (default 0.1)
+		@type emin: float
 		@param emin: minimum energy of array to return, default: minimum eigenvalue (default None)
+		@type emax: float
 		@param emax: maximum energy of array to return, default: maximum eigenvalue (default None)
-		@return: 2D-Array, containing energies in dimension 0 and DOS in dimension 1
+		@return: tuple of Arrays, containing energies, and 2d arrays of total, occupied and unoccupied DOS per spin channel
 		"""
+		# check spreadfunction parameter
+		if not spreadfunction in self.spreadfunctions:
+			raise ValueError("Unknown spread function requested")
 		# sanity check: if we do not have eigenvalues, calculating a DOS cannot work:
 		if self.eigenValues==None:
 			raise RuntimeError("No eigenvalues to calculate DOS from")
@@ -293,18 +343,37 @@ class DOS:
 		# initalize energies DOS arrays
 		energies=num.arrayrange(emin,emax,stepwidth)
 		numsteps=len(energies)
-		lorentzDOS=num.zeros((numsteps,),num.Float)
-		occDOS=num.zeros((numsteps,),num.Float)
-		unoccDOS=num.zeros((numsteps,),num.Float)
-		# fill array by brute-force looping lorentz distributions for each eigenvalue
-		for i in range(len(self.eigenValues)):
-			for j in range(numsteps):
-			  rawdos=lorentz(energies[j],spread,self.eigenValues[i])
-			  lorentzDOS[j]+=rawdos
-			  occDOS[j]+=rawdos*self.fillings[i]
-			  unoccDOS[j]+=rawdos*(2-self.fillings[i])
+		spindoses=[]
+		fullorbital=2/self.spins
+		for s in range(self.spins):
+			spreadDOS=num.zeros((numsteps,),num.Float)
+			occDOS=num.zeros((numsteps,),num.Float)
+			unoccDOS=num.zeros((numsteps,),num.Float)
+			# fill array by brute-force looping lorentz distributions for each eigenvalue
+			for k in range(self.kpoints):
+				for i in range(len(self.eigenValues[0][0])):
+					for j in range(numsteps):
+					  rawdos=self.spreadfunctions[spreadfunction](energies[j],spread,self.eigenValues[s][k][i])*self.kweights[k]
+					  spreadDOS[j]+=rawdos
+					  occDOS[j]+=rawdos*self.fillings[s][k][i]
+					  unoccDOS[j]+=rawdos*(fullorbital-self.fillings[s][k][i])
+			spindoses.append(num.array((spreadDOS,occDOS,unoccDOS),num.Float))
 		# finished, return combined array
-		return num.array((energies,lorentzDOS,occDOS,unoccDOS),num.Float)
+		return (num.array(energies),)+tuple(spindoses)
+	
+	
+	
+	
+	def lorentzDOS(self,stepwidth=0.1,spread=0.1,emin=None, emax=None):
+		"""return de-discretized DOS using superposition of lorentz peaks
+		@param stepwidth: step width of output array in eV (default 0.1)
+		@param spread: peak spread of superposition, in eV (default 0.1)
+		@param emin: minimum energy of array to return, default: minimum eigenvalue (default None)
+		@param emax: maximum energy of array to return, default: maximum eigenvalue (default None)
+		@return: 2D-Array, containing energies in dimension 0 and DOS in dimension 1
+		"""
+		return self.spreadDOS("lorentz", stepwidth, spread, emin, emax)
+
 
 
 
@@ -316,37 +385,7 @@ class DOS:
 		@param emax: maximum energy of array to return, default: maximum eigenvalue (default None)
 		@return: 2D-Array, containing energies in dimension 0 and DOS in dimension 1
 		"""
-		# sanity check: if we do not have eigenvalues, calculating a DOS cannot work:
-		if self.eigenValues==None:
-			raise RuntimeError("No eigenvalues to calculate DOS from")
-		# if minimum energy is not specified, use minimum eigenvalue
-		if emin==None:
-			emin=self.minEigenValue
-		# if maximum energy is not specified, use maximum eigenvalue
-		if emax==None:
-			emax=self.maxEigenValue
-		# shift emin down and emax up to be multiples of stepwidth
-		# this is necessary to ensure compatibility of DOSes of different eigenspectra
-		emin-=emin % stepwidth
-		emax+=stepwidth-emax%stepwidth
-		# sanity check: if emin >= emax, we are in trouble
-		if emin >= emax:
-			raise ValueError("emax not greater than emin")
-		# initalize energies DOS arrays
-		energies=num.arrayrange(emin,emax,stepwidth)
-		numsteps=len(energies)
-		gaussDOS=num.zeros((numsteps,),num.Float)
-		occDOS=num.zeros((numsteps,),num.Float)
-		unoccDOS=num.zeros((numsteps,),num.Float)
-		# fill array by brute-force looping lorentz distributions for each eigenvalue
-		for i in range(len(self.eigenValues)):
-			for j in range(numsteps):
-			  rawdos=gaussian(energies[j],spread,self.eigenValues[i])
-			  gaussDOS[j]+=rawdos
-			  occDOS[j]+=rawdos*self.fillings[i]
-			  unoccDOS[j]+=rawdos*(2-self.fillings[i])
-		# finished, return combined array
-		return num.array((energies,gaussDOS,occDOS,unoccDOS),num.Float)
+		return self.spreadDOS("gauss", stepwidth, spread, emin, emax)
 
 
 
