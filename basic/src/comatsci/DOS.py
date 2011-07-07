@@ -12,7 +12,7 @@
 
 import numpy.oldnumeric as num
 
-import gzip,bz2,os,shutil,sys,math
+import os,sys,math
 
 import utils, constants
 
@@ -164,8 +164,8 @@ class DOS:
 				continue
 			dummy=eigenlines[i].split()
 			if len(dummy)==0:
-			  # ignore empty lines
-			  continue
+				# ignore empty lines
+				continue
 			elif len(dummy)!=1:
 				# we expect exactly one energy, if we find anything more , abort.
 				print 'Unexpected entry in line %d of "%s", cannot parse line "%s". Abort.' %(i+1,filename,eigenlines[i])
@@ -246,8 +246,6 @@ class DOS:
 		eigFile.close()
 		eigString=" ".join(eigLines)
 		eigTokens=eigString.split()
-		tempEigenvalues=[[[]]]
-		tempFillings=[[[]]]
 		# parse header information
 		self.fermiEnergy=float(eigTokens.pop(0))
 		orbitalcount=int(eigTokens.pop(0))
@@ -354,10 +352,10 @@ class DOS:
 			for k in range(self.kpoints):
 				for i in range(len(self.eigenValues[0][0])):
 					for j in range(numsteps):
-					  rawdos=self.spreadfunctions[spreadfunction](energies[j],spread,self.eigenValues[s][k][i])*self.kweights[k]
-					  spreadDOS[j]+=rawdos
-					  occDOS[j]+=rawdos*self.fillings[s][k][i]
-					  unoccDOS[j]+=rawdos*(fullorbital-self.fillings[s][k][i])
+						rawdos=self.spreadfunctions[spreadfunction](energies[j],spread,self.eigenValues[s][k][i])*self.kweights[k]
+						spreadDOS[j]+=rawdos
+						occDOS[j]+=rawdos*self.fillings[s][k][i]
+						unoccDOS[j]+=rawdos*(fullorbital-self.fillings[s][k][i])
 			spindoses.append(num.array((spreadDOS,occDOS,unoccDOS),num.Float))
 		# finished, return combined array
 		return (num.array(energies),)+tuple(spindoses)
