@@ -206,18 +206,19 @@ class DOS:
 		resultsfile.close()
 		# extract eigenvalues and fillings from the results collection and store them
 		eigenvalEntry=tagresults.getEntry("eigenvalues")
+		eigenShape=(eigenvalEntry.shape[2],eigenvalEntry.shape[1],eigenvalEntry.shape[0])
 		# catch results.tag files, that do not contain eigenvalues:
 		if eigenvalEntry==None:
 			raise ValueError("No eigenvalues in tagged.out file '%s'." % filename)
 		else:
-			self.eigenValues=num.reshape(num.array(eigenvalEntry.value,num.Float),eigenvalEntry.shape).transpose()
+			self.eigenValues=num.reshape(num.array(eigenvalEntry.value,num.Float),eigenShape)
 			#self.eigenValues=num.reshape(num.array(eigenvalEntry.value,num.Float),eigenvalEntry.shape)
 		self.eigenValues/=constants.EVOLT
 		fillingsEntry=tagresults.getEntry("fillings")
 		if fillingsEntry==None:
 			self.fillings=num.ones(self.eigenValues.shape,num.Float)
 		else:
-			self.fillings=num.reshape(num.array(fillingsEntry.value,num.Float),fillingsEntry.shape).transpose()
+			self.fillings=num.reshape(num.array(fillingsEntry.value,num.Float),eigenShape)
 		if len(self.fillings) != len(self.eigenValues):
 			raise ValueError("Number of fillings in tagged.out file '%s' does not match number of eigenvalues!" % filename)
 		# set shape variables
