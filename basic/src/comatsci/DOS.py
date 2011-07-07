@@ -252,19 +252,19 @@ class DOS:
 		orbitalcount=int(eigTokens.pop(0))
 		self.spins=int(eigTokens.pop(0))
 		self.kpoints=int(eigTokens.pop(0))
-		for j in range(self.spins):
-			for k in range(self.kpoints):
-				# drop k label
-				eigTokens.pop(0)
+		self.eigenValues=num.zeros((self.spins,self.kpoints,orbitalcount))
+		self.fillings=num.zeros((self.spins,self.kpoints,orbitalcount))
+		for k in range(self.kpoints):
+			# drop k label
+			eigTokens.pop(0)
+			for s in range(self.spins):
 				for i in range(orbitalcount):
 					eigenValue=float(eigTokens.pop(0))
-					tempEigenvalues.append(eigenValue)
+					self.eigenValues[s][k][i]=eigenValue
 					if eigenValue<=self.fermiEnergy:
-						tempFillings.append(2.0/self.spins)
+						self.fillings[s][k][i]=(2.0/float(self.spins))
 					else:
-						tempFillings.append(0.0)
-				self.eigenValues=num.array(tempEigenvalues,num.Float)
-				self.fillings=num.array(tempFillings,num.Float)
+						self.fillings[s][k][i]=0.0
 		# set dummy k-point weights
 		self.kweights=num.ones((self.kpoints,), num.Float)/float(self.kpoints)
 
