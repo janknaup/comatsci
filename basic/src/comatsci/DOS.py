@@ -16,7 +16,12 @@ import os,sys,math
 
 import utils, constants
 
-
+try:
+	from scipy.signal import correlate
+except ImportError:
+	lfilter=None
+	convolve=None
+	
 ###############################################################################
 # some mathematical helper functions
 ###############################################################################
@@ -81,7 +86,6 @@ class DOS:
 		eigenlines=list(bandoutfile)
 		bandoutfile.close()
 		# we only read 1st k-point and first spin for the moment
-		# TODO: extend to multiple k-points and spins
 		# initialize lists for temporary eigenvalue and fillings storage
 		tempEigenValues=[[[]]]
 		tempFillings=[[[]]]
@@ -388,6 +392,37 @@ class DOS:
 
 
 
+
+	def JDOS(self, spreadfunction="lorentz", stepwidth=0.1, spread=0.1):
+		"""
+		calculate joint density of states for given DOS object
+		@type spreadfunction: string
+		@param spreadfunction: string giving the spread function to use for the input DOS calculations
+				Valid spread functions are:
+				* "lorentz" - Cauchy-Lorentz Distribution
+				* "gauss" - Gaussian distribution
+		@type spread: float
+		@param spread: spread width parameter for the spreading function
+		@type stepwidth: float
+		@param stepwidth: sampling step width for DOS and JDOS
+		@rtype: 2D array of floats
+		@return: 2D array containing energy shift in [0] and JDOS in [1]
+		"""
+		DOS=self.spreadDOS(spreadfunction, stepwidth, spread)
+		# spin channel 0 is always present
+		J=correlate(DOS[1][1],DOS[1][2],"full")
+		# if DOS is spin polarized, add second spin channel JDOS to first
+		if self.spins==2:
+			J+=correlate(DOS[2][1],DOS[2][2],"full")
+		nsteps=len(J)/2
+		step=DOS[0][1]-DOS[0][0]
+		stop=step*nsteps
+		# construct output array
+		JDOS=num.array((num.arange(0, stop, step),J[nsteps:0:-1]))
+		# finisehd, return.
+		return JDOS
+
+
 class PDOS(DOS):
 	"""Representation for a projected Density of states
 	"""
@@ -512,6 +547,8 @@ class PDOS(DOS):
 								raise ValueError("failed to parse line %d of eigenvector file '%s'"%(lineIndex+1,filename))
 								raise
 		# done
+
+
 
 
 
