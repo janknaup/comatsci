@@ -111,6 +111,10 @@ if __name__ == '__main__':
                       action="store_true", dest="JDOS", default=False,
                       help="output joint density of states (JDOS) instead of DOS.")
     
+    parser.add_option("--slow",
+                      action="store_true", dest="slow", default=False,
+                      help="use slow summing of peak function values centered at eigenvalues, instead of eigenvalue binning algorithm. higher precision at large step widths but very much slower")
+    
     # parse command line
     (options,args)=parser.parse_args()
     # sanity check arguments
@@ -166,8 +170,11 @@ if __name__ == '__main__':
         
     else:
         print >> sys.stderr, "calculating DOS"
-        refdata=refdos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
-        print sys.stderr, "done."
+        if options.slow:
+            refdata=refdos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+        else:
+            refdata=refdos.fastSpreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+        print >> sys.stderr, "done."
     
         # if correlation was requested, read correlation DOS
         if options.correlate!=None:
@@ -175,7 +182,10 @@ if __name__ == '__main__':
             sys.stdout.flush()
             correldos=DOS.DOS()
             correldos.readBandOut(options.correlate)
-            correldata=correldos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+            if options.slow:
+                correldata=correldos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+            else:
+                correldata=correldos.fastSpreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
             print >> sys.stderr, "done."
             cc=dosCorrelate(correldata,refdata)
             shiftindex=num.argmax(cc[1])

@@ -307,6 +307,84 @@ class DOS:
 	# Contiuous DOS representations
 	###############################################################################
 	
+	def fastSpreadDOS(self, spreadfunction="lorentz",stepwidth=0.1,spread=0.1,emin=None, emax=None):
+		"""return de-discretized DOS using superposition of spreading peaks
+		NEW IMPLEMENTATION USING HISTOGRAM AND CORRELATE. MUCH FASTER BUT BINNING LEADS TO PEAK DISTORTIONS
+		@type spreadfunction: string 
+		@param spreadfunction: name of the mathematical function describing DOS peaks
+			supported spread functions
+			* lorentz - Cauchy-Lorentz distribution
+			* gauss - Gaussian distribution
+		@type stepwidth: float  
+		@param stepwidth: step width of output array in eV (default 0.1)
+		@type spread: float
+		@param spread: peak spread of superposition, in eV (default 0.1)
+		@type emin: float
+		@param emin: minimum energy of array to return, default: minimum eigenvalue (default None)
+		@type emax: float
+		@param emax: maximum energy of array to return, default: maximum eigenvalue (default None)
+		@return: tuple of Arrays, containing energies, and 2d arrays of total, occupied and unoccupied DOS per spin channel
+		"""
+		# check spreadfunction parameter
+		if not spreadfunction in self.spreadfunctions:
+			raise ValueError("Unknown spread function requested")
+		# sanity check: if we do not have eigenvalues, calculating a DOS cannot work:
+		if self.eigenValues==None:
+			raise RuntimeError("No eigenvalues to calculate DOS from")
+		# if minimum energy is not specified, use minimum eigenvalue
+		if emin==None:
+			emin=self.minEigenValue
+		# if maximum energy is not specified, use maximum eigenvalue
+		if emax==None:
+			emax=self.maxEigenValue
+		# shift emin down and emax up to be multiples of stepwidth
+		# this is necessary to ensure compatibility of DOSes of different eigenspectra
+		emin-=emin % stepwidth
+		emax+=stepwidth-emax%stepwidth
+		# sanity check: step width must be smaller than peak width or weird things happen
+		if stepwidth<spread:
+			raise ValueError("DOS sampling step width must be smaller than peak width")
+		# sanity check: if emin >= emax, we are in trouble
+		if emin >= emax:
+			raise ValueError("emax not greater than emin")
+		# initalize energies and DOS arrays
+		energies=num.arange(emin,emax,stepwidth) # energies for DOS values
+		numsteps=len(energies)
+		peakenergies=num.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
+		# fill peak function array
+		spreadpeak=num.fromfunction(lambda II: self.spreadfunctions[spreadfunction](x=peakenergies[II],s=spread,x0=0.0),(numsteps,))
+		# initialize per psin channel DOS list
+		spindoses=[]
+		# define what filling is a full spin orbital (will probably break with non-colinear spin
+		fullorbital=2/self.spins
+		# iterate through spin channels
+		for s in range(self.spins):
+			# initialize per spin DOS arrays
+			spreadDOS=num.zeros((numsteps,),num.Float)
+			occDOS=num.zeros((numsteps,),num.Float)
+			unoccDOS=num.zeros((numsteps,),num.Float)
+			# iterate through k-points inside spin channel
+			for k in range(self.kpoints):
+				# bin eigenvalues by energy, use weighted histogram for occupation aware DOS
+				doshist=num.histogram(self.eigenValues[s][k], energies)[0]
+				occhist=num.histogram(self.eigenValues[s][k], energies, weights=self.fillings[s][k])[0]
+				# convolve DOS histogram with peak function
+				spreadDOStemp=(correlate(spreadpeak,doshist,"same")*fullorbital*self.kweights[k])[::-1]
+				# accumulate spin-channel k-weighted DOS
+				spreadDOS+=spreadDOStemp
+				# convolve occupation aware DOS with peak function
+				occDOStemp=(correlate(spreadpeak,occhist,"same")*self.kweights[k])[::-1]
+				# accumulate
+				occDOS+=occDOStemp
+				# accumulate unoccupied DOS as difference total-occupied
+				unoccDOS+=spreadDOStemp-occDOStemp #(correlate(spreadpeak,unocchist,"same")*self.kweights[k])[::-1]
+			# store final array
+			spindoses.append(num.array((spreadDOS,occDOS,unoccDOS),num.Float))
+		# finished, return combined array
+		return (num.array(energies),)+tuple(spindoses)
+		
+		
+	
 	def spreadDOS(self, spreadfunction="lorentz",stepwidth=0.1,spread=0.1,emin=None, emax=None):
 		"""return de-discretized DOS using superposition of lorentz peaks
 		@type spreadfunction: string 
@@ -344,7 +422,7 @@ class DOS:
 		if emin >= emax:
 			raise ValueError("emax not greater than emin")
 		# initalize energies DOS arrays
-		energies=num.arrayrange(emin,emax,stepwidth)
+		energies=num.arange(emin,emax,stepwidth)
 		numsteps=len(energies)
 		spindoses=[]
 		fullorbital=2/self.spins
