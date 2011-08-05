@@ -340,7 +340,7 @@ class DOS:
 		# shift emin down and emax up to be multiples of stepwidth
 		# this is necessary to ensure compatibility of DOSes of different eigenspectra
 		emin-=emin % stepwidth
-		emax+=((2*stepwidth)-(emax%stepwidth))  # add another stepwidtdh to emax to ensure highest eigenvalue is captured in binning
+		emax+=((3*stepwidth)-(emax%stepwidth))  # add another stepwidtdh to emax to ensure highest eigenvalue is captured in binning
 		# sanity check: step width must be smaller than peak width or weird things happen
 		if (stepwidth>spread):
 			raise ValueError("DOS sampling step width must be smaller than peak width")
@@ -349,6 +349,7 @@ class DOS:
 			raise ValueError("emax not greater than emin")
 		# initalize energies and DOS arrays
 		energies=num.arange(emin,emax,stepwidth) # energies for DOS values
+		print energies
 		numsteps=len(energies)
 		peakenergies=num.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
 		# fill peak function array
