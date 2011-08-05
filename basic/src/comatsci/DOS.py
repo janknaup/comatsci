@@ -340,9 +340,9 @@ class DOS:
 		# shift emin down and emax up to be multiples of stepwidth
 		# this is necessary to ensure compatibility of DOSes of different eigenspectra
 		emin-=emin % stepwidth
-		emax+=stepwidth-emax%stepwidth
+		emax+=((2*stepwidth)-(emax%stepwidth))  # add another stepwidtdh to emax to ensure highest eigenvalue is captured in binning
 		# sanity check: step width must be smaller than peak width or weird things happen
-		if stepwidth<spread:
+		if (stepwidth>spread):
 			raise ValueError("DOS sampling step width must be smaller than peak width")
 		# sanity check: if emin >= emax, we are in trouble
 		if emin >= emax:
