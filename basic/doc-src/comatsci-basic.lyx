@@ -1296,6 +1296,156 @@ T,
  
 \end_layout
 
+\begin_layout Subsubsection
+dosplot
+\end_layout
+
+\begin_layout Standard
+Reads single particle eigenstates from QM program outputs and creates ascii
+ data suitable for plotting\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+Usage
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+dosplot <eigenstates> [<output file>]
+\end_layout
+
+\begin_layout Paragraph
+Options 
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show help message and exit 
+\end_layout
+
+\begin_layout Description
+-f
+\begin_inset space ~
+\end_inset
+
+PF,
+\begin_inset space ~
+\end_inset
+
+--peak-function=PF Calculate the DOS as a superposition of this type of
+ PFs at the eigenvalues.
+ Can be gauss or lorentz, default=lorentz
+\end_layout
+
+\begin_layout Description
+-w
+\begin_inset space ~
+\end_inset
+
+PF,
+\begin_inset space ~
+\end_inset
+
+--peak-width=PW Width parameter of the peak function (HWHM for lorentz,
+ sigma for gauss).
+ default=0.3 
+\end_layout
+
+\begin_layout Description
+-s
+\begin_inset space ~
+\end_inset
+
+SW,
+\begin_inset space ~
+\end_inset
+
+--step-width=SW Sample the DOS-s at every SW eV.
+ default=0.1 
+\end_layout
+
+\begin_layout Description
+--min=E set lower bound of DOS range to E.
+ default: lowest eigenvalue 
+\end_layout
+
+\begin_layout Description
+--max=E Set upper bound of DOS range to E.
+ default: highest eigenvalue 
+\end_layout
+
+\begin_layout Description
+--correlate=F Correltate DOS to reference DOS from file F.
+ 
+\end_layout
+
+\begin_layout Paragraph
+Output
+\end_layout
+
+\begin_layout Standard
+Prints DOS data to stdout our specified output file.
+ File whitespace separated columns are: 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="4">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+energy [eV]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+total DOS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+occupied DOS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+unoccupied DOS
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Path Utilities
 \end_layout
