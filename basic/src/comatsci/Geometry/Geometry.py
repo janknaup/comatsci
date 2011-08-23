@@ -543,6 +543,50 @@ class Geometry:
 
 
 
+	def getAimsString(self):
+		"""
+		@rtype: string
+		@return: geometry as FHI AIMS geometry.in string 
+		""" 
+		# initialize list of return lines
+		rlines=["# geometry file created by comatsci",]
+		for i in range(self.Atomcount):
+			# convert coordinates to Angstrom
+			coordinates=array(self.Geometry[i])
+			coordinates*=constants.ANGSTROM
+			# if AtomSubType is defined, use that as label, otherwise use Element Symbol
+			try:
+				typelabel=self.AtomSubTypes[i]
+			except IndexError:
+				typelabel=self.PTE[self.AtomTypes[i]]
+			# assemble atom line
+			rlines.append(("atom   %12.6f   %12.6f   %12.6f   "%tuple(coordinates))+typelabel)
+		# write lattice vectors if supercell geometry
+		if self.Mode=="S":
+			for i in range(3):
+				#convert lattice vector to Angstrom
+				lv=array(self.Lattice[i])
+				lv*=constants.ANGSTROM
+				# assemble lattice line
+				rlines.append("lattice_vector   %12.6f   %12.6f   %12.6f   "%tuple(lv))
+		# finished, return
+		return "\n".join(rlines)
+	
+	
+	aimsString=property(fget=getAimsString,fset=None,fdel=None,doc="Geometry string representation in FHI AIMS format")
+	
+	
+	
+	def writeAIMS(self,filename="geometry.in"):
+		"""
+		Write geometry as FHI AIMS inout file
+		"""
+		outfile=open(filename, "w")
+		print >> outfile,self.aimsString
+		outfile.close()
+
+
+
 	def parseXyzString(self, xyzstring):
 		"""parse geometry string in cyz format
 		@type xyzstring: string

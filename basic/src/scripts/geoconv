@@ -27,13 +27,19 @@ programname=os.path.basename(sys.argv[0]).lower()
 
 geo=Geometry.Geometry()
 
+#map mode names, file name endings and writer functions
 workmodes={"xyz"	:	("xyz",Geometry.Geometry.writexyz),
 	"pdb"	:	("pdb",Geometry.Geometry.writepdb),
 	"fdf"	:	("fdf",Geometry.Geometry.writefdf),
 	"gen"	:	("gen",Geometry.Geometry.writegen),
 	"fmg" : ("fmg",Geometry.Geometry.writefmg),
 	"xyzq": ("xyzq",Geometry.Geometry.writexyzq),
-	"tm"  : ("coord",Geometry.Geometry.writeTurboMole)}
+	"tm"  : ("coord",Geometry.Geometry.writeTurboMole),
+	"aims":	("geometry.in",Geometry.Geometry.writeAIMS)}
+
+# geometry formats beloging to the work modes listed here have fixed file names by default.
+# default file name will not be generated from input file name, but the fixed name will be used
+fixednames=("aims","tm")
 
 # dirty trick to make optparse display an intelligible error message, if output format is not specified
 if not programname[2:] in workmodes.keys():
@@ -254,6 +260,8 @@ if options.randomvacancies!=None:
 	
 if (len(args)==2):
 	outfilename=os.path.abspath(args[1])
+elif options.mode in fixednames:
+	outfilename=workmodes[options.mode][0]
 else:
 	outfilename=os.path.basename(infilename)
 	dotpos=outfilename.rfind('.')
