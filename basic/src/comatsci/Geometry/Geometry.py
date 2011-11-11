@@ -630,9 +630,9 @@ class Geometry:
 				print "Atomic coordinates in line %d of xyz string could not be parsed. Abort." %(i+3,)
 				raise
 			# DFTB specialty: try parsing coulumn 6 as atomic charge, ignore if unsuccessful
-			if len(line)>5:
+			if len(line)>=5:
 				try:
-					tempAtomCharges.append(float(line[4]))
+					tempAtomCharges.append(-(float(line[4])-self.VALEL[tempAtomTypes[-1]]))
 				except:
 					tempAtomCharges.append(0.0)
 			else:
