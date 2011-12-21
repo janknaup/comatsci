@@ -102,6 +102,19 @@ if __name__ == '__main__':
                 action="store", metavar="F", dest="correlate", type="string", default=None,
                 help="Correltate DOS to reference DOS from file F.")
     
+    parser.add_option("-k","--k-weights",
+                      action="store", metavar="K", dest="kweights", type="string", default=None,
+                      help="Apply the k-point weights given in K when calculating k-weighted DOS. K must be a string of whitespace separated numbers")
+
+
+    parser.add_option("-J","--JDOS",
+                      action="store_true", dest="JDOS", default=False,
+                      help="output joint density of states (JDOS) instead of DOS.")
+    
+    parser.add_option("--slow",
+                      action="store_true", dest="slow", default=False,
+                      help="use slow summing of peak function values centered at eigenvalues, instead of eigenvalue binning algorithm. higher precision at large step widths but very much slower")
+    
     # parse command line
     (options,args)=parser.parse_args()
     # sanity check arguments
@@ -114,64 +127,94 @@ if __name__ == '__main__':
         print parser.usage
         sys.exit(1)
     
-    # evaluate peak function option
-    if options.peakFunction=="gauss":
-        peakFunction=DOS.DOS.gaussianDOS
-    elif options.peakFunction=="lorentz":
-        peakFunction=DOS.DOS.lorentzDOS
-    else:
-        raise ValueError("Unknown Peakfunction specified")
-    
     
     # initialize DOS object and read reference data
-    print >> sys.stderr, "reading Eigenstates and calculating DOS",
+    print >> sys.stderr, "reading Eigenstates",
     sys.stdout.flush()
     refdos=DOS.DOS()
     if ".out" in args[0].lower():
         refdos.readBandOut(args[0],fakeFillings=True)
     elif ".eig" in args[0].lower():
         refdos.readSiestaEIG(args[0])
+    elif ".tag" in args[0].lower():
+        refdos.readTaggedOut(args[0])
     else:
         print "Error, unrecognized eigenstate file format"
         sys.exit(1)
     
-    refdata=peakFunction(refdos,options.stepWidth,options.peakWidth)
+    # if k-point weights are specified, set them in the DOS object
+    if options.kweights!=None:
+        try:
+            tempkweights=num.array([ float(x) for x in options.kweights.splti() ],num.Float)
+        except:
+            print "Error parsing specified k-point weights. abort."
+            raise
+        if len(tempkweights)!=refdos.kpoints:
+            raise ValueError("Number of k-point weights from command line does not match k-points in input file")
+        refdos.kweights=tempkweights
     print >> sys.stderr, "done."
     
-    # if correlation was requested, read correlation DOS
-    if options.correlate!=None:
-        print >> sys.stderr, "reading correlation Eigenstates and calculating DOS",
-        sys.stdout.flush()
-        correldos=DOS.DOS()
-        correldos.readBandOut(options.correlate)
-        correldata=peakFunction(correldos,options.stepWidth,options.peakWidth)
+    if options.JDOS:
+        print >> sys.stderr, "calculating JDOS"
+        jdosdata=refdos.JDOS(options.peakFunction,options.stepWidth,options.peakWidth)
         print >> sys.stderr, "done."
-        cc=dosCorrelate(correldata,refdata)
-        shiftindex=num.argmax(cc[1])
-        shift=-cc[0][shiftindex]
-        correlation_outfile=open("doscorrelation.dat","w")
-        print >> correlation_outfile, "# DOS correlation data - shift %12.6f" % (shift)
-        for i in range(len(cc[0])):
-            print >> correlation_outfile, "%12.6f  %12.6f" % (cc[0][i],cc[1][i])
-        correlation_outfile.close()
-    
-    # prepare output file, use stdout, if no output filename argument is given
-    if len(args)==2:
-        output=open(args[1],"w")
+        if len(args)==2:
+            output=open(args[1],"w")
+        else:
+            output=sys.stdout
+        
+        for i in range(len(jdosdata[0])):
+            print >> output, "%12.6f  %12.6f" % (jdosdata[0][i],jdosdata[1][i])
+        if len(args)==2:
+            output.close()
+        
     else:
-        output=sys.stdout
+        print >> sys.stderr, "calculating DOS"
+        if options.slow:
+            refdata=refdos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+        else:
+            refdata=refdos.fastSpreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+        print >> sys.stderr, "done."
     
-    #print len(refdata)
-    #for i in range(len(refdata)):
-    #  print len(refdata[i]), "\t",
-    #print "."
-    
-    # iterate through DOS and output
-    for i in range(len(refdata[0])):
-        print >> output, "%12.6f  %12.6f %12.6f %12.6f" % (refdata[0][i],refdata[1][i],refdata[2][i],refdata[3][i])
-    
-    # close output file, if it was specified
-    if len(args)==2:
-        output.close()
-    
-    #finished
+        # if correlation was requested, read correlation DOS
+        if options.correlate!=None:
+            print >> sys.stderr, "reading correlation Eigenstates and calculating DOS",
+            sys.stdout.flush()
+            correldos=DOS.DOS()
+            correldos.readBandOut(options.correlate)
+            if options.slow:
+                correldata=correldos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+            else:
+                correldata=correldos.fastSpreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+            print >> sys.stderr, "done."
+            cc=dosCorrelate(correldata,refdata)
+            shiftindex=num.argmax(cc[1])
+            shift=-cc[0][shiftindex]
+            correlation_outfile=open("doscorrelation.dat","w")
+            print >> correlation_outfile, "# DOS correlation data - shift %12.6f" % (shift)
+            for i in range(len(cc[0])):
+                print >> correlation_outfile, "%12.6f  %12.6f" % (cc[0][i],cc[1][i])
+            correlation_outfile.close()
+        
+        # prepare output file, use stdout, if no output filename argument is given
+        if len(args)==2:
+            output=open(args[1],"w")
+        else:
+            output=sys.stdout
+        
+        #print len(refdata)
+        #for i in range(len(refdata)):
+        #  print len(refdata[i]), "\t",
+        #print "."
+        
+        for s in range(refdos.spins):    
+            # iterate through DOS and output
+            for i in range(len(refdata[0])):
+                print >> output, "%12.6f  %12.6f %12.6f %12.6f" % (refdata[0][i],refdata[s+1][0][i],refdata[s+1][1][i],refdata[s+1][2][i])
+            print >> output, "\n"
+        
+        # close output file, if it was specified
+        if len(args)==2:
+            output.close()
+        
+        #finished

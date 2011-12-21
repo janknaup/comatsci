@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/knaup/src/comatsci/gui/src/geostatspack/geostats_main.ui'
+# Form implementation generated from reading ui file 'geostats_main.ui'
 #
-# Created: Di Jun 8 16:48:30 2010
+# Created: Wed Aug 17 14:31:16 2011
 #      by: The PyQt User Interface Compiler (pyuic) 3.18.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -458,7 +458,7 @@ class MainWindow(QMainWindow):
     def fileread(self,a0):
         	#save filename for later, initialize geometry object and read file
         	self.filename=a0
-        	self.geo=comatsci.Geometry.FullFeaturedGeometry()
+        	self.geo=comatsci.Geometry.EmbedGeometry.qmmmGeometry()
         	self.geo.readfile(a0)
         	#prepare the statistics text display
         	statsheader="<H1>Statistics on %s</H1>" % (a0.rsplit("/",1)[1])

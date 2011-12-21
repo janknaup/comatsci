@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'EditGeometry.ui'
 #
-# Created: Mi Jul 22 18:05:54 2009
-#      by: The PyQt User Interface Compiler (pyuic) 3.17.6
+# Created: Wed Aug 17 14:31:16 2011
+#      by: The PyQt User Interface Compiler (pyuic) 3.18.1
 #
 # WARNING! All changes made in this file will be lost!
 
