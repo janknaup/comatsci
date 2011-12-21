@@ -12,7 +12,7 @@
 
 import numpy.oldnumeric as num
 
-import gzip,bz2,os,shutil,sys,math
+import os,sys,math,re
 
 import utils, constants
 
@@ -237,6 +237,59 @@ class DOS:
 		"""
 		return bool(self.eigenValues!=None)
 	
+
+
+	def readAimsOutput(self,filename):
+		""" parse eigenspectrum from FHI aims standard output
+		@type filename: string
+		@param filename: name of the file containing the FHI aims console output  
+		"""
+		raise NotImplementedError()
+		# prepare regurlar expressions
+		pivotRE=re.compile("Writing Kohn-Sham eigenvalues.")
+		fermiRE=re.compile("Chemical potential (Fermi level) in eV\s+:\s+([+-E\.0-9]+)")
+		# state number, filling, EV[H], EV [eV]
+		stateLineRE=re.compile("^(\d+)\s+(\d+.|d*)\s+(\d+.|d*)\s+(\d+.|d*)$")
+		# memory intensive implementation...
+		infile=utils.compressedopen(filename, "r", autodetect=False)
+		lines=list(infile)
+		infile.close()
+		# find _last_ occurence of Kohn-Sham Eigenstates marker, so iterate reverse from end
+		# but use positive index counters for better readbility of forward iteratiuon later
+		for i in range (len(lines),0,-1):
+			if pivotRE.search(lines[i].strip())!=None:
+				KSEpivot=i
+				break;
+		if KSEpivot==None: raise ValueError("No Kohn-SHam Eigenvalues found in aims output.")
+		# Fermi level is output above eigenvalues list
+		for i in range(KSEpivot-20,KSEpivot):
+			match=fermiRE.match(lines[i].strip())
+			if match!=None:
+				try:
+					self.fermiEnergy=float(match.groups()[0])
+				except:
+					print "Failed to parse Fermi level in line %d of aims output file"%(i+1)
+					raise
+		# iterate below KSpivot to read eigenvalue lines.
+		# Block of eigenvalues is enclosed in empty lines
+		tempfillings=[]
+		tempEigenvalues=[]
+		i=KSEpivot+3
+		while(lines[i].strip()!=""):
+			match=stateLineRE.match(lines[i])
+			try:
+				tempfillings.append(float(match.groups()[1]))
+				tempEigenvalues.append(float(match.groups()[2]))
+			except:
+				print "Failed to parse Kohn-Sham eigenvalues line in line %d of aims output file"%(i+1)
+				raise
+			i+=1
+		# finished parsing, now store fillings and eigenvalues
+		# FIXME: This implementation is not kandspindos compatible!
+		self.eigenValues=num.array(tempEigenvalues,num.Float)
+		self.fillings=num.array(tempfillings,num.Float)
+		
+				
 
 
 
