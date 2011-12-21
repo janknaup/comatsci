@@ -285,31 +285,29 @@ class DOS:
 		@type filename: string
 		@param filename: name of the file containing the FHI aims console output  
 		"""
-		raise NotImplementedError()
 		# prepare regurlar expressions
 		pivotRE=re.compile("Writing Kohn-Sham eigenvalues.")
-		fermiRE=re.compile("Chemical potential (Fermi level) in eV\s+:\s+([+-E\.0-9]+)")
-		# state number, filling, EV[H], EV [eV]
-		stateLineRE=re.compile("^(\d+)\s+(\d+.|d*)\s+(\d+.|d*)\s+(\d+.|d*)$")
 		# memory intensive implementation...
 		infile=utils.compressedopen(filename, "r", autodetect=False)
 		lines=list(infile)
 		infile.close()
 		# find _last_ occurence of Kohn-Sham Eigenstates marker, so iterate reverse from end
-		# but use positive index counters for better readbility of forward iteratiuon later
-		for i in range (len(lines),0,-1):
+		# but use positive index counters for better readbility of forward iteration later
+		i=len(lines)-1
+		KSEpivot=None
+		while(KSEpivot==None):
 			if pivotRE.search(lines[i].strip())!=None:
 				KSEpivot=i
-				break;
+			i-=1
 		if KSEpivot==None: raise ValueError("No Kohn-SHam Eigenvalues found in aims output.")
 		# Fermi level is output above eigenvalues list
-		for i in range(KSEpivot-20,KSEpivot):
-			match=fermiRE.match(lines[i].strip())
-			if match!=None:
+		for i in range(KSEpivot-55,KSEpivot):
+			if "(Fermi level)" in lines[i].strip():
+				tokens=lines[i].strip().split()
 				try:
-					self.fermiEnergy=float(match.groups()[0])
+					self.fermiEnergy=float(tokens[-1])
 				except:
-					print "Failed to parse Fermi level in line %d of aims output file"%(i+1)
+					print >> sys.stderr,"Failed to parse Fermi level in line %d of aims output file"%(i+1)
 					raise
 		# iterate below KSpivot to read eigenvalue lines.
 		# Block of eigenvalues is enclosed in empty lines
@@ -317,18 +315,21 @@ class DOS:
 		tempEigenvalues=[]
 		i=KSEpivot+3
 		while(lines[i].strip()!=""):
-			match=stateLineRE.match(lines[i])
-			try:
-				tempfillings.append(float(match.groups()[1]))
-				tempEigenvalues.append(float(match.groups()[2]))
+			tokens=lines[i].strip().split()
+			try: 
+				tempfillings.append(float(tokens[1]))
+				tempEigenvalues.append(float(tokens[3]))
 			except:
-				print "Failed to parse Kohn-Sham eigenvalues line in line %d of aims output file"%(i+1)
+				print >> sys.stderr, "Failed to parse Kohn-Sham eigenvalues line in line %d of aims output file"%(i+1)
 				raise
 			i+=1
 		# finished parsing, now store fillings and eigenvalues
-		# FIXME: This implementation is not kandspindos compatible!
-		self.eigenValues=num.array(tempEigenvalues,num.Float)
-		self.fillings=num.array(tempfillings,num.Float)
+		# FIXME: This implementation does not read k or spin resolved eigenstates
+		self.kpoints=1
+		self.spins=1
+		self.kweights=num.array([1.0],num.Float)
+		self.eigenValues=num.array([[tempEigenvalues]],num.Float)
+		self.fillings=num.array([[tempfillings]],num.Float)
 		
 				
 
