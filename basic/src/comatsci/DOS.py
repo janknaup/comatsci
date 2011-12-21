@@ -189,8 +189,8 @@ class DOS:
 			self.kweights=num.array([1.0,])
 			# reset calculated properties, in case someone in reusing this instance
 			self.reset_calculated()
-			print self.eigenValues
-			print self.fillings
+#			print >> sys.stderr, self.eigenValues
+#			print >> sys.stderr, self.fillings
 			# finished
 
 
@@ -403,7 +403,7 @@ class DOS:
 			raise ValueError("emax not greater than emin")
 		# initalize energies and DOS arrays
 		energies=num.arange(emin,emax,stepwidth) # energies for DOS values
-		print energies
+#		print >> sys.stderr, energies
 		numsteps=len(energies)
 		peakenergies=num.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
 		# fill peak function array
@@ -595,7 +595,7 @@ class PDOS(DOS):
 		# The number of eigenvectors should be the same as the number of eigenvalues
 		# we have to determine the number of atoms and orbitals from the first eigenvalue block
 		#   first check line 3 if it shows Eigenvector: 1 and Spin: 1
-		print EVlines[2].split()
+#		print >> sys.stderr, EVlines[2].split()
 		if not len(EVlines[2].split()) >=3 or not(int(EVlines[2].split()[1])==1) or not (int(EVlines[2].split()[3][0])==1):
 			raise ValueError("Did not find expected Eigenvector 1 Spin 1 component in line 3 of file '%s'"%filename)
 		# initialize list of orbitals per atom, number of atoms
