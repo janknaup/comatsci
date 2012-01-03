@@ -15,11 +15,11 @@ import geoext as gx
 from comatsci import constants,  utils
 
 import os
-import sys
-import copy
-import math
+##import sys
+##import copy
+##import math
 ##import xml.dom.minidom
-import bisect
+##import bisect
 import numpy
 import numpy.linalg as linalg
 
@@ -34,7 +34,6 @@ except:
 
 ##import numpy.oldnumeric.linear_algebra as lina
 
-#TODO: for 0.5.0 Add support to read additional properties from noodle results.tag
 
 # some constants for unit conversion
 # Bohr Radius to angstrom
@@ -804,9 +803,9 @@ class Geometry:
 		layers=ingeo.getElementsByTagName("layer")
 		if len(layers)>0:
 			for i in layers:
-				id=int(i.getElementsByTagName("li")[0].childNodes[0].data)
+				layerid=int(i.getElementsByTagName("li")[0].childNodes[0].data)
 				name=i.getElementsByTagName("lname")[0].childNodes[0].data.strip()
-				self.LayerDict[id]=GeoLayer(name)
+				self.LayerDict[layerid]=GeoLayer(name)
 		#We need al least the default Layer
 		else:
 			self.LayerDict={0:GeoLayer("default Layer")}
@@ -832,9 +831,9 @@ class Geometry:
 				subtype=st[0].childNodes[0].data.strip()
 			else:
 				subtype=self.PTE[el]
-			chr=i.getElementsByTagName("chr")
-			if len(chr)==1:
-				charge=float(chr[0].childNodes[0].data)
+			chrg=i.getElementsByTagName("chr")
+			if len(chrg)==1:
+				charge=float(chrg[0].childNodes[0].data)
 			else:
 				charge=0.0
 			lpop=i.getElementsByTagName("lpop")
@@ -923,9 +922,9 @@ class Geometry:
 		if len(layers)>0:
 			self.LayerDict={}
 			for i in layers:
-				id=int(i.findtext("li"))
+				layerid=int(i.findtext("li"))
 				name=i.findtext("lname").strip()
-				self.LayerDict[id]=GeoLayer(name)
+				self.LayerDict[layerid]=GeoLayer(name)
 		#We need at least the default Layer
 		else:
 			self.LayerDict={0:GeoLayer("default Layer")}
@@ -1024,7 +1023,7 @@ class Geometry:
 		detfile.close()
 		# find mulliken charges and l-shell population blocks
 		chrbase=0
-		lpopbase=0
+		#lpopbase=0
 		line=0
 		for i in detlines:
 			#atom populations tag
@@ -1234,7 +1233,6 @@ class Geometry:
 		else:
 			writemode=self.Mode
 		print >> outfile,str(self.Atomcount)+"\t"+writemode
-		AtomSymbols=dict()
 		atlist,AtomSymbols = self.getatomsymlistdict()
 		line=""
 		for i in atlist:
@@ -1456,9 +1454,9 @@ class Geometry:
 			for i in range(self.Atomcount):
 				line=copy.deepcopy(blist[i])
 				while len(line) > 0:
-					slice=line[0:4]
+					token=line[0:4]
 					outstring="CONECT%5i" % (i+1)
-					for j in slice:
+					for j in token:
 						outstring +="%5i"%(j+1)
 					pdbLines.append(outstring)
 					line=line[4:len(line)]
