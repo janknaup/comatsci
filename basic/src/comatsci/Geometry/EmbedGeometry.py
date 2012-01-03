@@ -11,13 +11,13 @@
 from numpy import oldnumeric as num
 
 from AnalysisGeometry import AnalysisGeometry
-from comatsci import constants,  utils
+from comatsci import constants #,  utils
 
-import os
-import sys
-import copy
-import math
-import bisect
+#import os
+#import sys
+#import copy
+#import math
+#import bisect
 
 class qmmmGeometry(AnalysisGeometry):
 	"""Geometry object that supports diverse QM/MM linking schemes"""
