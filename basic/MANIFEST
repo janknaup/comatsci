@@ -1,15 +1,12 @@
 .project
 .pydevproject
 LICENSE
-MANIFEST
 MANIFEST.in
 README
 epydoc-html.ini
 setup.cfg
 setup.py
-doc/comatsci-barrier.pdf
-doc/comatsci-basic.pdf
-doc/comatsci-embed.pdf
+doc/comatsci.pdf
 doc/run.sh.example
 src/comatsci/DOS.py
 src/comatsci/Dimer.py
