@@ -2028,4 +2028,56 @@ class Geometry:
 	
 	
 	
+	def centerOnAtom(self, atomIndex):
+		""" shift Geometry so that the selected atom lies to the coordinate origin
+		@type atomIndex: integer
+		@param atomIndex: index of the selected center atom
+		"""
+		# range check atomIndex
+		if atomIndex <0 or atomIndex > self.Atomcount:
+			raise ValueError("atom index does not refer to an atom in the geometry")
+		else:
+			self.translate(self.Geometry[atomIndex]*-1.0, range(self.Atomcount))
+		# done
 	
+	
+	
+	def rotateAxis(self,axis,angle,atomlist=None):
+		""" rotate selected atoms around selected primary axis intersecting coordinate origin
+		@type axis: string
+		@param axis: single character x,y or z specifying which axis to rotate around
+		@type angle: float
+		@param angle: rotation angle in raidans
+		@type atomlist: sequence of integer
+		@param atomlist: indices of atoms to be rotated
+		"""
+		# check specified axis
+		if not axis in ("x","y","z"):
+			raise ValueError("invalid rotation axis specified")
+		# index-check atomlist
+		if (min(atomlist)<0) or (max(atomlist)>self.Atomcount):
+			raise ValueError("atom index does not refer to an atom in the geometry")
+		# calculate rotation matrix
+		rotmatrix=zeros((3,3), Float)
+		if axis=="x":
+			rotmatrix[0][0]=1.0
+			rotmatrix[1][1]=math.cos(angle)
+			rotmatrix[2][2]=rotmatrix[1][1]
+			rotmatrix[2][1]=math.sin(angle)
+			rotmatrix[1][2]=-rotmatrix[2][1]
+		elif axis=="y":
+			rotmatrix[1][1]=1.0
+			rotmatrix[0][0]=math.cos(angle)
+			rotmatrix[2][2]=rotmatrix[0][0]
+			rotmatrix[0][2]=math.sin(angle)
+			rotmatrix[2][0]=-rotmatrix[0][2]
+		elif axis=="z":
+			rotmatrix[2][2]=1.0
+			rotmatrix[1][1]=math.cos(angle)
+			rotmatrix[0][0]=rotmatrix[1][1]
+			rotmatrix[1][0]=math.sin(angle)
+			rotmatrix[0][1]=-rotmatrix[1][0]
+		# apply rotation matrix to selected atoms
+		for atom in atomlist:
+			self.Geometry[atom]=numpy.dot(self.Geometry[atom],rotmatrix)
+		# done
