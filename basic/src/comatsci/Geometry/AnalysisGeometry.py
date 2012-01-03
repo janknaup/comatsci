@@ -10,8 +10,10 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from Geometry import *
-from comatsci import constants,  utils
+from Geometry import Geometry
+from comatsci import constants #,  utils
+
+from numpy.oldnumeric import *
 
 try:
 	from numpy.oldnumeric import linalg
@@ -20,10 +22,10 @@ except ImportError:
 
 import numpy
 
-import os
+#import os
 import sys
 import copy
-import math
+#import math
 import bisect
 
 

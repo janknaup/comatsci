@@ -2,6 +2,8 @@ include src/scripts *
 include doc/*
 exclude src/comatsci/Calculators/dftbcalc.*
 exclude src/scripts/fitrep_mopso.*
+exclude src/comatsci/Dimer.py
+exclude src/comatsci/growString.py
 global-exclude *.ui *.ui.h make*.sh *.bak
 prune doc-src
 prune api-doc
