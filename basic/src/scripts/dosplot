@@ -132,7 +132,9 @@ if __name__ == '__main__':
     print >> sys.stderr, "reading Eigenstates",
     sys.stdout.flush()
     refdos=DOS.DOS()
-    if ".out" in args[0].lower():
+    if "aims" in args[0].lower():
+        refdos.readAimsOutput(args[0])
+    elif ".out" in args[0].lower():
         refdos.readBandOut(args[0],fakeFillings=True)
     elif ".eig" in args[0].lower():
         refdos.readSiestaEIG(args[0])

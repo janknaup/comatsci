@@ -12,7 +12,7 @@
 
 import numpy.oldnumeric as num
 
-import os,sys,math
+import os,sys,math,re
 
 import utils, constants
 
@@ -189,8 +189,8 @@ class DOS:
 			self.kweights=num.array([1.0,])
 			# reset calculated properties, in case someone in reusing this instance
 			self.reset_calculated()
-			print self.eigenValues
-			print self.fillings
+#			print >> sys.stderr, self.eigenValues
+#			print >> sys.stderr, self.fillings
 			# finished
 
 
@@ -280,6 +280,60 @@ class DOS:
 	
 
 
+	def readAimsOutput(self,filename):
+		""" parse eigenspectrum from FHI aims standard output
+		@type filename: string
+		@param filename: name of the file containing the FHI aims console output  
+		"""
+		# prepare regurlar expressions
+		pivotRE=re.compile("Writing Kohn-Sham eigenvalues.")
+		# memory intensive implementation...
+		infile=utils.compressedopen(filename, "r", autodetect=False)
+		lines=list(infile)
+		infile.close()
+		# find _last_ occurence of Kohn-Sham Eigenstates marker, so iterate reverse from end
+		# but use positive index counters for better readbility of forward iteration later
+		i=len(lines)-1
+		KSEpivot=None
+		while(KSEpivot==None):
+			if pivotRE.search(lines[i].strip())!=None:
+				KSEpivot=i
+			i-=1
+		if KSEpivot==None: raise ValueError("No Kohn-SHam Eigenvalues found in aims output.")
+		# Fermi level is output above eigenvalues list
+		for i in range(KSEpivot-55,KSEpivot):
+			if "(Fermi level)" in lines[i].strip():
+				tokens=lines[i].strip().split()
+				try:
+					self.fermiEnergy=float(tokens[-1])
+				except:
+					print >> sys.stderr,"Failed to parse Fermi level in line %d of aims output file"%(i+1)
+					raise
+		# iterate below KSpivot to read eigenvalue lines.
+		# Block of eigenvalues is enclosed in empty lines
+		tempfillings=[]
+		tempEigenvalues=[]
+		i=KSEpivot+3
+		while(lines[i].strip()!=""):
+			tokens=lines[i].strip().split()
+			try: 
+				tempfillings.append(float(tokens[1]))
+				tempEigenvalues.append(float(tokens[3]))
+			except:
+				print >> sys.stderr, "Failed to parse Kohn-Sham eigenvalues line in line %d of aims output file"%(i+1)
+				raise
+			i+=1
+		# finished parsing, now store fillings and eigenvalues
+		# FIXME: This implementation does not read k or spin resolved eigenstates
+		self.kpoints=1
+		self.spins=1
+		self.kweights=num.array([1.0],num.Float)
+		self.eigenValues=num.array([[tempEigenvalues]],num.Float)
+		self.fillings=num.array([[tempfillings]],num.Float)
+		
+				
+
+
 
 	###############################################################################
 	# some useful properties
@@ -349,7 +403,7 @@ class DOS:
 			raise ValueError("emax not greater than emin")
 		# initalize energies and DOS arrays
 		energies=num.arange(emin,emax,stepwidth) # energies for DOS values
-		print energies
+#		print >> sys.stderr, energies
 		numsteps=len(energies)
 		peakenergies=num.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
 		# fill peak function array
@@ -541,7 +595,7 @@ class PDOS(DOS):
 		# The number of eigenvectors should be the same as the number of eigenvalues
 		# we have to determine the number of atoms and orbitals from the first eigenvalue block
 		#   first check line 3 if it shows Eigenvector: 1 and Spin: 1
-		print EVlines[2].split()
+#		print >> sys.stderr, EVlines[2].split()
 		if not len(EVlines[2].split()) >=3 or not(int(EVlines[2].split()[1])==1) or not (int(EVlines[2].split()[3][0])==1):
 			raise ValueError("Did not find expected Eigenvector 1 Spin 1 component in line 3 of file '%s'"%filename)
 		# initialize list of orbitals per atom, number of atoms

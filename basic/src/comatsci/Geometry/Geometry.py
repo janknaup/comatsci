@@ -586,6 +586,82 @@ class Geometry:
 		outfile.close()
 
 
+	def parseAimsString(self,instring):
+		""" get geometry information from FHI aims string
+		@type instring: string
+		@param instring: fhi aims formated geometry specification  
+		"""
+		#initialize temporary lattice, coordinates and atom types
+		templattice=[]
+		temptypes=[]
+		tempcoords=[]
+		tcfractional=[]
+		#split string into lines
+		lines=instring.split("\n")
+		#iterate through lines
+		for i in range(len(lines)):
+			#tokenize lines, split off comments at EOL if any
+			tokens=lines[i].strip().split("#")[0].split()
+			#ignore empty and comment lines
+			if (len(tokens)!=0) and (len(tokens[0])!=0) and (tokens[0][0]!="#"):
+				# we only read lines of type atom, atom_frac and lattice_vector
+				if tokens[0].lower()=="lattice_vector":
+					if len(tokens)!=4:
+						raise ValueError("Error in line %d of FHI aims string: lattice vector needs exactly 3 components"%(i+1))
+					else:
+						templattice.append([tokens[1],tokens[2],tokens[3]])
+				# we support carthesian and fractional coordinates
+				elif tokens[0].lower() in ["atom","atom_frac"]:
+					if len(tokens)!=5:
+						raise ValueError("Error in line %d of FHI aims string: atom needs exactly 3 coordinates and atom type"%(i+1))
+					else:
+						tempcoords.append(array((tokens[1],tokens[2],tokens[3])))
+						if tokens[0]=="atom":
+							tcfractional.append(False)
+						elif tokens[0]=="atom_frac":
+							tcfractional.append(True)
+						temptypes.append(self.RPTE[tokens[4].lower()])
+				else:
+					raise ValueError("Unrecognized keyword %s in line %d of FHI aims string"%(tokens[0],i+1))
+		# Handle lattice vectors. We only support non-periodic and 3d periodic geometries
+		if len(templattice)<3:
+			self.Mode="C"
+			if len(templattice)>0:
+				print "Warning, less than 3D periodicity ignored!"
+		elif len(templattice)==3:
+			self.Mode="S"
+			self.Lattice=array(templattice,Float)/Angstrom
+		else:
+			raise ValueError("More than three lattice vectors in geometry.")
+		# iterate through atoms
+		for i in range(len(tempcoords)):
+			position=array(tempcoords[i],Float)
+			# if coordinates for current atom are fractional, convert to carthesian
+			if tcfractional[i]:
+				if self.Mode!="S":
+					raise ValueError("Fractional coordinates specified for atom in non 3D periodic geometry.")
+				else:
+					position=numpy.dot(position,self.Lattice)
+			else:
+				position/=Angstrom
+			self.addatom(temptypes[i], position)
+		# finished, clean up derived properties
+		self._reset_derived()
+
+
+
+	def readAimsFile(self,filename="geometry.in"):
+		""" read FHI aims geometry from file
+		@type filename: string
+		@param filename: name of the file to read. Default is FHI default geometry input file name "geometry.in"  
+		"""
+		infile=utils.compressedopen(filename,autodetect=False)
+		inlines=list(infile)
+		infile.close()
+		instring="\n".join(inlines)
+		self.parseAimsString(instring)
+		# done.
+
 
 	def parseXyzString(self, xyzstring):
 		"""parse geometry string in cyz format
