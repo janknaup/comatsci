@@ -485,7 +485,7 @@ pypath.ini
  (Extensions in Windowx XP .reg files are not supported.) The config file
  contains one section labeled 
 \series bold
-[PYPATH]
+[comatsci]
 \series default
 , which contains all configuration variables for the path search itself
  and possibly several sections with configuration variables for the different
@@ -497,7 +497,7 @@ pypath.ini
 \begin_layout Standard
 All settings from the 
 \series bold
-[PYPATH]
+[comatsci]
 \series default
  section of the config file are overridden by the respective command line
  options, if such are given.
@@ -1393,7 +1393,7 @@ Prints DOS data to stdout our specified output file.
  File whitespace separated columns are: 
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="1" columns="4">
 <features>
