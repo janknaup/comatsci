@@ -1,6 +1,9 @@
 #include <Python.h>
 #include "numpy/oldnumeric.h"
 
+#include <omp.h>
+#include<stdio.h>
+
 /*#include <stdio.h>*/
 
 #include <math.h>
@@ -27,6 +30,9 @@ geoext_dmatrix(PyObject *self, PyObject *args)
 	dimensions[0]=natoms;
 	dimensions[1]=natoms;
 	dmatrix = (PyArrayObject *)PyArray_FromDims(2,dimensions,PyArray_DOUBLE);
+#pragma omp parallel
+	{
+#pragma omp for private(i,j,dx,dy,dz,distance)
 	for (i=0;i<natoms;i++)
 	{
 		for (j=i;j<natoms;j++)
@@ -46,6 +52,7 @@ geoext_dmatrix(PyObject *self, PyObject *args)
 				*(double *)(dmatrix->data + i*dmatrix->strides[0]+j*dmatrix->strides[1])=0.0;
 			}
 		}
+	}
 	}
 	return PyArray_Return(dmatrix);
 }
@@ -91,6 +98,9 @@ static PyObject
 	cx= *(double *)(lattice->data+2*lattice->strides[0]);
 	cy= *(double *)(lattice->data+lattice->strides[1]+2*lattice->strides[0]);
 	cz= *(double *)(lattice->data+2*lattice->strides[1]+2*lattice->strides[0]);
+#pragma omp parallel
+	{
+#pragma omp for private(i,j,k,l,m,dx,dy,dz,pdx,pdy,pdz,distance)
 	for (i=0;i<natoms;i++)
 	{
 		for (j=i;j<natoms;j++)
@@ -122,6 +132,7 @@ static PyObject
 				}
 			}
 		}
+	}
 	}
 	return PyArray_Return(dmatrix);
 }
@@ -202,6 +213,7 @@ geoext_blist(PyObject *self, PyObject *args)
 	{
 		PyList_SET_ITEM(	bondlist, i, PyList_New(0));
 	}
+//#pragma omp parallel for private(i,typea,rada,j,dx,dy,dz,distance,typeb,blen)
 	for (i=0;i<natoms;i++)
 	{
 		typea=PyInt_AsLong(PyList_GetItem(	types, i));
@@ -284,6 +296,7 @@ geoext_sblist(PyObject *self, PyObject *args)
 	cx= *(double *)(lattice->data+2*lattice->strides[0]);
 	cy= *(double *)(lattice->data+lattice->strides[1]+2*lattice->strides[0]);
 	cz= *(double *)(lattice->data+2*lattice->strides[1]+2*lattice->strides[0]);
+//#pragma omp parallel for private(i,typea,rada,j,dx,dy,dz,distance,typeb,blen,k,l,m,imageCoordinates)
 	for (i=0;i<natoms;i++)
 	{
 		typea=PyInt_AsLong(PyList_GetItem(	types, i));
@@ -307,8 +320,10 @@ geoext_sblist(PyObject *self, PyObject *args)
 						distance=sqrt((dx*dx)+(dy*dy)+(dz*dz));
 						if (distance < blen)
 						{
+//#pragma omp critical
 							PyList_Append(PyList_GetItem(bondlist,i),PyInt_FromLong(j));
 							PyList_Append(PyList_GetItem(bondlist,j),PyInt_FromLong(i));
+//#pragma omp end critical
 							/*construct tuple of bond partner periodic image coordinates*/
 							imageCoordinates=PyTuple_New(3);
 							PyTuple_SET_ITEM(imageCoordinates, 0, PyInt_FromLong(k));
@@ -320,7 +335,9 @@ geoext_sblist(PyObject *self, PyObject *args)
 							PyTuple_SET_ITEM(imageCoordinates, 0, PyInt_FromLong(k));
 							PyTuple_SET_ITEM(imageCoordinates, 1, PyInt_FromLong(l));
 							PyTuple_SET_ITEM(imageCoordinates, 2, PyInt_FromLong(m));
+//#pragma omp critical
 							PyList_Append(PyList_GetItem(imagelist,j),imageCoordinates);
+//#pragma omp end critical
 						}
 					}
 				}
