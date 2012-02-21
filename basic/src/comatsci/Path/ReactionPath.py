@@ -17,6 +17,9 @@ except ImportError:
 
 import os, sys, copy
 
+import h5py
+import numpy as num
+
 from comatsci import Geometry
 from comatsci import Calculators
 from comatsci import constants
@@ -459,6 +462,76 @@ class Reactionpath:
 			dummy=forces[0].text.strip().split()
 			gradsbuf=[ float(s) for s in dummy ]
 			self.realforces.append(reshape(array(gradsbuf),(-1,3)))
+
+
+
+	def writeCDHPath(self,filename="path.cdh"):
+		""" 
+		Write the current path in HDF5 format according to CDH specification
+		@type filename: string
+		@param filename: name of the HDF5 file to create
+		"""
+		# open HDF5 file for overwriting
+		pathfile=h5py.File(filename,"w")
+		# iterate through path images
+		for image in range(self.numimages()):
+			imagelabel="frame%010i"%(image,)
+			# first write the image geometry
+			imagegroup=self.geos[image].writeHD5group(groupname=imagelabel,h5file=pathfile)[1]
+			# add additional path data, if present
+			if self.has_energies():
+				energyset=imagegroup.create_dataset("energy",(1,),"=f8")
+				energyset[0]=self.energies[image]
+			if self.has_realforces():
+				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8"))
+		pathfile.close()
+			
+
+
+	def readCDHPath(self,filename,checkCompat=True,geoconstructor=Geometry.Geometry,progressFunction=None,stepsFunction=None):
+		"""
+		Read path from HDF5 file according to cdh specification
+		@type filename: string
+		@param filename: name of the HDF5 file to read
+		@return: reference to self
+		"""
+		#open HDF5 file for reading
+		pathfile=h5py.File(filename,"r")
+		# get list of CDH frames, filter out non-frame data sets and sort by index number in name
+		sets=pathfile.keys()
+		frames=[]
+		for ii in sets:
+			if ii[0:5]=="frame":
+				frames.append(ii)
+		frames.sort()
+		# iterate through frames
+		if stepsFunction!=None: stepsFunction(len(frames))
+		tempEnergies=[]
+		tempForces=[]
+		hasE=True
+		hasF=True
+		for frame in frames:
+			tg=geoconstructor()
+			framegroup=pathfile[frame]
+			tg.parseH5Framegroup(framegroup)
+			if "energy" in framegroup.keys() and hasE:
+				tempEnergies.append(framegroup["energy"].value[0])
+			else:
+				hasE=False
+			if "forces" in framegroup.keys() and hasF:
+				tempForces.append(framegroup["forces"].value)
+			else:
+				hasF=False
+			self.appendGeoObject(tg, checkCompat=checkCompat)
+		# only set energies, if every frame has energies data
+		if hasE:
+			self.energies=tempEnergies
+		# only set forces if every frame has froces data
+		if hasF:
+			self.realforces=tempForces
+		# finished. cleanup and return
+		pathfile.close()
+		return(self)
 
 
 	
