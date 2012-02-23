@@ -11,7 +11,7 @@
 ##############################################################################
 
 from numpy.oldnumeric import *
-import geoext as gx
+import geoext as gx #@UnresolvedImport
 from comatsci import constants,  utils
 
 import os
@@ -30,7 +30,7 @@ try:
 	from xml.etree import ElementTree as ET
 #  otherwise try to import locally installed elementtree (for python 2.4 and below)
 except:
-	from elementtree import ElementTree as ET
+	from elementtree import ElementTree as ET #@UnresolvedImport
 
 
 ##import numpy.oldnumeric.linear_algebra as lina
@@ -588,7 +588,7 @@ class Geometry:
 
 
 
-	def writeHD5group(self,groupname="frame0000000000",h5file=None, filename=None, overwrite=False, labelstring="comatsci geometry"):
+	def writeHD5group(self,groupname="frame0000000000",h5file, overwrite=False, labelstring="comatsci geometry"):
 		"""
 		write HDF5 representation of Geometry into HDF5 file followin CDH specification
 		DOES NOT CLOSE the HDF5 file under any circumstances to allow writing multi-frame geometries into one file
@@ -596,43 +596,30 @@ class Geometry:
 		@param groupname: name of the group to write data into.   
 		@type h5file: h5py file object
 		@param h5file: HDF5 file to write Geometry into. If no file is passed, a new file named according to parameter filename will be created
-		@type filename: string
-		@param filename: name of the HDF5 file to be created. Ignored if file pointer is provide
 		@type overwrite: boolean
 		@param overwrite: if true, overwrite preexisting geometry group
 		@type labelstring: string
 		@param labelstring: string to be attached to the HDF frame group as the label property
 		@return: tuple of hdf5 file and framegroup written to
 		"""
-		# check parameters
-		if h5file==None and filename==None:
-			raise ValueError("If no hdf5 file object is passed, a filename must be given.")
-		if h5file!=None:
-			if groupname in h5file and overwrite==False:
-				raise ValueError("specified geometry group already present in HDF5 file")
+		# check overwrite
+		if groupname in h5file.keys() and overwrite==False:
+			raise ValueError("specified geometry group already present in HDF5 file")
 		# create HDF5 datatypes
 		ResidueDict={}
 		for i in self.LayerDict.keys():
 			ResidueDict[self.LayerDict[i].Name]=i
 		# hack for h5py API changes
+		# *** depending on installed h5py version, one of this will cause errors, hence UndefinedVariable comments ***
 		if h5py.version.version_tuple[0]==1 and h5py.version.version_tuple[1]<3:
-			vlstring=h5py.new_vlen(str)
-			layerenum=h5py.new_enum("i",ResidueDict)
+			vlstring=h5py.new_vlen(str)#@UndefinedVariable
+			layerenum=h5py.new_enum("i",ResidueDict)#@UndefinedVariable
 		else: 
-			vlstring=h5py.special_dtype(vlen=str)
-			layerenum=h5py.special_dtype(enum=("i",ResidueDict))
-		# create file if necessary
-		if h5file==None:
-			h5file=h5py.File(filename,"w")
-		# create frame group, catch preexisting group in case of overwerite
-		try:
-			framegroup=h5file.create_group(groupname)
-		except ValueError:
-			if overwrite:
-				del h5file[groupname]
-				framegroup=h5file.create_group(groupname)
-			else:
-				raise
+			vlstring=h5py.special_dtype(vlen=str) #@UndefinedVariable
+			layerenum=h5py.special_dtype(enum=("i",ResidueDict)) #@UndefinedVariable
+		# get frame group object, create if necessary. We already checked collision with existing froup if overwrite==False
+		# overwriting datasets will still fail!
+		framegroup=h5file.require_group(groupname)
 		# create datasets, initialize with data where straightforward
 		framegroup.attrs["label"]=labelstring
 		framegroup.attrs["uuid"]=str(self.uuid)
@@ -650,6 +637,7 @@ class Geometry:
 		for i in range(self.Atomcount):
 			typeset[i]=self.AtomSubTypes[i]
 			residueset[i]=self.AtomLayers[i]
+		# to be able to add data into the franegroup created, return references to HDF5 file and data group
 		return (h5file,framegroup)
 	
 	
@@ -660,6 +648,7 @@ class Geometry:
 		@type filename: string
 		@param filename: name of the cdh file to write to
 		"""
+		h5file=h5py.File(filename=filename,"w")
 		h5file=self.writeHD5group(filename=filename,overwrite=True)[0]
 		h5file.close()
 
@@ -716,9 +705,9 @@ class Geometry:
 		if "residues" in sets:
 			# hack around api changes in h4py
 			if h5py.version.version_tuple[0]==1 and h5py.version.version_tuple[1]<3:
-				residuesDict=h5py.get_enum(framegroup["residues"].dtype)
+				residuesDict=h5py.get_enum(framegroup["residues"].dtype) #@UndefinedVariable
 			else: 
-				residuesDict=h5py.check_dtype(framegroup["residues"].dtype)
+				residuesDict=h5py.check_dtype(framegroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
 			for ii in residuesDict.keys():
 					self.addlayer(ii, residuesDict[ii])
