@@ -588,7 +588,7 @@ class Geometry:
 
 
 
-	def writeHD5group(self,groupname="frame0000000000",h5file, overwrite=False, labelstring="comatsci geometry"):
+	def writeCDHFrameGroup(self,groupname="frame0000000000",h5file, overwrite=False, labelstring="comatsci geometry",refGroup=None):
 		"""
 		write HDF5 representation of Geometry into HDF5 file followin CDH specification
 		DOES NOT CLOSE the HDF5 file under any circumstances to allow writing multi-frame geometries into one file
@@ -600,6 +600,8 @@ class Geometry:
 		@param overwrite: if true, overwrite preexisting geometry group
 		@type labelstring: string
 		@param labelstring: string to be attached to the HDF frame group as the label property
+		@type refGroup: h5py data group object
+		@param refGroup: HD5 reference group. Will link identical data to refGroup to save space for redundant data   
 		@return: tuple of hdf5 file and framegroup written to
 		"""
 		# check overwrite
@@ -625,9 +627,9 @@ class Geometry:
 		framegroup.attrs["uuid"]=str(self.uuid)
 		geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
 		geoset.attrs["mode"]="C"
-		elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1'))
+		elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
 		typeset=framegroup.create_dataset("types",(self.Atomcount,),dtype=vlstring)
-		chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8'))
+		chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
 		if self.Mode=="S":
 			latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
 			latticeset.attrs["mode"]="C"
@@ -649,7 +651,7 @@ class Geometry:
 		@param filename: name of the cdh file to write to
 		"""
 		h5file=h5py.File(filename=filename,"w")
-		h5file=self.writeHD5group(filename=filename,overwrite=True)[0]
+		self.writeCDHFrameGroup(h5file=h5file,overwrite=True)
 		h5file.close()
 
 

@@ -477,7 +477,11 @@ class Reactionpath:
 		for image in range(self.numimages()):
 			imagelabel="frame%010i"%(image,)
 			# first write the image geometry
-			imagegroup=self.geos[image].writeHD5group(groupname=imagelabel,h5file=pathfile)[1]
+			if image > 0:
+				imagegroup=self.geos[image].writeCDHFrameGroup(groupname=imagelabel,h5file=pathfile,refFrame=refGroup)[1] #@UndefinedVariable
+			else:
+				imagegroup=self.geos[image].writeCDHFrameGroup(groupname=imagelabel,h5file=pathfile)[1]
+				refGroup=imagegroup
 			# add additional path data, if present
 			if self.has_energies():
 				energyset=imagegroup.create_dataset("energy",(1,),"=f8")
