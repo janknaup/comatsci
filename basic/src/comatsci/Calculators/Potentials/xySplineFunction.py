@@ -19,7 +19,7 @@ from potentialFunction import potentialFunction
 from comatsci.Calculators.CalcError import *
 from comatsci import Spline
 
-import numpy as num
+import numpy 
 
 class xySplineFunction(potentialFunction):
 		""" class for r,E(r) Spline represenation of a pairpotential """
@@ -37,11 +37,11 @@ class xySplineFunction(potentialFunction):
 
 
 
-		def parseString(self,input):
-				""" parse spline x,y values from input string
+		def parseString(self,inString):
+				""" parse spline x,y values from inString string
 				update self._parameters
-				@parameter input: string containing function parameters, separated by \n """
-				inlines=input.split("\n")
+				@parameter inString: string containing function parameters, separated by \n """
+				inlines=inString.split("\n")
 				""" first line should contain &xyspline& """
 				dummy=inlines[0].split()[0].strip()
 				if not (dummy=='&xyspline&'):
@@ -63,7 +63,7 @@ class xySplineFunction(potentialFunction):
 							xvals.append(float(dummy[0]))
 							yvals.append(float(dummy[1]))
 						except:
-							print "***ERROR: Error parsing xy spline input file line %d" % i+1
+							print "***ERROR: Error parsing xy spline inString file line %d" % i+1
 							raise
 						if len(dummy)==2:
 							boundaries.append(None)
@@ -80,11 +80,11 @@ class xySplineFunction(potentialFunction):
 									)
 								)
 							except:
-								print "***ERROR: Error parsing xy spline input file line %d" % (i+1)
+								print "***ERROR: Error parsing xy spline inString file line %d" % (i+1)
 								raise
 							mutables.append(len(xvals)-1)
 						else:
-							print "***WARNING: trailing garbage in xy spline input file"
+							print "***WARNING: trailing garbage in xy spline inString file"
 				# store inner and outer cutoff values
 				self._innercut=xvals[0]
 				self._outercut=xvals[-1]
@@ -92,8 +92,8 @@ class xySplineFunction(potentialFunction):
 				self._mutables=mutables
 				#store parameters
 				self._parameters={
-					"x": num.array(xvals),
-					"y": num.array(yvals)
+					"x": numpy.array(xvals),
+					"y": numpy.array(yvals)
 				}
 				# reinit spline rep
 				self._spline=Spline.spline(self._parameters["x"],self._parameters["y"])

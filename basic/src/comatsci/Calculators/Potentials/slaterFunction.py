@@ -16,8 +16,8 @@
 
 from potentialFunction import potentialFunction
 from comatsci.Calculators.CalcError import *
-from math import *
-from numpy import *
+import numpy
+import math
 
 
 class slaterFunction(potentialFunction):
@@ -31,11 +31,11 @@ class slaterFunction(potentialFunction):
 
 
 
-  def parseString(self,input):
-    """ read slater coefficients from input string
+  def parseString(self,inString):
+    """ read slater coefficients from inString string
     update self._parameters
-    @parameter input: string containing function parameters, separated by \n """
-    inlines=input.split("\n")
+    @parameter inString: string containing function parameters, separated by \n """
+    inlines=inString.split("\n")
     """ first line should contain &slater& """
     dummy=inlines[0].split()[0].strip()
     if not (dummy=='&slater&'):
@@ -140,7 +140,7 @@ class slaterFunction(potentialFunction):
       for i in range(1,self._parameters['noslaters']+1):
         ci=self._parameters['c'+str(i)]
         zeta=self._parameters['z'+str(i)]
-        normal=(2.0*zeta)**self._parameters['n'+str(i)]*sqrt(2.0*zeta/self._factorial(int(2*self._parameters['n'+str(i)])))
+        normal=(2.0*zeta)**self._parameters['n'+str(i)]*numpy.sqrt(2.0*zeta/self._factorial(int(2*self._parameters['n'+str(i)])))
         dummy=dummy+ci*normal*r**(self._parameters['n'+str(i)]-1)*math.exp(-zeta*r)
     else:
       dummy=None
@@ -166,7 +166,7 @@ class slaterFunction(potentialFunction):
       # loop runs from 1 to no of slater functions
       for i in range(1,self._parameters['noslaters']+1):
         zeta=self._parameters['z'+str(i)]
-        normal=(2.0*zeta)**self._parameters['n'+str(i)]*sqrt(2.0*zeta/self._factorial(int(2.0*self._parameters['n'+str(i)])))
+        normal=(2.0*zeta)**self._parameters['n'+str(i)]*numpy.sqrt(2.0*zeta/self._factorial(int(2.0*self._parameters['n'+str(i)])))
         dummy=dummy+self._parameters['c'+str(i)]*normal*math.exp(-zeta*r)*((self._parameters['n'+str(i)]-1)*\
               r**(self._parameters['n'+str(i)]-2)-zeta*r**(self._parameters['n'+str(i)]-1))
     else:

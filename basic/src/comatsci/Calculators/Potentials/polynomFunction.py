@@ -29,11 +29,11 @@ class polynomFunction(potentialFunction):
 
 
 
-  def parseString(self,input):
-    """ read polynom coefficients from input string
+  def parseString(self,inString):
+    """ read polynom coefficients from inString string
     update self._parameters
-    @parameter input: string containing function parameters, separated by \n """
-    inlines=input.split("\n")
+    @parameter inString: string containing function parameters, separated by \n """
+    inlines=inString.split("\n")
     """ first line should contain &polynom& """
     dummy=inlines[0].split()[0].strip()
     if not (dummy=='&polynom&'):
