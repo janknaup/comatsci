@@ -14,7 +14,8 @@
 #@license: Open Software License version 3.0
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
-from Optimizer import *
+from Optimizer import Optimizer,constants
+import copy
 
 class singleObjectiveMonteCarloOptimizer(Optimizer):
 	"""minimize function using random walk algorithm

@@ -16,7 +16,7 @@
 
 
 from Optimizer import Optimizer,constants
-
+import copy,numpy
 
 class steepestDescentOptimizer(Optimizer):
 	"""Optimize X so that F(X) becomes zero by following dF/dX"""
@@ -61,7 +61,7 @@ class steepestDescentOptimizer(Optimizer):
 		self._hardConvergence=options.get("hardConvergence",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
 			print "Steepest Descent Optimizer: using hard convergence: %s." % (str(self._hardConvergence))
-		if self._hardConvergence and (maxF<=0 or maxFRMS<=0):
+		if self._hardConvergence and (self._maxF<=0 or self._maxFRMS<=0):
 ##			raise "Hard convergence demands all positive derivative convergence criteria"
 				if self._verbosity >= constants.VBL_SILENCE:
 					print "Steepest Descent Optimizer: Warning: hard convergence with negative froce criterion. Will never converge due to force."
@@ -121,9 +121,9 @@ class steepestDescentOptimizer(Optimizer):
 				print "Steepest Descent Optimizer: No force alignment info, skipping stepsize adaption"
 			return
 		#calculate derivative alignment
-		align=num.dot(self._oldForces,dF)
-		align/=math.sqrt(num.dot(self._oldForces,self._oldForces))
-		align/=math.sqrt(num.dot(dF,dF))
+		align=numpy.dot(self._oldForces,dF)
+		align/=numpy.sqrt(numpy.dot(self._oldForces,self._oldForces))
+		align/=numpy.sqrt(numpy.dot(dF,dF))
 		#grow, shrink or do nothing?
 		if align <= self._shrinkThreshold:
 			# only shrink, if stepsize is not below shrink minimum
@@ -160,7 +160,7 @@ class steepestDescentOptimizer(Optimizer):
 		if self._constantDisplacement:
 			if self._verbosity >= constants.VBL_DEBUG2:
 				print "Steepest Descent Optimizer: normalizing derivative vector"
-			dF/=math.sqrt(num.dot(dF,dF))
+			dF/=numpy.sqrt(numpy.dot(dF,dF))
 		if self._adaptive:
 			if self._verbosity >= constants.VBL_DEBUG2:
 				print "Steepest Descent Optimizer: checking stepsize"
@@ -181,7 +181,7 @@ class steepestDescentOptimizer(Optimizer):
 		@param F function to minimize, F can be vector for multi-objective optimization <b>ignored</b>
 		@param dF first derivative of function: dF/dX
 		@param d2F second derivative of function d2F/dX2 <b>ignored</b>"""
-		RMS=math.sqrt(num.add.reduce(dF*dF)/dF.shape[0])
+		RMS=numpy.sqrt(numpy.add.reduce(dF*dF)/dF.shape[0])
 		maxF=max((-min(dF),max(dF)))
 		if RMS < self._maxFRMS and maxF < self._maxF:
 			self._convreason="Hard convergence"

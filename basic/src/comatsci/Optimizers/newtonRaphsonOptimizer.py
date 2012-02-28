@@ -15,7 +15,8 @@
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
 
-from Optimizer import *
+from Optimizer import Optimizer,constants
+import numpy
 
 
 class newtonRaphsonOptimizer(Optimizer):
@@ -55,8 +56,8 @@ class newtonRaphsonOptimizer(Optimizer):
 		self._hardConvergence=options.get("hardConvergence",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
 			print "Newton-Raphson Optimizer: using hard convergence: %s." % (str(self._maxF))
-		if self._hardConvergence and (maxF<=0 or maxFRMS<=0):
-			raise "Newton-Raphson Optimizer: Warning: hard convergence with negative froce criterion. Will never converge due to force."
+		if self._hardConvergence and (self._maxF<=0 or self._maxFRMS<=0):
+			raise "Newton-Raphson Optimizer: Warning: hard convergence with negative force criterion. Will never converge due to force."
 
 
 
@@ -71,7 +72,7 @@ class newtonRaphsonOptimizer(Optimizer):
 		@param F function to minimize, F can be vector for multi-objective optimization <b>ignored</b>
 		@param dF first derivative of function: dF/dX
 		@param d2F second derivative of function d2F/dX2 <b>ignored</b>"""
-		RMS=math.sqrt(num.add.reduce(dF*dF)/dF.shape[0])
+		RMS=numpy.sqrt(numpy.add.reduce(dF*dF)/dF.shape[0])
 		maxF=max((-min(dF),max(dF)))
 		if RMS < self._maxFRMS and maxF < self._maxF:
 			self._convreason="Hard convergence"
@@ -108,7 +109,7 @@ class newtonRaphsonOptimizer(Optimizer):
 		@param F function to minimize, F can be vector for multi-objective optimization
 		@param dF first derivative of function: dF/dX <b>mandatory</b>
 		@param d2F second derivative of function d2F/dX2 <b>always ignored</b>"""
-		delta=dF/num.dot(dF,dF)
+		delta=dF/numpy.dot(dF,dF)
 		delta*=F
 		return X-delta
 		
