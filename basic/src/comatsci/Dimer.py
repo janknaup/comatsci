@@ -10,11 +10,11 @@
 # see file LICENSE for details.
 ##############################################################################
 
-import numpy.oldnumeric as num
+import numpy
 
 #rename geometry to cure naming Awkwardnesses
-from Geometry import Geometry as geo
-from Geometry import FMG_DTD,GeometryError,GeoLayer
+import Geometry.Geometry as Geometry
+from comatsci.Geometry import FMG_DTD,GeometryError,GeoLayer
 
 import constants
 import utils
@@ -48,7 +48,7 @@ DIMER_DTD=FMG_DTD+"""
 <!ELEMENT Dimer (Geometry,DeltaR,NoGradInRot?,(E0,E1)?,E2?,(f0,f1)?,f2?,fN?,curvature?)>
 """
 
-class Dimer(geo):
+class Dimer(Geometry):
 	"""Represents a dimer of two atomic configurations for transistion state searches
 	using the advanced dimer method by Heyden et. al.: J. Phys. Chem. 123, 224101 (2005)"""
 
@@ -104,7 +104,7 @@ class Dimer(geo):
 		AtomSubTypes=options.get("AtomSubTypes",None)
 		LPops=options.get("LPops",None)
 		#Call base class constructor
-		geo.__init__(self, Mode, Atomcount, Origin, Lattice, self._R0, AtomLayers, LayerDict,AtomCharges,AtomSubTypes,LPops)
+		Geometry.__init__(self, Mode, Atomcount, Origin, Lattice, self._R0, AtomLayers, LayerDict,AtomCharges,AtomSubTypes,LPops)
 		# unpack with defaults variables not in base class
 		self._DeltaR=options.get("Axis",None)
 		self.noGradInRot=options.get("noGradInRot",None)
@@ -173,7 +173,7 @@ class Dimer(geo):
 		self.C0=None
 		self.dC0=None
 		#call base class reset method
-		geo._reset_derived(self)
+		Geometry._reset_derived(self)
 	
 	
 	
@@ -352,7 +352,7 @@ class Dimer(geo):
 		"""
 		if self.isInitialized:
 			R1=copy.deepcopy(self)
-			R1.setcoordinates(self.Geometry+num.reshape(self._DeltaR,num.shape(self.Geometry)))
+			R1.setcoordinates(self.Geometry+numpy.reshape(self._DeltaR,numpy.shape(self.Geometry)))
 			return R1
 		else:
 			return None
@@ -380,7 +380,7 @@ class Dimer(geo):
 				else:
 					raise
 		R1=copy.deepcopy(self.Geometry)
-		R1.Geometry+=num.reshape(self._DeltaR,num.shape(R1.Geometry))
+		R1.Geometry+=numpy.reshape(self._DeltaR,numpy.shape(R1.Geometry))
 		self.setTwoGeometries(R1,value)
 
 
@@ -391,7 +391,7 @@ class Dimer(geo):
 		"""
 		if self.isInitialized:
 			R2=copy.deepcopy(self)
-			R2.setcoordinates(self.Geometry-num.reshape(self._DeltaR,num.shape(self.Geometry)))
+			R2.setcoordinates(self.Geometry-numpy.reshape(self._DeltaR,numpy.shape(self.Geometry)))
 			return R2
 		else:
 			return None
@@ -408,7 +408,7 @@ class Dimer(geo):
 		@return: normalized DeltaR
 		"""
 		if self.isInitialized:
-			return self._DeltaR/math.sqrt(num.dot(self._DeltaR.ravel(),self._DeltaR.ravel()))
+			return self._DeltaR/math.sqrt(numpy.dot(self._DeltaR.ravel(),self._DeltaR.ravel()))
 		else:
 			return None
 
@@ -427,7 +427,7 @@ class Dimer(geo):
 			raise ValueError,"Dimer direction vector incompatible to existing dimer data"
 		#if we came this far, store displacement length, normalize Direction and store new displacement vector
 		length=self.displacement
-		value/=math.sqrt(num.dot(value,value))
+		value/=math.sqrt(numpy.dot(value,value))
 		self._DeltaR=value*length
 
 
@@ -442,7 +442,7 @@ class Dimer(geo):
 		@return: length of DeltaR
 		"""
 		if self.isInitialized:
-			return math.sqrt(num.dot(self._DeltaR.ravel(),self._DeltaR.ravel()))
+			return math.sqrt(numpy.dot(self._DeltaR.ravel(),self._DeltaR.ravel()))
 		else:
 			return None
 
@@ -457,7 +457,7 @@ class Dimer(geo):
 		if not self.isInitialized:
 			raise "Trying to set displacement on an uninitialized dimer"
 		#scale DeltaR to new length
-		self._DeltaR*=float(value)/math.sqrt(num.dot(self._DeltaR.ravel(),self._DeltaR.ravel()))
+		self._DeltaR*=float(value)/math.sqrt(numpy.dot(self._DeltaR.ravel(),self._DeltaR.ravel()))
 
 
 	displacement=property(getDisplacement,setDisplacement,doc="The dimer displacement vector length")
@@ -477,9 +477,9 @@ class Dimer(geo):
 			raise ValueError,"Tring to rotate dimer into direction of unequal dimension"
 		#Gram-Schmidt orthoganlize rotdir to the dimer axis direction
 		#remember that self.direction is normalized
-		rotdir-=(num.dot(self.direction,rotdir)*self.direction)
+		rotdir-=(numpy.dot(self.direction,rotdir)*self.direction)
 		#normalize rotdir
-		rotdir/=math.sqrt(num.dot(rotdir,rotdir))
+		rotdir/=math.sqrt(numpy.dot(rotdir,rotdir))
 		# now rotate
 		d0=self.direction
 		# d'=d0*cos(phi)+rotdir*sin(phi)
@@ -537,17 +537,17 @@ class Dimer(geo):
 		self.fN=self.f1-self.f2
 		# Gram-Schmidt orthoganlize fN to the dimer axis direction
 		# (remember that self.direction is normalized)
-		self.fN-=(num.dot(self.direction,self.fN)*self.direction)
+		self.fN-=(numpy.dot(self.direction,self.fN)*self.direction)
 		# rotational search direction is normalized rotational force vector
-		self.Phi=self.fN/math.sqrt(num.dot(self.fN,self.fN))
+		self.Phi=self.fN/math.sqrt(numpy.dot(self.fN,self.fN))
 		# extrapolate E2 using proper formula, depending on rotation gradient calculation setting
 		if self.noGradInRot:
-			self.E2=2.*self.E1-self.E0+3.*self.displacement*num.dot(self.direction,self.f0)
-			self.C0=2.*(self.E1 -self.E0+num.dot(self.f0,self.direction)*self.displacement)/self.displacement**2
+			self.E2=2.*self.E1-self.E0+3.*self.displacement*numpy.dot(self.direction,self.f0)
+			self.C0=2.*(self.E1 -self.E0+numpy.dot(self.f0,self.direction)*self.displacement)/self.displacement**2
 		else:
-			self.E2=2.*(self.E0-0.25*self.displacement*num.dot(self.f1-self.f2,self.direction))-self.E1
-			self.C0=0.5*num.dot(self.f2-self.f1,self.direction)/2.*self.displacement
-		self.dC0=-num.dot(self.fN,self.Phi)/self.displacement
+			self.E2=2.*(self.E0-0.25*self.displacement*numpy.dot(self.f1-self.f2,self.direction))-self.E1
+			self.C0=0.5*numpy.dot(self.f2-self.f1,self.direction)/2.*self.displacement
+		self.dC0=-numpy.dot(self.fN,self.Phi)/self.displacement
 	
 	
 	
@@ -562,7 +562,7 @@ class Dimer(geo):
 			rotangle=constants.PI/4.
 			tempDimer.rotate(self.Phi,rotangle)
 			Er,fr=tempDimer.calcE1(scheduler)
-			Cr=2*(Er-self.E0+num.dot(self.DeltaR,tempDimer.direction))/self.displacement**2
+			Cr=2*(Er-self.E0+numpy.dot(self.DeltaR,tempDimer.direction))/self.displacement**2
 		else:
 			rotangle=0.5*math.atan(-self.dC0/(2.*self.C0))
 			# if calculated phi_1 is smaller than a predefined threshold, skip the rotation step
@@ -571,7 +571,7 @@ class Dimer(geo):
 			tempDimer=copy.deepcopy(self)
 			tempDimer.rotate(self.Phi,rotangle)
 			Er,fr=tempDimer.calcE1(scheduler)
-			Cr=0.5*num.dot(self.f2-fr,self.direction)/self.displacement
+			Cr=0.5*numpy.dot(self.f2-fr,self.direction)/self.displacement
 		# determine fourier coefficients of E(phi) and phi_min
 		a1=(self.C0-Cr+0.5*self.dC0*math.sin(2.*rotangle))/(1-math.cos(2.*rotangle))
 		b1=0.5*self.dC0
@@ -587,38 +587,38 @@ class Dimer(geo):
 		"""translation step of dimer algorithm"""
 		#determine modified force at original position
 		if self.C0>0:
-			fdag_0=-(num.dot(self.f0,self.direction)*self.direction)
+			fdag_0=-(numpy.dot(self.f0,self.direction)*self.direction)
 		else:
-			fdag_0=self.f0-2.*(num.dot(self.f0,self.direction)*self.direction)
+			fdag_0=self.f0-2.*(numpy.dot(self.f0,self.direction)*self.direction)
 		# *** determine search direction ***
 		# start with simple SD
 		G=fdag_0
 		# if last direction is stored, calculate conjugate search direction using
 		# Polak-Ribiere formula
 		if self.lastFdag!=None:
-			G-=self.lastFdag*(num.dot(fdag_0,fdag_0-self.lastFdag)/num.dot(self.lastFdag,self.lastFdag))
+			G-=self.lastFdag*(numpy.dot(fdag_0,fdag_0-self.lastFdag)/numpy.dot(self.lastFdag,self.lastFdag))
 		# normalize translation direction
-		G/=math.sqrt(num.dot(G,G))
+		G/=math.sqrt(numpy.dot(G,G))
 		# *** end search direction calculation***
 		#determine trial translation length, calculate if no hard default is provided
 		if self.hardTranslation==None:
-			translation=0.5*num.dot(G,fdag_0)/abs(self.C0)
+			translation=0.5*numpy.dot(G,fdag_0)/abs(self.C0)
 		else:
 			translation=self.hardTranslation
 		# translate trial dimer and calculate forces
 		testDimer=copy.deepcopy(self)
-		testDimer.Geometry+=num.reshape((G*translation),num.shape(testDimer.Geometry))
+		testDimer.Geometry+=numpy.reshape((G*translation),numpy.shape(testDimer.Geometry))
 		Nrg, f_new = testDimer.calcE0(scheduler)
 		# calculate modified force at trial position
 		if self.C0>0:
-			fdag_t=-(num.dot(self.f0,self.direction)*self.direction)
+			fdag_t=-(numpy.dot(self.f0,self.direction)*self.direction)
 		else:
-			fdag_t=testDimer.f0-2.*(num.dot(testDimer.f0,self.direction)*self.direction)
+			fdag_t=testDimer.f0-2.*(numpy.dot(testDimer.f0,self.direction)*self.direction)
 		# *** determine root of assumed linear force in search direction ***
 		# f(r0)=a*r0+f0==0
 		# project modified forces onto search direction
-		fs0=num.dot(fdag_0,G)
-		fst=num.dot(fdag_t,G)
+		fs0=numpy.dot(fdag_0,G)
+		fst=numpy.dot(fdag_t,G)
 		# determine offset and slope of linear force function
 		# {a=(f1-f2)/(r1-r2)
 		a=(fs0-fst)/(-translation)
@@ -628,7 +628,7 @@ class Dimer(geo):
 		r0=-f0/a
 		# *** end linear root search ***
 		# translate dimer to assumed root position
-		self.Geometry+=num.reshape((G*r0),num.shape(self.Geometry))
+		self.Geometry+=numpy.reshape((G*r0),numpy.shape(self.Geometry))
 		# all previously calculated data is now invalid, so discard it!
 		self._reset_derived()
 		# translation step finished
@@ -712,7 +712,7 @@ class Dimer(geo):
 			#default length unit is Angstrom
 			lunit=lunits["ang"]
 		temp=[ float(t)/lunit for t in (DeltaR.childNodes[0].data.strip().split()) ]
-		self._DeltaR=num.array(temp,num.Float)
+		self._DeltaR=numpy.array(temp,dtype=float)
 		# *** end dimer separation vecot handling ***
 		#get Gradient Calc in Rotation Step boolean (False is already set as default)
 		if len(dimerDom.getElementsByTagName("NoGradInRot"))>0:
@@ -737,8 +737,8 @@ class Dimer(geo):
 				eunit=eunits["au"]
 			self.E1=float(E1[0].childNodes[0].data.strip())/eunit
 			# we only support H/Bohr as force unit
-			self.f0=num.array([ float(tmp) for tmp in (f0[0].childNodes[0].data.strip().split()) ] )
-			self.f1=num.array([ float(tmp) for tmp in (f1[0].childNodes[0].data.strip().split()) ] )
+			self.f0=numpy.array([ float(tmp) for tmp in (f0[0].childNodes[0].data.strip().split()) ] )
+			self.f1=numpy.array([ float(tmp) for tmp in (f1[0].childNodes[0].data.strip().split()) ] )
 			#E2,f2,fN and all curvature data from intput file is always ignored and re-calculated instead!
 			self.__extrapolateEfC()
 		# *** end Energies and forces handling ***
@@ -752,7 +752,7 @@ class Dimer(geo):
 		#initialize return value, if any test fails, report non-convergence
 		converged=True
 		#calculate f0 in dimer direction
-		f0_proj=self.f0*(num.dot(self.f0,self.direction)/math.sqrt(num.dot(self.f0,self.f0)))
+		f0_proj=self.f0*(numpy.dot(self.f0,self.direction)/math.sqrt(numpy.dot(self.f0,self.f0)))
 		#check maximum force
 		if max(self.f0.ravel())>self.maxFt:
 			converged=False
@@ -770,7 +770,7 @@ class Dimer(geo):
 			if self.verbosity>=constants.VBL_NORMAL:
 				print "max projected f0 component  : Yes"
 		#check RMSD force
-		if math.sqrt(num.dot(self.f0,self.f0)/float(len(self.f0)))>self.maxFtRMS:
+		if math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0)))>self.maxFtRMS:
 			converged=False
 			if self.verbosity>=constants.VBL_NORMAL:
 				print "RMS f0                      : No"
@@ -778,7 +778,7 @@ class Dimer(geo):
 			if self.verbosity>=constants.VBL_NORMAL:
 				print "RMS f0                      : Yes"
 		#check projected RMSD force
-		if math.sqrt(num.dot(f0_proj,f0_proj)/float(len(self.f0)))>self.maxFpRMS:
+		if math.sqrt(numpy.dot(f0_proj,f0_proj)/float(len(self.f0)))>self.maxFpRMS:
 			converged=False
 			if self.verbosity>=constants.VBL_NORMAL:
 				print "RMS projected f0            : No"
@@ -826,7 +826,7 @@ class Dimer(geo):
 		#start with the dimer root element
 		fmgstring="<dimer>\n"
 		#DTD dmeands geometry to be the first element in dimer
-		fmgstring+=geo.getFmgString(self)+"\n"
+		fmgstring+=Geometry.getFmgString(self)+"\n"
 		#Delta_R is next
 		fmgstring += self._array_element(self.DeltaR,"DeltaR")
 		#noGradInRot boolean
@@ -859,7 +859,7 @@ class Dimer(geo):
 		@param tag: name of the xml element to generate
 		@indentlevel=0 number of tab-stops to insert in front of all lines"""
 		returnString=("\t"*indentlevel)+("<%s>\n"%(tag))
-		tmp=num.reshape(data,(-1,3))
+		tmp=numpy.reshape(data,(-1,3))
 		for i in tmp:
 			returnString+=("\t"*(indentlevel+1))+("%18.12e\t%18.12e\t%18.12e\n" % (i[0],i[1],i[2]))
 		returnString+=("\t"*indentlevel)+("</%s>\n"%(tag))
@@ -898,11 +898,11 @@ class Dimer(geo):
 		if self.verbosity>=constants.VBL_NORMAL:
 			print "E0                          = %12.6f H" % (self.E0)
 			print "max f0                      = %12.6f H/Bohr" % (max(self.f0.ravel()))
-			print "RMS f0                      = %12.6f H/Bohr" % (math.sqrt(num.dot(self.f0,self.f0)/float(len(self.f0))))
+			print "RMS f0                      = %12.6f H/Bohr" % (math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))))
 			print "C0                          = %12.6f H/Bohr**2" % (self.C0)
 		sys.stdout.flush()
 		# write initial data to convergence info file
-		print >> dimerInfoFile, "%d\t%12.8e\t%12.8e\t%12.8e\t%12.8e" % (0,self.E0,max(self.f0.ravel()),math.sqrt(num.dot(self.f0,self.f0)/float(len(self.f0))),self.C0)
+		print >> dimerInfoFile, "%d\t%12.8e\t%12.8e\t%12.8e\t%12.8e" % (0,self.E0,max(self.f0.ravel()),math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))),self.C0)
 		dimerInfoFile.flush()
 		# check if we can skip iterations (you wish)
 		if self.checkConvergence():
@@ -929,13 +929,13 @@ class Dimer(geo):
 			self.writefmg("dimercheckpoint.fmg")
 			self._setCount+=1
 			# write data to convergence info file
-			print >> dimerInfoFile, "%d\t%12.8e\t%12.8e\t%12.8e\t%12.8e" % (i+1,self.E0,max(self.f0.ravel()),math.sqrt(num.dot(self.f0,self.f0)/float(len(self.f0))),self.C0)
+			print >> dimerInfoFile, "%d\t%12.8e\t%12.8e\t%12.8e\t%12.8e" % (i+1,self.E0,max(self.f0.ravel()),math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))),self.C0)
 			dimerInfoFile.flush()
 			self.writexyz("dimer-animation.xyz","a")
 			if self.verbosity>=constants.VBL_NORMAL:
 				print "E0                          = %12.6f H" % (self.E0)
 				print "max f0                      = %12.6f H/Bohr" % (max(self.f0.ravel()))
-				print "RMS f0                      = %12.6f H/Bohr" % (math.sqrt(num.dot(self.f0,self.f0)/float(len(self.f0))))
+				print "RMS f0                      = %12.6f H/Bohr" % (math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))))
 				print "C0                          = %12.6f H/Bohr**2" % (self.C0)
 				sys.stdout.flush()
 				print "convergence check"
@@ -961,9 +961,9 @@ class Dimer(geo):
 		@param inforce: the force vector to apply contraints to
 		@return: constrained forces"""
 		# now shape to (-1,3) and zero out the specified atomic forces
-		outforce=num.reshape(inforce,(-1,3))
-		zeroforce=num.array([0.,0.,0.])
+		outforce=numpy.reshape(inforce,(-1,3))
+		zeroforce=numpy.array([0.,0.,0.])
 		for i in self.fixedAtoms:
 			outforce[i]=zeroforce
 		# put output array in same shape as input and return
-		return num.reshape(outforce,num.shape(inforce))
+		return numpy.reshape(outforce,numpy.shape(inforce))
