@@ -10,7 +10,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
-import splext
+import splext #@UnresolvedImport
 import bisect
 import numpy.oldnumeric as num
 import math
