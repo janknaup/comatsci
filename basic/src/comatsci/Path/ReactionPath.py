@@ -30,7 +30,7 @@ try:
 	from xml.etree import ElementTree as ET
 #  otherwise try to import locally installed elementtree (for python 2.4 and below)
 except:
-	from elementtree import ElementTree as ET
+	from elementtree import ElementTree as ET #@UnresolvedImport
 
 
 class Reactionpath:
