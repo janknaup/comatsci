@@ -14,7 +14,7 @@ from comatsci.Calculators.CalcError import CalcError
 import comatsci.constants as constants
 import comatsci.utils as utils
 import ConfigParser
-from 
+
 import tempfile
 import os
 import re
@@ -317,9 +317,9 @@ class ResultParser(object):
         value.append(line)
 
     # process last entry
-    if name:
-      try:
-        yield TaggedEntry(name, type, rank, shape, " ".join(value))
+#    if name:
+#      try:
+      yield TaggedEntry(name, type, rank, shape, " ".join(value))
 #      except InvalidEntry, ee:
 #        raise InvalidEntry(iTaggedLine + 1, iLine, msg=ee.msg)
 
