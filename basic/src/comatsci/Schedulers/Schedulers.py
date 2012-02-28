@@ -24,7 +24,7 @@ SCHEDSTATUSDICT={
 
 #import verbosity levels from outside, if available, otherwise use own definitions
 try:
-	import constants
+	from comatsci import constants
 except:
 	class constants:
 		"""default Verbosity level definitions"""
@@ -294,7 +294,7 @@ class mpiScheduler(Scheduler):
 			#gracefully shutdown this slave, if DIE message is received
 			if (status.tag == self.DIETAG):
 				if self._verbosity >= constants.VBL_DEBUG1:
-					sys.stderr.write("[SLAVE %d]: received termination from node '%d'\n" %(MPI_myid, 0))
+					sys.stderr.write("[SLAVE %d]: received termination from node '%d'\n" %(MPI_myid, 0)) #@UndefinedVariable
 				#if worker has a shutdown method, call it, otherwise ignore
 				try:
 					self._worker.shutdown()
@@ -335,7 +335,7 @@ class mpiScheduler(Scheduler):
 
 
 
-	def getNumProc():
+	def getNumProc(self):
 		return self.__MPI_numproc
 	numProc=property(getNumProc,doc="Number of MPI processors available to scheduler")
 	
