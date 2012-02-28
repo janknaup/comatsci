@@ -588,14 +588,14 @@ class Geometry:
 
 
 
-	def writeCDHFrameGroup(self,groupname="frame0000000000",h5file, overwrite=False, labelstring="comatsci geometry",refGroup=None):
+	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, labelstring="comatsci geometry",refGroup=None):
 		"""
 		write HDF5 representation of Geometry into HDF5 file followin CDH specification
 		DOES NOT CLOSE the HDF5 file under any circumstances to allow writing multi-frame geometries into one file
-		@type groupname: string
-		@param groupname: name of the group to write data into.   
 		@type h5file: h5py file object
 		@param h5file: HDF5 file to write Geometry into. If no file is passed, a new file named according to parameter filename will be created
+		@type groupname: string
+		@param groupname: name of the group to write data into.   
 		@type overwrite: boolean
 		@param overwrite: if true, overwrite preexisting geometry group
 		@type labelstring: string
@@ -625,21 +625,34 @@ class Geometry:
 		# create datasets, initialize with data where straightforward
 		framegroup.attrs["label"]=labelstring
 		framegroup.attrs["uuid"]=str(self.uuid)
-		geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
-		geoset.attrs["mode"]="C"
-		elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
-		typeset=framegroup.create_dataset("types",(self.Atomcount,),dtype=vlstring)
-		chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
-		if self.Mode=="S":
-			latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
-			latticeset.attrs["mode"]="C"
+		if refGroup==None or not "coordinates" in refGroup.keys():
+			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
+			geoset.attrs["mode"]="C"
+		if refGroup==None or not "elements" in refGroup.keys():
+			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
+		if refGroup==None or not "types" in refGroup.keys():
+			typeset=framegroup.create_dataset("types",data=numpy.asarray(self.AtomSubTypes,dtype="string_"))
+		# charges are tricky, but we should just leave them out if all charges in Geometry instance are zero anyway
+		if numpy.shape(numpy.nonzero(self.AtomCharges))[1]!=0:
+			if refGroup==None or not "charges" in refGroup.keys():
+				chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
+		if refGroup==None or not "lattice" in refGroup.keys():
+			if self.Mode=="S":
+				if refGroup!=None and "lattice" in refGroup.keys():
+					if numpy.array_equal(self.Lattice,refGroup["lattice"]):
+						framegroup["lattice"]=refGroup["lattice"]
+					else:
+						latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
+						latticeset.attrs["mode"]="C"
+				else:
+					latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
+					latticeset.attrs["mode"]="C"
 		# layer indices might not be contigous, depending on geometry history
-		residueset=framegroup.create_dataset("residues",(self.Atomcount,),dtype=layerenum)
-		# populate so far uninitialized data sets
-		for i in range(self.Atomcount):
-			typeset[i]=self.AtomSubTypes[i]
-			residueset[i]=self.AtomLayers[i]
-		# to be able to add data into the franegroup created, return references to HDF5 file and data group
+		if refGroup==None or not "residues" in refGroup.keys():
+			residueset=framegroup.create_dataset("residues",(self.Atomcount,),dtype=layerenum) #@UnusedVariable
+			# populate so far uninitialized data sets
+			residueset=numpy.array(self.AtomLayers) #@UnusedVariable
+		# to be able to add data into the framegroup created, return references to HDF5 file and data group
 		return (h5file,framegroup)
 	
 	
@@ -650,22 +663,29 @@ class Geometry:
 		@type filename: string
 		@param filename: name of the cdh file to write to
 		"""
-		h5file=h5py.File(filename=filename,"w")
+		h5file=h5py.File(filename,"w")
 		self.writeCDHFrameGroup(h5file=h5file,overwrite=True)
 		h5file.close()
 
 
 
-	def parseH5Framegroup(self, framegroup):
+	def parseH5Framegroup(self, framegroup, globalsGroup=None):
 		"""
 		set own properties from HDF5 framegroup
 		@type framegroup: HDF5 data group following CDH convention
 		@param framegroup: geometry representation to parse geometry from
+		@type globalsGroup: HDF data group following CDH convention
+		@param globalsGroup: if provided, data not present in the frame group 
+		will be read from the globas group.Intended to reduce storage space requirements of CDH files. 
 		@return: reference to self
 		"""
+		# if globasGroup is not specified, create an empty dictionary as dummy
+		if globalsGroup==None: globalsGroup={}
 		# CDH compliance check
-		sets=framegroup.keys()
-		if not ("coordinates" in sets and "elements" in sets):
+		framesets=framegroup.keys()
+		globalsets=globalsGroup.keys()
+		if not (("coordinates" in framesets or "coordinates" in globalsets) and 
+			("elements" in framesets) or ("elements" in globalsets)):
 			raise ValueError("non CDH compliant data group passed for parsing.")
 		# clear self
 		self._reset_derived()
@@ -673,53 +693,75 @@ class Geometry:
 		if "uuid" in framegroup.attrs.keys():
 			self.uuid=uuid.UUID(framegroup.attrs["uuid"])
 		# first check if geometry is cluster or periodic and set lattice if necessary:
-		if "lattice" in sets:
+		if "lattice" in framesets:
 			self. Mode="S"
 			if framegroup["lattice"].attrs["mode"]=="C":
 				self.Lattice=framegroup["lattice"].value
 			else:
 				raise NotImplementedError("Lattice types other than carthesian not supported")
+		elif "lattice" in globalsets:
+			self. Mode="S"
+			if globalsGroup["lattice"].attrs["mode"]=="C":
+				self.Lattice=globalsGroup["lattice"].value
+			else:
+				raise NotImplementedError("Lattice types other than carthesian not supported")
 		else:
 			self.Mode="C"
 		# set corrdinates
-		if framegroup["coordinates"].attrs["mode"]=="C":
-			self.Geometry=framegroup["coordinates"].value
-		elif framegroup.attrs["mode"]=="f":
+		if "coordinates" in framesets:
+			coordgroup=framegroup
+		else:
+			coordgroup=globalsGroup
+		if coordgroup["coordinates"].attrs["mode"]=="C":
+			self.Geometry=coordgroup["coordinates"].value
+		elif coordgroup.attrs["mode"]=="f":
 			if self.Mode!="S": 
 				raise ValueError("Fractional coordiates undefined in non-periodic geometry")
 			else:
-				self.Geometry=self.Lattice*framegroup["coordinates"]
-		elif framegroup.attrs["mode"]=="z":
+				self.Geometry=self.Lattice*coordgroup["coordinates"]
+		elif coordgroup.attrs["mode"]=="z":
 			if self.Mode=="S":
 				raise ValueError("Z-matrix coordinates forbidden in periodic geometry")
 			else:
 				raise NotImplementedError("Z-matrix geometries not supported")
 		# set elements
-		self.AtomTypes=list(framegroup["elements"].value)
+		if "elements" in framesets:
+			self.AtomTypes=list(framegroup["elements"].value)
+		else:
+			self.AtomTypes=list(globalsGroup["elements"].value)
 		self.Atomcount=len(self.AtomTypes)
 		# ***** optional content starts here *******
 		# set atom subtypes
-		if "types" in framegroup:
+		if "types" in framesets:
 			self.AtomSubTypes=list(framegroup["types"].value)
+		elif "types" in globalsets:
+			self.AtomSubTypes=list(globalsGroup["types"].value)
 		else:
 			self.AtomSubTypes=[ self.PTE[self.AtomTypes[ii]] for ii in range(self.Atomcount) ] 
 		# set atom layers
-		if "residues" in sets:
+		residueGroup=None
+		if "residues" in framesets:
+			residueGroup=framegroup
+		elif "residues" in globalsets:
+			residueGroup=globalsGroup
+		if residueGroup!=None:
 			# hack around api changes in h4py
 			if h5py.version.version_tuple[0]==1 and h5py.version.version_tuple[1]<3:
-				residuesDict=h5py.get_enum(framegroup["residues"].dtype) #@UndefinedVariable
+				residuesDict=h5py.get_enum(residueGroup["residues"].dtype) #@UndefinedVariable
 			else: 
-				residuesDict=h5py.check_dtype(framegroup["residues"].dtype) #@UndefinedVariable
+				residuesDict=h5py.check_dtype(residueGroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
 			for ii in residuesDict.keys():
 					self.addlayer(ii, residuesDict[ii])
-			self.AtomLayers=framegroup["residues"].value
+			self.AtomLayers=residueGroup["residues"].value
 		else:
 			self.addlayer("default layer", 0)
 			self.AtomLayers=zeros((self.Atomcount,),dtpye=int)
 		# set atom charges
-		if "charges" in sets:
+		if "charges" in framesets:
 			self.AtomCharges=framegroup["charges"].value
+		elif "charges" in globalsets:
+			self.AtomCharges=globalsGroup["charges"].value
 		else:
 			self.AtomCharges=zeros((self.Atomcount,),dtype=float)
 		# dummy data
@@ -739,7 +781,7 @@ class Geometry:
 		@param groupname: name of the HDF5 data group to read from, default frame0000000000 
 		"""
 		h5file=h5py.File(filename,"r")
-		self.parseH5Framegroup(h5file[groupname])
+		self.parseH5Framegroup(h5file[groupname],h5file.get("globals",None))
 		h5file.close()
 
 

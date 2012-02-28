@@ -465,29 +465,43 @@ class Reactionpath:
 
 
 
-	def writeCDHPath(self,filename="path.cdh"):
+	def writeCDHPath(self,filename="path.cdh",savespace=False):
 		""" 
 		Write the current path in HDF5 format according to CDH specification
 		@type filename: string
 		@param filename: name of the HDF5 file to create
 		"""
+		# check if space saving can be used between geometries, THIS CHECK IS UNSAFE
+		if savespace:
+			try:
+				globalSets=["elements","types","lattice","residues"]
+				self.geos[0].compatcheck(self.geos[-1])
+			except Geometry.GeometryError,inst:
+				if inst.args[0]=='Geometry lattice mismatch':
+					print "ReactionPath warning: Geometry lattice mismatch"
+					globalSets.remove("lattice")
+				else:
+					savespace=False
 		# open HDF5 file for overwriting
 		pathfile=h5py.File(filename,"w")
 		# iterate through path images
+		refGroup=None
 		for image in range(self.numimages()):
 			imagelabel="frame%010i"%(image,)
 			# first write the image geometry
-			if image > 0:
-				imagegroup=self.geos[image].writeCDHFrameGroup(groupname=imagelabel,h5file=pathfile,refFrame=refGroup)[1] #@UndefinedVariable
+			if image==0 and savespace:
+				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel)[1] #@UndefinedVariable
+				refGroup=pathfile.require_group("globals")
+				for iii in globalSets:
+					refGroup[iii]=imagegroup[iii]
 			else:
-				imagegroup=self.geos[image].writeCDHFrameGroup(groupname=imagelabel,h5file=pathfile)[1]
-				refGroup=imagegroup
+				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,refGroup=refGroup)[1] #@UndefinedVariable
 			# add additional path data, if present
 			if self.has_energies():
 				energyset=imagegroup.create_dataset("energy",(1,),"=f8")
 				energyset[0]=self.energies[image]
 			if self.has_realforces():
-				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8"))
+				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
 		pathfile.close()
 			
 
@@ -514,10 +528,11 @@ class Reactionpath:
 		tempForces=[]
 		hasE=True
 		hasF=True
+		globalsGroup=pathfile.get("globals", None)
 		for frame in frames:
 			tg=geoconstructor()
 			framegroup=pathfile[frame]
-			tg.parseH5Framegroup(framegroup)
+			tg.parseH5Framegroup(framegroup,globalsGroup)
 			if "energy" in framegroup.keys() and hasE:
 				tempEnergies.append(framegroup["energy"].value[0])
 			else:
