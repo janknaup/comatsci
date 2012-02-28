@@ -8,11 +8,14 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import *
-from comatsci.Calculators.CalcError import *
+from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
-import numpy as num
-
+from comatsci.Calculators.CalcError import CalcError
+import comatsci.constants as constants
+#import sys
+import copy
+import numpy
+	
 
 class pairPotentialCalc(Calculator):
 	"""calculates total energy and force contribution from a given
@@ -50,7 +53,7 @@ class pairPotentialCalc(Calculator):
 		prior to calculation"""
 		if Potential!=None:
 			self._setPotentials(Potential)
-		tempforces=num.zeros((Geometry.Atomcount,3),num.typeDict["float"])
+		tempforces=numpy.zeros((Geometry.Atomcount,3),numpy.typeDict["float"])
 		tempenergy=0.0
 		#workaround for possible problems with small supercells
 		#if any lattice vector is smaller than the largest E_rep cutoff,
@@ -63,9 +66,9 @@ class pairPotentialCalc(Calculator):
 			expand=[0,0,0]
 			lvls=[]   # lattice vector lengths
 			for i in range(3):
-				lvlen=sqrt(Geometry.Lattice[i][0]**2
+				lvlen=numpy.sqrt(Geometry.Lattice[i][0]**2
 					+Geometry.Lattice[i][1]**2+Geometry.Lattice[i][2]**2)
-				expand[i]=int(ceil(cutoff[0]/lvlen))
+				expand[i]=int(numpy.ceil(cutoff[0]/lvlen))
 			workgeo.periodicexpand(expand)
 		#END workaround
 		dm=workgeo.distancematrix()
@@ -82,7 +85,7 @@ class pairPotentialCalc(Calculator):
 				dist < self.potentialsOutercut[potindex]):
 					tempenergy+=self.potentials[potindex].value(dist)
 					forcedir=workgeo.Geometry[i]-workgeo.Geometry[j]
-					forcedir/=sqrt(dot(forcedir,forcedir))
+					forcedir/=numpy.sqrt(numpy.dot(forcedir,forcedir))
 					force= -self.potentials[potindex].derivative(dist)
 					tempforces[i%orig_atc]+=force*forcedir
 					tempforces[j%orig_atc]-=force*forcedir

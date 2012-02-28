@@ -8,14 +8,18 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import *
-from comatsci.Calculators.CalcError import *
+from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
-	
+from comatsci.Calculators.CalcError import CalcError
+import comatsci.constants as constants
+import comatsci.utils as utils
+import ConfigParser
+import tempfile
+import os
+#import sys
+import shutil
+import numpy
+import re	
 
 
 class siestacalc(Calculator):
@@ -136,7 +140,7 @@ class siestacalc(Calculator):
 			for line in enfile:
 				if tere.search(line):
 					dummy=line.split()
-					self.etot=float(dummy[3])*EVOLT
+					self.etot=float(dummy[3])*constants.EVOLT
 				if itre.search(line):
 					dummy=line.split()
 					self.scfit=int(dummy[2])-1
@@ -149,9 +153,9 @@ class siestacalc(Calculator):
 				dummy=line.split()
 				# This will break, if forces are not ordered in FRC.DAT!
 				if dummy[0][0].isdigit():
-					gradsbuf.append([ (float(s)*EVPERANG) for s in dummy[1:4] ])
+					gradsbuf.append([ (float(s)*constants.EVPERANG) for s in dummy[1:4] ])
 			gradfile.close()
-			self.gradients=array(gradsbuf)
+			self.gradients=numpy.array(gradsbuf)
 
 
 	def _prepare(self, steplabel, Geometry, charge):

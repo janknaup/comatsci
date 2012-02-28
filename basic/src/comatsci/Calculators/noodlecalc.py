@@ -8,13 +8,19 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import *
-from comatsci.Calculators.CalcError import *
+from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
+from comatsci.Calculators.CalcError import CalcError
+import comatsci.constants as constants
+import comatsci.utils as utils
+import ConfigParser
+from 
+import tempfile
+import os
+import re
+import shutil
+import numpy
+
 
 ################################################################################
 #  Helper classes to robustly parse noodle output
@@ -24,6 +30,12 @@ except ImportError:
 ############################################################################
 # Conversion functors
 ############################################################################
+
+class ConversionError(Exception):
+	pass
+
+class InvalidEntry(Exception):
+	pass
 
 class Converter(object):
   """Base class for string to value converters"""
@@ -308,13 +320,13 @@ class ResultParser(object):
     if name:
       try:
         yield TaggedEntry(name, type, rank, shape, " ".join(value))
-      except InvalidEntry, ee:
-        raise InvalidEntry(iTaggedLine + 1, iLine, msg=ee.msg)
+#      except InvalidEntry, ee:
+#        raise InvalidEntry(iTaggedLine + 1, iLine, msg=ee.msg)
 
   entries = property(iterateEntries, None, None, "Iterator over parsed entries")
 
 ################################################################################
-# End Code importted from Balint
+# End Code imported from Balint
 ################################################################################
 
 
@@ -517,8 +529,8 @@ class noodlecalc(Calculator):
 				raise CalcError("number of forces returned by noodle does not match number of atoms")
 			else:
 				# funny reshaping construct to force a deep copy in order to get a contigous array
-				temp=array(frcentry.value,Float)
-				self.gradients=reshape(temp,(atomcount,-1))
+				temp=numpy.array(frcentry.value,dtype=float)
+				self.gradients=numpy.reshape(temp,(atomcount,-1))
 		else:
 			raise CalcError("no noodle forces calculated")
 		if tagresults.getEntry("scc").value[0]:
@@ -529,7 +541,7 @@ class noodlecalc(Calculator):
 			self.scfit=1
 		#remap forces, in case we have been working on a subgeometry
 		if self.remapatoms!=None:
-			newgradients=zeros((realatomcount,3),Float)
+			newgradients=numpy.zeros((realatomcount,3),dtype=float)
 			for i in range(self.remapatoms[0]):
 				newgradients[self.remapatoms[1][i]]=self.gradients[i]
 			self.gradients=newgradients
@@ -543,3 +555,4 @@ class noodlecalc(Calculator):
 		Calculator.shutdown(self)
 		if self.verbosity>=constants.VBL_DEBUG1:
 			print "noodle calculator shut down"
+
