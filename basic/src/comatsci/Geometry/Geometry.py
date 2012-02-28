@@ -2159,7 +2159,7 @@ class Geometry:
 		if atomlist==None:
 			atomlist=range(self.Atomcount)
 		for i in atomlist:
-			self.Geometry[i]=dot(matrix,self.Geometry[i])
+			self.Geometry[i]=numpy.dot(matrix,self.Geometry[i])
 
 
 
