@@ -10,19 +10,20 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from numpy.oldnumeric import *
+from comatsci import constants, utils
+#from numpy.oldnumeric import *
 import geoext as gx #@UnresolvedImport
-from comatsci import constants,  utils
-
-import os
-##import sys
-##import copy
-##import math
-##import xml.dom.minidom
-##import bisect
+import h5py
+import uuid
 import numpy
 import numpy.linalg as linalg
-import h5py,uuid
+import os
+
+##import sys
+import copy
+import math
+##import xml.dom.minidom
+##import bisect
 
 #complicated import statement to make it work with python 2.4 and 2.5
 #  see if python 2.5's elementTree implementation is present
@@ -236,7 +237,7 @@ class Geometry:
 			- B{s} supercell
 		@param iMode: Geometry mode 
 		@param iAtomcount:  atom count (default 0)
-		@param iAtomTypes:  atom types list, orogin, lattice vctors and Geometry array (default None)
+		@param iAtomTypes:  atom types list, orogin, lattice vctors and Geometry numpy.array (default None)
 		@param iOrigin: 	supercell origin, always ignored but part of .gen file format (default None)
 		@param iLattice:  lattice vectors array (default None)
 		@param iGeometry: 	atomic positions array (carthesian bohr) (default None)
@@ -253,11 +254,11 @@ class Geometry:
 		else:
 			self.AtomTypes=iAtomTypes
 		if iOrigin==None:
-			self.Origin=array((0.,0.,0.),Float)
+			self.Origin=numpy.array((0.,0.,0.),dtype=float)
 		else:
 			self.Origin=iOrigin
 		if iLattice==None:
-			self.Lattice=array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),Float)
+			self.Lattice=numpy.array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),dtype=float)
 		else:
 			self.Lattice=iLattice
 		#default layer is 0
@@ -277,7 +278,7 @@ class Geometry:
 		else:
 			self.AtomCharges=iAtomCharges
 		if iGeometry==None:
-			self.Geometry=zeros((0,3),Float)
+			self.Geometry=numpy.zeros((0,3),dtype=float)
 		else:
 			self.Geometry=iGeometry
 		if iAtomSubTypes==None:
@@ -411,10 +412,10 @@ class Geometry:
 			raise GeometryError("Trying to add to nonexistent layer")
 		self._reset_derived()
 		self.AtomTypes.append(type)
-		tempgeo=zeros((self.Atomcount+1,3),Float)
+		tempgeo=numpy.zeros((self.Atomcount+1,3),dtype=float)
 		if self.Atomcount > 0:
 			tempgeo[0:self.Atomcount]=self.Geometry
-		tempgeo[self.Atomcount]=array(position)
+		tempgeo[self.Atomcount]=numpy.array(position)
 		self.Atomcount+=1
 		self.Geometry=tempgeo
 		if layer==None:
@@ -443,7 +444,7 @@ class Geometry:
 		del self.AtomLayers[atomno]
 		del self.AtomSubTypes[atomno]
 		del self.LPops[atomno]
-		tempgeo=zeros((self.Atomcount-1,3),Float)
+		tempgeo=numpy.zeros((self.Atomcount-1,3),dtype=float)
 		offset=0
 		for i in range(self.Atomcount):
 			if i!=atomno:
@@ -511,29 +512,29 @@ class Geometry:
 			geo.append([ float(s) for s in dummy[2:5] ])
 			self.AtomTypes.append(int(self.RPTE[AtomSymbols[int(dummy[1])-1]]))
 			self.LPops.append([])
-		self.Geometry=array((geo))/Angstrom
+		self.Geometry=numpy.array((geo))/Angstrom
 		if self.Mode=="S":
 			line = infile.readline()
 			dummy=line.split()
-			self.Origin=array( [ float(s)/Angstrom for s in dummy[:3] ] )
+			self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
 			for i in range(3):
 				line = infile.readline()
 				dummy=line.split()
-				self.Lattice[i]=array( [ float(s)/Angstrom for s in dummy[:3] ] )
+				self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
 		elif self.Mode=="F":
 			line = infile.readline()
 			dummy=line.split()
-			self.Origin=array( [ float(s)/Angstrom for s in dummy[:3] ] )
+			self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
 			for i in range(3):
 				line = infile.readline()
 				dummy=line.split()
-				self.Lattice[i]=array( [ float(s)/Angstrom for s in dummy[:3] ] )
+				self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
 			#Undo angstrom conversion for fractional coordinates here!
-			self.Geometry = matrixmultiply(self.Geometry,self.Lattice)*Angstrom
+			self.Geometry = numpy.dot(self.Geometry,self.Lattice)*Angstrom
 			self.Mode="S"
 		elif self.Mode=="C":
-			self.Origin=array((0.,0.,0.),Float)
-			self.Lattice=array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),Float)
+			self.Origin=numpy.array((0.,0.,0.),dtype=float)
+			self.Lattice=numpy.array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),dtype=float)
 		defaultlayer=GeoLayer("default layer")
 		self.LayerDict={0: defaultlayer}
 		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
@@ -553,7 +554,7 @@ class Geometry:
 		rlines=["# geometry file created by comatsci",]
 		for i in range(self.Atomcount):
 			# convert coordinates to Angstrom
-			coordinates=array(self.Geometry[i])
+			coordinates=numpy.array(self.Geometry[i])
 			coordinates*=constants.ANGSTROM
 			# if AtomSubType is defined, use that as label, otherwise use Element Symbol
 			try:
@@ -566,7 +567,7 @@ class Geometry:
 		if self.Mode=="S":
 			for i in range(3):
 				#convert lattice vector to Angstrom
-				lv=array(self.Lattice[i])
+				lv=numpy.array(self.Lattice[i])
 				lv*=constants.ANGSTROM
 				# assemble lattice line
 				rlines.append("lattice_vector   %12.6f   %12.6f   %12.6f   "%tuple(lv))
@@ -756,16 +757,16 @@ class Geometry:
 			self.AtomLayers=residueGroup["residues"].value
 		else:
 			self.addlayer("default layer", 0)
-			self.AtomLayers=zeros((self.Atomcount,),dtpye=int)
+			self.AtomLayers=numpy.zeros((self.Atomcount,),dtpye=int)
 		# set atom charges
 		if "charges" in framesets:
 			self.AtomCharges=framegroup["charges"].value
 		elif "charges" in globalsets:
 			self.AtomCharges=globalsGroup["charges"].value
 		else:
-			self.AtomCharges=zeros((self.Atomcount,),dtype=float)
+			self.AtomCharges=numpy.zeros((self.Atomcount,),dtype=float)
 		# dummy data
-		self.LPops=zeros((self.Atomcount,3),dtype=int)
+		self.LPops=numpy.zeros((self.Atomcount,3),dtype=int)
 		# Finally, check consistency and return
 		self._consistency_check()
 		return self
@@ -815,7 +816,7 @@ class Geometry:
 					if len(tokens)!=5:
 						raise ValueError("Error in line %d of FHI aims string: atom needs exactly 3 coordinates and atom type"%(i+1))
 					else:
-						tempcoords.append(array((tokens[1],tokens[2],tokens[3])))
+						tempcoords.append(numpy.array((tokens[1],tokens[2],tokens[3])))
 						if tokens[0]=="atom":
 							tcfractional.append(False)
 						elif tokens[0]=="atom_frac":
@@ -830,12 +831,12 @@ class Geometry:
 				print "Warning, less than 3D periodicity ignored!"
 		elif len(templattice)==3:
 			self.Mode="S"
-			self.Lattice=array(templattice,Float)/Angstrom
+			self.Lattice=numpy.array(templattice,dtype=float)/Angstrom
 		else:
 			raise ValueError("More than three lattice vectors in geometry.")
 		# iterate through atoms
 		for i in range(len(tempcoords)):
-			position=array(tempcoords[i],Float)
+			position=numpy.array(tempcoords[i],dtype=float)
 			# if coordinates for current atom are fractional, convert to carthesian
 			if tcfractional[i]:
 				if self.Mode!="S":
@@ -920,9 +921,9 @@ class Geometry:
 		self.AtomTypes=tempAtomTypes
 		self.LPops=tempLPops
 		self.Mode='C'
-		self.Origin=array((0.,0.,0.),Float)
-		self.Lattice=array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),Float)
-		self.Geometry=array((tempgeo))
+		self.Origin=numpy.array((0.,0.,0.),dtype=float)
+		self.Lattice=numpy.array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),dtype=float)
+		self.Geometry=numpy.array((tempgeo))
 		defaultlayer=GeoLayer("default layer")
 		self.LayerDict={0: defaultlayer}
 		self.AtomCharges=tempAtomCharges
@@ -959,8 +960,8 @@ class Geometry:
 		lunits={"ang":Angstrom, "au":Bohr}
 		#set some default values
 		self.Atomcount=0
-		self.Origin=zeros((3),Float)
-		self.Lattice=array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]],Float)
+		self.Origin=numpy.zeros((3),dtype=float)
+		self.Lattice=numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]],dtype=float)
 		#first get the mode
 		mode=ingeo.getElementsByTagName("mode")
 		if len(mode)==1:
@@ -1111,12 +1112,12 @@ class Geometry:
 			orgx=float(lattice.get("orgx","0.0"))/lunit
 			orgy=float(lattice.get("orgy","0.0"))/lunit
 			orgz=float(lattice.get("orgz","0.0"))/lunit
-			self.Origin=array((orgx,orgy,orgz))
+			self.Origin=numpy.array((orgx,orgy,orgz))
 			# get lattice vectors
 			lva=[ float(s)/lunit for s in lattice.findtext("latvec_a").split() ]
 			lvb=[ float(s)/lunit for s in lattice.findtext("latvec_b").split() ]
 			lvc=[ float(s)/lunit for s in lattice.findtext("latvec_c").split() ]
-			self.Lattice=array([lva,lvb,lvc])
+			self.Lattice=numpy.array([lva,lvb,lvc])
 			# done parsing lattice
 		# get layer specs, create default layer if none is specified
 		layers=tree.getiterator("layer")
@@ -1461,7 +1462,7 @@ class Geometry:
 	def xyzstring(self):
 		"""return a string representing self in .xyz format"""
 		# to be safe, convert Geometry to an array
-		outgeo=array(self.Geometry)*Angstrom
+		outgeo=numpy.array(self.Geometry)*Angstrom
 		# add atom count line
 		outstring="%4i\n\n" % (self.Atomcount)
 		# iterate through atoms and append xyz lines
@@ -1618,9 +1619,9 @@ class Geometry:
 		pdbLines.append("HEADER    comatsci STRUCTURE                        ")
 		pdbLines.append("TITLE     comatsci STRUCTURE")
 		# check if geometry is supercell and orthorhombic, if so, add CRYST record, else skip supercell!
-		cubicmat=array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+		cubicmat=numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 		checkmat=self.Lattice*cubicmat
-		if self.Mode=="S" and add.reduce(add.reduce(checkmat==self.Lattice))==9:
+		if self.Mode=="S" and numpy.add.reduce(numpy.add.reduce(checkmat==self.Lattice))==9:
 			a=self.Lattice[0][0]*Angstrom
 			b=self.Lattice[1][1]*Angstrom
 			c=self.Lattice[2][2]*Angstrom
@@ -1752,9 +1753,9 @@ class Geometry:
 			raise GeometryError('Atom count mismatch')
 		elif self.Mode!=checkgeo.Mode:
 			raise GeometryError('Geometry mode mismatch')
-		elif not equal(self.Origin, checkgeo.Origin).all():
+		elif not numpy.array_equal(self.Origin, checkgeo.Origin):
 			raise GeometryError('Geometry origin mismatch')
-		elif not equal(self.Lattice, checkgeo.Lattice).all():
+		elif not numpy.array_equal(self.Lattice, checkgeo.Lattice):
 			raise GeometryError('Geometry lattice mismatch')
 		elif self.AtomTypes!=checkgeo.AtomTypes:
 			raise GeometryError('Atom type mismatch')
@@ -1765,7 +1766,7 @@ class Geometry:
 		"""Change coordinates, e.g. for geometry optimization
 		@param newgeometry: new coordinates array
 		"""
-		if shape(self.Geometry)!=shape(newgeometry):
+		if numpy.shape(self.Geometry)!=numpy.shape(newgeometry):
 			raise GeometryError('Geometry array shape mismatch')
 		else:
 			self._reset_derived()
@@ -1782,9 +1783,9 @@ class Geometry:
 		newgeo=self.__class__(self.Mode, self.Atomcount, self.AtomTypes, self.Origin,
 			self.Lattice, self.Geometry, self.AtomLayers, self.LayerDict,
 			self.AtomCharges, self.AtomSubTypes)
-		if not_equal(self.Lattice,other.Lattice).any():
+		if not numpy.array_equal(self.Lattice,other.Lattice):
 			newgeo.Lattice=self.Lattice+position*(other.Lattice-self.Lattice)
-		if not_equal(self.Origin,other.Origin).any():
+		if not numpy.array_equal(self.Origin,other.Origin):
 			newgeo.Origin=self.Origin+position*(other.Origin-self.Origin)
 		newcoords=self.Geometry*(1.0-(float(position)))+other.Geometry*(float(position))
 		newgeo.setcoordinates(newcoords)
@@ -1817,7 +1818,7 @@ class Geometry:
 		# iterate through atom coordinates
 		for i in range(self.Atomcount):
 			d=self.Geometry[i]-self.Geometry[center]
-			dists.append(sqrt(dot(d,d)))
+			dists.append(numpy.sqrt(numpy.dot(d,d)))
 		return dists
 
 
@@ -1829,12 +1830,12 @@ class Geometry:
 		@param cutoff: radius of the sphere around center, from which atoms are to be taken
 		@return: Geometry object containing only atoms within a sphere of ratius cutoff around center"""
 		#first check if an atom index or a sequence of coordinates is supplied as center
-		if isinstance(center,(list,tuple,ArrayType)):
+		if isinstance(center,(list,tuple,numpy.ndarray)):
 			# check coordinates validity
 			if len(center)!=3:
 				raise ValueError("center coordinates dimmension not equal to 3")
 			else:
-				centerCoords=array(center,Float)
+				centerCoords=numpy.array(center,dtype=float)
 		else:
 			# check atom index validity
 			if not isinstance(center,int):
@@ -1842,13 +1843,13 @@ class Geometry:
 			if center < 0 or center > self.Atomcount:
 				raise ValueError("central atom index not in atomlist")
 			else:
-				centerCoords=array(self.Geometry[center],Float)
+				centerCoords=numpy.array(self.Geometry[center],dtype=float)
 		# initialize return Geometry object
 		returnGeo=self.__class__(self.Mode, iOrigin=self.Origin, iLattice=self.Lattice, iLayerDict=self.LayerDict)
 		# calculate distances from center in a new array, then iterate through distance array and append atoms within sphere
-		temp=array(self.Geometry,Float)
+		temp=numpy.array(self.Geometry,dtype=float)
 		temp-=centerCoords
-		distances=sqrt(add.reduce(temp*temp,1))
+		distances=numpy.sqrt(numpy.add.reduce(temp*temp,1))
 		for i in range(self.Atomcount):
 			if distances[i]<=cutoff:
 				returnGeo.addatom(self.AtomTypes[i], self.Geometry[i], self.AtomLayers[i], self.AtomCharges[i], self.AtomSubTypes[i], self.LPops[i])
@@ -1933,10 +1934,10 @@ class Geometry:
 		#and check for bond on the fly, without having to store and traverse distance
 		#matrices. Conserves LOTS of memory for large geometries
 		if self.Mode=="C":
-			self._blist=gx.blist(array(self.Geometry),self.AtomTypes,self.SBCR, tolerance)
+			self._blist=gx.blist(numpy.asarray(self.Geometry),self.AtomTypes,self.SBCR, tolerance)
 			self._imagecoordlist=None
 		elif self.Mode=="S":
-			(self._blist,self._imagecoordlist)=gx.sblist(array(self.Geometry), self.Lattice, self.AtomTypes, self.SBCR, tolerance)
+			(self._blist,self._imagecoordlist)=gx.sblist(numpy.asarray(self.Geometry), self.Lattice, self.AtomTypes, self.SBCR, tolerance)
 
 
 
@@ -2007,28 +2008,28 @@ class Geometry:
 		@param c: third atom index
 		"""
 		# arms of the angle
-		arms=zeros((2,3),Float)
+		arms=numpy.zeros((2,3),dtype=float)
 		armlengths=[]
 		acidx={0:a,1:c} # helper, indices of a and c to be able to express the periodic expansion as loopoopoops
 		for i in (0,1):
 				if self.Mode=="S":
-						armlengths.append((sqrt(dot(self.Lattice[0],self.Lattice[0]))
-								+sqrt(dot(self.Lattice[1],self.Lattice[1]))
-								+sqrt(dot(self.Lattice[2],self.Lattice[2]))))
+						armlengths.append((numpy.sqrt(numpy.dot(self.Lattice[0],self.Lattice[0]))
+								+numpy.sqrt(numpy.dot(self.Lattice[1],self.Lattice[1]))
+								+numpy.sqrt(numpy.dot(self.Lattice[2],self.Lattice[2]))))
 						for u in [-1,0,1]:
 								for v in [-1,0,1]:
 										for w in [-1,0,1]:
 												tempbv=(self.Geometry[acidx[i]]+u*self.Lattice[0]+v*self.Lattice[1]+w*self.Lattice[2])-self.Geometry[b]
-												tempbl=sqrt(dot(tempbv,tempbv))
+												tempbl=numpy.sqrt(numpy.dot(tempbv,tempbv))
 												if tempbl<armlengths[i]:
 														arms[i]=tempbv
 														armlengths[i]=tempbl
 		# in a cluster geometry, things are easier...
 				else:
 						arms[i]=self.Geometry[acidx[i]]-self.Geometry[b]
-						armlengths.append(sqrt(dot(arms[i],arms[i])))
+						armlengths.append(numpy.sqrt(numpy.dot(arms[i],arms[i])))
 		# calculate angle from arms and arm lengths
-		cosofangle=dot(arms[0],arms[1])/(armlengths[0]*armlengths[1])
+		cosofangle=numpy.dot(arms[0],arms[1])/(armlengths[0]*armlengths[1])
 		return math.degrees(math.acos(cosofangle))
 
 
@@ -2054,8 +2055,8 @@ class Geometry:
 			# for each lattice vector
 			for i in range(3):
 				#first allocate an array for the atoms to be appended
-				appendlines=shape(self.Geometry)[0]
-				appendgeo=zeros((appendlines*(xpns[i]-1),3),Float)
+				appendlines=numpy.shape(self.Geometry)[0]
+				appendgeo=numpy.zeros((appendlines*(xpns[i]-1),3),dtype=float)
 				#then calculate the positions of append atoms
 				for j in range(1,xpns[i]):
 					appendgeo[((j-1)*self.Atomcount):(j*self.Atomcount)]=(
@@ -2082,10 +2083,10 @@ class Geometry:
 		#if self is not a supercell geometry, make it so, using surrounds lattice
 		if (self.Mode!="S"):
 			self.Mode="S"
-			self.Lattice=array(surround.Lattice)
-			self.Origin=array(surround.Origin)
+			self.Lattice=numpy.array(surround.Lattice)
+			self.Origin=numpy.array(surround.Origin)
 		# otherwise, lattices of self and surround must be identical
-		elif not_equal(self.Lattice,surround.Lattice).any():
+		elif not numpy.array_equal(self.Lattice,surround.Lattice):
 			raise GeometryError("Embedded and surrounding Geometries mut have identical lattices!")
 ##		# otherwise, self.Lattice vectors must be integer multiples of surround.Lattice
 ##			else:
@@ -2114,7 +2115,7 @@ class Geometry:
 					# self will be in the center, so no need to do anything in that case:
 					if a!=0 or b!=0 or c!=0:
 						#copy the raw coordinates from surround and shift them
-						appendcoordinates=array(surround.Geometry)
+						appendcoordinates=numpy.array(surround.Geometry)
 						appendcoordinates+=a*surround.Lattice[0]
 						appendcoordinates+=b*surround.Lattice[1]
 						appendcoordinates+=c*surround.Lattice[2]
@@ -2158,7 +2159,7 @@ class Geometry:
 		if atomlist==None:
 			atomlist=range(self.Atomcount)
 		for i in atomlist:
-			self.Geometry[i]=matrixmultiply(matrix,self.Geometry[i])
+			self.Geometry[i]=dot(matrix,self.Geometry[i])
 
 
 
@@ -2169,7 +2170,7 @@ class Geometry:
 		if atomlist==None:
 			atomlist=range(self.Atomcount)
 		#convert the translation vector to an array
-		tarray=array(tvect,Float)
+		tarray=numpy.array(tvect,dtype=float)
 		for i in atomlist:
 			self.Geometry[i]+=tarray
 
@@ -2257,7 +2258,7 @@ class Geometry:
 		if (min(atomlist)<0) or (max(atomlist)>self.Atomcount):
 			raise ValueError("atom index does not refer to an atom in the geometry")
 		# calculate rotation matrix
-		rotmatrix=zeros((3,3), Float)
+		rotmatrix=numpy.zeros((3,3),dtype=float)
 		if axis=="x":
 			rotmatrix[0][0]=1.0
 			rotmatrix[1][1]=math.cos(angle)
