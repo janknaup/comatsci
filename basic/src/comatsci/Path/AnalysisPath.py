@@ -10,18 +10,13 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci import Geometry
-from comatsci import Calculators
 from comatsci import constants
 
-from ReactionPath import *
+from ReactionPath import Reactionpath
 
-try:
-	from numpy import oldnumeric as num
-except ImportError:
-	import numpy.oldnumeric as num
+import numpy
 
-import math,numpy.oldnumeric.mlab as MLab
+import math
 
 class AnalysisPath(Reactionpath):
 	"""Reaction path with additional analysis functionality, for use in fitrep and analysis tools<br>
@@ -50,8 +45,8 @@ class AnalysisPath(Reactionpath):
 """
 		if self._verbosity>=constants.VBL_DEBUG2:
 			print "Analysispath: calculating forceSquares"
-		Ff=num.array(self.realforces).ravel()
-		Ft=num.array(targetpath.realforces).ravel()
+		Ff=numpy.array(self.realforces).ravel()
+		Ft=numpy.array(targetpath.realforces).ravel()
 		dF=abs(Ff-Ft)
 #		dF=reshape(abs(Ff-Ft),(-1,3))
 ##		print dF
@@ -59,7 +54,7 @@ class AnalysisPath(Reactionpath):
 ##		print "."
 ##		print dF
 #		dF/=MLab.max(reshape(abs(Ft),(-1,3)),1)
-		return num.dot(dF,dF)
+		return numpy.dot(dF,dF)
 
 
 
@@ -83,11 +78,11 @@ class AnalysisPath(Reactionpath):
 		@param: targetpath:	second path to compare self against"""
 		if self._verbosity>=constants.VBL_DEBUG2:
 			print "Analysispath: calculating energySquares"
-		Ef=num.array(self.energies).ravel()
-		Et=num.array(targetpath.energies).ravel()
+		Ef=numpy.array(self.energies).ravel()
+		Et=numpy.array(targetpath.energies).ravel()
 		dE=Ef-Et
 		dE/=Et
-		return num.dot(dE,dE)
+		return numpy.dot(dE,dE)
 
 
 
