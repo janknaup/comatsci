@@ -224,7 +224,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		#calculate the fitness of the initial X here and store in population list
 		self._lastPopulation=[(self._fitness(self._fitnessOptions,X),X),]
 		# now generate populationSize-1 mutants andcalculate their fitnesses
-		for i in range(1, self._populationSize):
+		for i in range(1, self._populationSize): #@UnusedVariable
 			newX=self._initialMutator(self._initialMutatorOptions,X)
 			self._mutations+=1
 			self._lastPopulation.append(tuple((self._fitness(self._fitnessOptions,newX),newX)))

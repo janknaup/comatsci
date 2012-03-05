@@ -149,7 +149,7 @@ class Scheduler:
 class serialScheduler(Scheduler):
 	"""Scheduler that performs jobs on the schedule one after another"""
 	
-	import time
+	import time #@UnusedImport @Reimport
 	
 	
 	
@@ -403,7 +403,6 @@ class mpiScheduler(Scheduler):
 		"""receive a result from the slaves, store the statistics information, store the result in resutlsdict and clean up whatswhere. return MPI status dict
 		@param resultsdict:  The jobindex:result dictionary in which to store the received result 
 		@param whatswhere:  The slaveid:jobindex dictionary from which to extract the index of the returned job """
-		result=None
 		result, status = self.pypar.receive( self.pypar.any_source, tag=self.RESULTTAG, return_status=True) 
 		# a message at this point means, a calculation has finished
 		self._jobcounter+=1

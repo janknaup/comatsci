@@ -14,7 +14,7 @@ import numpy
 
 #rename geometry to cure naming Awkwardnesses
 import Geometry.Geometry as Geometry
-from comatsci.Geometry import FMG_DTD,GeometryError,GeoLayer
+from comatsci.Geometry import FMG_DTD,GeometryError#,GeoLayer
 
 import constants
 import utils
@@ -94,7 +94,7 @@ class Dimer(Geometry):
 		# unpack options dictionary with defaults
 		Mode=options.get("Mode","C")
 		Atomcount=options.get("Atomcount",0)
-		AtomTypes=options.get("AtomTypes",None)
+		AtomTypes=options.get("AtomTypes",None) #@UnusedVariable
 		Origin=options.get("Origin",None)
 		Lattice=options.get("Lattice",None)
 		self._R0=options.get("Geometry",None)
@@ -104,7 +104,7 @@ class Dimer(Geometry):
 		AtomSubTypes=options.get("AtomSubTypes",None)
 		LPops=options.get("LPops",None)
 		#Call base class constructor
-		Geometry.__init__(self, Mode, Atomcount, Origin, Lattice, self._R0, AtomLayers, LayerDict,AtomCharges,AtomSubTypes,LPops)
+		Geometry.Geometry.__init__(self, Mode, Atomcount, Origin, Lattice, self._R0, AtomLayers, LayerDict,AtomCharges,AtomSubTypes,LPops)
 		# unpack with defaults variables not in base class
 		self._DeltaR=options.get("Axis",None)
 		self.noGradInRot=options.get("noGradInRot",None)
@@ -173,7 +173,7 @@ class Dimer(Geometry):
 		self.C0=None
 		self.dC0=None
 		#call base class reset method
-		Geometry._reset_derived(self)
+		Geometry.Geometry._reset_derived(self)
 	
 	
 	
@@ -608,7 +608,7 @@ class Dimer(Geometry):
 		# translate trial dimer and calculate forces
 		testDimer=copy.deepcopy(self)
 		testDimer.Geometry+=numpy.reshape((G*translation),numpy.shape(testDimer.Geometry))
-		Nrg, f_new = testDimer.calcE0(scheduler)
+		Nrg, f_new = testDimer.calcE0(scheduler) #@UnusedVariable
 		# calculate modified force at trial position
 		if self.C0>0:
 			fdag_t=-(numpy.dot(self.f0,self.direction)*self.direction)
@@ -826,7 +826,7 @@ class Dimer(Geometry):
 		#start with the dimer root element
 		fmgstring="<dimer>\n"
 		#DTD dmeands geometry to be the first element in dimer
-		fmgstring+=Geometry.getFmgString(self)+"\n"
+		fmgstring+=Geometry.Geometry.getFmgString(self)+"\n"
 		#Delta_R is next
 		fmgstring += self._array_element(self.DeltaR,"DeltaR")
 		#noGradInRot boolean

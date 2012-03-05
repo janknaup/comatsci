@@ -8,7 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
+from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED @UnusedImport
 
 from comatsci.Calculators.CalcError import CalcError
 import comatsci.constants as constants
@@ -64,7 +64,7 @@ class pairPotentialCalc(Calculator):
 		if Geometry.Mode=="S":
 			cutoff=min(self.potentialsOutercut)
 			expand=[0,0,0]
-			lvls=[]   # lattice vector lengths
+			#lvls=[]   # lattice vector lengths
 			for i in range(3):
 				lvlen=numpy.sqrt(Geometry.Lattice[i][0]**2
 					+Geometry.Lattice[i][1]**2+Geometry.Lattice[i][2]**2)

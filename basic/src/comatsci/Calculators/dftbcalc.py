@@ -227,7 +227,7 @@ class dftbcalc(Calculator):
 			if dummy[0][0].isdigit():
 				gradsbuf.append([ float(s) for s in dummy[1:4] ])
 			else:
-				for j in range(i,atomcount):
+				for j in range(i,atomcount): #@UnusedVariable
 					gradsbuf.append([ 0.0, 0.0, 0.0 ])
 				break
 		gradfile.close()
@@ -245,7 +245,7 @@ class dftbcalc(Calculator):
 		# write the geometry file
 		Geometry.writegen("input.gen")
 		#now write dftb.input file
-		symlist,symdict=Geometry.getatomsymlistdict()
+		symlist,symdict=Geometry.getatomsymlistdict() #@UnusedVariable
 		self._writedftbinput(Geometry.velcount(self.VALEL)-charge,
 			Geometry.Atomcount,symlist,Geometry.PTE)
 		# finally, copy the SK files into the rundir

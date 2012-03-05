@@ -40,12 +40,12 @@ def getPotentialFromFile(filename):
         name=inlines[0].split()[0].strip()
         # check if first line actually contains a potential label
         if name[0]!="&" or name[-1]!="&":
-          raise ValueError("Malformed potential file: Pair potential type indicator not found in line 1")
+            raise ValueError("Malformed potential file: Pair potential type indicator not found in line 1")
         else:
-          # check if potentialFunction is known
-          if not POTENTIALLABELMAP.has_key(name):
-            raise ValueError("Unknown potential function '%s' specified" % name[1:-1])
-          returnPotential= POTENTIALLABELMAP[name]({})
-          returnPotential.parseString("\n".join(inlines))
+            # check if potentialFunction is known
+            if not POTENTIALLABELMAP.has_key(name):
+                raise ValueError("Unknown potential function '%s' specified" % name[1:-1])
+            returnPotential= POTENTIALLABELMAP[name]({})
+            returnPotential.parseString("\n".join(inlines))
         return returnPotential
 

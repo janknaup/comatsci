@@ -272,7 +272,7 @@ class NEBPath(Reactionpath):
 
 	def initveloverlet(self):
 		"""initialize velocity-verlet relaxation scheme"""
-		for i in range(self.numimages()):
+		for i in range(self.numimages()): #@UnusedVariable
 			self.velocities.append(numpy.zeros((3*self.Atomcount),dtype=float))
 
 
@@ -726,7 +726,7 @@ class NEBPath(Reactionpath):
 		energyfile=open("energies.dat","a")
 		#initialize relaxation
 		self.initveloverlet()
-		lastmaxE=0
+		#lastmaxE=0
 		#get range of mobile images
 		self.mobrng = range(1,self.numimages()-1)
 		#Initial calculations
@@ -777,7 +777,7 @@ class NEBPath(Reactionpath):
 ##		self.writefmgpath()
 		if self.verbosity>=constants.VBL_NORMAL:
 			print "Starting NEB iterations"
-		for j in range(self.maxit):
+		for j in range(self.maxit): #@UnusedVariable
 			if self.verbosity>=constants.VBL_NORMAL:
 				print "NEB Relaxation step: %5d" % (self.nstep)
 			# write debug output, if requested
