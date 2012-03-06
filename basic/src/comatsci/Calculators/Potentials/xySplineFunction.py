@@ -111,7 +111,7 @@ class xySplineFunction(potentialFunction):
 				else:
 					value=self._spline.splint(r)
 				return value
-					   
+
 
 		def derivative(self,r):
 				""" returns derivative of the polynom

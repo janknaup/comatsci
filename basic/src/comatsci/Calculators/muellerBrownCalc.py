@@ -10,7 +10,7 @@
 
 from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
-from comatsci.Calculators.CalcError import CalcError
+#from comatsci.Calculators.CalcError import CalcError
 import comatsci.constants as constants
 #import sys
 

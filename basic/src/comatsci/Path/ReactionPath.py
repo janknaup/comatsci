@@ -27,10 +27,10 @@ from comatsci import utils
 #complicated import statement to make it work with python 2.4 and 2.5
 #  see if python 2.5's elementTree implementation is present
 try:
-	from xml.etree import ElementTree as ET
+	from xml.etree import ElementTree as ET #@UnusedImport
 #  otherwise try to import locally installed elementtree (for python 2.4 and below)
 except:
-	from elementtree import ElementTree as ET #@UnresolvedImport
+	from elementtree import ElementTree as ET #@UnresolvedImport @Reimport
 
 
 class Reactionpath:
@@ -178,7 +178,7 @@ class Reactionpath:
 		#finished
 
 #_MANU[
-        def readcpmdframes(self, filename,geoconstructor=Geometry.Geometry):
+	def readcpmdframes(self, filename,geoconstructor=Geometry.Geometry):
 		""" this is a copy of readXyzPath combined with the _readforces
 		"""
 		# read the whole xyz file into memory, store as a list and prune trailing empty line
@@ -198,7 +198,7 @@ class Reactionpath:
 			raise(ValueError,"Number of lines in input file '%s' does not match atom count. Abort." % (filename,))
 		# iterate through xyz blocks, parse and append geometries and forces
 		imagecount=(len(inlist))//(atomcount+2)
-                gradients=[]
+		gradients=[]
 		for image in range(imagecount):
 			temp=geoconstructor()
 			try:
@@ -211,13 +211,13 @@ class Reactionpath:
 			except:
 				print "Inconsistancy in xyz Path file at image %d detected. Abort." % (image+1)
 				raise
-                        gradsbuf=[]
-                        for line in inlist[(image*blocklength+2):(image+1)*blocklength]:
-                                buf=line.split()
-                                gradsbuf.append([ float(s)/0.529177 for s in buf[4:7] ])
-                        gradients.append(numpy.array(gradsbuf))        
-                self.realforces=gradients
-                                
+			gradsbuf=[]
+			for line in inlist[(image*blocklength+2):(image+1)*blocklength]:
+				buf=line.split()
+				gradsbuf.append([ float(s)/0.529177 for s in buf[4:7] ])
+			gradients.append(numpy.array(gradsbuf))		
+			self.realforces=gradients
+								
 		#finished
 #_MANU]
 
@@ -227,7 +227,7 @@ class Reactionpath:
 		between every two existing path images
 		@param nimages: number images to interpolate between every two existing images
 		"""
-		newimagecount=len(self.geos)+(len(self.geos)-1)*nimages
+		#newimagecount=len(self.geos)+(len(self.geos)-1)*nimages
 		newgeoarray=[]
 		for i in range(len(self.geos)-1):
 			newgeoarray.append(self.geos[i])
@@ -568,14 +568,14 @@ class Reactionpath:
 		"""write the path real forces to a file
 		@param: name="neb.frc" output filename
 		"""
-		file=open(name,"w")
-		print >>file,"%6d %6d" % (self.Atomcount, self.numimages())
+		outFile=open(name,"w")
+		print >>outFile,"%6d %6d" % (self.Atomcount, self.numimages())
 		for i in range(self.numimages()):
-			print >>file, "%d" % (i)
+			print >>outFile, "%d" % (i)
 			tempforce=self.realforces[i].ravel()
 			for j in range(self.Atomcount):
-				print >>file, "%14.8e %14.8e %14.8e " %(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2])
-		file.close()
+				print >>outFile, "%14.8e %14.8e %14.8e " %(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2])
+		outFile.close()
 
 
 
@@ -585,10 +585,10 @@ class Reactionpath:
 		<tr><th colspan=2>arguments</th></tr>
 		@param: name="neb.nrg" output filename
 		"""
-		file=open(name,"w")
+		outFile=open(name,"w")
 		for i in range(self.numimages()):
-			print >> file,"%5d  %12.6f" % (i,self.energies[i])
-		file.close()
+			print >> outFile,"%5d  %12.6f" % (i,self.energies[i])
+		outFile.close()
 
 
 
@@ -596,8 +596,8 @@ class Reactionpath:
 		"""read the forces from .frc dump file into path realforces
 		@param: name="neb.frc" input filename
 		"""
-		file = utils.compressedopen(name,"r")
-		buf=file.readline()
+		inFile = utils.compressedopen(name,"r")
+		buf=inFile.readline()
 		dummy=buf.split()
 		if self.Atomcount!=int(dummy[0]):
 			raise "Atom count mismatch in forces file"
@@ -609,7 +609,7 @@ class Reactionpath:
 			if int(buf)!=i:
 				raise("Error reading force file")
 			gradsbuf=[]
-			for j in range(self.Atomcount):
+			for j in range(self.Atomcount): #@UnusedVariable
 				buf=file.readline()
 				dummy=buf.split()
 				gradsbuf.append([ float(s) for s in dummy[0:3] ])
@@ -623,15 +623,15 @@ class Reactionpath:
 		"""read energies from .nrg dump file
 		@param: name="neb.nrg" input filename
 		"""
-		file=utils.compressedopen(name,"r")
+		inFile=utils.compressedopen(name,"r")
 		enbuf=[]
-		for line in file:
+		for line in inFile:
 			dummy=line.split()
 			enbuf.append(float(dummy[1]))
 		if len(enbuf)!=self.numimages():
 			raise "Image count mismatch in energy file"
 		else:
-			file.close()
+			inFile.close()
 			self.energies=enbuf
 
 
@@ -911,7 +911,7 @@ class Reactionpath:
 		if force==None:
 			#TODO maxforce -> realforces
 			force=self.nebforces
-		max=0.0
+		maxF=0.0
 		if images==None:
 			rng=range(self.numimages())
 		else:
@@ -921,9 +921,9 @@ class Reactionpath:
 			for j in range(self.Atomcount):
 				tmpvec=imforvec[j]
 				tmp=numpy.sqrt(numpy.dot(tmpvec,tmpvec))
-				if tmp>max:
-					max=tmp
-		return max
+				if tmp>maxF:
+					maxF=tmp
+		return maxF
 
 
 
@@ -933,10 +933,10 @@ class Reactionpath:
 		@param image: image to calculate centerdists forcerms (default 0)
 		@param: filename="neb.dst" output filename
 		"""
-		file=open(filename,'w')
+		outFile=open(filename,'w')
 		for i in self.geos[image].centerdists(center):
-			print >> file, "%12.6f" % (i)
-		file.close
+			print >> outFile, "%12.6f" % (i)
+		outFile.close
 
 
 

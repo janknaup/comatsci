@@ -166,7 +166,7 @@ class Calculator:
 		@param steplabel: name of current calculation
 		@param charge: total charge to calculate with (default 0)
 		"""
-		error=None
+		#error=None
 		startcpu=time.clock()
 		startwall=time.time()
 		if self.status() != CALCSTATUS_READY:

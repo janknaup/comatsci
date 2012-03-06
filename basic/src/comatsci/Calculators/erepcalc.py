@@ -8,18 +8,18 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
+from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED,CALCSTATUS_ERROR,CALCSTATUS_DISABLED #@UnusedImport
 
 from comatsci.Calculators.CalcError import CalcError
 import comatsci.constants as constants
-import comatsci.utils as utils
-import ConfigParser
-import tempfile
-import os
-import sys
-import shutil
+#import comatsci.utils as utils
+#import ConfigParser
+#import tempfile
+#import os
+#import sys
+#import shutil
 import numpy
-import time	
+#import time	
 import copy
 from comatsci import Spline
 
@@ -72,7 +72,7 @@ class erepcalc(Calculator):
 		if Geometry.Mode=="S":
 			cutoff=min(self.erep_outercut)
 			expand=[0,0,0]
-			lvls=[]
+#			lvls=[]
 			for i in range(3):
 				lvlen=numpy.sqrt(Geometry.Lattice[i][0]**2
 					+Geometry.Lattice[i][1]**2+Geometry.Lattice[i][2]**2)
