@@ -14,14 +14,14 @@ import Spline
 import bisect
 
 
-class linarInterpolator():
+class linearInterpolator():
 	"""class providing linear interpolation within a set of vectors"""
 	
 	def __init__(self,vectors=None):
 		"""initialize linear vector interpolator
 		@param vectors: initial set of vectors (default None)		
 """
-		if nodes!=None:
+		if vectors!=None:
 			self.setNodes(vectors)
 		else:
 			self.__isInitialized=False
@@ -42,8 +42,8 @@ class linarInterpolator():
 		for i in range(len(vectors)-1):
 			segment=vectors[i+1]-vectors[i]
 			length=num.sqrt(num.dot(segment,segment))
-			self_a=segment/length
-			self._lengthBefore[i+1]=_lengthBefore[i]+length
+			self._a[i+1]=segment/length
+			self._lengthBefore[i+1]=self._lengthBefore[i]+length
 		# finally, declare ourselves as initialized
 		self.__isInitialized=True
 	
@@ -120,7 +120,7 @@ class growingString(Path.Reactionpath):
 	"""A growing string representation of a chemical transition
 	"""
 	
-	def __init__(self, checkpointdir='checpoint', fixedatoms=None,cmode='d',fmax=0.01,ifrms=0.01,imaxit=0,
+	def __init__(self, checkpointdir='checkpoint', fixedatoms=None,cmode='d',fmax=0.01,ifrms=0.01,imaxit=0,
 				charge=0.0,verbosity=constants.VBL_SILENCE,interpolationMode='a',targetDistance=1.0,growForce=0.1,symmetricGrowth=True,continuityTolerance=1.1):
 		"""construct a growing string representation object
 		@param: checkpointdir='checkpoint' directory name for checkpoint storage
@@ -151,7 +151,7 @@ class growingString(Path.Reactionpath):
 		if fixedatoms==None:
 			fixedatoms=[]
 		# call base class constructor
-		Path.Reactionpath.__int__(self,checkpointdir,fixedatoms,cmode,fmax,frms,maxit,charge,verbosity)
+		Path.Reactionpath.__int__(self,checkpointdir,fixedatoms,cmode,fmax,ifrms,imaxit,charge,verbosity) #@UndefinedVariable
 		# store parameters to attributes
 		self.interpolationMode=interpolationMode
 		self.targetDistance=targetDistance
