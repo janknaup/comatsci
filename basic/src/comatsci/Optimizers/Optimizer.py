@@ -10,12 +10,10 @@
 # see file LICENSE for details.
 ##############################################################################
 
-import numpy.oldnumeric as num
-import math, copy, random
 
 #import verbosity levels from outside, if available, otherwise use own definitions
 try:
-	import constants
+	import comatsci.constants as constants
 except ImportError:
 	class constants:
 		"""default Verbosity level definitions"""

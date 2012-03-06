@@ -8,14 +8,18 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import *
-from comatsci.Calculators.CalcError import *
+from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
-	
+from comatsci.Calculators.CalcError import CalcError
+import comatsci.constants as constants
+import comatsci.utils as utils
+import ConfigParser
+import tempfile
+import os
+#import sys
+import shutil
+import numpy
+import time	
 
 class dftbcalc(Calculator):
 	"""Class for dftb calculations and result retrieval"""
@@ -223,11 +227,11 @@ class dftbcalc(Calculator):
 			if dummy[0][0].isdigit():
 				gradsbuf.append([ float(s) for s in dummy[1:4] ])
 			else:
-				for j in range(i,atomcount):
+				for j in range(i,atomcount): #@UnusedVariable
 					gradsbuf.append([ 0.0, 0.0, 0.0 ])
 				break
 		gradfile.close()
-		self.gradients=array(gradsbuf)
+		self.gradients=numpy.array(gradsbuf)
 
 
 	def _prepare(self, steplabel, Geometry, charge):
@@ -241,7 +245,7 @@ class dftbcalc(Calculator):
 		# write the geometry file
 		Geometry.writegen("input.gen")
 		#now write dftb.input file
-		symlist,symdict=Geometry.getatomsymlistdict()
+		symlist,symdict=Geometry.getatomsymlistdict() #@UnusedVariable
 		self._writedftbinput(Geometry.velcount(self.VALEL)-charge,
 			Geometry.Atomcount,symlist,Geometry.PTE)
 		# finally, copy the SK files into the rundir

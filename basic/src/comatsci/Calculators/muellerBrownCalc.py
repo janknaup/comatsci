@@ -8,13 +8,14 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import *
-from comatsci.Calculators.CalcError import *
+from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
+#from comatsci.Calculators.CalcError import CalcError
+import comatsci.constants as constants
+#import sys
+
+import numpy
+
 
 class muellerBrownCalc(Calculator):
 	"""calculate energies and forces from a Mueller-Brown potential"""
@@ -54,7 +55,7 @@ class muellerBrownCalc(Calculator):
 		# set status flag to "running"
 		self._status=CALCSTATUS_RUNNING
 		# initialize forces array and laplace and energy variables
-		tempforces=zeros((Geometry.Atomcount,3),Float)
+		tempforces=numpy.zeros((Geometry.Atomcount,3),dtype=float)
 		tempenergy=0.0
 		templaplace=0.0
 		# iterate through atoms
@@ -62,7 +63,7 @@ class muellerBrownCalc(Calculator):
 			# iterate through Mueller-Brown potential terms
 			for j in range(4):
 				#save the exponential value, as we need it for the forces
-				expoterm=A[j]*exp(a[j]*(Geometry.Geometry[i][0]-x0[j])**2 + b[j]*(Geometry.Geometry[i][0]-x0[j])*(Geometry.Geometry[i][1]-y0[j])+c[j]*(Geometry.Geometry[i][1]-y0[j])**2)
+				expoterm=A[j]*numpy.exp(a[j]*(Geometry.Geometry[i][0]-x0[j])**2 + b[j]*(Geometry.Geometry[i][0]-x0[j])*(Geometry.Geometry[i][1]-y0[j])+c[j]*(Geometry.Geometry[i][1]-y0[j])**2)
 				# store energy contribution
 				tempenergy+=expoterm
 				# calculate and store froce contributions, store derivative prefactor for use in laplacian

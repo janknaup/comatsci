@@ -10,15 +10,16 @@
 # see file LICENSE for details.
 ##############################################################################
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
+import numpy
 
 import os, sys, copy
 
+import h5py
+import numpy as num
+
 from comatsci import Geometry
 from comatsci import Calculators
+from comatsci.Calculators import CalcError
 from comatsci import constants
 from comatsci import Spline
 from comatsci import utils
@@ -26,10 +27,10 @@ from comatsci import utils
 #complicated import statement to make it work with python 2.4 and 2.5
 #  see if python 2.5's elementTree implementation is present
 try:
-	from xml.etree import ElementTree as ET
+	from xml.etree import ElementTree as ET #@UnusedImport
 #  otherwise try to import locally installed elementtree (for python 2.4 and below)
 except:
-	from elementtree import ElementTree as ET
+	from elementtree import ElementTree as ET #@UnresolvedImport @Reimport
 
 
 class Reactionpath:
@@ -177,7 +178,7 @@ class Reactionpath:
 		#finished
 
 #_MANU[
-        def readcpmdframes(self, filename,geoconstructor=Geometry.Geometry):
+	def readcpmdframes(self, filename,geoconstructor=Geometry.Geometry):
 		""" this is a copy of readXyzPath combined with the _readforces
 		"""
 		# read the whole xyz file into memory, store as a list and prune trailing empty line
@@ -197,7 +198,7 @@ class Reactionpath:
 			raise(ValueError,"Number of lines in input file '%s' does not match atom count. Abort." % (filename,))
 		# iterate through xyz blocks, parse and append geometries and forces
 		imagecount=(len(inlist))//(atomcount+2)
-                gradients=[]
+		gradients=[]
 		for image in range(imagecount):
 			temp=geoconstructor()
 			try:
@@ -210,13 +211,13 @@ class Reactionpath:
 			except:
 				print "Inconsistancy in xyz Path file at image %d detected. Abort." % (image+1)
 				raise
-                        gradsbuf=[]
-                        for line in inlist[(image*blocklength+2):(image+1)*blocklength]:
-                                buf=line.split()
-                                gradsbuf.append([ float(s)/0.529177 for s in buf[4:7] ])
-                        gradients.append(array(gradsbuf))        
-                self.realforces=gradients
-                                
+			gradsbuf=[]
+			for line in inlist[(image*blocklength+2):(image+1)*blocklength]:
+				buf=line.split()
+				gradsbuf.append([ float(s)/0.529177 for s in buf[4:7] ])
+			gradients.append(numpy.array(gradsbuf))		
+			self.realforces=gradients
+								
 		#finished
 #_MANU]
 
@@ -226,7 +227,7 @@ class Reactionpath:
 		between every two existing path images
 		@param nimages: number images to interpolate between every two existing images
 		"""
-		newimagecount=len(self.geos)+(len(self.geos)-1)*nimages
+		#newimagecount=len(self.geos)+(len(self.geos)-1)*nimages
 		newgeoarray=[]
 		for i in range(len(self.geos)-1):
 			newgeoarray.append(self.geos[i])
@@ -343,8 +344,8 @@ class Reactionpath:
 			if self.numimages()>1 and checkCompat:
 				try:
 					self.geos[0].compatcheck(tempGeometry)
-				except Geometry.GeometryError(str):
-					if errstr=='Geometry lattice mismatch' and self.verbosity>=constants.VBL_SILENCE:
+				except Geometry.GeometryError,inst:
+					if inst.args[0]=='Geometry lattice mismatch' and self.verbosity>=constants.VBL_SILENCE:
 						print "ReactionPath warning: Geometry lattice mismatch"
 					else:
 						raise
@@ -436,7 +437,7 @@ class Reactionpath:
 		else:
 			dummy=forces[0].childNodes[0].data.strip().split()
 			gradsbuf=[ float(s) for s in dummy ]
-			self.realforces.append(reshape(array(gradsbuf),(-1,3)))
+			self.realforces.append(numpy.reshape(numpy.array(gradsbuf),(-1,3)))
 
 
 
@@ -458,7 +459,96 @@ class Reactionpath:
 		else:
 			dummy=forces[0].text.strip().split()
 			gradsbuf=[ float(s) for s in dummy ]
-			self.realforces.append(reshape(array(gradsbuf),(-1,3)))
+			self.realforces.append(numpy.reshape(numpy.array(gradsbuf),(-1,3)))
+
+
+
+	def writeCDHPath(self,filename="path.cdh",savespace=False):
+		""" 
+		Write the current path in HDF5 format according to CDH specification
+		@type filename: string
+		@param filename: name of the HDF5 file to create
+		"""
+		# check if space saving can be used between geometries, THIS CHECK IS UNSAFE
+		if savespace:
+			try:
+				globalSets=["elements","types","lattice","residues"]
+				self.geos[0].compatcheck(self.geos[-1])
+			except Geometry.GeometryError,inst:
+				if inst.args[0]=='Geometry lattice mismatch':
+					print "ReactionPath warning: Geometry lattice mismatch"
+					globalSets.remove("lattice")
+				else:
+					savespace=False
+		# open HDF5 file for overwriting
+		pathfile=h5py.File(filename,"w")
+		# iterate through path images
+		refGroup=None
+		for image in range(self.numimages()):
+			imagelabel="frame%010i"%(image,)
+			# first write the image geometry
+			if image==0 and savespace:
+				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel)[1] #@UndefinedVariable
+				refGroup=pathfile.require_group("globals")
+				for iii in globalSets:
+					refGroup[iii]=imagegroup[iii]
+			else:
+				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,refGroup=refGroup)[1] #@UndefinedVariable
+			# add additional path data, if present
+			if self.has_energies():
+				energyset=imagegroup.create_dataset("energy",(1,),"=f8")
+				energyset[0]=self.energies[image]
+			if self.has_realforces():
+				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
+		pathfile.close()
+			
+
+
+	def readCDHPath(self,filename,checkCompat=True,geoconstructor=Geometry.Geometry,progressFunction=None,stepsFunction=None):
+		"""
+		Read path from HDF5 file according to cdh specification
+		@type filename: string
+		@param filename: name of the HDF5 file to read
+		@return: reference to self
+		"""
+		#open HDF5 file for reading
+		pathfile=h5py.File(filename,"r")
+		# get list of CDH frames, filter out non-frame data sets and sort by index number in name
+		sets=pathfile.keys()
+		frames=[]
+		for ii in sets:
+			if ii[0:5]=="frame":
+				frames.append(ii)
+		frames.sort()
+		# iterate through frames
+		if stepsFunction!=None: stepsFunction(len(frames))
+		tempEnergies=[]
+		tempForces=[]
+		hasE=True
+		hasF=True
+		globalsGroup=pathfile.get("globals", None)
+		for frame in frames:
+			tg=geoconstructor()
+			framegroup=pathfile[frame]
+			tg.parseH5Framegroup(framegroup,globalsGroup)
+			if "energy" in framegroup.keys() and hasE:
+				tempEnergies.append(framegroup["energy"].value[0])
+			else:
+				hasE=False
+			if "forces" in framegroup.keys() and hasF:
+				tempForces.append(framegroup["forces"].value)
+			else:
+				hasF=False
+			self.appendGeoObject(tg, checkCompat=checkCompat)
+		# only set energies, if every frame has energies data
+		if hasE:
+			self.energies=tempEnergies
+		# only set forces if every frame has froces data
+		if hasF:
+			self.realforces=tempForces
+		# finished. cleanup and return
+		pathfile.close()
+		return(self)
 
 
 	
@@ -478,14 +568,14 @@ class Reactionpath:
 		"""write the path real forces to a file
 		@param: name="neb.frc" output filename
 		"""
-		file=open(name,"w")
-		print >>file,"%6d %6d" % (self.Atomcount, self.numimages())
+		outFile=open(name,"w")
+		print >>outFile,"%6d %6d" % (self.Atomcount, self.numimages())
 		for i in range(self.numimages()):
-			print >>file, "%d" % (i)
+			print >>outFile, "%d" % (i)
 			tempforce=self.realforces[i].ravel()
 			for j in range(self.Atomcount):
-				print >>file, "%14.8e %14.8e %14.8e " %(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2])
-		file.close()
+				print >>outFile, "%14.8e %14.8e %14.8e " %(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2])
+		outFile.close()
 
 
 
@@ -495,10 +585,10 @@ class Reactionpath:
 		<tr><th colspan=2>arguments</th></tr>
 		@param: name="neb.nrg" output filename
 		"""
-		file=open(name,"w")
+		outFile=open(name,"w")
 		for i in range(self.numimages()):
-			print >> file,"%5d  %12.6f" % (i,self.energies[i])
-		file.close()
+			print >> outFile,"%5d  %12.6f" % (i,self.energies[i])
+		outFile.close()
 
 
 
@@ -506,8 +596,8 @@ class Reactionpath:
 		"""read the forces from .frc dump file into path realforces
 		@param: name="neb.frc" input filename
 		"""
-		file = utils.compressedopen(name,"r")
-		buf=file.readline()
+		inFile = utils.compressedopen(name,"r")
+		buf=inFile.readline()
 		dummy=buf.split()
 		if self.Atomcount!=int(dummy[0]):
 			raise "Atom count mismatch in forces file"
@@ -519,11 +609,11 @@ class Reactionpath:
 			if int(buf)!=i:
 				raise("Error reading force file")
 			gradsbuf=[]
-			for j in range(self.Atomcount):
+			for j in range(self.Atomcount): #@UnusedVariable
 				buf=file.readline()
 				dummy=buf.split()
 				gradsbuf.append([ float(s) for s in dummy[0:3] ])
-			gradients.append(array(gradsbuf))
+			gradients.append(numpy.array(gradsbuf))
 		self.realforces=gradients
 		file.close()
 
@@ -533,15 +623,15 @@ class Reactionpath:
 		"""read energies from .nrg dump file
 		@param: name="neb.nrg" input filename
 		"""
-		file=utils.compressedopen(name,"r")
+		inFile=utils.compressedopen(name,"r")
 		enbuf=[]
-		for line in file:
+		for line in inFile:
 			dummy=line.split()
 			enbuf.append(float(dummy[1]))
 		if len(enbuf)!=self.numimages():
 			raise "Image count mismatch in energy file"
 		else:
-			file.close()
+			inFile.close()
 			self.energies=enbuf
 
 
@@ -614,12 +704,12 @@ class Reactionpath:
 		@param force: input forces array
 		"""
 		rforce=[]
-		fshape=shape(force[0])
+		fshape=numpy.shape(force[0])
 		for i in range(self.numimages()):
-			tempforce=reshape(force[i],(self.Atomcount,3))
+			tempforce=numpy.reshape(force[i],(self.Atomcount,3))
 			for j in self.fixedatoms:
-				tempforce[j-1]=zeros((3),Float)
-			rforce.append(reshape(tempforce,fshape))
+				tempforce[j-1]=numpy.zeros((3),dtype=float)
+			rforce.append(numpy.reshape(tempforce,fshape))
 		return rforce
 
 
@@ -806,10 +896,10 @@ class Reactionpath:
 		else:
 			rng=images
 		for i in rng:
-			tmp=dot(force[i].ravel(),force[i].ravel())
+			tmp=numpy.dot(force[i].ravel(),force[i].ravel())
 			tmp/=self.Atomcount
 			ms+=tmp
-		return sqrt(ms/self.numimages())
+		return numpy.sqrt(ms/self.numimages())
 
 
 
@@ -821,19 +911,19 @@ class Reactionpath:
 		if force==None:
 			#TODO maxforce -> realforces
 			force=self.nebforces
-		max=0.0
+		maxF=0.0
 		if images==None:
 			rng=range(self.numimages())
 		else:
 			rng=images
 		for i in rng:
-			imforvec=reshape(force[i],(self.Atomcount,3))
+			imforvec=numpy.reshape(force[i],(self.Atomcount,3))
 			for j in range(self.Atomcount):
 				tmpvec=imforvec[j]
-				tmp=sqrt(dot(tmpvec,tmpvec))
-				if tmp>max:
-					max=tmp
-		return max
+				tmp=numpy.sqrt(numpy.dot(tmpvec,tmpvec))
+				if tmp>maxF:
+					maxF=tmp
+		return maxF
 
 
 
@@ -843,10 +933,10 @@ class Reactionpath:
 		@param image: image to calculate centerdists forcerms (default 0)
 		@param: filename="neb.dst" output filename
 		"""
-		file=open(filename,'w')
+		outFile=open(filename,'w')
 		for i in self.geos[image].centerdists(center):
-			print >> file, "%12.6f" % (i)
-		file.close
+			print >> outFile, "%12.6f" % (i)
+		outFile.close
 
 
 
@@ -857,9 +947,9 @@ class Reactionpath:
 			tmp=0.0
 			for j in range(1,self.numimages()):
 				diff=self.geos[j].Geometry[i]-self.geos[0].Geometry[i]
-				tmp+=dot(diff,diff)
+				tmp+=numpy.dot(diff,diff)
 			tmp/=(self.numimages()-1)
-			rmsds.append(sqrt(tmp))
+			rmsds.append(numpy.sqrt(tmp))
 		return(rmsds)
 
 
@@ -929,7 +1019,7 @@ class Reactionpath:
 		if not self.hasSplineRep:
 			self._genSplineRep()
 		# save important geometry information:
-		geoshape=shape(self.geos[0].Geometry)
+		geoshape=numpy.shape(self.geos[0].Geometry)
 		AtomTypes=self.geos[0].AtomTypes
 		Mode=self.geos[0].Mode
 		Origin=self.geos[0].Origin
@@ -940,8 +1030,8 @@ class Reactionpath:
 		newgeos=[]
 		for position in paramlist:
 			# interpolate data
-			newcoordinates=reshape(self.splineRep["geo"].splint(position),geoshape)
-			newlattice=reshape(self.splineRep["lat"].splint(position),(3,3))
+			newcoordinates=numpy.reshape(self.splineRep["geo"].splint(position),geoshape)
+			newlattice=numpy.reshape(self.splineRep["lat"].splint(position),(3,3))
 			newcharges=list(self.splineRep["chr"].splint(position))
 			# construct new image geometry object
 			tempgeo=Geometry.Geometry(Mode,self.Atomcount,AtomTypes,Origin,newlattice,newcoordinates,
@@ -962,16 +1052,16 @@ class Reactionpath:
 		if self.verbosity>=constants.VBL_DEBUG2:
 				print "generating spline representation of Reactionpath"
 		nImages=self.numimages()
-		parameter=zeros((nImages),Float)
-		vectors=zeros((nImages,self.Atomcount*3),Float)
-		lattices=zeros((nImages,9),Float)
-		charges=zeros((nImages,self.Atomcount),Float)
+		parameter=numpy.zeros((nImages),dtype=float)
+		vectors=numpy.zeros((nImages,self.Atomcount*3),dtype=float)
+		lattices=numpy.zeros((nImages,9),dtype=float)
+		charges=numpy.zeros((nImages,self.Atomcount),dtype=float)
 		# construct vector spline nodes
 		for i in range(nImages):
 			parameter[i]=float(i)/float(nImages-1)
 			vectors[i]=self.geos[i].Geometry.ravel()
 			lattices[i]=self.geos[i].Lattice.ravel()
-			charges[i]=array(self.geos[i].AtomCharges,Float)
+			charges[i]=numpy.array(self.geos[i].AtomCharges,dtype=float)
 		# construct coordinate vectorSpline object
 		geospline=Spline.vectorSpline((parameter,vectors))
 		# construct lattices vectorSpline object
@@ -1011,7 +1101,7 @@ class Reactionpath:
 		for i in range(1,nsteps):
 			newsample=self.splineRep["geo"].splint(float(i)*1e-4)
 			diff=newsample-oldsample
-			arc+=sqrt(dot(diff,diff))
+			arc+=numpy.sqrt(numpy.dot(diff,diff))
 			if arc >= distance:
 				params.append(float(i)*1e-4)
 				arc=0.
@@ -1073,7 +1163,7 @@ class Reactionpath:
 		if not self.has_rSplineRep():
 			raise(ValueError,"Attempt to Renner-Subspline resample path but Renner Subspline representation not initialized")
 		# save important geometry information:
-		geoshape=shape(self.geos[0].Geometry)
+		geoshape=numpy.shape(self.geos[0].Geometry)
 		AtomTypes=self.geos[0].AtomTypes
 		Mode=self.geos[0].Mode
 		Origin=self.geos[0].Origin
@@ -1085,7 +1175,7 @@ class Reactionpath:
 		newgeos=[]
 		for position in paramlist:
 			# get interpolated coordinates
-			newcoordinates=reshape(self._rSplineRep.splint(position),geoshape)
+			newcoordinates=numpy.reshape(self._rSplineRep.splint(position),geoshape)
 			# construct new image geometry object
 			tempgeo=Geometry.Geometry(Mode,self.Atomcount,AtomTypes,Origin,lattice,newcoordinates,
 				AtomLayers,LayerDict,iAtomCharges=None,iAtomSubTypes=AtomSubTypes)
@@ -1112,7 +1202,7 @@ class Reactionpath:
 		# build initial list of coordinate-vectors
 		cVectors=["dummy"]
 		for i in range(windowsize-1):
-			cVectors.append(array(self.geos[i].Geometry.flat))
+			cVectors.append(numpy.array(self.geos[i].Geometry.flat))
 		# store some values for generation of new geometriy objects
 		geoshape=self.geos[0].Geometry.shape
 		geoclass=self.geos[0].__class__
@@ -1127,8 +1217,8 @@ class Reactionpath:
 		newgeos=[]
 		for i in range(windowsize-1,self.numimages()):
 			del cVectors[0]
-			cVectors.append(array(self.geos[i].Geometry.flat))
-			newCoordinates=reshape(average(array(cVectors),0),geoshape)
+			cVectors.append(numpy.array(self.geos[i].Geometry.flat))
+			newCoordinates=numpy.reshape(numpy.average(numpy.array(cVectors),0),geoshape)
 			##print newCoordinates
 			##print newCoordinates-self.geos[i].Geometry
 			tempgeo=geoclass(Mode,self.Atomcount,AtomTypes,Origin,lattice,newCoordinates,
@@ -1159,9 +1249,9 @@ class Reactionpath:
 			# compare current Geometry to last image
 			geoDifference=abs(self.geos[i].Geometry-lastgeo)
 			# first create an per atom araray of the number of coordinates that changed by more than tolerance 
-			temp1=add.reduce((geoDifference > 1),1)
+			temp1=numpy.add.reduce((geoDifference > 1),1)
 			# now get hop count from counting all atoms which had mopre zan 0 coordinates change
-			hopcounter+=add.reduce(temp1 > 0)
+			hopcounter+=numpy.add.reduce(temp1 > 0)
 			# advance last image pointer
 			lastgeo=self.geos[i].Geometry
 		# finished, return

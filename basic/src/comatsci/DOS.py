@@ -10,9 +10,9 @@
 # see file LICENSE for details.
 ##############################################################################
 
-import numpy.oldnumeric as num
+import numpy
 
-import os,sys,math
+import os,sys,math,re
 
 import utils, constants
 
@@ -134,12 +134,12 @@ class DOS:
 				raise
 			# end eigenvalue line parsing loop
 		# store internal data
-		self.eigenValues=num.array(tempEigenValues)
-		self.fillings=num.array(tempFillings)
+		self.eigenValues=numpy.array(tempEigenValues)
+		self.fillings=numpy.array(tempFillings)
 		self.spins=len(self.eigenValues)
 		self.kpoints=len(self.eigenValues[0])
 		# set dummy k-point weights
-		self.kweights=num.ones((self.kpoints,), num.Float)/float(self.kpoints)
+		self.kweights=numpy.ones((self.kpoints,), dtype=float)/float(self.kpoints)
 		# reset calculated properties, in case someone in reusing this instance
 		self.reset_calculated()
 		# finished
@@ -184,13 +184,13 @@ class DOS:
 			tempFillings[0][0].append(0.)
 			# end eigenvalue line parsing loop
 			# store internal data
-			self.eigenValues=num.array(tempEigenValues,num.Float)
-			self.fillings=num.array(tempFillings,num.Float)
-			self.kweights=num.array([1.0,])
+			self.eigenValues=numpy.array(tempEigenValues,dtype=float)
+			self.fillings=numpy.array(tempFillings,dtype=float)
+			self.kweights=numpy.array([1.0,])
 			# reset calculated properties, in case someone in reusing this instance
 			self.reset_calculated()
-			print self.eigenValues
-			print self.fillings
+#			print >> sys.stderr, self.eigenValues
+#			print >> sys.stderr, self.fillings
 			# finished
 
 
@@ -215,21 +215,21 @@ class DOS:
 		if eigenvalEntry==None:
 			raise ValueError("No eigenvalues in tagged.out file '%s'." % filename)
 		else:
-			self.eigenValues=num.reshape(num.array(eigenvalEntry.value,num.Float),eigenShape)
-			#self.eigenValues=num.reshape(num.array(eigenvalEntry.value,num.Float),eigenvalEntry.shape)
+			self.eigenValues=numpy.reshape(numpy.array(eigenvalEntry.value,dtype=float),eigenShape)
+			#self.eigenValues=numpy.reshape(numpy.array(eigenvalEntry.value,dtype=float),eigenvalEntry.shape)
 		self.eigenValues/=constants.EVOLT
 		fillingsEntry=tagresults.getEntry("fillings")
 		if fillingsEntry==None:
-			self.fillings=num.ones(self.eigenValues.shape,num.Float)
+			self.fillings=numpy.ones(self.eigenValues.shape,dtype=float)
 		else:
-			self.fillings=num.reshape(num.array(fillingsEntry.value,num.Float),eigenShape)
+			self.fillings=numpy.reshape(numpy.array(fillingsEntry.value,dtype=float),eigenShape)
 		if len(self.fillings) != len(self.eigenValues):
 			raise ValueError("Number of fillings in tagged.out file '%s' does not match number of eigenvalues!" % filename)
 		# set shape variables
 		self.spins=len(self.eigenValues)
 		self.kpoints=len(self.eigenValues[0])
 		# set dummy k-point weights
-		self.kweights=num.ones((self.kpoints,), num.Float)/float(self.kpoints)
+		self.kweights=numpy.ones((self.kpoints,), dtype=float)/float(self.kpoints)
 		# reset calculated properties, in case someone in reusing this instance
 		self.reset_calculated()
 		# finished
@@ -255,8 +255,8 @@ class DOS:
 		orbitalcount=int(eigTokens.pop(0))
 		self.spins=int(eigTokens.pop(0))
 		self.kpoints=int(eigTokens.pop(0))
-		self.eigenValues=num.zeros((self.spins,self.kpoints,orbitalcount))
-		self.fillings=num.zeros((self.spins,self.kpoints,orbitalcount))
+		self.eigenValues=numpy.zeros((self.spins,self.kpoints,orbitalcount))
+		self.fillings=numpy.zeros((self.spins,self.kpoints,orbitalcount))
 		for k in range(self.kpoints):
 			# drop k label
 			eigTokens.pop(0)
@@ -269,7 +269,7 @@ class DOS:
 					else:
 						self.fillings[s][k][i]=0.0
 		# set dummy k-point weights
-		self.kweights=num.ones((self.kpoints,), num.Float)/float(self.kpoints)
+		self.kweights=numpy.ones((self.kpoints,), dtype=float)/float(self.kpoints)
 
 
 	def hasEigenValues(self):
@@ -280,6 +280,60 @@ class DOS:
 	
 
 
+	def readAimsOutput(self,filename):
+		""" parse eigenspectrum from FHI aims standard output
+		@type filename: string
+		@param filename: name of the file containing the FHI aims console output  
+		"""
+		# prepare regurlar expressions
+		pivotRE=re.compile("Writing Kohn-Sham eigenvalues.")
+		# memory intensive implementation...
+		infile=utils.compressedopen(filename, "r", autodetect=False)
+		lines=list(infile)
+		infile.close()
+		# find _last_ occurence of Kohn-Sham Eigenstates marker, so iterate reverse from end
+		# but use positive index counters for better readbility of forward iteration later
+		i=len(lines)-1
+		KSEpivot=None
+		while(KSEpivot==None):
+			if pivotRE.search(lines[i].strip())!=None:
+				KSEpivot=i
+			i-=1
+		if KSEpivot==None: raise ValueError("No Kohn-SHam Eigenvalues found in aims output.")
+		# Fermi level is output above eigenvalues list
+		for i in range(KSEpivot-55,KSEpivot):
+			if "(Fermi level)" in lines[i].strip():
+				tokens=lines[i].strip().split()
+				try:
+					self.fermiEnergy=float(tokens[-1])
+				except:
+					print >> sys.stderr,"Failed to parse Fermi level in line %d of aims output file"%(i+1)
+					raise
+		# iterate below KSpivot to read eigenvalue lines.
+		# Block of eigenvalues is enclosed in empty lines
+		tempfillings=[]
+		tempEigenvalues=[]
+		i=KSEpivot+3
+		while(lines[i].strip()!=""):
+			tokens=lines[i].strip().split()
+			try: 
+				tempfillings.append(float(tokens[1]))
+				tempEigenvalues.append(float(tokens[3]))
+			except:
+				print >> sys.stderr, "Failed to parse Kohn-Sham eigenvalues line in line %d of aims output file"%(i+1)
+				raise
+			i+=1
+		# finished parsing, now store fillings and eigenvalues
+		# FIXME: This implementation does not read k or spin resolved eigenstates
+		self.kpoints=1
+		self.spins=1
+		self.kweights=numpy.array([1.0],dtype=float)
+		self.eigenValues=numpy.array([[tempEigenvalues]],dtype=float)
+		self.fillings=numpy.array([[tempfillings]],dtype=float)
+		
+				
+
+
 
 	###############################################################################
 	# some useful properties
@@ -287,7 +341,7 @@ class DOS:
 	
 	def getMaxEigenValue(self):
 		if self.eigenValues!=None:
-			return num.amax(self.eigenValues)
+			return numpy.amax(self.eigenValues)
 		else:
 			return None
 	
@@ -295,7 +349,7 @@ class DOS:
 	
 	def getMinEigenValue(self):
 		if self.eigenValues!=None:
-			return num.amin(self.eigenValues)
+			return numpy.amin(self.eigenValues)
 		else:
 			return None
 	
@@ -348,12 +402,12 @@ class DOS:
 		if emin >= emax:
 			raise ValueError("emax not greater than emin")
 		# initalize energies and DOS arrays
-		energies=num.arange(emin,emax,stepwidth) # energies for DOS values
-		print energies
+		energies=numpy.arange(emin,emax,stepwidth) # energies for DOS values
+#		print >> sys.stderr, energies
 		numsteps=len(energies)
-		peakenergies=num.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
+		peakenergies=numpy.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
 		# fill peak function array
-		spreadpeak=num.fromfunction(lambda II: self.spreadfunctions[spreadfunction](x=peakenergies[II],s=spread,x0=0.0),(numsteps,))
+		spreadpeak=numpy.fromfunction(lambda II: self.spreadfunctions[spreadfunction](x=peakenergies[II],s=spread,x0=0.0),(numsteps,))
 		# initialize per psin channel DOS list
 		spindoses=[]
 		# define what filling is a full spin orbital (will probably break with non-colinear spin
@@ -361,14 +415,14 @@ class DOS:
 		# iterate through spin channels
 		for s in range(self.spins):
 			# initialize per spin DOS arrays
-			spreadDOS=num.zeros((numsteps,),num.Float)
-			occDOS=num.zeros((numsteps,),num.Float)
-			unoccDOS=num.zeros((numsteps,),num.Float)
+			spreadDOS=numpy.zeros((numsteps,),dtype=float)
+			occDOS=numpy.zeros((numsteps,),dtype=float)
+			unoccDOS=numpy.zeros((numsteps,),dtype=float)
 			# iterate through k-points inside spin channel
 			for k in range(self.kpoints):
 				# bin eigenvalues by energy, use weighted histogram for occupation aware DOS
-				doshist=num.histogram(self.eigenValues[s][k], energies)[0]
-				occhist=num.histogram(self.eigenValues[s][k], energies, weights=self.fillings[s][k])[0]
+				doshist=numpy.histogram(self.eigenValues[s][k], energies)[0]
+				occhist=numpy.histogram(self.eigenValues[s][k], energies, weights=self.fillings[s][k])[0]
 				# convolve DOS histogram with peak function
 				spreadDOStemp=(correlate(spreadpeak,doshist,"same")*fullorbital*self.kweights[k])[::-1]
 				# accumulate spin-channel k-weighted DOS
@@ -380,9 +434,9 @@ class DOS:
 				# accumulate unoccupied DOS as difference total-occupied
 				unoccDOS+=spreadDOStemp-occDOStemp #(correlate(spreadpeak,unocchist,"same")*self.kweights[k])[::-1]
 			# store final array
-			spindoses.append(num.array((spreadDOS,occDOS,unoccDOS),num.Float))
+			spindoses.append(numpy.array((spreadDOS,occDOS,unoccDOS),dtype=float))
 		# finished, return combined array
-		return (num.array(energies),)+tuple(spindoses)
+		return (numpy.array(energies),)+tuple(spindoses)
 		
 		
 	
@@ -423,14 +477,14 @@ class DOS:
 		if emin >= emax:
 			raise ValueError("emax not greater than emin")
 		# initalize energies DOS arrays
-		energies=num.arange(emin,emax,stepwidth)
+		energies=numpy.arange(emin,emax,stepwidth)
 		numsteps=len(energies)
 		spindoses=[]
 		fullorbital=2/self.spins
 		for s in range(self.spins):
-			spreadDOS=num.zeros((numsteps,),num.Float)
-			occDOS=num.zeros((numsteps,),num.Float)
-			unoccDOS=num.zeros((numsteps,),num.Float)
+			spreadDOS=numpy.zeros((numsteps,),dtype=float)
+			occDOS=numpy.zeros((numsteps,),dtype=float)
+			unoccDOS=numpy.zeros((numsteps,),dtype=float)
 			# fill array by brute-force looping lorentz distributions for each eigenvalue
 			for k in range(self.kpoints):
 				for i in range(len(self.eigenValues[0][0])):
@@ -439,9 +493,9 @@ class DOS:
 						spreadDOS[j]+=rawdos
 						occDOS[j]+=rawdos*self.fillings[s][k][i]
 						unoccDOS[j]+=rawdos*(fullorbital-self.fillings[s][k][i])
-			spindoses.append(num.array((spreadDOS,occDOS,unoccDOS),num.Float))
+			spindoses.append(numpy.array((spreadDOS,occDOS,unoccDOS),dtype=float))
 		# finished, return combined array
-		return (num.array(energies),)+tuple(spindoses)
+		return (numpy.array(energies),)+tuple(spindoses)
 	
 	
 	
@@ -497,7 +551,7 @@ class DOS:
 		step=DOS[0][1]-DOS[0][0]
 		stop=step*nsteps
 		# construct output array
-		JDOS=num.array((num.arange(0, stop, step),J[nsteps:0:-1]))
+		JDOS=numpy.array((numpy.arange(0, stop, step),J[nsteps:0:-1]))
 		# finisehd, return.
 		return JDOS
 
@@ -541,7 +595,7 @@ class PDOS(DOS):
 		# The number of eigenvectors should be the same as the number of eigenvalues
 		# we have to determine the number of atoms and orbitals from the first eigenvalue block
 		#   first check line 3 if it shows Eigenvector: 1 and Spin: 1
-		print EVlines[2].split()
+#		print >> sys.stderr, EVlines[2].split()
 		if not len(EVlines[2].split()) >=3 or not(int(EVlines[2].split()[1])==1) or not (int(EVlines[2].split()[3][0])==1):
 			raise ValueError("Did not find expected Eigenvector 1 Spin 1 component in line 3 of file '%s'"%filename)
 		# initialize list of orbitals per atom, number of atoms
@@ -573,7 +627,7 @@ class PDOS(DOS):
 				continue
 		# the above loop increased the atom count by 1 too much
 		atomcount-=1
-		orbitalsperatom=num.array(orbitalsperAtom,num.Float)
+		orbitalsperatom=numpy.array(orbitalsperAtom,dtype=float)
 		# calculate the number of orbitals __before__ the index atom
 		orbitalsum=orbitalsperatom.cumsum()-orbitalsperatom
 		numOrbitals=int(orbitalsperatom.cumsum()[-1])
@@ -591,8 +645,8 @@ class PDOS(DOS):
 		else:
 			raise ValueError("Unexpected number of lines in file '%s' file is probably malformed."%filename)
 		# allocate data arrays
-		self.orbitalCoeficients=num.zeros(numSpins*numOrbitals**2,num.Float)
-		self.orbitalMulliken=num.zeros(numSpins*numOrbitals**2,num.Float)
+		self.orbitalCoeficients=numpy.zeros(numSpins*numOrbitals**2,dtype=float)
+		self.orbitalMulliken=numpy.zeros(numSpins*numOrbitals**2,dtype=float)
 		# store the number of orbitals and orbitals per atom as member variables
 		self.numOrbitals=numOrbitals
 		self.orbitalsPerAtom=orbitalsperatom

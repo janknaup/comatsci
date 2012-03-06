@@ -10,18 +10,14 @@
 # see file LICENSE for details.
 ##############################################################################
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
+import numpy
 
 import os, sys, copy
 
 from comatsci import Geometry
-from comatsci import Calculators
 from comatsci import constants
 
-from ReactionPath import *
+from ReactionPath import Reactionpath
 
 #TODO: for 0.5.0 Add ABNR NEB optimizer
 
@@ -147,7 +143,7 @@ class NEBPath(Reactionpath):
 		for i in range(self.numImages):
 			position=self.splineRep["geo"]._nodesx[i]
 			temp=self.splineRep["geo"].splder(position)
-			tau=temp/dot(temp,temp)
+			tau=temp/numpy.dot(temp,temp)
 			self.tangents.append(tau)
 	
 	
@@ -155,21 +151,21 @@ class NEBPath(Reactionpath):
 	def _calctangents(self):
 		"""Calculate local tangents at all path points, returns 0 tangents for start and endpoint"""
 		self.tangents=[]
-		self.tangents.append(zeros((3*self.Atomcount),Float))
+		self.tangents.append(numpy.zeros((3*self.Atomcount),dtype=float))
 		for i in range(1,(self.numimages()-1)):
 			Rminus=self.geos[i-1].Geometry.ravel()
 			R=self.geos[i].Geometry.ravel()
 			Rplus=self.geos[i+1].Geometry.ravel()
 			tauleft=R-Rminus
-			tauleft/=sqrt(dot(tauleft,tauleft))
+			tauleft/=numpy.sqrt(numpy.dot(tauleft,tauleft))
 			tauright=Rplus-R
-			tauright/=sqrt(dot(tauright,tauright))
+			tauright/=numpy.sqrt(numpy.dot(tauright,tauright))
 			tau=tauleft+tauright
-			temp=sqrt(dot(tau,tau))
+			temp=numpy.sqrt(numpy.dot(tau,tau))
 			if temp!=0:
 				tau/=temp
 			self.tangents.append(tau)
-		self.tangents.append(zeros((3*self.Atomcount),Float))
+		self.tangents.append(numpy.zeros((3*self.Atomcount),dtype=float))
 
 
 
@@ -180,7 +176,7 @@ class NEBPath(Reactionpath):
 			self.calctangents()
 		else:
 			self.tangents=[]
-			self.tangents.append(zeros((3*self.Atomcount),Float))
+			self.tangents.append(numpy.zeros((3*self.Atomcount),dtype=float))
 			for i in range(1,(self.numimages()-1)):
 				Rminus=self.geos[i-1].Geometry.ravel()
 				R=self.geos[i].Geometry.ravel()
@@ -192,16 +188,16 @@ class NEBPath(Reactionpath):
 				elif self.energies[i+1] < self.energies[i] and self.energies[i] < self.energies[i-1]:
 					tau=tauleft
 				elif self.energies[i+1] > self.energies[i-1]:
-					tau=(tauright*maximum(abs(self.energies[i+1]-self.energies[i]),abs(self.energies[i-1]-self.energies[i])))
-					tau+=(tauleft*minimum(abs(self.energies[i+1]-self.energies[i]),abs(self.energies[i-1]-self.energies[i])))
+					tau=(tauright*numpy.maximum(abs(self.energies[i+1]-self.energies[i]),abs(self.energies[i-1]-self.energies[i])))
+					tau+=(tauleft*numpy.minimum(abs(self.energies[i+1]-self.energies[i]),abs(self.energies[i-1]-self.energies[i])))
 				else:
-					tau=(tauleft*maximum(abs(self.energies[i+1]-self.energies[i]),abs(self.energies[i-1]-self.energies[i])))
-					tau+=(tauright*minimum(abs(self.energies[i+1]-self.energies[i]),abs(self.energies[i-1]-self.energies[i])))
-				temp=sqrt(dot(tau,tau))
+					tau=(tauleft*numpy.maximum(abs(self.energies[i+1]-self.energies[i]),abs(self.energies[i-1]-self.energies[i])))
+					tau+=(tauright*numpy.minimum(abs(self.energies[i+1]-self.energies[i]),abs(self.energies[i-1]-self.energies[i])))
+				temp=numpy.sqrt(numpy.dot(tau,tau))
 				if temp!=0:
 					tau/=temp
 				self.tangents.append(tau)
-			self.tangents.append(zeros((3*self.Atomcount),Float))
+			self.tangents.append(numpy.zeros((3*self.Atomcount),dtype=float))
 
 
 
@@ -213,10 +209,10 @@ class NEBPath(Reactionpath):
 		"""
 		tmp=[]
 		for i in range(self.numimages()):
-			absforce=sqrt(dot(forces[i].ravel(),forces[i].ravel()))
+			absforce=numpy.sqrt(numpy.dot(forces[i].ravel(),forces[i].ravel()))
 			forcedir=forces[i].ravel()/absforce
-			fdottau=dot(forcedir.ravel(),tangents[i])
-			tmp.append(subtract(forces[i],reshape(((fdottau*absforce)*tangents[i]),shape(forces[i]))))
+			fdottau=numpy.dot(forcedir.ravel(),tangents[i])
+			tmp.append(numpy.subtract(forces[i],numpy.reshape(((fdottau*absforce)*tangents[i]),numpy.shape(forces[i]))))
 		return tmp
 
 
@@ -232,9 +228,9 @@ class NEBPath(Reactionpath):
 		"""return the real forces parallel to the path direction"""
 		returnfrc=[]
 		for i in range(self.numimages()):
-			absforce=sqrt(dot(self.realforces[i].ravel(),self.realforces[i].ravel()))
+			absforce=numpy.sqrt(numpy.dot(self.realforces[i].ravel(),self.realforces[i].ravel()))
 			forcedir=self.realforces[i].ravel()/absforce
-			fdottau=dot(forcedir.ravel(),self.tangents[i])
+			fdottau=numpy.dot(forcedir.ravel(),self.tangents[i])
 			returnfrc.append(self.tangents[i]*fdottau*absforce)
 		return returnfrc
 
@@ -253,8 +249,8 @@ class NEBPath(Reactionpath):
 			Rplus=self.geos[i+1].Geometry.ravel()
 			tauleft=R-Rminus
 			tauright=Rplus-R
-			springforce=self.springk*(sqrt(dot(tauright,tauright))-sqrt(dot(tauleft,tauleft)))
-			add(tempforces[i],springforce*reshape(self.tangents[i],shape(tempforces[i])),tempforces[i])
+			springforce=self.springk*(numpy.sqrt(numpy.dot(tauright,tauright))-numpy.sqrt(numpy.dot(tauleft,tauleft)))
+			numpy.add(tempforces[i],springforce*numpy.reshape(self.tangents[i],numpy.shape(tempforces[i])),tempforces[i])
 		return tempforces
 
 
@@ -264,12 +260,11 @@ class NEBPath(Reactionpath):
 		True forces must have been calculated beforehand!
 		calls stdnebforces"""
 		tempforces = self.stdnebforces()
-		climbforce = self.realforces[self.climber]
-		forceshape = shape(tempforces[self.climber])
+		forceshape = numpy.shape(tempforces[self.climber])
 		tangentforce = self.realtangentforces()[self.climber].ravel()
 		normalforce = self.realnormalforces()[self.climber].ravel()
 		climbforce = normalforce-tangentforce
-		climbforce = reshape(climbforce,forceshape)
+		climbforce = numpy.reshape(climbforce,forceshape)
 		tempforces[self.climber] = climbforce
 		return tempforces
 
@@ -277,8 +272,8 @@ class NEBPath(Reactionpath):
 
 	def initveloverlet(self):
 		"""initialize velocity-verlet relaxation scheme"""
-		for i in range(self.numimages()):
-			self.velocities.append(zeros((3*self.Atomcount),Float))
+		for i in range(self.numimages()): #@UnusedVariable
+			self.velocities.append(numpy.zeros((3*self.Atomcount),dtype=float))
 
 
 
@@ -287,11 +282,11 @@ class NEBPath(Reactionpath):
 		@param forces: forces vector
 		"""
 		for i in range(1,self.numimages()-1):
-			forcedir=forces[i].ravel()/sqrt(dot(forces[i].ravel(),forces[i].ravel()))
-			if dot(self.velocities[i].ravel(),forcedir) >= 0:
-				self.velocities[i]=forcedir*(dot(self.velocities[i],forcedir))
+			forcedir=forces[i].ravel()/numpy.sqrt(numpy.dot(forces[i].ravel(),forces[i].ravel()))
+			if numpy.dot(self.velocities[i].ravel(),forcedir) >= 0:
+				self.velocities[i]=forcedir*(numpy.dot(self.velocities[i],forcedir))
 			else:
-				self.velocities[i]=zeros((3*self.Atomcount),Float)
+				self.velocities[i]=numpy.zeros((3*self.Atomcount),dtype=float)
 				if self.verbosity>=constants.VBL_QUIET:
 					print "Warning: Verlet velocity vector for image %d opposed to force." % (i)
 			accel=0.5*forces[i]
@@ -299,9 +294,9 @@ class NEBPath(Reactionpath):
 				accel[j]/=self.amasses[j]
 			self.velocities[i]+=accel.ravel()*self.dt
 			coords=self.geos[i].Geometry
-			displace=(reshape(self.velocities[i],shape(accel))+accel)*self.dt
+			displace=(numpy.reshape(self.velocities[i],numpy.shape(accel))+accel)*self.dt
 			for j in range(self.Atomcount):
-				d=sqrt(dot(displace[j],displace[j]))
+				d=numpy.sqrt(numpy.dot(displace[j],displace[j]))
 				if d > 0.4:
 					if self.verbosity>=constants.VBL_QUIET:
 						print "Warning: Displacement > 0.4 Ang detected in image %d." % (i)
@@ -324,12 +319,12 @@ class NEBPath(Reactionpath):
 		for i in range(1,self.numimages()-1):
 			delta+=self.geos[i].Geometry.ravel()-self.geos[i-1].Geometry.ravel()
 		delta/=(self.numimages()*self.Atomcount)
-		DeltalRMS=sqrt(delta)
+		DeltalRMS=numpy.sqrt(delta)
 		# now calculate \Deltal_i^{RMS}
 		Deltal_i=[0] # i runs from 1, insert a dummy i=0 here
 		for i in range(1,self.numimages()-1):
 			delta=self.geos[i].Geometry.ravel()-self.geos[i-1].Geometry.ravel()
-			Deltal_i.append(sqrt(delta/self.Atomcount))
+			Deltal_i.append(numpy.sqrt(delta/self.Atomcount))
 		# add the second sum to out objective
 		for i in range(1,self.numimages()-1):
 			objective+=0.5*self.springk*((Deltal_i[i]-DeltalRMS)**2)
@@ -350,16 +345,16 @@ class NEBPath(Reactionpath):
 		imgforces=[]
 		totalforce=0
 		for i in forces:
-			norm=dot(i.ravel(),i.ravel())
+			norm=numpy.dot(i.ravel(),i.ravel())
 			totalforce+=norm
-			norm=sqrt(norm)
+			norm=numpy.sqrt(norm)
 			imgforces.append(norm)
 			forcesdir.append(i.ravel()/norm)
-		totalforce=sqrt(totalforce)
+		totalforce=numpy.sqrt(totalforce)
 		# now displace the mobile images
-		geoshape=shape(self.geos[0].Geometry)
+		geoshape=numpy.shape(self.geos[0].Geometry)
 		for i in range(1,self.numimages()-1):
-			self.geos[i].setcoordinates(reshape((self.geos[i].Geometry.ravel()
+			self.geos[i].setcoordinates(numpy.reshape((self.geos[i].Geometry.ravel()
 				+(self.dt*(imgforces[i]/totalforce))*forcesdir[i]),geoshape))
 		# kill possibly stored spline representation
 		self.splineRep=None
@@ -376,7 +371,7 @@ class NEBPath(Reactionpath):
 		if self.__forces_history_available and self.dtadapted==0:
 			fdircheck=0.
 			for i in range(1,self.numimages()-1): #ignore fixed images
-				fdircheck+=dot(forces[i].ravel(),self.oldforces[i].ravel())
+				fdircheck+=numpy.dot(forces[i].ravel(),self.oldforces[i].ravel())
 		else: 
 			fdircheck=1.
 		if fdircheck<0:
@@ -555,7 +550,7 @@ class NEBPath(Reactionpath):
 				self.ovr_oldforces=None;
 				#clear velocities
 				for i in range(self.numimages()):
-					self.velocities[i]=zeros((3*self.Atomcount),Float)
+					self.velocities[i]=numpy.zeros((3*self.Atomcount),dtype=float)
 				# skip stepzize reduction, if already performed in this step
 				if self.dtadapted==0:
 					self.dt /= 1.618033988 #goldener schnitt
@@ -587,15 +582,15 @@ class NEBPath(Reactionpath):
 			xplus=self.geos[i+1].Geometry.ravel()
 			x=self.geos[i].Geometry.ravel()
 			diff=xplus-x
-			R=dot(diff,diff)
-			R=sqrt(R)
+			R=numpy.dot(diff,diff)
+			R=numpy.sqrt(R)
 			lengths.append(R)
 		# secondly, get the absolute tangent force for each image
 		F=[]
 		tangforce=self.realtangentforces()
 		for i in range (self.numimages()):
 			#F.append(sqrt(dot(tangforce[i].ravel(),tangforce[i].ravel())))
-			F.append(dot(tangforce[i].ravel(),self.tangents[i].ravel()))
+			F.append(numpy.dot(tangforce[i].ravel(),self.tangents[i].ravel()))
 		# now calculate the Fit constants for each segment
 		cubicparms=[]
 		for i in range(self.numimages()-1):
@@ -626,8 +621,8 @@ class NEBPath(Reactionpath):
 			xplus=self.geos[i+1].Geometry.ravel()
 			x=self.geos[i].Geometry.ravel()
 			diff=xplus-x
-			R=dot(diff,diff)
-			R=sqrt(R)
+			R=numpy.dot(diff,diff)
+			R=numpy.sqrt(R)
 			lengths.append(R)
 		# calculate total length and distance between new images
 		totallength=0.
@@ -668,13 +663,13 @@ class NEBPath(Reactionpath):
 			# calculate parameter offset in segment
 			x=(i*steplength)-pathlengths[segment]
 			# calculate new coordinates:
-			geoshape=shape(self.geos[segment].Geometry)
+			geoshape=numpy.shape(self.geos[segment].Geometry)
 			newcoordinates=self.geos[segment].Geometry.ravel()
 			print x
 			newcoordinates+=x*cubicparms[segment][2]
 			newcoordinates+=x*x*cubicparms[segment][1]
 			newcoordinates+=x*x*x*cubicparms[segment][0]
-			newcoordinates=reshape(newcoordinates,geoshape)
+			newcoordinates=numpy.reshape(newcoordinates,geoshape)
 			# store new coordinates and append to new geometres array
 			newgeoarray.append(Geometry.Geometry(self.geos[segment].Mode, self.geos[segment].Atomcount, self.geos[segment].AtomTypes, self.geos[segment].Origin, self.geos[segment].Lattice, newcoordinates, self.geos[segment].AtomLayers, self.geos[segment].LayerDict, self.geos[segment].AtomCharges, self.geos[segment].AtomSubTypes, self.geos[segment].LPops))
 			newgeoarray[-1].writexyz("dbg-%05d.xyz"%(i))
@@ -696,7 +691,7 @@ class NEBPath(Reactionpath):
 		@param: filename="cubic.nrg" output filename
 		"""
 		segsteps=int(steps/self.numimages()-1)+1
-		file=open(filename,"w")
+		CEfile=open(filename,"w")
 		xoffset=0 # this stores the displacement covered between earlier steps
 		totallength=0 # total length of the path
 		for i in cubicparms:
@@ -708,15 +703,15 @@ class NEBPath(Reactionpath):
 				y+= cubicparms[i][1]*x*x
 				y+= cubicparms[i][2]*x
 				y+= cubicparms[i][3]
-				print >> file,"%12.6f %12.6f" % ((x+xoffset)/totallength,y)
+				print >> CEfile,"%12.6f %12.6f" % ((x+xoffset)/totallength,y)
 			xoffset+=cubicparms[i][4]
-		print >> file,"\n"
+		print >> CEfile,"\n"
 		x=0
 		for i in range(self.numimages()):
-			print >> file,"%12.6f %12.6f" %(x/totallength,self.energies[i])
+			print >> CEfile,"%12.6f %12.6f" %(x/totallength,self.energies[i])
 			if i < self.numimages()-1:
 				x+=cubicparms[i][4]
-		file.close()
+		CEfile.close()
 
 
 
@@ -731,7 +726,7 @@ class NEBPath(Reactionpath):
 		energyfile=open("energies.dat","a")
 		#initialize relaxation
 		self.initveloverlet()
-		lastmaxE=0
+		#lastmaxE=0
 		#get range of mobile images
 		self.mobrng = range(1,self.numimages()-1)
 		#Initial calculations
@@ -782,7 +777,7 @@ class NEBPath(Reactionpath):
 ##		self.writefmgpath()
 		if self.verbosity>=constants.VBL_NORMAL:
 			print "Starting NEB iterations"
-		for j in range(self.maxit):
+		for j in range(self.maxit): #@UnusedVariable
 			if self.verbosity>=constants.VBL_NORMAL:
 				print "NEB Relaxation step: %5d" % (self.nstep)
 			# write debug output, if requested

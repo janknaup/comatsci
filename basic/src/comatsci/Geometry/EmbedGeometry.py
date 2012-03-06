@@ -8,16 +8,16 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from numpy import oldnumeric as num
+import numpy
 
 from AnalysisGeometry import AnalysisGeometry
-from comatsci import constants,  utils
+from comatsci import constants #,  utils
 
-import os
-import sys
-import copy
-import math
-import bisect
+#import os
+#import sys
+#import copy
+#import math
+#import bisect
 
 class qmmmGeometry(AnalysisGeometry):
 	"""Geometry object that supports diverse QM/MM linking schemes"""
@@ -174,7 +174,7 @@ class qmmmGeometry(AnalysisGeometry):
 		for (selfatom,otheratom) in linklist:
 			#first the direction from the linked atom to he linkatom
 			linkdir=othergeo.Geometry[otheratom]-self.Geometry[selfatom]
-			linkdir/=num.sqrt(num.dot(linkdir,linkdir))
+			linkdir/=numpy.sqrt(numpy.dot(linkdir,linkdir))
 			#calculate the linkatom position at equilibrium bond distance from linked atom
 			#Covalent radii table is in Angstrom!
 			linklen=(self.CORAD[self.AtomTypes[selfatom]]+self.CORAD[1])*distscale

@@ -8,13 +8,19 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import *
-from comatsci.Calculators.CalcError import *
+from comatsci.Calculators.Calculator import Calculator#,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
+from comatsci.Calculators.CalcError import CalcError
+import comatsci.constants as constants
+import comatsci.utils as utils
+import ConfigParser
+import tempfile
+import os
+#import sys
+import shutil
+import numpy
+#import time
+import re	
 
 class gaussiancalc(Calculator):
 	"""Class for Gaussian (03) calculations and result retrieval"""
@@ -164,7 +170,7 @@ class gaussiancalc(Calculator):
 						tempgrad.append(float(j))
 						parsedcomponents+=1
 					currentline+=1
-				self.gradients=reshape(array(tempgrad,Float),(-1,3))
+				self.gradients=numpy.reshape(numpy.array(tempgrad,dtype=float),(-1,3))
 				frcparsed=True
 			if frcparsed and nrgparsed:
 				break

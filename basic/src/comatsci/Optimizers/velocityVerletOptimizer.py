@@ -14,7 +14,8 @@
 #@license: Open Software License version 3.0
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
-from Optimizer import *
+from Optimizer import Optimizer,constants
+import numpy
 
 class velocityVerletOptimizer(Optimizer):
 	"""minimize function by following gradients dynamically, tracking velocites.
@@ -68,7 +69,7 @@ class velocityVerletOptimizer(Optimizer):
 		self._hardConvergence=options.get("hardConvergence",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
 			print "Velocity Verlet Optimizer: using hard convergence: %s." % (str(self._maxF))
-		if self._hardConvergence and (maxF<=0 or maxFRMS<=0):
+		if self._hardConvergence and (self._maxF<=0 or self._maxFRMS<=0):
 				if self._verbosity >= constants.VBL_SILENCE:
 					print "Velocity Verlet Optimizer: Warning: hard convergence with negative froce criterion. Will never converge due to force."
 		
@@ -180,7 +181,7 @@ class velocityVerletOptimizer(Optimizer):
 		@param F function to minimize, F can be vector for multi-objective optimization <b>ignored</b>
 		@param dF first derivative of function: dF/dX
 		@param d2F second derivative of function d2F/dX2 <b>ignored</b>"""
-		RMS=math.sqrt(num.add.reduce(dF*dF)/dF.shape[0])
+		RMS=numpy.sqrt(numpy.add.reduce(dF*dF)/dF.shape[0])
 		maxF=max((-min(dF),max(dF)))
 		if RMS < self._maxFRMS and maxF < self._maxF:
 			self._convreason="Hard convergence"
@@ -214,15 +215,15 @@ class velocityVerletOptimizer(Optimizer):
 		"""Adapt stepsize, using bounds, factors and thresholds defined upon 
 		optimizer initialization"""
 		#do nothing if no velocities are available or verlocity is zero
-		if self._velocities==None or num.add.reduce(num.equal(self._velocities,0.0))==self._velocities.shape[0]:
-			self._velocities=num.zeros(dF.shape,num.Float)
+		if self._velocities==None or numpy.add.reduce(numpy.equal(self._velocities,0.0))==self._velocities.shape[0]:
+			self._velocities=numpy.zeros(dF.shape,dtype=float)
 			if self._verbosity >= constants.VBL_DEBUG2:
 				print "Velocity Verlet Optimizer: No force-verlocity alignment info, skipping stepsize adaption"
 			return
 		#calculate derivative-velocity alignment
-		align=num.dot(self._velocities,-dF)
-		align/=math.sqrt(num.dot(self._velocities,self._velocities))
-		align/=math.sqrt(num.dot(dF,dF))
+		align=numpy.dot(self._velocities,-dF)
+		align/=numpy.sqrt(numpy.dot(self._velocities,self._velocities))
+		align/=numpy.sqrt(numpy.dot(dF,dF))
 		#grow, shrink or do nothing?
 		if align <= self._shrinkThreshold:
 			# only shrink, if stepsize is not below shrink minimum
@@ -252,12 +253,12 @@ class velocityVerletOptimizer(Optimizer):
 		@param dF derivative array to project velocities onto
 		"""
 		#first calculate force direction
-		forceDir=-dF/math.sqrt(num.dot(dF,dF))
-		align=num.dot(forceDir, self._velocities)
+		forceDir=-dF/numpy.sqrt(numpy.dot(dF,dF))
+		align=numpy.dot(forceDir, self._velocities)
 		if align >=0:
 			self._velocities=forceDir*align
 		else:
-			self._velocities=num.zeros(self._velocityShape,num.Float)
+			self._velocities=numpy.zeros(self._velocityShape,dtype=float)
 	
 	
 	
@@ -273,10 +274,10 @@ class velocityVerletOptimizer(Optimizer):
 		#this must happen here instead of in the initializer, since we do not know
 		#the vector size at initialization time
 		if self._velocities==None:
-			self._velocities=num.zeros(X.shape,num.Float)
+			self._velocities=numpy.zeros(X.shape,dtype=float)
 			self._velocityShape=self._velocities.shape
 		if self._masses==None:
-			self._masses=num.ones(X.shape,num.Float)
+			self._masses=numpy.ones(X.shape,dtype=float)
 		#check if we have forces
 		if dF==None:
 			raise "derivative required for Velocity Verlet optimization"

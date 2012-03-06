@@ -8,21 +8,13 @@
 # see file LICENSE for details.
 ##############################################################################
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
-
+import copy
 import os
-import sys
 import shutil
-import ConfigParser
 import time
-import tempfile
-import re
-from comatsci import Spline
+
 from comatsci import constants
-from comatsci import utils
+
 from comatsci.Calculators import CalcError
 
 # Calculator Status Flags
@@ -41,7 +33,6 @@ BOHR=constants.BOHR
 ANGSTROM=constants.ANGSTROM
 # This converts eV/Ang to H/Bohr
 EVPERANG=constants.EVPERANG
-
 
 class Calculator:
 
@@ -175,7 +166,7 @@ class Calculator:
 		@param steplabel: name of current calculation
 		@param charge: total charge to calculate with (default 0)
 		"""
-		error=None
+		#error=None
 		startcpu=time.clock()
 		startwall=time.time()
 		if self.status() != CALCSTATUS_READY:

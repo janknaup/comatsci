@@ -75,29 +75,21 @@ class potentialFunction:
 
 
 
-        def parseString(self,input):
+        def parseString(self,instring):
                 """ parse string containing function parameters
-                @parameter input: string containing function parameters """
+                @parameter inString: string containing function parameters """
 
                 raise  NotImplementedError()
 
 
-
-        def getString(self):
-                """ convert parameter object to string """
-
-                raise  NotImplementedError()
 
 
         def getCutoffs(self):
                 """ @return cutoffs as a tuple """
 
                 raise NotImplementedError()
-
-        def updateMutables(self):
-                """ @return list with all parameters allowed to change """
-                raise NotImplementedError()
-
+            
+            
         def updateMutables(self,mutated):
                 """ @parameter mutated: list with updated parameters to write back
                 into self._parameters

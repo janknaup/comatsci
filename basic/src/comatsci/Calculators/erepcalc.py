@@ -8,13 +8,20 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from comatsci.Calculators.Calculator import *
-from comatsci.Calculators.CalcError import *
+from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED,CALCSTATUS_ERROR,CALCSTATUS_DISABLED #@UnusedImport
 
-try:
-	from numpy.oldnumeric import *
-except ImportError:
-	from Numeric import *
+from comatsci.Calculators.CalcError import CalcError
+import comatsci.constants as constants
+#import comatsci.utils as utils
+#import ConfigParser
+#import tempfile
+#import os
+#import sys
+#import shutil
+import numpy
+#import time	
+import copy
+from comatsci import Spline
 
 class erepcalc(Calculator):
 	"""calculates total energy and force contribution from a given
@@ -54,7 +61,7 @@ class erepcalc(Calculator):
 		prior to calculation"""
 		if Erep!=None:
 			self._setEreps(Erep)
-		tempforces=zeros((Geometry.Atomcount,3),Float)
+		tempforces=numpy.zeros((Geometry.Atomcount,3),dtype=float)
 		tempenergy=0.0
 		#workaround for possible problems with small supercells
 		#if any lattice vector is smaller than the largest E_rep cutoff,
@@ -65,11 +72,11 @@ class erepcalc(Calculator):
 		if Geometry.Mode=="S":
 			cutoff=min(self.erep_outercut)
 			expand=[0,0,0]
-			lvls=[]
+#			lvls=[]
 			for i in range(3):
-				lvlen=sqrt(Geometry.Lattice[i][0]**2
+				lvlen=numpy.sqrt(Geometry.Lattice[i][0]**2
 					+Geometry.Lattice[i][1]**2+Geometry.Lattice[i][2]**2)
-				expand[i]=int(ceil(cutoff[0]/lvlen))
+				expand[i]=int(numpy.ceil(cutoff[0]/lvlen))
 			workgeo.periodicexpand(expand)
 		#END workaround
 		dm=workgeo.distancematrix()
@@ -86,7 +93,7 @@ class erepcalc(Calculator):
 				dist < self.erep_outercut[repindex]):
 					tempenergy+=self.erep[repindex].splint(dist)
 					forcedir=workgeo.Geometry[i]-workgeo.Geometry[j]
-					forcedir/=sqrt(dot(forcedir,forcedir))
+					forcedir/=numpy.sqrt(numpy.dot(forcedir,forcedir))
 					force= -self.erep[repindex].splder(dist)
 					tempforces[i%orig_atc]+=force*forcedir
 					tempforces[j%orig_atc]-=force*forcedir

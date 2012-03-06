@@ -184,7 +184,7 @@ static PyMethodDef SplExtMethods[] = {
 	{"spline", splext_secderivs, METH_VARARGS,
 		"return cubic spline second derivatives array for x and y float value grid arrays"},
 		{"splint", splext_splint, METH_VARARGS,
-		"return cspline interpoletion of the cspline specified by x,y,secder at point xint"},
+		"return cspline interpolation of the cspline specified by x,y,secder at point xint"},
 		{"splder", splext_splder, METH_VARARGS,
 		"return cspline derivative of the cspline specified by x,y,secder at point xint"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
