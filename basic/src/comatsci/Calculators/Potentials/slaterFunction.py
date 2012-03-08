@@ -9,10 +9,10 @@
 ##############################################################################
 
 
-#@author: Manuel Dömer <manuel.doemer@epfl.ch>
+#@author: Manuel Doemer <manuel.doemer@epfl.ch>
 #@organization: Ecole Polytechnique Federale de Lausanne
 #@license: Open Software License version 3.0
-#@copyright: Manuel Dömer	<manuel.doemer@epfl.ch>
+#@copyright: Manuel Doemer	<manuel.doemer@epfl.ch>
 
 from potentialFunction import potentialFunction
 from comatsci.Calculators.CalcError import *

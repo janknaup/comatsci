@@ -48,7 +48,7 @@ static PyObject
 	u[nvalues-1]=0.0;
 	//initialize return PyArrayObject
 	dims[0]=nvalues;
-	secder = (PyArrayObject *)PyArray_FromDims(1,dims,PyArray_DOUBLE);
+	secder = (PyArrayObject *)PyArray_SimpleNew(1,dims,PyArray_DOUBLE);
 	//first loop of tridiagonal algorithm
 	for (i=1;i<nvalues-1;i++)
 	{
