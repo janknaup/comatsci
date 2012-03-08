@@ -42,3 +42,11 @@ C-C-MIO.potplot.dat
 C-C-XYS.potplot.dat
 population-*.rep
 comastci-basic.txt
+checksummedLong.cdh
+packed.cdh
+packedpath.cdh
+repackLong.cdh
+test.cdh
+testpath2.cdh
+testpath.cdh
+testpath-savespace.cdh
