@@ -437,10 +437,10 @@ class NEBPath(Reactionpath):
 		self.writexyzpath(pathFileNamePrefix+".xyz")
 		self.writefmgpath(pathFileNamePrefix+".fmg")
 		if len(self.nebforces)==0:
-			print >> DebugInfoEnergiesFile, "%4d  %12.6f  %12.6f  %12.6f  %12.6f  %12.6f" % (
+			print >> DebugInfoEnergiesFile, "%4d  %24E  %24E  %24E  %24E  %24E" % (
 				index, max(self.energies), self.rmsforce(force=self.realforces), self.maxforce(force=self.realforces), 0, 0)
 		else:
-			print >> DebugInfoEnergiesFile, "%4d  %12.6f  %12.6f  %12.6f  %12.6f  %12.6f" % (
+			print >> DebugInfoEnergiesFile, "%4d  %24E  %24E  %24E  %24E  %24E" % (
 				index, max(self.energies), self.rmsforce(force=self.realforces), self.maxforce(force=self.realforces), self.rmsforce(force=self.nebforces), self.maxforce(force=self.nebforces))
 
 
@@ -703,12 +703,12 @@ class NEBPath(Reactionpath):
 				y+= cubicparms[i][1]*x*x
 				y+= cubicparms[i][2]*x
 				y+= cubicparms[i][3]
-				print >> CEfile,"%12.6f %12.6f" % ((x+xoffset)/totallength,y)
+				print >> CEfile,"%24E %24E" % ((x+xoffset)/totallength,y)
 			xoffset+=cubicparms[i][4]
 		print >> CEfile,"\n"
 		x=0
 		for i in range(self.numimages()):
-			print >> CEfile,"%12.6f %12.6f" %(x/totallength,self.energies[i])
+			print >> CEfile,"%24E %24E" %(x/totallength,self.energies[i])
 			if i < self.numimages()-1:
 				x+=cubicparms[i][4]
 		CEfile.close()
@@ -750,7 +750,7 @@ class NEBPath(Reactionpath):
 		if self.verbosity>=constants.VBL_NORMAL:
 			print "Initial barrier:%12.6f H" %barrier
 		for i in range(self.numimages()):
-			print >> energyfile,"%5d  %12.6f" % (i,self.energies[i])
+			print >> energyfile,"%5d  %24E" % (i,self.energies[i])
 		print >> energyfile,"\n"
 		energyfile.flush()
 		#Do some sanity checking on start- and endpoints and warn the user if necessary
@@ -786,7 +786,7 @@ class NEBPath(Reactionpath):
 			self.nebstep()
 			self.realforcesfunc(calculator,charge=self.charge)
 			for i in range(self.numimages()):
-				print >> energyfile,"%5d  %12.6f" % (i,self.energies[i])
+				print >> energyfile,"%5d  %24E" % (i,self.energies[i])
 			print >> energyfile,"\n"
 			energyfile.flush()
 			if self.convcheckfunc()!=0:

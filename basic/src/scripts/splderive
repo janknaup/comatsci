@@ -66,4 +66,4 @@ print >>sys.stderr,"interpolating %d values between %f and %f" % (int(sys.argv[2
 
 for i in range(int(sys.argv[2])):
 	x=xmin+i*step
-	print "%12.6f   %12.6f" % (x,spl.splder(x))
+	print "%24E   %24E" % (x,spl.splder(x))
