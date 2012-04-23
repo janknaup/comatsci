@@ -96,7 +96,7 @@ void MainWindow::fileread(fnam)
 {
 	#save filename for later, initialize geometry object and read file
 	self.filename=a0
-	self.geo=comatsci.Geometry.FullFeaturedGeometry()
+	self.geo=comatsci.Geometry.EmbedGeometry.qmmmGeometry()
 	self.geo.readfile(a0)
 	#prepare the statistics text display
 	statsheader="<H1>Statistics on %s</H1>" % (a0.rsplit("/",1)[1])

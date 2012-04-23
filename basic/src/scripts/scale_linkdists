@@ -1,0 +1,48 @@
+#!/usr/bin/python
+##############################################################################
+# scale_linkdists
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+import pypath
+import Numeric as num
+import sys
+
+infilename=str(sys.argv[1])
+outfilename=str(sys.argv[2])
+coreatoms=int(sys.argv[3])
+distscale=float(sys.argv[4])
+
+g=pypath.Geometry.Geometry()
+g.readfile(infilename)
+
+linkeds=g.bondlist()[coreatoms:]
+##print linkeds
+links=[]
+for i in range(len(linkeds)):
+  for j in linkeds[i]:
+    links.append((i+coreatoms,j))
+
+bdirs=num.zeros((len(links),3),num.Float)
+blens=num.zeros((len(links),),num.Float)
+
+reallinks=[]
+for i in range(len(links)):
+  if links[i][1]<coreatoms:
+    reallinks.append(links[i])
+
+for i in range(len(reallinks)):
+##  print reallinks[i]
+  bdirs[i]=g.Geometry[reallinks[i][1]]-g.Geometry[reallinks[i][0]]
+  blens[i]=num.sqrt(num.dot(bdirs[i],bdirs[i]))
+  bdirs[i]/=blens[i]
+
+for i in range(len(reallinks)):
+  g.Geometry[i+coreatoms]+=bdirs[i]*(blens[i]*(1-distscale))
+
+g.writegen(outfilename)

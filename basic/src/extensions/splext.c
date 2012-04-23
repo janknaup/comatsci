@@ -48,7 +48,7 @@ static PyObject
 	u[nvalues-1]=0.0;
 	//initialize return PyArrayObject
 	dims[0]=nvalues;
-	secder = (PyArrayObject *)PyArray_FromDims(1,dims,PyArray_DOUBLE);
+	secder = (PyArrayObject *)PyArray_SimpleNew(1,dims,PyArray_DOUBLE);
 	//first loop of tridiagonal algorithm
 	for (i=1;i<nvalues-1;i++)
 	{
@@ -184,7 +184,7 @@ static PyMethodDef SplExtMethods[] = {
 	{"spline", splext_secderivs, METH_VARARGS,
 		"return cubic spline second derivatives array for x and y float value grid arrays"},
 		{"splint", splext_splint, METH_VARARGS,
-		"return cspline interpoletion of the cspline specified by x,y,secder at point xint"},
+		"return cspline interpolation of the cspline specified by x,y,secder at point xint"},
 		{"splder", splext_splder, METH_VARARGS,
 		"return cspline derivative of the cspline specified by x,y,secder at point xint"},
     {NULL, NULL, 0, NULL}        /* Sentinel */

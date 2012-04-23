@@ -5,29 +5,37 @@ import os
 
 startpath=os.getcwd()
 
-VERSIONTAG="1.1.0-rc1"
+VERSIONTAG="1.2.0-pre001"
 AUTHOR="Jan M. Knaup"
-AU_EMAIL="Knaup@bccms.uni-bremen.de"
+AU_EMAIL="janknaup@gmail.com"
 URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 
 # define a list of script aliases, these will be installed either by copying
 # the source script or by symlinking, if symlinks are available on the target
 # platform, format is a dictionary with script names as keys containing lists of
 # alias name strings
-aliases={"geoconv":["togen","toxyz","tofmg","tofdf","topdb","toxyzq","totm"]}
+aliases={"geoconv":["togen","toxyz","tofmg","tofdf","topdb","toxyzq","totm","toaims"]}
 
 distrib=setup (	name="comatsci-base",
 		version=VERSIONTAG,
-		packages=['comatsci', 'comatsci.Geometry'],
+		packages=['comatsci', 'comatsci.Geometry',"comatsci.Path","comatsci.Optimizers",
+			  "comatsci.Schedulers","comatsci.Calculators","comatsci.Calculators.Potentials"],
 		package_dir={'comatsci':'src/comatsci',},
 		ext_package='comatsci',
-		ext_modules=[Extension('Geometry.geoext',['src/extensions/geoext.c']),
+		ext_modules=[Extension('Geometry.geoext',['src/extensions/geoext.c'],
+							extra_compile_args=['-fopenmp','-funroll-loops','-O2'],extra_link_args=['-lgomp']),
 			Extension('splext',['src/extensions/splext.c'])],
 		scripts=['src/scripts/geoconv',
                          'src/scripts/coordination_check','src/scripts/splresample',
-                         'src/scripts/splderive','src/scripts/dumpbonds'],
-		data_files=[("share/doc/comatsci",["doc/comatsci-basic.pdf"])],
-		description="Basic Computational Materials Science Toolkit",
+                         'src/scripts/splderive','src/scripts/dumpbonds','src/scripts/fitrep',
+			 "src/scripts/scale_linkdists","src/scripts/chargeanalys-2D",
+			 "src/scripts/dosanalys-2D","src/scripts/dosanalys-3D",
+			 'src/scripts/pastafarian','src/scripts/pathprepare',
+			'src/scripts/pathprops','src/scripts/multiaverage',
+			'src/scripts/dosplot'],
+		data_files=[("share/doc/comatsci",["doc/comatsci.pdf",
+						   "doc/run.sh.example"])],
+		description="Computational Materials Science Toolkit",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
 		url=URL, 
@@ -42,6 +50,8 @@ distrib=setup (	name="comatsci-base",
 			'Programming Language :: Python',
 			'Programming Language :: Python :: 2.4',
 			'Programming Language :: Python :: 2.5',
+			'Programming Language :: Python :: 2.6',
+			'Programming Language :: Python :: 2.7',
 			'Topic :: Scientific/Enginieering',
 			'Topic :: Scientific/Enginieering :: Physics',
 			'Topic :: Scientific/Enginieering :: Chemistry',

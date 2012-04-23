@@ -1,8 +1,8 @@
 #!/usr/bin/python
 ##############################################################################
 # splderive
-# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
 ##############################################################################
 # Licensed under the Non-Profit Open Software License version 3.0
@@ -66,4 +66,4 @@ print >>sys.stderr,"interpolating %d values between %f and %f" % (int(sys.argv[2
 
 for i in range(int(sys.argv[2])):
 	x=xmin+i*step
-	print "%12.6f   %12.6f" % (x,spl.splder(x))
+	print "%24E   %24E" % (x,spl.splder(x))

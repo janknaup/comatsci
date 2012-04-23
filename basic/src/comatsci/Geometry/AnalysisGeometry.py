@@ -2,28 +2,24 @@
 
 ##############################################################################
 # AnalysisGeometry.py
-# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
 ##############################################################################
 # Licensed under the Non-Profit Open Software License version 3.0
 # see file LICENSE for details.
 ##############################################################################
 
-from Geometry import *
-from comatsci import constants,  utils
-
-try:
-	from numpy.oldnumeric import linalg
-except ImportError:
-	from numpy.oldnumeric import linalg
+from Geometry import Geometry
+from comatsci import constants #,  utils
 
 import numpy
+from numpy import linalg
 
-import os
+#import os
 import sys
 import copy
-import math
+#import math
 import bisect
 
 
@@ -61,7 +57,7 @@ class AnalysisGeometry(Geometry):
 
 	def elem_avg_coordinations(self):
 		"""return dictionary of average corrdination numbers per element"""
-		symlist, symdict = self.getatomsymlistdict()
+		symlist = self.getatomsymlistdict()[0]
 		elemc={}
 		elemc=elemc.fromkeys(symlist,0.0)
 		atc=self.atomcoordinations()
@@ -87,7 +83,7 @@ class AnalysisGeometry(Geometry):
 
 	def elem_elem_bondcounts(self):
 		"""return 2D-dictionary of element-element bond counts"""
-		symlist, symdict = self.getatomsymlistdict()
+		symlist = self.getatomsymlistdict()[0]
 		dummy1={}
 		elelc=dummy1.fromkeys(symlist)
 		dummy2={}
@@ -113,7 +109,7 @@ class AnalysisGeometry(Geometry):
 
 	def elem_coordination_counts(self):
 		"""return dictionary of dictionaries cotaining counts of coordination numbers by element"""
-		symlist, symdict = self.getatomsymlistdict()
+		symlist = self.getatomsymlistdict()[0]
 		dummy1={}
 		el_coord_c=dummy1.fromkeys(symlist)
 		for i in el_coord_c.keys():
@@ -232,11 +228,11 @@ class AnalysisGeometry(Geometry):
 		@param bondtolerace: factor applied to canonical bond lengths when counting neighbors as bonded
 		@return: per atom array of coordination difference from standard"""
 		# first get the atom bond counts and construct an array of standard valence counts
-		bondcounts=array(self.atom_bondcounts(bondtolerance))
-		valences=zeros(self.Atomcount, Float)
+		bondcounts=numpy.array(self.atom_bondcounts(bondtolerance))
+		valences=numpy.zeros(self.Atomcount, dtype=float)
 		for i in range(len(valences)):
 			valences[i]=self.VALENCES[self.AtomTypes[i]]
-		# noe return the difference between acutal bond counts and valences
+		# now return the difference between actual bond counts and valences
 		return bondcounts-valences
 
 	atom_coordination_differences=property(get_atom_coordination_differences, doc="per atom array of coordination difference from standard")
@@ -291,9 +287,9 @@ class AnalysisGeometry(Geometry):
 		@param stepsfunction: callback function to report the total number of progress steps to. For progress display purposes (default None)
 		@param progressfunction: callback function to report actual progress to. For progress display purposes. (default None)		
 """
-		counts=zeros((len(bins)),Float)
+		counts=numpy.zeros((len(bins)),dtype=float)
 		outside=0
-		bincount=len(bins)
+		#bincount=len(bins)
 		if stepsfunction!=None:
 			stepsfunction(len(data))
 		progress=0
@@ -319,7 +315,7 @@ class AnalysisGeometry(Geometry):
 
 	def elem_avg_charges(self):
 		"""return a dictionary of average charges for all elements"""
-		symlist, symdict = self.getatomsymlistdict()
+		symlist = self.getatomsymlistdict()[0]
 		elemchr={}
 		elemchr=elemchr.fromkeys(symlist,0.0)
 		for i in range(self.Atomcount):
@@ -342,7 +338,7 @@ class AnalysisGeometry(Geometry):
 		@param histprogressfunction: callback function to report actual histogram progress to. For two-level progress display purposes. (default None)		
 """
 		#first generate an element dictionary of atomic charge lists
-		symlist, symdict = self.getatomsymlistdict()
+		symlist, symdict = self.getatomsymlistdict() #@UnusedVariable
 		#this is necessary to get independent empty lists in the dictionary
 		#possible python bug?
 		elemcl={}.fromkeys(symlist,None)
@@ -364,7 +360,7 @@ class AnalysisGeometry(Geometry):
 			binmin=min(elemcl[i])-1.0e-2
 			binmax=max(elemcl[i])+1.0e-2
 			binstep=(binmax-binmin)/float(bincount)
-			bins=arange(binmin,binmax+binstep,binstep)
+			bins=numpy.arange(binmin,binmax+binstep,binstep)
 			elemcl[i]=self.histogram(elemcl[i],bins,histstepsfunction,histprogressfunction)
 			progress+=1
 			if progressfunction!=None:
@@ -430,7 +426,7 @@ class AnalysisGeometry(Geometry):
 		# faster
 		#****************************************************************
 		# calculate number of bins from bin width and max range
-		bincount=int(ceil((max(bllist)+binwidth)/binwidth))
+		bincount=int(numpy.ceil((max(bllist)+binwidth)/binwidth))
 		# pseudo progress function calls before and after histogram binning to
 		# stay backwards compatible
 		if histstepsfunction!=None:
@@ -439,20 +435,7 @@ class AnalysisGeometry(Geometry):
 		(counts,bins)=numpy.histogram(bllist,bincount,new=True,normed=False)
 		if histprogressfunction!=None:
 			histprogressfunction(bincount)
-#-------------------------------------------------------------------------------
-# TODO: rmove old code snippet
-#		#get the range of the rdf
-#		rmax=max(bllist)
-#		#set up the distance bins an get the atom-atom distance histogram
-#		bins=arange(0, rmax+binwidth,binwidth,Float)
-#		rdhist=array(self.histogram(bllist,bins,histstepsfunction,histprogressfunction)[1],Float)
-#		#we will output a 2D array of r,rdf, first put in the distances
-#		rdf=[bins]
-#		#now normalize for volume and correct for double counting
-###		print rdhist
-#		#bins are progress, may slow things down a little - style over substance
-#-------------------------------------------------------------------------------
-		rdf=zeros((2,bincount-1),Float)
+		rdf=numpy.zeros((2,bincount-1),dtype=float)
 		if stepsfunction!=None:
 			stepsfunction(bincount-2)
 		#for proper rdf normalization calculate the total density
@@ -516,7 +499,7 @@ class AnalysisGeometry(Geometry):
 		if self.Mode=="C":
 			vol=float(max(self.distancematrix().ravel()))**3*constants.PI*(4.0/3.0)
 		else:  #otherwise, calculate the volume of the supercell as (a x b) dot c
-			vol=linalg.det(array(self.Lattice))
+			vol=linalg.det(numpy.array(self.Lattice))
 		# finished, return volume
 		return vol
 
@@ -526,10 +509,10 @@ class AnalysisGeometry(Geometry):
 	def getDipoleMoment(self):
 		"""return the total dipole moment of self"""
 		# build arrays of coordinates and total charges
-		coordinates=array(self.Geometry, Float)
-		charges=array(self.AtomCharges, Float)
+		coordinates=numpy.array(self.Geometry, dtype=float)
+		charges=numpy.array(self.AtomCharges, dtype=float)
 		# init return vector
-		dipole=array((0., 0., 0.,), Float)
+		dipole=numpy.array((0., 0., 0.,), dtype=float)
 		# iterate through arrays (why doesn"t this work on BLAS level?
 		for i in range(len(coordinates)):
 			dipole+=coordinates[i]*charges[i]
@@ -572,10 +555,9 @@ class AnalysisGeometry(Geometry):
 				# put forward and reverse element combinations into reverse dictionary, since both sortings will appear during construction of equations
 				reverseElementCombinations[(symlist[i],symlist[j])]=len(elementCombinations)-1
 ##				reverseElementCombinations[(symlist[j],symlist[i])]=len(elementCombinations)-1
-		numElementCombinations=len(elementCombinations)
 		# *** construct Q_i equations ***
 		# q-factors are sorted like elementCombinations, lines are the equations obtained from each atom
-		qMatrix=zeros((self.Atomcount,len(elementCombinations)),Float)
+		qMatrix=numpy.zeros((self.Atomcount,len(elementCombinations)),dtype=float)
 		bondList=self.bondlist()
 		for i in range(self.Atomcount):
 			iType=self.AtomTypes[i]
@@ -587,15 +569,15 @@ class AnalysisGeometry(Geometry):
 					qMatrix[i][reverseElementCombinations[(jType,iType)]]-=1.
 		# *** get least squares solution of equation system ***
 		import numpy.oldnumeric.linear_algebra as LinearAlgebra
-		charges=array(self.AtomCharges,Float)
-		(q_ab,S,rankA,A)=LinearAlgebra.linear_least_squares(qMatrix,charges)
+		charges=numpy.array(self.AtomCharges,dtype=float)
+		(q_ab,S,rankA,A)=LinearAlgebra.linear_least_squares(qMatrix,charges) #@UnusedVariable
 ##		print "q_ab : ",q_ab
 ##		print "rms  : ",rms
 ##		print "rankA: ",rankA
 ##		print "A    : ",A
 		# calculate sums of squared residuals by dot product formula
-		S=dot(charges,charges)
-		S-=dot(dot(qMatrix,transpose(q_ab)),charges)
+		S=numpy.dot(charges,charges)
+		S-=numpy.dot(numpy.dot(qMatrix,numpy.transpose(q_ab)),charges)
 		# calculate variance (sigma**2)
 		variance=S/(float(len(qMatrix))-float(len(q_ab)))
 		# *** construct output dictionary of charge transfer coefficients and return ***
@@ -722,9 +704,9 @@ class AnalysisGeometry(Geometry):
 				# calculate bond length from Geometry (avoid distance matrix)
 				# account for bond across periodic boundaries
 				if self.Mode=="S":
-						length=((sqrt(dot(self.Lattice[0],self.Lattice[0]))
-								+sqrt(dot(self.Lattice[1],self.Lattice[1]))
-								+sqrt(dot(self.Lattice[2],self.Lattice[2]))))
+						length=((numpy.sqrt(numpy.dot(self.Lattice[0],self.Lattice[0]))
+								+numpy.sqrt(numpy.dot(self.Lattice[1],self.Lattice[1]))
+								+numpy.sqrt(numpy.dot(self.Lattice[2],self.Lattice[2]))))
 						for u in [-1,0,1]:
 								for v in [-1,0,1]:
 										for w in [-1,0,1]:
@@ -874,7 +856,7 @@ class AnalysisGeometry(Geometry):
 			thisElement=self.AtomTypes[i]
 			expectedNeighbors=[]
 			for j in canonicalNeighbors[thisElement].keys():
-				for k in range(canonicalNeighbors[thisElement][j]):
+				for k in range(canonicalNeighbors[thisElement][j]): #@UnusedVariable
 					expectedNeighbors.append(j)
 			# map distance vector for self into a dictionary by distance
 			distanceMap=[]
@@ -936,7 +918,7 @@ class AnalysisGeometry(Geometry):
 			if canonicalValence==None:
 				if ignoreUnknownCanonical:
 					print >> sys.stderr, "WARNING: no canonical valence count for element %s. Ignoring atom Number %d." %(self.PTE[self.AtomTypes[i]],i+1)
-					canonicalValences=-1
+					canonicalValence=-1
 				else:
 					print >> sys.stderr, "ERROR: no canonical valence count for element %s (atom %d). Aborting."%(self.PTE[self.AtomTypes[i]],i+1)
 					raise ValueError("no canonical valence found for atom")
@@ -976,7 +958,7 @@ class AnalysisGeometry(Geometry):
 		# initialize Geometry object to return
 		returnGeo=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
 		# initialize a boolean mask to mark atoms already assigned to a vacancy
-		distMatrix=self.distancematrix()
+		#distMatrix=self.distancematrix()
 		blist=self.bondlist(tolerance=2.05*tolerance)
 		if self.Mode=="S":
 			imagecoordinates=list(self._imagecoordlist)
@@ -996,7 +978,7 @@ class AnalysisGeometry(Geometry):
 						vacancy.append(j)
 				vacancies.append(vacancy)			# this vacancy is finished, store it
 ##		print vacancies
-		latticeArray=array(self.Lattice)
+		latticeArray=numpy.array(self.Lattice)
 		# for each vacancy, calculate the centroid
 		for i in range(len(vacancies)):
 			# warn about vacancies consisting of exactly two atoms, they may be higher-order bonds
@@ -1007,16 +989,16 @@ class AnalysisGeometry(Geometry):
 #				print >> sys.stderr, "WARNING: Isolated undercoordinated atom found. Check Vacancy radius parameter."
 #			else:
 				# calculate centroid of vacancy:
-				centroid=zeros(3,Float)
+				centroid=numpy.zeros(3,dtype=float)
 				# treat cluster and supercell geometries differently
 				if self.Mode=="S":
 					# in the supercell, use the vacancy atom's bond partners at their appropriate image coordinates
 					coordCount=0
 					for atom in vacancies[i]:
 						for partner in range(len(blist[atom])):
-							coordArray=array(imagecoordinates[atom][partner])
+							coordArray=numpy.array(imagecoordinates[atom][partner])
 							addLattice=(latticeArray.transpose()*coordArray)
-							addvector=add.reduce(addLattice)
+							addvector=numpy.add.reduce(addLattice)
 							coordCount+=1
 							for ii in range(3):
 								centroid[ii]+=self.Geometry[blist[atom][partner]][ii]
@@ -1063,10 +1045,10 @@ class AnalysisGeometry(Geometry):
 			# get element subgeometries of reference and self
 			subGeo=self.elementsubgeometry(element)
 			subGeo.foldToCell()
-			atomsOfElement=int(subGeo.Atomcount)
+			atomsOfElement=int(subGeo.Atomcount) #@UnusedVariable
 			subRef=reference.elementsubgeometry(element)
 			subRef.foldToCell()
-			refAtomsOfElement=subRef.Atomcount
+			refAtomsOfElement=subRef.Atomcount #@UnusedVariable
 			# get a list of all subgeometry atoms within 1 covalent radius of a reference atom
 			if style=="bondgroup":
 				(assignedSubAtoms,assignedRefAtoms)=subGeo._refBondGroup(reference=subRef,tolerance=tolerance,**kwargs)
@@ -1126,39 +1108,47 @@ class AnalysisGeometry(Geometry):
 		compare slef to reference geometry, map each atom of self to the closest atom of same element in reference.
 		return all unassigned reference atoms as vacancies
 		@type reference: Geometry instance
-		@param reference: reference Geometry
+		@param reference: reference Geometry 
 		"""
 		# calculate matrix of all self<->reference atom distances
 		bothGeo=copy.deepcopy(self)
 		bothGeo.foldToCell()
 		bothGeo.appendgeometryflat(reference)
 		dmat=bothGeo.distancematrix()
-		dmshape=dmat.shape
-		interdistances=array(dmat[0:self.Atomcount][:,self.Atomcount:])
+		interdistances=numpy.ma.masked_invalid(dmat[0:self.Atomcount][:,self.Atomcount:])
 		# free up some memory
 		del bothGeo
 		del dmat
-		# make a sortable list of all unique interatom distances and the involved atom indices
-		distances=[]
-		for i in range(interdistances.shape[0]):
-			for j in range(i,interdistances.shape[1]):
-				distances.append((interdistances[i][j],i,j))
-		distances.sort(key=lambda x: x[0])
-		# stupid loopidyloop solution but I can't think of anything better right now
-		# start at beginning of sorted distance list, eliminate all forther mentions of the involved atoms
-		# in parallel, pop the respective atoms from subGeo and subRef
-		# anything left in subRef should be vacancies, anything left in subGeo should be interstitial
-		# (assuming that reference is the perfect structure)
-		assignedSubAtoms=[]
-		assignedRefAtoms=[]
-		while (len(distances)>0):
-			subAtom=distances[0][1]
-			refAtom=distances[0][2]
-			assignedSubAtoms.append(subAtom)
-			assignedRefAtoms.append(refAtom)
-			removes=[]
-			for r in distances:
-				if r[1]==subAtom or r[2]==refAtom:
-					removes.append(r)
-			for r in removes: distances.remove(r)
+		
+		# commented oud old and far too slow loopidyloop assignment
+		uniqueMapped = False
+		while (not uniqueMapped):
+			uniqueMapped = True
+			assignedSubAtoms=[]
+			assignedRefAtoms=[]
+			refClosest=numpy.ma.argmin(interdistances, 0, fill_value=1E20)
+			selfClosest=numpy.ma.argmin(interdistances, 1, fill_value=1E20)
+			if self.Atomcount >= reference.Atomcount:
+				for i in range(reference.Atomcount):
+					if selfClosest[refClosest[i]]!=i:
+						uniqueMapped = False
+						interdistances[refClosest[i]][selfClosest[refClosest[i]]]=numpy.ma.masked
+#						print "msk ",selfClosest[refClosest[i]],"  ",refClosest[i]
+					else:
+						assignedSubAtoms.append(refClosest[i])
+						assignedRefAtoms.append(i)
+			else:		
+				for i in range(self.Atomcount):
+					if refClosest[selfClosest[i]]!=i:
+						uniqueMapped = False
+						interdistances[refClosest[selfClosest[i]]][selfClosest[i]]=numpy.ma.masked
+#						print "msk ",selfClosest[refClosest[i]],"  ",refClosest[i]
+					else:
+						assignedSubAtoms.append(i)
+						assignedRefAtoms.append(selfClosest[i])
+			
+			if (len(assignedRefAtoms)==min(self.Atomcount,reference.Atomcount)):
+				uniqueMapped=True
+
+		# finished, return
 		return (assignedSubAtoms,assignedRefAtoms)

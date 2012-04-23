@@ -1,0 +1,6167 @@
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{a4wide}
+\end_preamble
+\use_default_options false
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans helvet
+\font_typewriter default
+\font_default_family sfdefault
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine natbib_numerical
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+comatsci
+\begin_inset Newline newline
+\end_inset
+
+
+\series bold
+com
+\series default
+putational 
+\series bold
+mat
+\series default
+erials 
+\series bold
+sci
+\series default
+ence utility package
+\begin_inset Newline newline
+\end_inset
+
+Version 1.2.0
+\end_layout
+
+\begin_layout Author
+Jan M.
+ Knaup, Bremen Center for Compuational Materials Science
+\begin_inset Newline newline
+\end_inset
+
+Jan.Knaup@bccms.uni-bremen.de
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Subsection
+Requirements
+\end_layout
+
+\begin_layout Standard
+comatsci requires the following software/libraries to be present on a system:
+\end_layout
+
+\begin_layout Itemize
+Python version 
+\begin_inset Formula $\geq$
+\end_inset
+
+ 2.4 (not comatible with python 3)
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+POSIX compatible build environment and header files to compile python c-extensio
+ns
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+numpy
+\end_layout
+
+\begin_layout Itemize
+ElementTree (included in Python version 
+\begin_inset Formula $\geq$
+\end_inset
+
+ 2.5)
+\end_layout
+
+\begin_layout Standard
+Note that windows is not an officially supported platform for comatsci.
+\end_layout
+
+\begin_layout Subsection
+Installation
+\end_layout
+
+\begin_layout Standard
+comatsci should be installed via the supplied setup script.
+ Execute 
+\family typewriter
+python setup.py install
+\family default
+ as root, to install comatsci system-wide.
+ Any other installation tree can be chosen with the 
+\family typewriter
+--prefix
+\family default
+ option to install, e.g.
+ 
+\family typewriter
+--prefix=~
+\family default
+ to install into 
+\family typewriter
+$HOME/bin
+\family default
+ and 
+\family typewriter
+$HOME/lib
+\family default
+.
+ The setup script also offers options to generate installers for different
+ operating systems, depending on the platform and installed python version,
+ please refer to the integrated documentation available by calling 
+\family typewriter
+python setup.py --help
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Marginal
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+Attention!
+\end_layout
+
+\end_inset
+
+On some x86_64 platforms, libraries are separated into 
+\family typewriter
+lib
+\family default
+ and 
+\family typewriter
+lib64
+\family default
+ directories.
+ In such a case, it is important to make sure, that pure python libraries
+ are installed into the same 
+\family typewriter
+lib*
+\family default
+ tree as platform dependent packages.
+ Otherwise, extensions to comatsci-basic may not be found by the python
+ interpreter.
+ Cf.
+ the 
+\family typewriter
+--install-platlib
+\family default
+, 
+\family typewriter
+--install-purelib
+\family default
+ and 
+\family typewriter
+--install-lib
+\family default
+ options to setup.py.
+\end_layout
+
+\begin_layout Subsection
+License
+\end_layout
+
+\begin_layout Standard
+comatsci is provided without any warranty as open software under the terms
+ of the Non-commercial Open Software License v3.0.
+ Please refer to the attached LICENSE file or appendix
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:NP-OSL"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Simulation Programs
+\end_layout
+
+\begin_layout Subsection
+Pastafarian
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+Path Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
+\emph default
+ searches for a chemical transition path using the 
+\emph on
+Nudged Elastic Band
+\emph default
+ method with various extensions.
+\end_layout
+
+\begin_layout Paragraph
+Command Line Options
+\end_layout
+
+\begin_layout Standard
+The general command line for pypath is as follows:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+pastafarian [options] <start geometry> [<intermediate geometries>] <end
+ geometry>
+\end_layout
+
+\begin_layout Standard
+or
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+pastafarian [options] <path file>
+\end_layout
+
+\begin_layout Standard
+where 
+\family typewriter
+<path file>
+\family default
+ is a reaction path or NEB checkpoint in .fmg format.
+\end_layout
+
+\begin_layout Standard
+The possible command line options are:
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show this help message and exit 
+\end_layout
+
+\begin_layout Description
+-m
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--maxit=N Maximum number of NEB iterations for this run, default=100 
+\end_layout
+
+\begin_layout Description
+-r
+\begin_inset space ~
+\end_inset
+
+RMS,
+\begin_inset space ~
+\end_inset
+
+--rmstol=RMS stop iterating if path RMS force in a.u.
+ falls below RMS, default=1e-05 
+\end_layout
+
+\begin_layout Description
+-f
+\begin_inset space ~
+\end_inset
+
+FMAX,
+\begin_inset space ~
+\end_inset
+
+--forcetol=FMAX stop iterating if path maximum of atomic forces in a.u.
+ falls below FMAX, default=0.0001 
+\end_layout
+
+\begin_layout Description
+-c
+\begin_inset space ~
+\end_inset
+
+CALC,
+\begin_inset space ~
+\end_inset
+
+--calculator=CALC use CALC to calculate energies and forces, default=dftb
+ 
+\end_layout
+
+\begin_layout Description
+-x
+\begin_inset space ~
+\end_inset
+
+LIST,
+\begin_inset space ~
+\end_inset
+
+--fixedatoms=LIST Keep atoms in comma delimeted LIST fixed, default=None
+\end_layout
+
+\begin_layout Description
+-s
+\begin_inset space ~
+\end_inset
+
+D_T,
+\begin_inset space ~
+\end_inset
+
+--stepwidth=D_T Use D_T as stepwidth for velocity Verlet relaxation, default=0.1
+ 
+\end_layout
+
+\begin_layout Description
+--charge=Q Set the system total charge to Q.
+ Given in units of electrons, negative charge means electron excess, default=0
+\end_layout
+
+\begin_layout Description
+-v Increase verbosity level, default=1
+\end_layout
+
+\begin_layout Description
+-q,
+\begin_inset space ~
+\end_inset
+
+--quiet Limit output to fatal errors and critical warnings, no status output
+ at all
+\end_layout
+
+\begin_layout Description
+--silence Limit output to fatal errors only.
+ Not even warnings.
+\end_layout
+
+\begin_layout Description
+-d
+\begin_inset space ~
+\end_inset
+
+SCHEDULER,
+\begin_inset space ~
+\end_inset
+
+--scheduler=SCHEDULER Choose scheduler to manage execution of single calculation
+s.
+ Choices are 's': serial, 'p': MPI parallel.
+ default=s
+\end_layout
+
+\begin_layout Description
+-t
+\begin_inset space ~
+\end_inset
+
+MAXTHREADS,
+\begin_inset space ~
+\end_inset
+
+--maxworkthreads=MAXTHREADS Set maximum number of concurrent parallel threads
+ in thread scheduling mode.
+ 0:= no limit.
+ default=0 (currently unused)
+\end_layout
+
+\begin_layout Description
+--pathdebug Write individual .xyz and .fmg path files for each NEB step and
+ write some energy and forces data to pathDebug.nrg for data debugging purposes
+\end_layout
+
+\begin_layout Standard
+Default values for all command line options are overridden by the config
+ file, 
+\family typewriter
+pastafarian --help
+\family default
+ shows the default values actually used.
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset Marginal
+status open
+
+\begin_layout Plain Layout
+Experimental
+\end_layout
+
+\end_inset
+
+
+\family default
+MPI scheduling requires an installed pypar 1.9.2 or higher package and execution
+ of the pastafarian script in an mpi environment, i.e.
+ via mpirun or similar.
+ 
+\emph on
+Caveat: currently the detection of MPI master or slave status is performed
+ by evaluation of the LAMRANK or MPIRANK environment variables.
+ This may break, depending on your installation!
+\end_layout
+
+\begin_layout Paragraph
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:pasta-Config-File"
+
+\end_inset
+
+Config File
+\end_layout
+
+\begin_layout Standard
+The PaSTaFARIAn config file has the name 
+\series bold
+pypath.ini
+\series default
+ and is in the form of a windows .ini type file.
+ (Extensions in Windowx XP .reg files are not supported.) The config file
+ contains one section labeled 
+\series bold
+[comatsci]
+\series default
+, which contains all configuration variables for the path search itself
+ and possibly several sections with configuration variables for the different
+ calculators.
+ The calculator configuration sections are described int he Calculators
+ section of this document.
+\end_layout
+
+\begin_layout Standard
+All settings from the 
+\series bold
+[comatsci]
+\series default
+ section of the config file are overridden by the respective command line
+ options, if such are given.
+\end_layout
+
+\begin_layout Standard
+The Configuration variables are:
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+maxit=100
+\family default
+ maximum number of NEB iterations
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+rmstol=2e-4
+\family default
+ rms force convergence criterion
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+forcetol=2e-3
+\family default
+ max force convergence criterion
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+calculator=dftb
+\family default
+ calculator to use, currently dftb, noodle (=dftb+), gaussian and siesta
+ are supported
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+stepwidth=0.25
+\family default
+ velocity verlet stepwidth
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+fixedatoms=[]
+\family default
+ put a comma separated list of fixed atoms here 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+charge=0
+\family default
+ set the system total charge to Q.
+ Given in units of electrons, negative charge means electron excess.
+\end_layout
+
+\begin_layout Standard
+Additionally, the section 
+\series bold
+[NEB]
+\series default
+ stores NEB algorithm-specific settings
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+fmode=s
+\family default
+ force calculation mode:
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+s standard NEB forces
+\end_layout
+
+\begin_layout Description
+c climbing image NEB forces
+\end_layout
+
+\end_deeper
+\begin_layout Description
+
+\family typewriter
+relmode=v
+\family default
+ relaxation mode:
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+v projected velocity verlet
+\end_layout
+
+\begin_layout Description
+s (constant displacement) steepest descent
+\end_layout
+
+\end_deeper
+\begin_layout Description
+
+\family typewriter
+tangmode=s
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+s use standard NEB tangents
+\end_layout
+
+\begin_layout Description
+w use weighted tangents after J.
+ Chem.
+ Phys.
+ 
+\series bold
+113
+\series default
+, 9978 (2000).
+ Can lead to NEB force discontinuities between iterations if used on paths
+ far from the PES valley.
+ 
+\emph on
+Attention:
+\emph default
+ Overshoot detection is disabled when using weighted tangents.
+\end_layout
+
+\begin_layout Description
+p use spline tangents from a parametric cubic spline representation of the
+ path.
+ 
+\series bold
+Caution
+\series default
+ highly experimental.
+\end_layout
+
+\end_deeper
+\begin_layout Paragraph
+Output files
+\end_layout
+
+\begin_layout Standard
+PaSTaFARIAn writes most of its output to stdout.
+ Additionally, the following files are written:
+\end_layout
+
+\begin_layout Description
+energies.dat: This file contains the reaction path energy profile for each
+ NEB cycle that was performed in a format suitable for gnuplot.
+ Column one contains the image sequence number, col.
+\begin_inset space ~
+\end_inset
+
+2 contains the total energy in H.
+ NEB cycles are separated by blank lines.
+\end_layout
+
+\begin_layout Description
+path.xyz: This file contains the last reaction path geometries calculated
+ as a multi-frame
+\begin_inset space ~
+\end_inset
+
+.xyz file.
+ This is mainly intended to be able to conveniently visualize the path using
+ standard molecular visualization software.
+\end_layout
+
+\begin_layout Description
+checkpoint: This directory contains the last reaction path calculated in
+ the form of
+\begin_inset space ~
+\end_inset
+
+.gen files named path-X.gen, where X is in the range of 
+\begin_inset Formula $0\ldots1$
+\end_inset
+
+, reflecting the image sequence.
+ This can be used to restart an interupted calculation by calling 
+\family typewriter
+pypath.py [options] checkpoint/*.
+
+\family default
+ Old files are not deleted, so be sure to check the contents of this directory
+ before using wildcards!
+\end_layout
+
+\begin_layout Description
+checkpoint.fmg: The last reaction path geometries in a single, multi-geometry
+ fmg file.
+ Suitable for use as a restart file.
+ This is intended to replace the 
+\series bold
+checkpoint
+\series default
+ directory in the future.
+\end_layout
+
+\begin_layout Description
+checkpoint.xyz: The last reaction path in a single, multi-frame
+\begin_inset space ~
+\end_inset
+
+.xyz file.
+ Intended for convenient visualization.
+\end_layout
+
+\begin_layout Standard
+Additionally, calculators may create further files in additional directories,
+ e.g.
+\begin_inset space ~
+\end_inset
+
+for data reuse purposes.
+\end_layout
+
+\begin_layout Subsection
+fitrep
+\end_layout
+
+\begin_layout Standard
+Tool for evolutionaly fitting of repulsive potentials\SpecialChar \@.
+ Caveat: This process
+ has many opportunities for error, consult the authors before attempting
+ E
+\begin_inset Formula $_{\mathrm{rep}}$
+\end_inset
+
+ fitting.
+\end_layout
+
+\begin_layout Paragraph
+Command line:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+fitrep [options] [<repulsives>] [<targets>] [<ranges>]
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+repulsives: optional filename of repulsives definition file, default = "repulsiv
+es" targets: optional filename of targets definition file, default = "targets"
+\end_layout
+
+\begin_layout Paragraph
+Options:
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show this help message and exit 
+\end_layout
+
+\begin_layout Description
+-o
+\begin_inset space ~
+\end_inset
+
+OPT,
+\begin_inset space ~
+\end_inset
+
+--optimizer=OPT Select which optimizer to use for fitting the repulsive
+ potential.
+ Default=genetic 
+\end_layout
+
+\begin_layout Description
+-v Increase verbosity level,
+\end_layout
+
+\begin_layout Description
+-q,
+\begin_inset space ~
+\end_inset
+
+--quiet Limit output to fatal errors and critical warnings, no status output
+ at all 
+\end_layout
+
+\begin_layout Description
+--silence Limit output to fatal errors only.
+ Not even warnings.
+ 
+\end_layout
+
+\begin_layout Description
+--optdebug Optimization debug: write various files recording the optimization
+ history.
+\emph on
+
+\begin_inset Newline newline
+\end_inset
+
+OUTPUT FILES ARE LARGE
+\end_layout
+
+\begin_layout Subparagraph
+common options: 
+\end_layout
+
+\begin_layout Standard
+options common to all optimizer types
+\end_layout
+
+\begin_layout Description
+-m
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--maxit=N Maximum number of iterations, default = 1000 
+\end_layout
+
+\begin_layout Description
+-u
+\begin_inset space ~
+\end_inset
+
+M,
+\begin_inset space ~
+\end_inset
+
+--mutation=M Mutation factor, default = 0.1 
+\end_layout
+
+\begin_layout Description
+-t
+\begin_inset space ~
+\end_inset
+
+M,
+\begin_inset space ~
+\end_inset
+
+--mutator=M Method used to mutate specimens, choices are local or global,
+ default=global
+\end_layout
+
+\begin_layout Subparagraph
+gentic optimizer options:
+\end_layout
+
+\begin_layout Standard
+options only relevant to genetic optimization
+\end_layout
+
+\begin_layout Description
+-p
+\begin_inset space ~
+\end_inset
+
+POP,
+\begin_inset space ~
+\end_inset
+
+--population=POP Total number of E_rep sets to use, default = 100 
+\end_layout
+
+\begin_layout Description
+-b
+\begin_inset space ~
+\end_inset
+
+B,
+\begin_inset space ~
+\end_inset
+
+--breeders=B Total number of E_rep sets to choose for the breeder group,
+ default = 20 
+\end_layout
+
+\begin_layout Description
+--keep-elders If selected, non-breeders fitter than offspring will survive
+ into next generation, default = False 
+\end_layout
+
+\begin_layout Description
+-c
+\begin_inset space ~
+\end_inset
+
+C,
+\begin_inset space ~
+\end_inset
+
+--combiner=C Method used to combine parents, either lr or rnd, default=lr
+ 
+\end_layout
+
+\begin_layout Description
+--initialmutation=M Mutation factor, default use same factor as for evolution
+ 
+\end_layout
+
+\begin_layout Description
+--initialmutator=M Method used to mutate specimens, either local or global
+ or same as for evolution, default=same 
+\end_layout
+
+\begin_layout Section
+Utilities
+\end_layout
+
+\begin_layout Subsection
+Single Geometry Utilities
+\end_layout
+
+\begin_layout Subsubsection
+geoconv
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:geoconv.py"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Geoconv.py serves to quickly convert geometries between different formats
+ known to comatsci.
+ It is can called as geoconv.py or via symbolic links named to[format], where
+ [format] is the specified output format (cf.
+ -f option).
+ geoconv only works on single geometries but not on paths.
+ Known formats are described in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:geometry-formats"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Command lines are of the format
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<commandname> [options] <inputfilename> [output filename]
+\end_layout
+
+\begin_layout Standard
+The input file type is determined by the file name extension.
+ If the output file name is ommitted, the program writes a file of the same
+ name as the input file, with the extension replaced appropriately.
+\end_layout
+
+\begin_layout Standard
+Possible command line options are:
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show this help message and exit
+\end_layout
+
+\begin_layout Description
+-f
+\begin_inset space ~
+\end_inset
+
+F,
+\begin_inset space ~
+\end_inset
+
+--format=F Write output geometry in format F.
+ Default=gen.
+ Choose from : ['fdf', 'xyz', 'xyzq', 'gen', 'tm', 'fmg', 'pdb'] 
+\end_layout
+
+\begin_layout Description
+-x
+\begin_inset space ~
+\end_inset
+
+XTND,
+\begin_inset space ~
+\end_inset
+
+--extend=XTND periodically extend the input geometry to include a:b:c original
+ supercells in the a:b:c lattice directions, default = 1:1:1 (only the original
+ supercell)
+\end_layout
+
+\begin_layout Description
+-p
+\begin_inset space ~
+\end_inset
+
+F,
+\begin_inset space ~
+\end_inset
+
+--population=F Read dftb Mulliken population from file F.
+ No default.
+\end_layout
+
+\begin_layout Description
+-l
+\begin_inset space ~
+\end_inset
+
+L,
+\begin_inset space ~
+\end_inset
+
+--layer=L Write Only Atoms from Layer L into output geometry.
+ default: write whole geometry
+\end_layout
+
+\begin_layout Description
+-e
+\begin_inset space ~
+\end_inset
+
+E,
+\begin_inset space ~
+\end_inset
+
+--element=E Write only atoms of element E into output geometry.
+ default: write all elements
+\end_layout
+
+\begin_layout Description
+-s
+\begin_inset space ~
+\end_inset
+
+S,
+\begin_inset space ~
+\end_inset
+
+--scale=S scale the whole geometry by a factor of S.
+ 
+\end_layout
+
+\begin_layout Description
+-a
+\begin_inset space ~
+\end_inset
+
+F
+\begin_inset space ~
+\end_inset
+
+L,
+\begin_inset space ~
+\end_inset
+
+--append=F
+\begin_inset space ~
+\end_inset
+
+L Append geometry from file F to input geometry into layer named L.
+ L 
+\emph on
+must
+\emph default
+ be specified, if L ist not present in primary input geometry, it will be
+ created in the output geometry.
+ The special layer name 'default' specifies the .fmg default layer 0.
+ 
+\end_layout
+
+\begin_layout Description
+-F,
+\begin_inset space ~
+\end_inset
+
+--foldback Fold periodic geometry back into unit cell.
+ 
+\end_layout
+
+\begin_layout Description
+--chargeconstraints Print charge constraints string for specified atoms
+ 
+\end_layout
+
+\begin_layout Description
+--tolayer=L Move atoms defined by --atomindices or --atomlist to layer L.
+ L must be defined in the geometry, either --atomindices or --atomlist must
+ be given.
+ Cannot be combined with -L.
+\end_layout
+
+\begin_layout Description
+--translate=V Translate atoms defined by --atomindices or --atomlist by
+ vector V.
+ V must be in the form x:y:z.
+ Either --atomindices or --atomlist must be given.
+ 
+\end_layout
+
+\begin_layout Description
+--atomindices=IDX Declare, which single atoms are to be modified, argument
+ is a whitespace delimited list of integer atom index numbers.
+ Counts from 0.
+ Mutually exclusive with --atomlist.
+\end_layout
+
+\begin_layout Description
+--atomlist=LST Declare, which single atoms are to be modified, argument
+ is a whitespace delimited list of integer atom serial numbers.
+ Counts from 1.
+ Mutually exlusive with --atomindices.
+\end_layout
+
+\begin_layout Description
+--addlayer=L Add layer with name L to geometry.
+\end_layout
+
+\begin_layout Subsubsection
+to[format]
+\end_layout
+
+\begin_layout Standard
+Aliases of geoconv, allowing to quickly convert a readable input geometry
+ to the [format] file format.
+ Aliases are:
+\end_layout
+
+\begin_layout Itemize
+togen
+\end_layout
+
+\begin_layout Itemize
+tofmg
+\end_layout
+
+\begin_layout Itemize
+toxyz
+\end_layout
+
+\begin_layout Itemize
+tofdf
+\end_layout
+
+\begin_layout Itemize
+toxyzq
+\end_layout
+
+\begin_layout Itemize
+totm
+\end_layout
+
+\begin_layout Standard
+All options for geoconv also apply to the to[format] aliases\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Subsubsection
+scale-linkdists
+\end_layout
+
+\begin_layout Standard
+This helper script reads an input geometry and writes out a .gen file, after
+ applying a distance scaling factor to the bonds of a block of atoms at
+ the end of th einput geometry.
+ 
+\end_layout
+
+\begin_layout Paragraph
+Command line:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+scale-linkdists [input filename] [output filename] [# of non-link atoms]
+ [distance factor]
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+none of the positional arguments is optional.
+ The number of non-link atoms specifies the length of the block of atoms
+ at the beginning of the geometry which will not be moved\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Subsubsection
+coordination-check
+\end_layout
+
+\begin_layout Standard
+THis helper utility reads a given input geometry, constructs the bond list
+ and writes a pdb file in which the beta column contains the difference
+ betweent the atomic number of covalently bonded neighbors and the canonical
+ number of valences\SpecialChar \@.
+ Only works for elements H to Ca!\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+Command line:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+coordination_check [options] <input file> [<output file>]
+\begin_inset Newline newline
+\end_inset
+
+if no output file name is specified, the output will be named <input basename>.pd
+b
+\begin_inset space ~
+\end_inset
+
+\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+Options:
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show this help message and exit 
+\end_layout
+
+\begin_layout Description
+-l
+\begin_inset space ~
+\end_inset
+
+L,
+\begin_inset space ~
+\end_inset
+
+--layer=L Write only atoms from layer L into output geometry.
+ default: write whole geometry 
+\end_layout
+
+\begin_layout Description
+-e
+\begin_inset space ~
+\end_inset
+
+E,
+\begin_inset space ~
+\end_inset
+
+--element=E Write only atoms of lement E into output geometry.
+ default: write all elements 
+\end_layout
+
+\begin_layout Description
+-t
+\begin_inset space ~
+\end_inset
+
+T,
+\begin_inset space ~
+\end_inset
+
+--tolerance=T Detect bonds if distance is T times the canonical bond length
+ 
+\end_layout
+
+\begin_layout Subsubsection
+dosplot
+\end_layout
+
+\begin_layout Standard
+Reads single particle eigenstates from QM program outputs and creates ascii
+ data suitable for plotting\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+Usage
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+dosplot <eigenstates> [<output file>]
+\end_layout
+
+\begin_layout Paragraph
+Options 
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show help message and exit 
+\end_layout
+
+\begin_layout Description
+-f
+\begin_inset space ~
+\end_inset
+
+PF,
+\begin_inset space ~
+\end_inset
+
+--peak-function=PF Calculate the DOS as a superposition of this type of
+ PFs at the eigenvalues.
+ Can be gauss or lorentz, default=lorentz
+\end_layout
+
+\begin_layout Description
+-w
+\begin_inset space ~
+\end_inset
+
+PF,
+\begin_inset space ~
+\end_inset
+
+--peak-width=PW Width parameter of the peak function (HWHM for lorentz,
+ sigma for gauss).
+ default=0.3 
+\end_layout
+
+\begin_layout Description
+-s
+\begin_inset space ~
+\end_inset
+
+SW,
+\begin_inset space ~
+\end_inset
+
+--step-width=SW Sample the DOS-s at every SW eV.
+ default=0.1 
+\end_layout
+
+\begin_layout Description
+--min=E set lower bound of DOS range to E.
+ default: lowest eigenvalue 
+\end_layout
+
+\begin_layout Description
+--max=E Set upper bound of DOS range to E.
+ default: highest eigenvalue 
+\end_layout
+
+\begin_layout Description
+--correlate=F Correltate DOS to reference DOS from file F.
+ 
+\end_layout
+
+\begin_layout Paragraph
+Output
+\end_layout
+
+\begin_layout Standard
+Prints DOS data to stdout our specified output file.
+ File whitespace separated columns are: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="4">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+energy [eV]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+total DOS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+occupied DOS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+unoccupied DOS
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Path Utilities
+\end_layout
+
+\begin_layout Subsubsection
+pathprepare
+\end_layout
+
+\begin_layout Standard
+This utility is used to construct input reaction paths for 
+\emph on
+pastafarian
+\emph default
+ and 
+\emph on
+pesto
+\emph default
+ calculations\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+Command Line:
+\end_layout
+
+\begin_layout Standard
+pathprepare [options] <start> [<intermediates>] <end>
+\end_layout
+
+\begin_layout Standard
+or : pathprepare [options] <pathfile>
+\end_layout
+
+\begin_layout Paragraph
+Options:
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show this help message and exit 
+\end_layout
+
+\begin_layout Description
+-t
+\begin_inset space ~
+\end_inset
+
+T,
+\begin_inset space ~
+\end_inset
+
+--filetype=T Filetype specification for input files.
+ 
+\end_layout
+
+\begin_layout Description
+-i
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--interpolate=N linearly interpolate N steps between each starting structure
+ read from input files, default: no linear interpolation.
+ Cannot be combined with -s, -r or -e 
+\end_layout
+
+\begin_layout Description
+-s
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--spline-resample=N spline resamplepath to contain a total of N images,
+ default: no spline resampling.
+ Cannot be combined with -i, -e or -r 
+\end_layout
+
+\begin_layout Description
+-e
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--equispline-resample=N spline resample path to contain a total of N images
+ at equal arc length spacing, default: no equidistant spline resampling.
+ Cannot be combined with -i, -s or -r\SpecialChar \@.
+
+\begin_inset Newline newline
+\end_inset
+
+Note that equidistant spline resampling can take considerable ammounts of
+ time because of the necessary mapping between spline variable and atomic
+ displacement vector length.
+\end_layout
+
+\begin_layout Description
+-c
+\begin_inset space ~
+\end_inset
+
+C,
+\begin_inset space ~
+\end_inset
+
+--calcinputs=C write inputs for energies and forces calculations using calculato
+r C.
+ Writes into subdirectories of ./calcinputs 
+\end_layout
+
+\begin_layout Description
+--inconsistent Do not check subsequent geometries for consistency with preceedin
+g one.
+ Useful for creating targets of isodesmic reactions etc.
+ Default: check for consistency.
+ 
+\end_layout
+
+\begin_layout Description
+-r
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--rener-resample=N resample path by Renner Subsplines to contain a total
+ of N images at equal arc length spacing, default: no Renner subspline resamplin
+g.
+ Cannot be combined with -i, -s or -e 
+\end_layout
+
+\begin_layout Paragraph
+Output files:
+\end_layout
+
+\begin_layout Description
+preppath.xyz The prepared reaction path in multi-frame .xyz format.
+\end_layout
+
+\begin_layout Description
+preppath.fmg The prepared reaction path in .fmg format.
+ This is the preferred input for 
+\emph on
+pastafarian\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Description
+preppath A directory containing the path as a series of sequentially numbered
+ files in .gen files\SpecialChar \@.
+ May also contain neb.nrg and neb.frc files, containing
+ the image energies and forces from previous NEB runs respectively.
+\end_layout
+
+\begin_layout Subsubsection
+pathprops
+\end_layout
+
+\begin_layout Standard
+Utility to evaluate properties of a 
+\emph on
+pastafarian
+\emph default
+, 
+\emph on
+pesto
+\emph default
+ or molecular dynamics simulation\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+Command line:
+\end_layout
+
+\begin_layout Standard
+pathprops [options] <input path> 
+\end_layout
+
+\begin_layout Paragraph
+Options:
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show this help message and exit 
+\end_layout
+
+\begin_layout Description
+-p
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--polyint=N Write a cubic polynomial interpolation of N energy values along
+ the path to cubic.nrg file 
+\end_layout
+
+\begin_layout Description
+-u
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--polypath=N Write a cubic polynomial interpolation of N path images to
+ cubic.fmg and cubic.xyz files 
+\end_layout
+
+\begin_layout Description
+-r,
+\begin_inset space ~
+\end_inset
+
+--rmsds Write Atomic displacement RMSDs along path to rmsds.dat and rmsds.pdb
+ files 
+\end_layout
+
+\begin_layout Description
+-c
+\begin_inset space ~
+\end_inset
+
+DIR,
+\begin_inset space ~
+\end_inset
+
+--deltacharges=DIR Write atomic charge deltas from DFTB charge files in
+ directroy DIR to deltas.chr file --maxdeltacharges=DIR Write maximum atomic
+ charge deltas from DFTB charge files in directroy DIR to maxdeltas.chr and
+ maxdeltas.pdb files 
+\end_layout
+
+\begin_layout Description
+-d
+\begin_inset space ~
+\end_inset
+
+CNT,
+\begin_inset space ~
+\end_inset
+
+--centerdists=CNT Write atomic distances in last image from atom CNT to
+ file center.dst 
+\end_layout
+
+\begin_layout Description
+--ereptarget=DFTBCPT Write an E_rep fitting target path checkpoint into
+ 'target', based on the fit method path in <checkpoint directory> and the
+ null-spline DFTB path in DFTBCPT.
+ -e C, 
+\end_layout
+
+\begin_layout Description
+--external-calcs=C read and parse outputs from external calculations using
+ calculator C.
+ Writes into subdirectories of ./externalcalcs 
+\end_layout
+
+\begin_layout Description
+--dimer=N extract a dimer with a separation of 1.0 Bohr at image N and write
+ to 'extracted_dimer.fmg'.
+ 
+\end_layout
+
+\begin_layout Description
+--inconsistent Do not check subsequent geometries for consistency with preceedin
+g one.
+ Useful for creating targets of isodesmic reactions etc.
+ Default: check for consistency.
+ 
+\end_layout
+
+\begin_layout Description
+--lattice=LATTICE Set geometry Mode to 'S'(upercell) and apply the provided
+ lattice vectors\SpecialChar \@.
+ Lattice vectors are provided as a whitespace separated
+ list of 9 carthesian coordinates.
+\end_layout
+
+\begin_layout Description
+--bondcounts Write Element-Element bond counts per image to 'bondcounts.dat'
+ file.
+ 
+\end_layout
+
+\begin_layout Description
+-v Increase verbosity level, default=
+\emph on
+normal
+\emph default
+ verbosity\SpecialChar \@.
+ Higher levels are 
+\emph on
+talky
+\emph default
+, 
+\emph on
+debug1
+\emph default
+ and 
+\emph on
+debug2
+\emph default
+\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Description
+-q,
+\begin_inset space ~
+\end_inset
+
+--quiet Limit output to fatal errors and critical warnings, no status output
+ at all 
+\end_layout
+
+\begin_layout Description
+--silence Limit output to fatal errors only.
+ Not even warnings.
+ 
+\end_layout
+
+\begin_layout Description
+--coordinations write coordination deviations from ideal into beta column
+ pathcoordinations.pdb file and a coordinations analysis into pathcoordinations-[
+element].dat files 
+\end_layout
+
+\begin_layout Description
+--anglehists=N write by central element bond angle histogram trajectories
+ with N bins.
+ If N is negative, -N bins from 0 to 180 degrees are used.
+ 
+\end_layout
+
+\begin_layout Description
+--anglestats write per central atom type bong angle statistics trajectories.
+ 
+\end_layout
+
+\begin_layout Description
+--lengthhists=N write per bond type bond length histogram trajectories with
+ N bins.
+ If N is negative, binning starts at 0, otherwise at minimum bond length
+ -0.1 a.u.
+ 
+\end_layout
+
+\begin_layout Description
+--lengthstats write per bond type bond length statistics trajectories.
+ 
+\end_layout
+
+\begin_layout Description
+--trackvacancy=R locate vacancies in every single frame by comparison to
+ reference geometry read from file R\SpecialChar \@.
+ Write vacancy postions for each frame
+ to 'vacancies.xyz'\SpecialChar \@.
+
+\begin_inset Newline newline
+\end_inset
+
+Note that for vacancy tracking in .xyz format trajectories of MD runs, it
+ is necessary to provide lattice vectors for the trajectory path via the
+ --lattice option\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Description
+--vmd-charges write atomic charges to 'charges.vmd' suitable to be read into
+ vmd user data fields 
+\end_layout
+
+\begin_layout Description
+--vmd-bondcounts write per atom covalent bond counts to 'bondcounts.vmd'
+ suitable to be read into vmd user data fields 
+\end_layout
+
+\begin_layout Description
+--count-hops count atomic hopping events and print number of hops to standard
+ out 
+\end_layout
+
+\begin_layout Paragraph
+Output files:
+\end_layout
+
+\begin_layout Standard
+see option descriptions.
+\end_layout
+
+\begin_layout Subsection
+Generic Utilities
+\end_layout
+
+\begin_layout Subsubsection
+multiaverage
+\end_layout
+
+\begin_layout Standard
+Calculate averages of Data in ascii files of same column and line counts.
+ If more than one datafile is specified, first calculate ensemble average
+ over files.
+ Other averages available via options.
+\end_layout
+
+\begin_layout Paragraph
+Command line
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+multiaverage [options] datafile [[datafile], ...]
+\end_layout
+
+\begin_layout Paragraph
+Options: 
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show help message and exit 
+\end_layout
+
+\begin_layout Description
+-r
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--running-average=N Calculate running average of window size N over lines
+ of input data.
+ default: no running average.
+ 
+\end_layout
+
+\begin_layout Description
+-i
+\begin_inset space ~
+\end_inset
+
+N,
+\begin_inset space ~
+\end_inset
+
+--ignore columns=N Ignore N leading columns of input data.
+ default: ignore no input columns.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+splresample
+\end_layout
+
+\begin_layout Standard
+Resample two column ascii data using cubic spline interpolation\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+Command line
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+splresample.py <infile> <npoints> [<xmin>] [<xmax>]
+\end_layout
+
+\begin_layout Description
+infile two column input data
+\end_layout
+
+\begin_layout Description
+npoints number of output data points
+\end_layout
+
+\begin_layout Description
+xmin start of output abscissa interval
+\end_layout
+
+\begin_layout Description
+xmax end of output abscissa interval
+\end_layout
+
+\begin_layout Subsubsection
+splderive
+\end_layout
+
+\begin_layout Standard
+Calculate derivative of two column ascii data using cubic spline interpolation\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+Command line
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+splderive.py <infile> <npoints> [<xmin>] [<xmax>]
+\end_layout
+
+\begin_layout Description
+infile two column input data
+\end_layout
+
+\begin_layout Description
+npoints number of derivative output data points
+\end_layout
+
+\begin_layout Description
+xmin start of output abscissa interval
+\end_layout
+
+\begin_layout Description
+xmax end of output abscissa interval
+\end_layout
+
+\begin_layout Subsubsection
+chargeanalys-2D
+\end_layout
+
+\begin_layout Standard
+Reads the outputs of a 2-D map of DFTB outputs and, calculated RMS and absolute
+ charge deviations of the QMZ core atoms and outputs data in gnuplot-friendly
+ 2D mapped data files\SpecialChar \@.
+ Command line:
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+chargeanalys-2D [reference geometry]
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+The reference geometry must be a .fdf file containing only the QM zone, with
+ the QML atoms as one block at the end of the geometry and the QML atoms
+ marked as subtybe 
+\begin_inset Quotes eld
+\end_inset
+
+H_l
+\begin_inset Quotes erd
+\end_inset
+
+\SpecialChar \@.
+ (This is the output of QM/MM embedding done via comatsci)\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+input files:
+\end_layout
+
+\begin_layout Description
+reference
+\begin_inset space ~
+\end_inset
+
+geometry chargeanalys-2D expects the reference geometry to contain atomic
+ charges\SpecialChar \@.
+ Hence it must be in .fdf format, as it is the only supportef format
+ for reading that supports this feature\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Description
+calculation
+\begin_inset space ~
+\end_inset
+
+results DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+ calculation results are expected\SpecialChar \@.
+ Currently detailed.out files from DFTB
+ versions 1.0 or 1.1 are supported.
+ The files are expected to be named 
+\family typewriter
+detailed-[x]-[y].out
+\family default
+, as usual, gzip compressed files can be privided instead, which is highly
+ recommended for the mapping calculation results\SpecialChar \@.
+ Conventionally, [x] should
+ be the Gaussian blur width and [y] the link atom distance factor, but the
+ meaning of the mapping parameters is of no practical interest to chargeanalys-2
+D\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+output files:
+\end_layout
+
+\begin_layout Description
+dQ.dat Summed charge deviation of the QM zone atoms (QML excluded) mapped
+ over the embedding parameters\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Description
+RMSQ.dat RMS charge deviation of the QM zone atoms (QML excluded) mapped
+ over the embedding parameters\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Subsubsection
+dosanalys-2D
+\end_layout
+
+\begin_layout Standard
+Reads the outputs of a 2-D map of DFTB outputs and writes overall band shift,
+ maximum cross-correlation and, if requested, the state sum in a band-shifted
+ energy range to gnuplot friedly 2D scalar map files\SpecialChar \@.
+ Command line:
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+dosanalys-2D {options} [reference spectrum]
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+options:
+\end_layout
+
+\begin_layout Description
+-h,
+\begin_inset space ~
+\end_inset
+
+--help show this help message and exit
+\end_layout
+
+\begin_layout Description
+-f
+\begin_inset space ~
+\end_inset
+
+PF,
+\begin_inset space ~
+\end_inset
+
+--peak-function=PF Calculate the DOS as a superposition of this type of
+ PFs at the eigenvalues.
+ default=lorentz
+\end_layout
+
+\begin_layout Description
+-w
+\begin_inset space ~
+\end_inset
+
+PF,
+\begin_inset space ~
+\end_inset
+
+--peak-width=PF Width parameter of the peak function (HWHM for lorentz,
+ sigma for gauss).
+ default=0.3
+\end_layout
+
+\begin_layout Description
+-s
+\begin_inset space ~
+\end_inset
+
+SW,
+\begin_inset space ~
+\end_inset
+
+--step-width=SW Sample the DOS-s at every SW eV.
+ default=0.1
+\end_layout
+
+\begin_layout Description
+--min=ESet lower bound of DOS range to E.
+ default: lowest eigenvalue
+\end_layout
+
+\begin_layout Description
+--max=E Set upper bound of DOS range to E.
+ default: highest eigenvalue
+\end_layout
+
+\begin_layout Description
+--shifted-range-states=EL,EH calculate shifted DOS integral difference,
+ between EL and EH, shifted by cross-correlation maximum position
+\end_layout
+
+\begin_layout Paragraph
+input files:
+\end_layout
+
+\begin_layout Description
+reference
+\begin_inset space ~
+\end_inset
+
+spectrum The reference spectrum must be a band.out file from DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Description
+calculation
+\begin_inset space ~
+\end_inset
+
+results DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+ calculation results in band.out format are expected\SpecialChar \@.
+ The files are expected
+ to be named 
+\family typewriter
+band-[x]-[y].out
+\family default
+, as usual, gzip compressed files can be privided instead, which is highly
+ recommended for the mapping calculation results\SpecialChar \@.
+ Conventionally, [x] should
+ be the Gaussian blur width and [y] the link atom distance factor, but the
+ meaning of the mapping parameters is of no practical interest to dosanalys-2D\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Paragraph
+output files:
+\end_layout
+
+\begin_layout Description
+bandshifts.dat total shift of the band structured determined from the peak
+ in cross-correlation between calculation result and reference DOS\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Description
+maxcorrelation.dat maximum cross-correlation value for each mapping point\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Description
+shiftedrangestated.dat state sum in the shifted energy range\SpecialChar \@.
+ Cf.
+\begin_inset space ~
+\end_inset
+
+
+\series bold
+--shifted-range-states
+\series default
+ option, only written if this option is supplied\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Subsubsection
+dosanalys-3D
+\end_layout
+
+\begin_layout Standard
+Reads the outputs of a 2-D map of DFTB outputs and writes all calculated
+ DOS values into an ASCII legacy format vtk file, suitable for vtk and various
+ data visualizers based on that\SpecialChar \@.
+ Command line:
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+dosanalys-3D {options}
+\end_layout
+
+\begin_layout Paragraph
+options:
+\end_layout
+
+\begin_layout Description
+-h, --help show this help message and exit
+\end_layout
+
+\begin_layout Description
+-f
+\begin_inset space ~
+\end_inset
+
+PF,
+\begin_inset space ~
+\end_inset
+
+--peak-function=PF Calculate the DOS as a superposition of this type of
+ PFs at the eigenvalues.
+ default=lorentz
+\end_layout
+
+\begin_layout Description
+-w
+\begin_inset space ~
+\end_inset
+
+PF,
+\begin_inset space ~
+\end_inset
+
+--peak-width=PF Width parameter of the peak function (HWHM for lorentz,
+ sigma for gauss).
+ default=0.3
+\end_layout
+
+\begin_layout Description
+-s
+\begin_inset space ~
+\end_inset
+
+SW,
+\begin_inset space ~
+\end_inset
+
+--step-width=SW Sample the DOS-s at every SW eV.
+ default=0.1
+\end_layout
+
+\begin_layout Description
+--min=E Set lower bound of DOS range to E.
+ default: lowest eigenvalue
+\end_layout
+
+\begin_layout Description
+--max=E Set upper bound of DOS range to E.
+ default: highest eigenvalue
+\end_layout
+
+\begin_layout Paragraph
+output files:
+\end_layout
+
+\begin_layout Description
+DOSvalues-3D.vtk Calulated Density Of States in .vtk format.
+ Data is organized as a 3D rectilinear grid of scalars\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Section
+Calculators
+\end_layout
+
+\begin_layout Standard
+comatsci-barrier is designed to support any atomic simulation package as
+ a calculator, as long as the package provides total energies and atomic
+ forces in Cartesian coordinates.
+ Adding another calculator is done by subclassing an abstract calculator
+ class, implementing a few methods which write geometry and control input
+ files, run the calculation binary and read the results.
+ Currently, the following calculators are implemented and reasonably stable:
+\end_layout
+
+\begin_layout Subsection
+DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+/Noodle
+\end_layout
+
+\begin_layout Standard
+The noodle calculator uses DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+ to calculate energies and forces.
+ It has been tested with Version 0.2p0 and uses the new hsd input parser.
+ Most of the dftb parameters are set via a parameter file included into
+ the main hsd input via an <<+ or <<! directive.
+ Parameters, which are to be set via the 
+\series bold
+[NOODLE]
+\series default
+ section of the pypath.ini file are:
+\end_layout
+
+\begin_layout Description
+binary=/usr/local/bin/noodle 
+\bar under
+full
+\bar default
+ path to the noodle binary.
+ Must be accessible on all nodes in parallel calculations
+\end_layout
+
+\begin_layout Description
+workdir=TEMP Name prefix for the directories in which to run the dftb+ calculati
+ons.
+ The special Value 
+\begin_inset Quotes eld
+\end_inset
+
+TEMP
+\begin_inset Quotes erd
+\end_inset
+
+ uses mktmpdir to create a temporary directory in the path specified by
+ the $TMPDIR environment variable.
+\end_layout
+
+\begin_layout Description
+skdir=/home/knaup/SlKo/ifam/alsicnoh-mavo 
+\bar under
+full
+\bar default
+ path to the SK files.
+ The SK file naming convention follows the dftb calculator.
+ This may change with future versions of noodle!
+\end_layout
+
+\begin_layout Description
+chrdir=charges name of the directory in which noodle restart files are stored
+\end_layout
+
+\begin_layout Description
+rchr=t read charges from last NEB iteration pypath checks whether the charge
+ file is present, so it's safe to say t here
+\end_layout
+
+\begin_layout Description
+paraminclude=params.ndl A .hsd or .xml noodle input file which is included
+ at the beginning of the input.hsd.
+ System Charge, SK Files, LMAX and some options are overridden by automatically
+ generated entries, so setting them here is useless.
+\end_layout
+
+\begin_layout Description
+oldSKnames=true use old Slater-Koster file naming convention, rather than
+ the new one.
+ 
+\emph on
+Defaults to true for Version 1.0, this may change in the future!
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+All
+\series default
+ the usual caveats for dftb calculations apply here.
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+The directory specified in chargesdir must exist, even if charges are not
+ reused! 
+\emph default
+When in doubt remove the charges directory, damaged or incomplete charges
+ files will lead to wrong results and may or may not cause error messages.
+\end_layout
+
+\begin_layout Subsubsection*
+Slater-Koster file names
+\end_layout
+
+\begin_layout Standard
+In the old convention, the dftb calculator expects to find SK files named
+ by concatenating the lowercase element symbols for each interaction in
+ the SK directory.
+ E.g.
+ for s C,O,H system, the file names would be 
+\family typewriter
+cc,co, ch, oc, oo, oh, hc, ho, hh.
+
+\family default
+ Both files for must always be present, even for fully symmetric interactions.
+ In such cases, use symlinks.
+\end_layout
+
+\begin_layout Standard
+The new naming convention for SK files is to join the capitalized Element
+ names by a dash 
+\family typewriter
+-
+\family default
+ and add the extension
+\family typewriter
+
+\begin_inset space ~
+\end_inset
+
+.skf
+\family default
+.
+ The files from the example above would thus be called 
+\family typewriter
+C-C.skf
+\family default
+, 
+\family typewriter
+C-O.skf
+\family default
+ 
+\family typewriter
+C-H.skf
+\family default
+\SpecialChar \ldots{}
+, a file for the Si -- Na interaction would be called 
+\family typewriter
+Si-Na.skf
+\family default
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Point charges
+\end_layout
+
+\begin_layout Standard
+The Noodle calculator supports the point charges external electric field
+ option of noodle.
+ There are two possible ways to employ it:
+\end_layout
+
+\begin_layout Enumerate
+The point charges specification can be added to the noodle parameter include
+ file.
+ This requires no further intervention or even awareness of the calculator.
+ The approach can be cumbersome for the user, as it requires the manual
+ generation of the point charges to the parameter file.
+ It also counteracts the possibility to use a single parameter file for
+ a whole series of calculations to ensure consistency.
+\end_layout
+
+\begin_layout Enumerate
+The internal Geometry representation supports grouping atoms into layers
+ and the selection of subgeometries based on atomic layer assignment.
+ Layers are identified by a unique integer layer index.
+ Currently the Layer object only contains a Name for the layer.
+ Layer names need not be unique.
+ If the geometry object passed to the noodle calculator contains a layer
+ named 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+, the calculator automatically adds an external field/pointcharges specification
+, adding the atoms from the 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ layer as point charges.
+ 
+\emph on
+If several 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ layers exist, only on of them is used, the choice is not strictly determined!
+\emph default
+ 
+\begin_inset Marginal
+status collapsed
+
+\begin_layout Plain Layout
+
+\noun on
+deprecated
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+In this case, only the atoms from the default layer 
+\begin_inset Quotes eld
+\end_inset
+
+0
+\begin_inset Quotes erd
+\end_inset
+
+ are added to the noodle geometry input.
+ This means that all atoms not contained in the default layer or the 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ layer will be ignored.
+\begin_inset Newline newline
+\end_inset
+
+Currently, geometry layers and atomic charge specification are only supported
+ via the .fmg file format, cf.
+ comatsci documentation.
+ The geostats.py tool of comatsci provides a more user friendly interface
+ to edit these properties than a plain text editor does.
+\begin_inset Newline newline
+\end_inset
+
+This way to specify external charges is deprecated, because in most situations
+ tens of thousands of point-charges are necessary, which have to be kept
+ in memory for each image along the path.
+ Additionally, the computational effort to separate the layers in geometry
+ of such size is considerable and may lead to significant overhead.
+\end_layout
+
+\begin_layout Standard
+Both methods can be mixed, as the automatic point charges specification
+ is added to any possible point charges spec from the parameter file.
+\end_layout
+
+\begin_layout Standard
+Be aware that this is by no means an automatic QM/MM scheme.
+ The user is responsible for providing link atoms and specifying the necessary
+ geometry constraints.
+\end_layout
+
+\begin_layout Subsection
+SIESTA
+\end_layout
+
+\begin_layout Standard
+The siesta calculator uses SIESTA to do the energy and forces calculations.
+ It has only been tested with v1.3 and v1.3-f1p, but older versions might
+ work as well.
+ Most of the SIESTA parameters are set in an
+\begin_inset space ~
+\end_inset
+
+.fdf file, which must be supplied by the user and is includes into the siesta
+ input using an 
+\begin_inset Quotes eld
+\end_inset
+
+%include
+\begin_inset Quotes erd
+\end_inset
+
+ directive.
+ The Parameters to be set in the 
+\series bold
+[SIESTA]
+\series default
+ section of the pypath.ini file are:
+\end_layout
+
+\begin_layout Description
+binary=/usr/local/bin/siesta 
+\bar under
+Full
+\bar default
+ path to the SIESTA binary.
+\end_layout
+
+\begin_layout Description
+ppdir=/home/user/siesta-pseudo Directory containing the pseudo potential
+ files to use for the SIESTA calculations.
+\end_layout
+
+\begin_layout Description
+workdir=TEMP Name prefix for the directories in which to run the SIESTA
+ calculations.
+ The special Value 
+\begin_inset Quotes eld
+\end_inset
+
+TEMP
+\begin_inset Quotes erd
+\end_inset
+
+ uses mktmpdir to create a temporary directroy in the path specified by
+ the $TMPDIR environment variable.
+\end_layout
+
+\begin_layout Description
+dmdir=DMS Directory in which to store the .DM files from the calculation
+ for the different images.
+ 
+\emph on
+Warning: If the basis set has changed, the old .DM files cannot be reused.
+ SIESTA will inevitably fail.
+\end_layout
+
+\begin_layout Description
+rdms=t Reuse the .DM file from the previous calculation on the same image.
+ This should usually bet set to 
+\begin_inset Quotes eld
+\end_inset
+
+t
+\begin_inset Quotes erd
+\end_inset
+
+ as it speeds up the calculations enormously.
+ It is safe to to say 
+\begin_inset Quotes eld
+\end_inset
+
+t
+\begin_inset Quotes erd
+\end_inset
+
+ here, if no old .DM files are present.
+\end_layout
+
+\begin_layout Description
+paraminclude=params.fdf An .fdf file which should contain all calculation
+ parameters not automatically set by pypath.
+ Pypath automatically sets the following parameters, which 
+\emph on
+must not
+\emph default
+ be set in this file:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Atomic Coordinates
+\end_layout
+
+\begin_layout Itemize
+Cell Vectors
+\end_layout
+
+\begin_layout Itemize
+Chemical Species
+\end_layout
+
+\begin_layout Itemize
+NumCGSteps
+\end_layout
+
+\begin_layout Itemize
+any MD parameters
+\end_layout
+
+\begin_layout Itemize
+systemlabel
+\end_layout
+
+\begin_layout Itemize
+%include directives
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Besides the usual caveats for SIESTA calculations, the following tip might
+ be useful: SIESTA has difficulties finding a proper density matrix if the
+ atomic configuration is not close to an equilibrium state.
+ This might lead to convergence failure in the vicinity an interpolated
+ intermediate state.
+ In Such cases it is useful, to copy a
+\begin_inset space ~
+\end_inset
+
+.DM file from a neighboring image to the image with convergence problems.
+ A converged density map for a similar isoelectronic configuration is usually
+ a much better starting point than SIESTA's initial guess.
+\end_layout
+
+\begin_layout Subsection
+Gaussian (03)
+\end_layout
+
+\begin_layout Standard
+The Gaussian calculator is only tested for Gaussian03.
+ Please consider your Gaussian Manual for extensive documentation on Gaussian
+ use and features.
+\end_layout
+
+\begin_layout Standard
+Parameters for the Gaussian calculator are entered in the [Gaussian] section
+ of pypath.ini.
+ Parameters are:
+\end_layout
+
+\begin_layout Description
+binary=g03 path to the gaussian binary
+\end_layout
+
+\begin_layout Description
+workdir=TEMP Name prefix for the directories in which to run the SIESTA
+ calculations.
+ The special Value 
+\begin_inset Quotes eld
+\end_inset
+
+TEMP
+\begin_inset Quotes erd
+\end_inset
+
+ uses mktmpdir to create a temporary directroy in the path specified by
+ the $TMPDIR environment variable.
+\end_layout
+
+\begin_layout Description
+chkdir=g03chk directroy in which gaussian checkpoint files will be stored
+\end_layout
+
+\begin_layout Description
+rchk=false read checkpoint file (
+\series bold
+warning:
+\series default
+ this is untested and may go horribly wrong)
+\end_layout
+
+\begin_layout Description
+hamiltonian=BPL/6-31G*/AUTO Hamiltonian part of the route section
+\end_layout
+
+\begin_layout Description
+routeopts= further options to incorporate into the route section.
+ Do not specify SP, OPT or FREQ statements here!
+\end_layout
+
+\begin_layout Description
+spinmul=1 spin multiplicity
+\end_layout
+
+\begin_layout Subsection
+Müller-Brown potential
+\end_layout
+
+\begin_layout Standard
+Called as 
+\family typewriter
+muellerbrown
+\family default
+.
+ The two-dimensional test potential for reaction path analysis algorithms
+ suggested by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "TCA-53-75-1979"
+
+\end_inset
+
+.
+ The potential is dependent on the absolute atomic coordinate in Bohr.
+ Intended for testing and demonstration purposes.
+ Be aware that the potential operates on shorter distances than interatomic
+ potentials, i.e.
+ the gradients are very steep and smaller step sizes are necessary.
+\end_layout
+
+\begin_layout Standard
+Takes no options and has therefore no config file section.
+\end_layout
+
+\begin_layout Subsection
+Pair-potential Calculator for E
+\begin_inset Formula $_{\mathrm{rep}}$
+\end_inset
+
+ fitting
+\end_layout
+
+\begin_layout Subsubsection
+xyspline
+\end_layout
+
+\begin_layout Subsubsection
+repulsive
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Section
+Embedding workflow
+\end_layout
+
+\begin_layout Standard
+Note that the workflow described in this setion relies on an existing installati
+on of the comatsci GUI geostats\SpecialChar \@.
+ Comatsci-gui is distributed separately to
+ allow smooth installation of comatsci on headless cluster nodes which very
+ often do not provide the necessary gui libraries\SpecialChar \@.
+ 
+\end_layout
+
+\begin_layout Standard
+The QM/MM embedding scheme described here only regards the embedding of
+ the QM zone and the termination of the dangling bonds resulting from the
+ partitioning of the extended system into QM and MM zones\SpecialChar \@.
+ Mechanical embedding,
+ coupling on the MM side and simulations based on the QM/MM scheme are not
+ the subject of comatsci embedding or this manual\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Subsection
+Constructing an embedded cluster
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:ClusterConstruction"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The QM/MM embedding relies on the availability of QM reference data, which
+ has to be calculated in advance\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Perform a DFTB reference calculation of the target system\SpecialChar \@.
+ Typically this
+ would be a periodic supercell model\SpecialChar \@.
+ In the reference calculation, the atomic
+ coordinates should be optimized\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Obtain a geometry file of the target system in .fdf format, containing atomic
+ charges.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+E.g.
+ by converting the output of a DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+ calculation using:
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+tofdf geo_end.gen -p detailed.out QM-reference.fdf
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+(only if BCTC embedding is intended) Obtain bond charge transfer coefficients
+ for the reference system:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+geostats QM-reference.fdf
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+select: statistics->save BCT coefficients
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Periodically extend the reference system to the intended size of the MM
+ Zone:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+tofdf QM-reference.fdf -x a:b:c fullsystem.fdf
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+a,b,c denote the numbers of reference unitcells that the final supercell
+ should contain\SpecialChar \@.
+ Alternatively, the 
+\begin_inset Quotes eld
+\end_inset
+
+edit->peridoc expand
+\begin_inset Quotes erd
+\end_inset
+
+ dialog of geostats can be used\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Add a QM zone layer named 
+\begin_inset Quotes eld
+\end_inset
+
+QMZ
+\begin_inset Quotes erd
+\end_inset
+
+ to the .fdf file, to which all atoms that should form the QM zone can be
+ moved.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+tofdf --addlayer=
+\begin_inset Quotes erd
+\end_inset
+
+QMZ
+\begin_inset Quotes erd
+\end_inset
+
+ fullsystem.fdf
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Alternatively, add a layer 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ for all atoms that should act as external charges\SpecialChar \@.
+ The layer names 
+\begin_inset Quotes eld
+\end_inset
+
+QMZ
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ are crucial, naming is case-sensitive\SpecialChar \@.
+
+\begin_inset Newline newline
+\end_inset
+
+
+\emph on
+Note the layer index of the newly created layer for later use!
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:QMZ-atom-list"
+
+\end_inset
+
+Obtain a list of atom numbers which will be moved to the QMZ or PCHR layer\SpecialChar \@.
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+in VMD console:
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+qmzone=atomselect <molecule number> 
+\begin_inset Quotes eld
+\end_inset
+
+<atom selection string>
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\family typewriter
+qmzone get serial
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Move QMZ or PCHR layers into the respective layer.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+choose one of:
+\end_layout
+
+\begin_layout Plain Layout
+
+\family typewriter
+tofdf --tolayer <layer index> --atomlist=
+\begin_inset Quotes erd
+\end_inset
+
+<list of atom serial numbers counting from 1>
+\begin_inset Quotes erd
+\end_inset
+
+ fullsystem.fdf partitioned.fdf
+\begin_inset Newline newline
+\end_inset
+
+tofdf --tolayer <layer index> --atomindices=
+\begin_inset Quotes erd
+\end_inset
+
+<list of atom serial numbers counting from 0>
+\begin_inset Quotes erd
+\end_inset
+
+ fullsystem.fdf partitioned.fdf
+\end_layout
+
+\begin_layout Plain Layout
+as appropriate for your atom list.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Load the partitioned geometry into geostats and select the desired embedding
+ method from the edit menu\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+In the embedding dialog, enter the embedding parameters\SpecialChar \@.
+ If you are constructiong
+ a cluster for parameter fitting/validation, set the link atom distance
+ factor to 1.0\SpecialChar \@.
+ Klick 
+\begin_inset Quotes eld
+\end_inset
+
+embed
+\begin_inset Quotes erd
+\end_inset
+
+ and copy/paste the embedding results displayed in the dialog for your documenta
+tion\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Save the embedded geometry to a new .fdf file, using the file->save as menu\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Save the QM zone atoms to a .gen file as DFTB input
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+togen -l <QMZ layer index> embedded.fdf input.gen
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+If your extended system is periodic, 
+\emph on
+manually!
+\emph default
+ Change the geometry mode of input.gen to 
+\begin_inset Quotes eld
+\end_inset
+
+c
+\begin_inset Quotes erd
+\end_inset
+
+ for cluster and delete the last 4 lines in the file, which describe the
+ periodic boundary conditions\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Obtain a list of the serial numbers of atoms in the QMZ input file (input.gen)
+ to keep fixed during the calculations, this should at least include the
+ QMH and QML atoms\SpecialChar \@.
+ Cf.
+ step
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:QMZ-atom-list"
+
+\end_inset
+
+\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Save the external charge distribution as an .xyzq file for DFTB input\SpecialChar \@.
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+toxyzq -l <PCHR layer index> embedded.fdf pchr.xyzq
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Add the appropriate external electic field specification to the dftb_in.hsd
+ file for your later calculations\SpecialChar \@.
+ Set the Gaussian blur width as determined
+ during fitting\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Standard
+The external charges files are independent of the link atom distance factor,
+ however, they depend upon the embedding method and any additional parameters
+ an individual method may use\SpecialChar \@.
+ Make sure, not to re-use inappropriate .xyzq
+ files for newly-embedded clusters!
+\end_layout
+
+\begin_layout Subsection
+Fitting of embedding parameters
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:ParameterFitting"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To determine the proper Gaussian blur widths of the external charge distributin
+ and the appropriate link-atom distance factor, the self-consitent atomic
+ partial charges and the density of states of the embedded cluster must
+ be mapped with respect to the two embedding parameters and compared to
+ the reference system\SpecialChar \@.
+ Refer to Ref.
+\begin_inset space ~
+\end_inset
+
+ for an in-depth scientific discussion of the fitting criteria\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Standard
+The workflow for the parameter mapping is
+\end_layout
+
+\begin_layout Enumerate
+Construct a QM surface cluster as described in section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:ClusterConstruction"
+
+\end_inset
+
+\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Save the QM zone atoms to an .fdf file as reference for the fitting
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+tofdf -l <QMZ layer index> embedded.fdf QMZ-reference.fdf
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Save the quasi single particle eigenvalues from the reference calculation
+\end_layout
+
+\begin_layout Enumerate
+Do test calculations of the QM zone mapped over Gaussian blur widths and
+ link atom distance factors.
+ The necessary mapping ranges may vary between materials\SpecialChar \@.
+ In aluminna, GBW
+ ranges from 0.1
+\begin_inset Formula $\ldots$
+\end_inset
+
+5 a.u.
+ and LADF ranged between 
+\begin_inset Formula $0.5\ldots1.2$
+\end_inset
+
+ have proved reasonable\SpecialChar \@.
+
+\begin_inset Newline newline
+\end_inset
+
+In the mapping calculations, set the maximum number of SCC iterations to
+ a high value (e.g.
+ 1000) to avoid convergence problems\SpecialChar \@.
+ Keep all atomic positions fixed at
+ the coordinates from the reference calculation\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Map the atomic charge and DOS reproduction parameters
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100line%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\family typewriter
+chargeanalys-2D QMZ-reference.fdf
+\begin_inset Newline newline
+\end_inset
+
+dosanalys-2D reference-band.out --min=<minimum energy> --max=<maximum energy>
+ --shifted-range-states=<reference VBM>,<reference CB
+\family default
+M>
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+The energy ranges should be chosen to encompass the valence and conduction
+ bands of the reference calculations with a few eV headroom on both ends
+ to allow for band structure shifts\SpecialChar \@.
+ It may be useful to change the peak
+ function width and sampling step-widths for the DOS analysis from their
+ default values, which are rather coarse\SpecialChar \@.
+
+\begin_inset Newline newline
+\end_inset
+
+The DOS analyis is slow, expect runtimes of ~20 minutes to 1 hour for typical
+ mappings\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Enumerate
+Plot the mapped embedding results and chose a combination of Gaussian blur
+ width and link atom distance factor based on the results\SpecialChar \@.
+ It has proved
+ reasonable to rank the targets in the following manner:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+RMS charge deviation
+\end_layout
+
+\begin_layout Enumerate
+summed charge deviation
+\end_layout
+
+\begin_layout Enumerate
+band shift
+\end_layout
+
+\begin_layout Enumerate
+state sum in shifted energy range
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Perform further validation of the embedded cluster at the chosen parameters
+ (cf.
+\begin_inset space ~
+\end_inset
+
+section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Validation"
+
+\end_inset
+
+)\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Subsubsection*
+Mapping script example
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+(Note that mapping ranges are shortened for readability.)
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align left
+
+\family typewriter
+#!/bin/bash
+\begin_inset Newline newline
+\end_inset
+
+binary=/usr/locla/bin/dftb+_1.1
+\begin_inset Newline newline
+\end_inset
+
+# i runs over Gaussian blur widths
+\begin_inset Newline newline
+\end_inset
+
+for i in 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4
+\begin_inset Newline newline
+\end_inset
+
+do
+\begin_inset Newline newline
+\end_inset
+
+# j runs over link atom distance factors
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+for j in 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+do
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+/usr/local/bin/scale_linkdists qmz.gen qmz-moved.gen 100 $j
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+echo -n .
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+echo "GaussianBlurWidth="$i > gbw.in
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+echo -n .
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+$binary > gbw-$i-$j.out
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+mv detailed.out detailed-$i-$j.out
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+mv band.out band-$i-$j.out
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+if [ -f results.tag ];
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+then 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+mv results.tag results-$i-$j.tag
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+fi
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+echo -n .
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+gzip -9 -f *-$i-$j.out *-$i-$j.tag
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+echo -n :
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+done;
+\begin_inset Newline newline
+\end_inset
+
+done;
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Validating an embedded cluster
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Validation"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Validation is based on qualitative and quantitative checks, how far the
+ embedded cluster deviates from the reference geometry, when atomic positions
+ of the inner atoms (i.e.
+ all but the QML and QMH atoms) are optimized\SpecialChar \@.
+ No bond-braking or formation
+ should be tolerated, the RMS displacement must be as small as possible
+ and within acceptable limits for the intended application\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Standard
+Further checks of the differences between reaction energies etc.
+ of small reaction between fully QM reference caluculations and the embedded
+ system are advised\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Section
+Known geometry file formats
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:geometry-formats"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+.xyz (read/write)
+\end_layout
+
+\begin_layout Standard
+The widely used xmol format for carthesian corrdinates of atoms in molecules.
+ The first line starts with an integer giving the number of atoms in the
+ file, the second line is a comment line and ignored.
+ Following lines list the element symbol and x,y,z coordinates in Angstrom
+ of one atom each.
+ If additional fields are encountered, the 5th column is interpreteed as
+ the atomic valence population (number of electrons in the valence shell,
+ not the atomic charge), further columns are ignored.
+ THis follows the convention of DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+.
+ In most cases, additional geometries after the first one are ignored.
+ only the pathprepare and pathprops utilities read multi-frame .xyz files
+ as reaction paths.
+\end_layout
+
+\begin_layout Subsubsection*
+example: CO molecule
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\size footnotesize
+2
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+C 0.0 0.0 0.0
+\begin_inset Newline newline
+\end_inset
+
+O 1.2 0.0 0.0
+\end_layout
+
+\begin_layout Subsection
+.gen (read/write)
+\end_layout
+
+\begin_layout Standard
+Generic molecular and crystalline geometry file format, originally from
+ DFTB implementations.
+ This file format is flexible in its support of cluster and supercell geometries.
+ Please refer to the DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+ documentation for a detailed description of the geometry file format.
+\end_layout
+
+\begin_layout Subsubsection*
+example: CO molecule
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\size footnotesize
+# number_of_atoms mode flag
+\begin_inset Newline newline
+\end_inset
+
+ 2 C
+\begin_inset Newline newline
+\end_inset
+
+ # chemical symbols of atom types
+\begin_inset Newline newline
+\end_inset
+
+ O C 
+\begin_inset Newline newline
+\end_inset
+
+ # number_of_atom type_of_atom cartesian_coordinates_in_angstroms
+\begin_inset Newline newline
+\end_inset
+
+ 1 1 0.0 0.0 0.0
+\begin_inset Newline newline
+\end_inset
+
+ 2 2 1.2 0.0 0.0 
+\end_layout
+
+\begin_layout Standard
+4 more lines follow for periodic structures.
+ These contain the coordinates of the origin and three vectors characterizing
+ the supercell.
+\end_layout
+
+\begin_layout Itemize
+The atom type number refers to the ordering of the chemical symbols in line
+ 2.
+ These together determine the element of each atom, other than in dftb.
+\end_layout
+
+\begin_layout Itemize
+The atom numbers (first column of the coordinate lines) are for convenience
+ only but required.
+ 
+\end_layout
+
+\begin_layout Itemize
+The flag (first line, second column) is either 
+\begin_inset Quotes eld
+\end_inset
+
+C
+\begin_inset Quotes erd
+\end_inset
+
+ for clusters/molecules or 
+\begin_inset Quotes eld
+\end_inset
+
+S
+\begin_inset Quotes erd
+\end_inset
+
+ for supercells.
+ 
+\end_layout
+
+\begin_layout Subsection
+.fmg (read/write)
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:fmg-format"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The Flexible Molecular Geometry file format is an xml format intended to
+ store all geometry information that can be processed by comatsci.
+ As an .xml format it is user-editable in principle, however, an xml-aware
+ editor is strongly recommended.
+ Currently fmg provides the following features:
+\end_layout
+
+\begin_layout Itemize
+Supercell and cluster geometries
+\end_layout
+
+\begin_layout Itemize
+Specification of multiple geometries, e.g.
+ for storing reaction paths
+\end_layout
+
+\begin_layout Itemize
+Specification of geometry layers to partition the geometry
+\end_layout
+
+\begin_layout Itemize
+Specification of geometry dimers for use with the dimer method
+\end_layout
+
+\begin_layout Itemize
+Specification of atomic properties:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+charge
+\end_layout
+
+\begin_layout Itemize
+layer
+\end_layout
+
+\begin_layout Itemize
+subtype (e.g.
+ for different force-field atom types within one element)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Storage of additional trajectory information outside the geometry declaration:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Energy
+\end_layout
+
+\begin_layout Itemize
+Velocities
+\end_layout
+
+\begin_layout Itemize
+Forces
+\end_layout
+
+\begin_layout Itemize
+General trajectory information:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Number of geometry iterations so far
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+C.f.
+\begin_inset space ~
+\end_inset
+
+appendix
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:fmg-dtd"
+
+\end_inset
+
+ for the xml document type definition of the flexible molecular geometry
+ format.
+\end_layout
+
+\begin_layout Subsubsection
+example: water
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<!DOCTYPE fmg>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<fmg>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+<geometry>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<mode>C</mode>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<lattice orgx=
+\begin_inset Quotes erd
+\end_inset
+
+0.0
+\begin_inset Quotes erd
+\end_inset
+
+ orgy=
+\begin_inset Quotes erd
+\end_inset
+
+0.0
+\begin_inset Quotes erd
+\end_inset
+
+ orgz=
+\begin_inset Quotes erd
+\end_inset
+
+0.0
+\begin_inset Quotes erd
+\end_inset
+
+ lunit=
+\begin_inset Quotes erd
+\end_inset
+
+ang
+\begin_inset Quotes erd
+\end_inset
+
+>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<latvec_a>1.0 0.0 0.0</latvec_a>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<latvec_b>0.0 1.0 0.0</latvec_b>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<latvec_c>0.0 0.0 1.0</latvec_c>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</lattice>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<layer>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<lname>default</lname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<li>0</li>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</layer>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<atom lunit="ang">
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<x>0.98</x> <y>0.0</y> <z>0.0</z>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<el>1</el>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<st>H</st>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<chr>0.0</chr>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<li>0</li>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</atom>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<atom lunit="ang">
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<x>-0.49</x> <y>0.85</y> <z>0.0</z>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<el>1</el>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<st>H</st>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<chr>0.0</chr>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</atom>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<atom lunit="ang">
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<x>0.0</x> <y>0.0</y> <z>0.0</z>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<el>8</el>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<st>O</st>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+<chr>0.0</chr>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+hspace{1cm}
+\end_layout
+
+\end_inset
+
+</atom>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+</geometry>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+</fmg>
+\end_layout
+
+\begin_layout Standard
+The following rules apply:
+\end_layout
+
+\begin_layout Itemize
+the 
+\family typewriter
+<fmg>
+\family default
+ document tag is mandatory
+\end_layout
+
+\begin_layout Itemize
+multiple 
+\family typewriter
+<geometry>
+\family default
+ tags are allowed.
+ The geoconv and geostats tools ignore all but the first geometry.
+\end_layout
+
+\begin_layout Itemize
+all attributes are optional
+\end_layout
+
+\begin_layout Itemize
+possible value for lunit are:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+ang
+\family default
+: Angstrom, default value
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+au
+\family default
+: Bohr radii
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<mode>
+\family default
+ is optional, possible values are:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+C
+\family default
+ --- cluster, default value
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+S
+\family default
+ --- supercell
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<lattice>
+\family default
+ is optional
+\begin_inset Newline newline
+\end_inset
+
+The 
+\family typewriter
+org
+\family default
+[
+\family typewriter
+xyz
+\family default
+] attributes specify the supercell origin (as in the .gen format) and are
+ mostly ignored
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<lattice>
+\family default
+ must contain exactly one of each of the following elements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<latvec_a>
+\family default
+: first lattice vector, 3 coordinates
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<latvec_b>
+\family default
+: second lattice vector, 3 coordinates
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<latvec_c>
+\family default
+: third lattice vector, 3 coordinates
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<layer>
+\family default
+ is optional, multiple layers may be specified.
+ 
+\family typewriter
+<layer>
+\family default
+ must contain exactly one 
+\family typewriter
+<lname>
+\family default
+ and 
+\family typewriter
+<li>
+\family default
+ element
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<atom>
+\family default
+ must contain exactly one of each of the following elements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<x>
+\family default
+: x coordinate
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<y>
+\family default
+: y coordinate
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<z>
+\family default
+: z coordinate
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<el>
+\family default
+: element number
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<atom>
+\family default
+ may contain one of each of the following elements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<li>
+\family default
+: layer index, default 0
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<st>
+\family default
+: subtype, default [element symbol]
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<chr>
+\family default
+: charge, default 0.0.
+ Unit is electrons, negative values signify electron excess
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<lpop>:
+\family default
+ l-shell populations, default is empty
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<trjstep>
+\family default
+ is outside the geometry definition.
+ It stores data applying to one single 
+\family typewriter
+<geometry>
+\family default
+.
+ To store data for a geometry trajectory, an equal number of trjstep elements
+ in the same order should be present.
+ It may contain the following subelements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<nrg>:
+\family default
+ Image total Energy
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<velocities>:
+\family default
+ Image Velocities data block
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<forces>:
+\family default
+ Image forces data block
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<trjinfo>
+\family default
+ is outside the geometry definition.
+ It stores general information applying to the whole trajectory, rather
+ than stepwise data, as in 
+\family typewriter
+<trjstep>
+\family default
+.
+ Only one 
+\family typewriter
+<trjinfo>
+\family default
+ element should be present in one 
+\family typewriter
+<fmg>
+\family default
+ and only the first element encountered is evaluated.
+ subelements:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<stepcount>
+\family default
+: Number of geometry iterations performed so far.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+<dimer>
+\family default
+ must contain exactly one 
+\family typewriter
+<geometry>
+\family default
+ element, specifying the dimer midpoint.
+ It must also contain exactly one 
+\family typewriter
+<DeltaR>
+\family default
+ element, specifying the dimer translation vector 
+\begin_inset Formula $\vec{\mbox{R}_{1}}-\vec{\mbox{R}_{0}}$
+\end_inset
+
+.
+ Additionally the following subelements are allowed:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+<NoGradInRot />
+\family default
+ Boolean specifier not to use gradient calculation in rotation step.
+ 
+\emph on
+deprecated!
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<curvature>
+\family default
+ The curvature in dimer direction
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<E0 eunit=
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+>
+\family default
+ Calculated energy at dimer midpoint, possible units are eV and H.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<E1 eunit=
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+>
+\family default
+ Calculated energy at dimer endpoint 1, units as in E0.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<E2 eunit=
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+>
+\family default
+ Extrapolated energy at dimer endpoint 2, units as in E0.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<f0>
+\family default
+ Calculated force at dimer midpoint in a.u..
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<f1>
+\family default
+ Calculated force at dimer endpoint 1 in a.u..
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<f2>
+\family default
+ Extrapolated force at dimer endpoint 2 in a.u..
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+<fN>
+\family default
+ Projected rotational force on dimer in a.u..
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+.pdb (write only)
+\end_layout
+
+\begin_layout Standard
+Protein database format.
+ Refer to PDB documentation for details.
+ .fmg layers are written as segments.
+\end_layout
+
+\begin_layout Subsection
+.xyzq (write only)
+\end_layout
+
+\begin_layout Standard
+Carthesian coordinates and atomic charges in a.u..
+ Suitable as external electric field input in DFTB
+\begin_inset Formula $^{+}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection*
+example: water
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+1.85193164 0.00000000 0.00000000 0.2938
+\begin_inset Newline newline
+\end_inset
+
+-0.54141424 1.51278662 0.00000000 0.2938
+\begin_inset Newline newline
+\end_inset
+
+0.05430593 -0.19438394 0.00000000 -0.5877 
+\end_layout
+
+\begin_layout Subsection
+.tm (write only)
+\end_layout
+
+\begin_layout Standard
+Turbomole 
+\family typewriter
+coord:
+\family default
+ block.
+ Refer to Turbomole documentation for details.
+\end_layout
+
+\begin_layout Subsection
+.fdf (write only)
+\end_layout
+
+\begin_layout Standard
+Geometry specification in SIESTA fdf input format.
+ Refer to SIESTA documentation for details.
+\end_layout
+
+\begin_layout Section
+\start_of_appendix
+Non-Profit Open Software License ("Non-Profit OSL") 3.0
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:NP-OSL"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Licensed under the Non-Profit Open Software License version 3.0
+\end_layout
+
+\begin_layout Standard
+1) Grant of Copyright License.
+ Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable
+ license, for the duration of the copyright, to do the following:
+\end_layout
+
+\begin_layout Standard
+a) to reproduce the Original Work in copies, either alone or as part of
+ a collective work;
+\end_layout
+
+\begin_layout Standard
+b) to translate, adapt, alter, transform, modify, or arrange the Original
+ Work, thereby creating derivative works ("Derivative Works") based upon
+ the Original Work;
+\end_layout
+
+\begin_layout Standard
+c) to distribute or communicate copies of the Original Work and Derivative
+ Works to the public, with the proviso that copies of Original Work or Derivativ
+e Works that You distribute or communicate shall be licensed under this
+ Non-Profit Open Software License or as provided in section 17(d);
+\end_layout
+
+\begin_layout Standard
+d) to perform the Original Work publicly; and
+\end_layout
+
+\begin_layout Standard
+e) to display the Original Work publicly.
+\end_layout
+
+\begin_layout Standard
+2) Grant of Patent License.
+ Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable
+ license, under patent claims owned or controlled by the Licensor that are
+ embodied in the Original Work as furnished by the Licensor, for the duration
+ of the patents, to make, use, sell, offer for sale, have made, and import
+ the Original Work and Derivative Works.
+\end_layout
+
+\begin_layout Standard
+3) Grant of Source Code License.
+ The term "Source Code" means the preferred form of the Original Work for
+ making modifications to it and all available documentation describing how
+ to modify the Original Work.
+ Licensor agrees to provide a machine-readable copy of the Source Code of
+ the Original Work along with each copy of the Original Work that Licensor
+ distributes.
+ Licensor reserves the right to satisfy this obligation by placing a machine-rea
+dable copy of the Source Code in an information repository reasonably calculated
+ to permit inexpensive and convenient access by You for as long as Licensor
+ continues to distribute the Original Work.
+\end_layout
+
+\begin_layout Standard
+4) Exclusions From License Grant.
+ Neither the names of Licensor, nor the names of any contributors to the
+ Original Work, nor any of their trademarks or service marks, may be used
+ to endorse or promote products derived from this Original Work without
+ express prior permission of the Licensor.
+ Except as expressly stated herein, nothing in this License grants any license
+ to Licensor's trademarks, copyrights, patents, trade secrets or any other
+ intellectual property.
+ No patent license is granted to make, use, sell, offer for sale, have made,
+ or import embodiments of any patent claims other than the licensed claims
+ defined in Section 2.
+ No license is granted to the trademarks of Licensor even if such marks
+ are included in the Original Work.
+ Nothing in this License shall be interpreted to prohibit Licensor from
+ licensing under terms different from this License any Original Work that
+ Licensor otherwise would have a right to license.
+\end_layout
+
+\begin_layout Standard
+5) External Deployment.
+ The term "External Deployment" means the use, distribution, or communication
+ of the Original Work or Derivative Works in any way such that the Original
+ Work or Derivative Works may be used by anyone other than You, whether
+ those works are distributed or communicated to those persons or made available
+ as an application intended for use over a network.
+ As an express condition for the grants of license hereunder, You must treat
+ any External Deployment by You of the Original Work or a Derivative Work
+ as a distribution under section 1(c).
+\end_layout
+
+\begin_layout Standard
+6) Attribution Rights.
+ You must retain, in the Source Code of any Derivative Works that You create,
+ all copyright, patent, or trademark notices from the Source Code of the
+ Original Work, as well as any notices of licensing and any descriptive
+ text identified therein as an "Attribution Notice." You must cause the Source
+ Code for any Derivative Works that You create to carry a prominent Attribution
+ Notice reasonably calculated to inform recipients that You have modified
+ the Original Work.
+\end_layout
+
+\begin_layout Standard
+7) Warranty of Provenance and Disclaimer of Warranty.
+ The Original Work is provided under this License on an "AS IS" BASIS and
+ WITHOUT WARRANTY, either express or implied, including, without limitation,
+ the warranties of non-infringement, merchantability or fitness for a particular
+ purpose.
+ THE ENTIRE RISK AS TO THE QUALITY OF THE ORIGINAL WORK IS WITH YOU.
+ This DISCLAIMER OF WARRANTY constitutes an essential part of this License.
+ No license to the Original Work is granted by this License except under
+ this disclaimer.
+\end_layout
+
+\begin_layout Standard
+8) Limitation of Liability.
+ Under no circumstances and under no legal theory, whether in tort (including
+ negligence), contract, or otherwise, shall the Licensor be liable to anyone
+ for any direct, indirect, special, incidental, or consequential damages
+ of any character arising as a result of this License or the use of the
+ Original Work including, without limitation, damages for loss of goodwill,
+ work stoppage, computer failure or malfunction, or any and all other commercial
+ damages or losses.
+ This limitation of liability shall not apply to the extent applicable law
+ prohibits such limitation.
+\end_layout
+
+\begin_layout Standard
+9) Acceptance and Termination.
+ If, at any time, You expressly assented to this License, that assent indicates
+ your clear and irrevocable acceptance of this License and all of its terms
+ and conditions.
+ If You distribute or communicate copies of the Original Work or a Derivative
+ Work, You must make a reasonable effort under the circumstances to obtain
+ the express assent of recipients to the terms of this License.
+ This License conditions your rights to undertake the activities listed
+ in Section 1, including your right to create Derivative Works based upon
+ the Original Work, and doing so without honoring these terms and conditions
+ is prohibited by copyright law and international treaty.
+ Nothing in this License is intended to affect copyright exceptions and
+ limitations (including "fair use" or "fair dealing").
+ This License shall terminate immediately and You may no longer exercise
+ any of the rights granted to You by this License upon your failure to honor
+ the conditions in Section 1(c).
+\end_layout
+
+\begin_layout Standard
+10) Termination for Patent Action.
+ This License shall terminate automatically and You may no longer exercise
+ any of the rights granted to You by this License as of the date You commence
+ an action, including a cross-claim or counterclaim, against Licensor or
+ any licensee alleging that the Original Work infringes a patent.
+ This termination provision shall not apply for an action alleging patent
+ infringement by combinations of the Original Work with other software or
+ hardware.
+\end_layout
+
+\begin_layout Standard
+11) Jurisdiction, Venue and Governing Law.
+ Any action or suit relating to this License may be brought only in the
+ courts of a jurisdiction wherein the Licensor resides or in which Licensor
+ conducts its primary business, and under the laws of that jurisdiction
+ excluding its conflict-of-law provisions.
+ The application of the United Nations Convention on Contracts for the Internati
+onal Sale of Goods is expressly excluded.
+ Any use of the Original Work outside the scope of this License or after
+ its termination shall be subject to the requirements and penalties of copyright
+ or patent law in the appropriate jurisdiction.
+ This section shall survive the termination of this License.
+\end_layout
+
+\begin_layout Standard
+12) Attorneys' Fees.
+ In any action to enforce the terms of this License or seeking damages relating
+ thereto, the prevailing party shall be entitled to recover its costs and
+ expenses, including, without limitation, reasonable attorneys' fees and
+ costs incurred in connection with such action, including any appeal of
+ such action.
+ This section shall survive the termination of this License.
+\end_layout
+
+\begin_layout Standard
+13) Miscellaneous.
+ If any provision of this License is held to be unenforceable, such provision
+ shall be reformed only to the extent necessary to make it enforceable.
+\end_layout
+
+\begin_layout Standard
+14) Definition of "You" in This License.
+ "You" throughout this License, whether in upper or lower case, means an
+ individual or a legal entity exercising rights under, and complying with
+ all of the terms of, this License.
+ For legal entities, "You" includes any entity that controls, is controlled
+ by, or is under common control with you.
+ For purposes of this definition, "control" means (i) the power, direct
+ or indirect, to cause the direction or management of such entity, whether
+ by contract or otherwise, or (ii) ownership of fifty percent (50%) or more
+ of the outstanding shares, or (iii) beneficial ownership of such entity.
+\end_layout
+
+\begin_layout Standard
+15) Right to Use.
+ You may use the Original Work in all ways not otherwise restricted or condition
+ed by this License or by law, and Licensor promises not to interfere with
+ or be responsible for such uses by You.
+\end_layout
+
+\begin_layout Standard
+16) Modification of This License.
+ This License is Copyright © 2005 Lawrence Rosen.
+ Permission is granted to copy, distribute, or communicate this License
+ without modification.
+ Nothing in this License permits You to modify this License as applied to
+ the Original Work or to Derivative Works.
+ However, You may modify the text of this License and copy, distribute or
+ communicate your modified version (the "Modified License") and apply it
+ to other original works of authorship subject to the following conditions:
+ (i) You may not indicate in any way that your Modified License is the "Open
+ Software License" or "OSL" and you may not use those names in the name
+ of your Modified License; (ii) You must replace the notice specified in
+ the first paragraph above with the notice "Licensed under <insert your
+ license name here>" or with a notice of your own that is not confusingly
+ similar to the notice in this License; and (iii) You may not claim that
+ your original works are open source software unless your Modified License
+ has been approved by Open Source Initiative (OSI) and You comply with its
+ license review and certification process.
+\end_layout
+
+\begin_layout Standard
+17) Non-Profit Amendment.
+ The name of this amended version of the Open Software License ("OSL 3.0")
+ is "Non-Profit Open Software License 3.0".
+ The original OSL 3.0 license has been amended as follows:
+\end_layout
+
+\begin_layout Standard
+(a) Licensor represents and declares that it is a not-for-profit organization
+ that derives no revenue whatsoever from the distribution of the Original
+ Work or Derivative Works thereof, or from support or services relating
+ thereto.
+\end_layout
+
+\begin_layout Standard
+(b) The first sentence of Section 7 ["Warranty of Provenance"] of OSL 3.0
+ has been stricken.
+ For Original Works licensed under this Non-Profit OSL 3.0, LICENSOR OFFERS
+ NO WARRANTIES WHATSOEVER.
+\end_layout
+
+\begin_layout Standard
+(c) In the first sentence of Section 8 ["Limitation of Liability"] of this
+ Non-Profit OSL 3.0, the list of damages for which LIABILITY IS LIMITED now
+ includes "direct" damages.
+\end_layout
+
+\begin_layout Standard
+(d) The proviso in Section 1(c) of this License now refers to this "Non-Profit
+ Open Software License" rather than the "Open Software License".
+ You may distribute or communicate the Original Work or Derivative Works
+ thereof under this Non-Profit OSL 3.0 license only if You make the representatio
+n and declaration in paragraph (a) of this Section 17.
+ Otherwise, You shall distribute or communicate the Original Work or Derivative
+ Works thereof only under the OSL 3.0 license and You shall publish clear
+ licensing notices so stating.
+ Also by way of clarification, this License does not authorize You to distribute
+ or communicate works under this Non-Profit OSL 3.0 if You received them
+ under the original OSL 3.0 license.
+\end_layout
+
+\begin_layout Standard
+(e) Original Works licensed under this license shall reference "Non-Profit
+ OSL 3.0" in licensing notices to distinguish them from works licensed under
+ the original OSL 3.0 license.
+\end_layout
+
+\begin_layout Section
+flexible molecular geometry DTD
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:fmg-dtd"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT mode (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT lattice (latvec_a, latvec_b, latvec_c)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST lattice
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+orgx CDATA "0.0"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+orgy CDATA "0.0"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+orgz CDATA "0.0"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+lunit (ang|au) "ang"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT latvec_a (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT latvec_b (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT latvec_c (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT layer (li, lname)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT li (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT lname (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT atom (x, y, z, el, st?, chr?, li?, lpop?)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST atom
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+lunit (ang|au) "ang"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT x (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT y (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT z (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT el (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT st (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT chr (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT nrg (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT lpop (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST nrg
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+eunit (eV|au) "au"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT velocities (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT forces (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT geometry (mode?, lattice?, layer?, atom+)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT trjstep (nrg?,velocities?,forces?)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT fmg (geometry+,trjstep*,trjinfo?)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT stepcount (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT trjinfo (stepcount?)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT DeltaR (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST DeltaR
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+lunit (ang|au) "ang"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT NoGradInRot EMPTY>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT curvature (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT E0 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST E0
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+eunit (eV|au|H) "au"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT E1 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST E1
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+eunit (eV|au|H) "au"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT E2 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ATTLIST E2
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+eunit (eV|au|H) "au"
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT f0 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT f1 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT f2 (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT fN (#PCDATA)>
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\family typewriter
+<!ELEMENT Dimer (Geometry,DeltaR,NoGradInRot?,(E0,E1)?,E2?,(f0,f1)?,f2?,fN?,curv
+ature?)>
+\end_layout
+
+\end_body
+\end_document

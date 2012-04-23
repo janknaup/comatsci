@@ -1,0 +1,222 @@
+#!/usr/bin/python
+##############################################################################
+# dosanalys
+# Part of COmputational MAterials SCience toolkit - comatsci
+# (c) 2005-2011 by Jan M. Knaup <janknaup@gmail.com>
+# all rights reserved
+##############################################################################
+# Licensed under a free for non-commercial use, do not distribute basis
+# see file LICENSE for details.
+##############################################################################
+'''
+Created on Jun 8, 2011
+
+@author: Jan M. Knaup <janknaup@gmail.com>
+'''
+
+from comatsci import DOS
+#from comatsci import utils
+import numpy.oldnumeric as num
+import sys
+from optparse import OptionParser
+
+###############################################################################
+# some constants
+###############################################################################
+
+
+###############################################################################
+# function definitions
+###############################################################################
+
+def dosCorrelate(DOSa,DOSb,emin=None,emax=None):
+    """return cross-correlation of two energy/DOS arrays
+    @param DOSa first DOS array
+    @param DOSb second DOS array
+    @param emin minimum energy of comparison range
+    @param emax maximum energy of comparison range"""
+    # get energy step widths of bos DOS arrays and check if they are the same
+    stepA=DOSa[0][-1]-DOSa[0][-2]
+    stepB=DOSb[0][-1]-DOSb[0][-2]
+    if stepA-stepB>1E-12:
+        raise ValueError("step widths of DOS-es to correlate differ")
+    # get minimum and maximum energies
+    rangemin=min(DOSa[0][0],DOSb[0][0])
+    rangemax=max(DOSa[0][-1],DOSb[0][-1])
+    if emin==None:
+        emin=rangemin
+    if emax==None:
+        emax=rangemax
+    # initialize energy-aligned and zero-padded DOS arrays for correlation
+    tempA=num.zeros((int((emax-emin)/stepA)+2,),num.Float)
+    tempB=num.zeros((int((emax-emin)/stepA)+2,),num.Float)
+    stepsA=len(DOSa[1])
+    stepsB=len(DOSb[1])
+    offsetA=int((DOSa[0][0]-emin)/stepA)
+    offsetB=int((DOSb[0][0]-emin)/stepA)
+    tempA[offsetA:offsetA+stepsA]=DOSa[1]
+    tempB[offsetB:offsetB+stepsB]=DOSb[1]
+    # normalize both mapped DOS arrays to integrate to electron count in energy range
+    tempA*=stepA
+    tempB*=stepA
+    # build energy shifts array
+    erange=emax-emin
+    eshifts=num.arrayrange((-erange/2.)-stepA,(erange/2.),stepA)
+    # determine, which slice of the mapped DOS-arrays to use
+    minidx=int((emin-rangemin)//stepA)
+    maxidx=minidx+len(eshifts)
+    # calculate cross correlation
+    #   mode 1: len(output array) = len(largest input), zero-pad for calculation
+    crossCorrelation=num.cross_correlate(tempA[minidx:maxidx],tempB[minidx:maxidx],1)
+    # combine all to output array and return
+    return num.array((eshifts,crossCorrelation),num.Float)
+
+
+# initialize option parser
+
+if __name__ == '__main__':
+    usage="usage: %prog <eigenstates> [<output file>]"
+    parser=OptionParser(usage)
+    
+    parser.add_option("-f","--peak-function",
+                action="store", metavar="PF", dest="peakFunction", type="choice", choices=["gauss","lorentz"], default="lorentz",
+                help="Calculate the DOS as a superposition of this type of PFs at the eigenvalues. default=%default")
+    
+    parser.add_option("-w","--peak-width",
+                action="store", metavar="PF", dest="peakWidth", type="float", default="0.3",
+                help="Width parameter of the peak function (HWHM for lorentz, sigma for gauss). default=%default")
+    
+    parser.add_option("-s","--step-width",
+                action="store", metavar="SW", dest="stepWidth", type="float", default="0.1",
+                help="Sample the DOS-s at every SW eV. default=%default")
+    
+    parser.add_option("--min",
+                action="store", metavar="E", dest="emin", type="float",
+                help="Set lower bound of DOS range to E. default: lowest eigenvalue")
+    
+    parser.add_option("--max",
+                action="store", metavar="E", dest="emax", type="float",
+                help="Set upper bound of DOS range to E. default: highest eigenvalue")
+                
+    parser.add_option("--correlate",
+                action="store", metavar="F", dest="correlate", type="string", default=None,
+                help="Correltate DOS to reference DOS from file F.")
+    
+    parser.add_option("-k","--k-weights",
+                      action="store", metavar="K", dest="kweights", type="string", default=None,
+                      help="Apply the k-point weights given in K when calculating k-weighted DOS. K must be a string of whitespace separated numbers")
+
+
+    parser.add_option("-J","--JDOS",
+                      action="store_true", dest="JDOS", default=False,
+                      help="output joint density of states (JDOS) instead of DOS.")
+    
+    parser.add_option("--slow",
+                      action="store_true", dest="slow", default=False,
+                      help="use slow summing of peak function values centered at eigenvalues, instead of eigenvalue binning algorithm. higher precision at large step widths but very much slower")
+    
+    # parse command line
+    (options,args)=parser.parse_args()
+    # sanity check arguments
+    if len(args)<1:
+        print "Must specify exactly one band.out file. Abort."
+        sys.exit(1)
+    
+    if len(args)>2:
+        print "Unrecognized argument(s) in command line. Abort"
+        print parser.usage
+        sys.exit(1)
+    
+    
+    # initialize DOS object and read reference data
+    print >> sys.stderr, "reading Eigenstates",
+    sys.stdout.flush()
+    refdos=DOS.DOS()
+    if "aims" in args[0].lower():
+        refdos.readAimsOutput(args[0])
+    elif ".out" in args[0].lower():
+        refdos.readBandOut(args[0],fakeFillings=True)
+    elif ".eig" in args[0].lower():
+        refdos.readSiestaEIG(args[0])
+    elif ".tag" in args[0].lower():
+        refdos.readTaggedOut(args[0])
+    else:
+        print "Error, unrecognized eigenstate file format"
+        sys.exit(1)
+    
+    # if k-point weights are specified, set them in the DOS object
+    if options.kweights!=None:
+        try:
+            tempkweights=num.array([ float(x) for x in options.kweights.splti() ],num.Float)
+        except:
+            print "Error parsing specified k-point weights. abort."
+            raise
+        if len(tempkweights)!=refdos.kpoints:
+            raise ValueError("Number of k-point weights from command line does not match k-points in input file")
+        refdos.kweights=tempkweights
+    print >> sys.stderr, "done."
+    
+    if options.JDOS:
+        print >> sys.stderr, "calculating JDOS"
+        jdosdata=refdos.JDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+        print >> sys.stderr, "done."
+        if len(args)==2:
+            output=open(args[1],"w")
+        else:
+            output=sys.stdout
+        
+        for i in range(len(jdosdata[0])):
+            print >> output, "%24E  %24E" % (jdosdata[0][i],jdosdata[1][i])
+        if len(args)==2:
+            output.close()
+        
+    else:
+        print >> sys.stderr, "calculating DOS"
+        if options.slow:
+            refdata=refdos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+        else:
+            refdata=refdos.fastSpreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+        print >> sys.stderr, "done."
+    
+        # if correlation was requested, read correlation DOS
+        if options.correlate!=None:
+            print >> sys.stderr, "reading correlation Eigenstates and calculating DOS",
+            sys.stdout.flush()
+            correldos=DOS.DOS()
+            correldos.readBandOut(options.correlate)
+            if options.slow:
+                correldata=correldos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+            else:
+                correldata=correldos.fastSpreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)
+            print >> sys.stderr, "done."
+            cc=dosCorrelate(correldata,refdata)
+            shiftindex=num.argmax(cc[1])
+            shift=-cc[0][shiftindex]
+            correlation_outfile=open("doscorrelation.dat","w")
+            print >> correlation_outfile, "# DOS correlation data - shift %24E" % (shift)
+            for i in range(len(cc[0])):
+                print >> correlation_outfile, "%24E  %24E" % (cc[0][i],cc[1][i])
+            correlation_outfile.close()
+        
+        # prepare output file, use stdout, if no output filename argument is given
+        if len(args)==2:
+            output=open(args[1],"w")
+        else:
+            output=sys.stdout
+        
+        #print len(refdata)
+        #for i in range(len(refdata)):
+        #  print len(refdata[i]), "\t",
+        #print "."
+        
+        for s in range(refdos.spins):    
+            # iterate through DOS and output
+            for i in range(len(refdata[0])):
+                print >> output, "%24E  %24E %24E %24E" % (refdata[0][i],refdata[s+1][0][i],refdata[s+1][1][i],refdata[s+1][2][i])
+            print >> output, "\n"
+        
+        # close output file, if it was specified
+        if len(args)==2:
+            output.close()
+        
+        #finished

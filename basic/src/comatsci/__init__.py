@@ -1,7 +1,7 @@
 ##############################################################################
 # comatsci/__init__.py
-# Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
 ##############################################################################
 # Licensed under the Non-Profit Open Software License version 3.0
@@ -18,20 +18,10 @@ import Spline
 #import basic functionality
 import Geometry
 import DOS
+from Path import *
+import Calculators
+import Schedulers
+import Dimer
+import Optimizers
 
-#import modules which may not be present, depending on the distribution, ignore import errors
-# path search modules
-try:
-	from Path import *
-	import Calculators
-	import Schedulers
-except ImportError:
-	pass
-
-#  dimer method module
-try:
-	import Dimer
-except ImportError:
-	pass
-
-__all__=["Geometry","Spline","constants","utils","DOS"]
+__all__=["Geometry","Spline","constants","utils","DOS","Path","Calculators","Schedulers","Optimizers"]

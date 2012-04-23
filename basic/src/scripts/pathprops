@@ -1,0 +1,741 @@
+#!/usr/bin/python
+##############################################################################
+# pathprops
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+import os,sys,math
+
+versionname="python%d.%d" % sys.version_info[0:2]
+
+sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
+		"../lib/",versionname,"site-packages"))
+
+import comatsci
+
+from numpy.oldnumeric import *
+
+from optparse import OptionParser
+
+#******************************************************************************
+# Function definitions
+#******************************************************************************
+
+
+def atcharges(path, image, chargesdir):
+	"""read atomic charges from DFTB charge file for one image"""
+	steplabel = "step-%6.4f" % ((float(image)/(float(path.numimages())-1)))
+	chrfilename = chargesdir+"/"+steplabel+"-CHR.DAT"
+	if not os.path.isdir(chargesdir):
+		print "%s is not a directory! abort." % (chargesdir)
+		sys.exit(1)
+	elif not (os.path.exists(chrfilename) or os.path.exists(chrfilename+".gz") or os.path.exists(chrfilename+".bz2")):
+		print "Charge file %s for image %d does not exist. abort." % (chrfilename,image)
+		sys.exit(1)
+	chrfile=comatsci.utils.compressedopen(chrfilename,'r')
+	for i in range(5):
+		line=chrfile.readline()
+	atchr=[]
+	for i in range(path.Atomcount):
+		dummy=chrfile.readline().split()
+		atchr.append(float(dummy[1]))
+	return array(atchr)
+
+
+
+def deltacharges(atcharges,path):
+	"""return array of atomic valence charge deltas, based on atomic charge array
+	atcharges and atomtypes of path"""
+	basecharges=zeros((path.Atomcount),Float)
+	for i in range(path.Atomcount):
+		atype=path.geos[0].AtomTypes[i]
+		basecharges[i]=path.geos[0].VALEL[atype]
+	return atcharges-basecharges
+
+
+
+def maxdeltacharges(path, chargesdir):
+	"""return maximum charge deltas for each atom"""
+	imgc=[]
+	for i in range(path.numimages()):
+		imgc.append(atcharges(path,i,chargesdir))
+	dc=[]
+	for i in range(path.Atomcount):
+		max=-10000
+		min= 10000
+		for j in range(path.numimages()):
+			if imgc[j][i]>max:
+				max=imgc[j][i]
+			elif imgc[j][i]<min:
+				min=imgc[j][i]
+		dc.append(max-min)
+	return dc
+	
+
+
+def anglehists(path, bincount):
+		"""calculate total and elemental bond angle histograms for the entire path
+		@type path: ReactionPath instance
+		@param path: The path to calculate bond angle distributions from
+		@type bincount: integer
+		@param bincount: number of bins for the bond angle histograms, positivie bin count gives individual binning for each element, negative bin count gives -N bins in 0...180 degree interval
+		@return: list of bond angle by central element dictionaries
+		"""
+		# get a list of all bond angle distributions
+		pathBondAngles=[]
+		for i in range(path.numImages):
+				pathBondAngles.append(path.geos[i].getBondAngles())
+		# get overall maximum and minimum bond angles and construct a list of bin boundaries
+		if bincount > 0:
+				minangle=180.0
+				maxangle=0.0
+		else:
+				minangle=0.1
+				maxangle=179.9
+				bincount*=-1
+		
+		for i in pathBondAngles:
+				if minangle > min(i.values()):
+						minangle=min(i.values())
+				if maxangle < max(i.values()):
+						maxangle=max(i.values())
+		minangle-=0.1
+		maxangle+=0.1
+		anglestep=(maxangle-minangle)/float(bincount)
+		bins=arange(minangle,maxangle+anglestep,anglestep)
+		# now build a list of bond angle by element histograms
+		pathElementBondAngles=[]
+		for i in range(path.numImages):
+				pathElementBondAngles.append(path.geos[i].getBondAnglesByElementsHistograms(bins=bins,normed=False))
+		# finished, return
+		return pathElementBondAngles
+		
+
+
+def bondlengthhists(path, bincount):
+		"""calculate bond length histograms for the entire path
+		@type path: ReactionPath instance
+		@param path: The path to calculate bond angle distributions from
+		@type bincount: integer
+		@param bincount: number of bins for the bond angle histograms, positivie bin count gives individual binning for each element, negative bin count gives -N all binning starts at 0 degree interval
+		@return: list of bond angle by central element dictionaries
+		"""
+		# get a list of all bond angle distributions
+		pathBondLengths=[]
+		for i in range(path.numImages):
+				pathBondLengths.append(path.geos[i].getElementElementBondlengths())
+		# get overall maximum and minimum bond angles and construct a list of bin boundaries
+		if bincount > 0:
+				minlength=3*max(path.geos[0].CORAD)/comatsci.constants.ANGSTROM
+				maxlength=0.0
+		else:
+				minlength=0.1
+				maxlength=0.0
+				bincount*=-1
+		
+		for i in pathBondLengths:
+				for j in i.keys():
+						if minlength > min(i[j]):
+								minlength=min(i[j])
+						if maxlength < max(i[j]):
+								maxlength=max(i[j])
+		minlength-=0.1
+		maxlength+=0.1
+		lengthstep=(maxlength-minlength)/float(bincount)
+		bins=arange(minlength,maxlength+lengthstep,lengthstep)
+		# now build a list of bond length histograms
+		pathLengthHistograms=[]
+		for i in range(path.numImages):
+				pathLengthHistograms.append(path.geos[i].getBondLengthHistograms(bins=bins))
+		# finished, return
+		return pathLengthHistograms 
+		
+
+
+#******************************************************************************
+# End function definitions
+#******************************************************************************
+
+
+
+#Parse Options
+
+usage="usage: %prog [options] <checkpoint directory>\nLicensed under the Non-Profit Open Software License version 3.0"
+
+parser=OptionParser(usage)
+
+parser.add_option("-p","--polyint",
+		action="store", metavar="N", dest="polyint", type="int", default=0,
+		help="Write a cubic polynomial interpolation of N energy values along the path to cubic.nrg file")
+
+parser.add_option("-u","--polypath",
+		action="store", metavar="N", dest="polypath", type="int", default=0,
+		help="Write a cubic polynomial interpolation of N path images to cubic.fmg and cubic.xyz files")
+
+##parser.add_option("-t","--trajectories",
+##		action="store_true", dest="trajectories", default=False,
+##		help="Write atom trajectories into <element>.trj files")
+
+parser.add_option("-r","--rmsds",
+	action="store_true", dest="rmsds", default=False,
+	help="Write Atomic displacement RMSDs along path to rmsds.dat and rmsds.pdb files")
+
+parser.add_option("-c","--deltacharges",
+		action="store", metavar="DIR", dest="deltacharges", type="string", default="",
+		help="Write atomic charge deltas from DFTB charge files in directroy DIR to deltas.chr file")
+
+parser.add_option("--maxdeltacharges",
+		action="store", metavar="DIR", dest="maxdc", type="string", default="",
+		help="Write maximum atomic charge deltas from DFTB charge files in directroy DIR to maxdeltas.chr and maxdeltas.pdb files")
+		
+parser.add_option("-d","--centerdists",
+		action="store", metavar="CNT", dest="center", type="int", default="-1",
+		help="Write atomic distances in last image from atom CNT to file center.dst")
+		
+parser.add_option("--ereptarget",
+		action="store", metavar="DFTBCPT", dest="target", type="string", default="",
+		help="""Write an E_rep fitting target path checkpoint into 'target', based on the fit method path in <checkpoint directory> and the null-spline DFTB path in DFTBCPT.""")
+
+parser.add_option("-e","--external-calcs",
+		action="store", type="string", metavar="C", dest="externalcalcs", default=None,
+		help="read and parse outputs from external calculations using calculator C. Writes into subdirectories of ./externalcalcs")
+
+parser.add_option("--dimer",
+		action="store", type="int", metavar="N", dest="dimer", default=-1,
+		help="extract a dimer with a separation of 1.0 Bohr at image N and write to 'extracted_dimer.fmg'.")
+
+parser.add_option("--inconsistent",
+		action="store_false", dest="checkCompat", default=True,
+		help="Do not check subsequent geometries for consistency with preceeding one. Useful for creating targets of isodesmic reactions etc. Default: check for consistency.")
+
+parser.add_option("--lattice",
+		action="store", type="string", dest="lattice", default=None,
+		help="Set geometry Mode to 'S'(upercell) and apply the provided lattice vectors.")
+		
+parser.add_option("--bondcounts",
+		action="store_true", dest="bondcounts", default=False,
+		help="Write Element-Element bond counts per image to 'bondcounts.dat' file.")
+
+parser.add_option("-v", 
+		action="count", dest="verbosity", default=comatsci.constants.VBL_NORMAL,
+		help="Increase verbosity level, default=%default")
+
+parser.add_option("-q", "--quiet",
+		action="store_const", const=comatsci.constants.VBL_QUIET, dest="verbosity",
+		help="Limit output to fatal errors and critical warnings, no status output at all")
+		
+parser.add_option("--silence",
+		action="store_const", const=comatsci.constants.VBL_SILENCE, dest="verbosity",
+		help="Limit output to fatal errors only. Not even warnings.")
+
+
+parser.add_option("--coordinations",
+		action="store_true", dest="coordinations", default=False,
+		help="write coordination deviations from ideal into beta column pathcoordinations.pdb file and a coordinations analysis into pathcoordinations-[element].dat files")
+
+
+parser.add_option("--anglehists",
+		action="store", type="int", dest="anglehists", default=None, metavar="N",
+		help="write by central element bond angle histogram trajectories with N bins. If N is negative, -N bins from 0 to 180 degrees are used.")
+
+parser.add_option("--anglestats",
+		action="store_true", dest="anglestats", default=False,
+		help="write per central atom type bong angle statistics trajectories.")
+
+
+parser.add_option("--lengthhists",
+		action="store", type="int", dest="lengthhists", default=None, metavar="N",
+		help="write per bond type bond length histogram trajectories with N bins. If N is negative, binning starts at 0, otherwise at minimum bond length -0.1 a.u.")
+
+parser.add_option("--lengthstats",
+		action="store_true", dest="lengthstats", default=False,
+		help="write per bond type bond length statistics trajectories.")
+
+
+parser.add_option("--trackvacancy",
+				  action="store", type="string", dest="trackvacancy", default=None, metavar="R",
+				  help="locate vacancies in every single frame by comparison to reference geometry read from file R. Write vacancy postions for each frame to 'vacancies.xyz'")
+
+parser.add_option("--vmd-charges",
+				  action="store_true", dest="vmdcharges", default=False,
+				  help="write atomic charges to 'charges.vmd' suitable to be read into vmd user data fields")
+
+parser.add_option("--vmd-bondcounts",
+				  action="store_true", dest="vmdbondcounts", default=False,
+				  help="write per atom covalent bond counts to 'bondcounts.vmd' suitable to be read into vmd user data fields")
+
+parser.add_option("--count-hops",
+				  action="store_true", dest="counthops", default=False,
+				  help="count atomic hopping events and print number of hops to standard out")
+
+
+(options,args) = parser.parse_args()
+
+if len(args) != 1 and options.externalcalcs==None:
+	print "You must specify exactly one checkpoint directory or .fmg file. See pathprops -h for more information"
+	sys.exit(1)
+	
+
+
+path=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v',0,options.verbosity)
+
+
+if os.path.isdir(args[0]):
+	path.readcheckpoint(args[0],options.checkCompat)
+elif os.path.exists(args[0]):
+	if args[0][-3:].lower()=="fmg" or args[0][-6:].lower()=="fmg.gz" or args[0][-6:].lower()=="fmg.bz2":
+		path.readfmgpath(args[0],checkCompat=(not options.checkCompat),GeoConstructor=comatsci.Geometry.AnalysisGeometry)
+	elif args[0][-3:].lower()=="xyz" or args[0][-6:].lower()=="xyz.gz" or args[0][-6:].lower()=="xyz.bz2":
+		print "reading .xyz path:"
+		path.readXyzPath(args[0],progressFunction=comatsci.utils.ProgressMeter,stepsFunction=comatsci.utils.ProgressMeter.update,geoconstructor=comatsci.Geometry.AnalysisGeometry)
+		print "done."
+	else:
+		print 'Unknown file format of path file "%s". abort.' % (args[0])
+		sys.exit(1)
+else:
+	print 'Checkpoint "%s" does not exist. abort.' % (args[0])
+	sys.exit(1)
+
+print "Read path with %d images." %(path.numimages())
+
+if options.lattice!=None:
+	try:
+		templattice=[ float(j) for j in options.lattice.split() ]
+		lattice=reshape(array(templattice),(3,3))/comatsci.constants.ANGSTROM
+	except:
+		print "specified lattice vectors could not be parsed. abort."
+		raise
+	print "Setting geometry mode to supercell and applying lattice vectors:\n%12.6f %12.6f %12.6f\n%12.6f %12.6f %12.6f\n%12.6f %12.6f %12.6f" %(
+		lattice[0][0],lattice[0][1],lattice[0][2],
+		lattice[1][0],lattice[1][1],lattice[1][2],
+		lattice[2][0],lattice[2][1],lattice[2][2],
+	)
+	for i in range(path.numimages()):
+		path.geos[i].Mode="S"
+		path.geos[i].Lattice=array(lattice)
+
+
+if options.externalcalcs!=None:
+	#check if valid calculator type was specified
+	if not options.externalcalcs in comatsci.constants.PASTACALCS:
+		print "Unknown (or unsupported) calculator '%s' specified. abort." % (options.externalcalcs,)
+		sys.exit(1)
+	#be verbose
+	print "preparing to parse outputs from %s calculations.  " % (options.externalcalcs),
+	#store cwd, create ./externalcalcs and cd into it
+	oldpath=os.path.realpath(".")
+	#prepare calculator to parse outputs
+	if options.externalcalcs=="siesta":
+		dummycalc=comatsci.Calculators.siestacalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+	elif options.externalcalcs=="dftb":
+		dummycalc=comatsci.Calculators.dftbcalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+	elif options.externalcalcs=="noodle":
+		dummycalc=comatsci.Calculators.noodlecalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+	elif options.externalcalcs=="gaussian":
+		dummycalc=comatsci.Calculators.gaussiancalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+	else:
+		raise ValueError,"cannot handle calculator name"
+	#now parse the outputs
+	print "...parsing outputs... ",
+	print args[1:]
+	path.importEnergiesForces(dummycalc, args[1:])
+	print "done."
+	path.writefmgpath("extresultspath.fmg")
+
+
+if options.polyint>0:
+	if path.has_realforces():
+		print "Writing cubic interpolation of energies along path to cubic.nrg... ",
+		path.cubicenergies(path.cubicfit(),options.polyint)
+		print "done."
+	else:
+		print "\nPath has no real forces, cannot perform cubic interpolation. abort"
+		sys.exit(1)
+
+if options.polypath>0:
+	if path.has_realforces():
+		print "Writing cubic interpolation of geometries along path to cubic.fmg and cubic.xyz... ",
+		temppath=path.cubicInterpolate(options.polypath)
+	#	temppath.writefmgpath("cubic.fmg")
+		temppath.writexyzpath("cubic.xyz")
+		print "done."
+	else:
+		print "\nPath has no real forces, cannot perform cubic interpolation. abort"
+		sys.exit(1)
+
+if options.rmsds:
+	print "Writing Atomic RMSDs to rmsds.dat file... ",
+	path.writermsds()
+	rmsds=path.rmsds()
+	path.geos[path.numimages()-1].writepdb('rmsds.pdb',beta=rmsds)
+	print "done."
+	
+if options.deltacharges!="":
+	print "Writing atomic charge differences over path for each atom to deltas.chr... ",
+	dchrs=[]
+	for i in range(path.numimages()):
+		dchrs.append(deltacharges(atcharges(path,i,options.deltacharges),path))
+	outfile=open("deltas.chr","w")
+	print >> outfile,"#Atom No, delta[images]"
+	for i in range(path.Atomcount):
+		outline="%6d " %(i)
+		for j in range(path.numimages()):
+			outline+="%10.6f " % (dchrs[j][i])
+		print >> outfile,outline
+	outfile.close()
+	print "done."
+
+if options.maxdc!="":
+	print "Writing maximum atomic charge differences over path for each atom to maxdeltas.chr... ",
+	outfile=open("maxdeltas.chr","w")
+	mdc= maxdeltacharges(path,options.maxdc)
+	for i in mdc:
+		print >>outfile, "%10.6f" % (i)
+	outfile.close()
+	path.geos[path.numimages()-1].writepdb('maxdeltas.pdb',beta=mdc)
+	print "done."
+
+if options.center!=-1:
+	if options.center > path.Atomcount:
+		raise "centerdists: center atom out of range"
+	else:
+		print "Writing distance from atom %d in last image for each atom to neb.dst... " % (options.center),
+		path.writecenterdists(center=options.center, image=path.numimages()-1, filename='neb.dst')
+		print "done."
+	
+
+if options.target!="":
+	if not os.path.exists(options.target):
+		raise "null spline DFTB checkpoint directory does not exist"
+	else:
+		print "Reading null-spline dftb path."
+		cmppath=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v')
+		outpath=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v')
+		if os.path.isdir(options.target):
+			cmppath.readcheckpoint(options.target,options.checkCompat)
+			outpath.readcheckpoint(options.target,options.checkCompat)
+		elif os.path.exists(options.target):
+			cmppath.readfmgpath(options.target,options.checkCompat)
+			outpath.readfmgpath(options.target,options.checkCompat)
+		else:
+			print 'Second checkpoint "%s" for target generation does not exist. abort.' %(options.target)
+			sys.exit(1)
+		outpath.energies=path.deltaenergy(cmppath)
+		if options.checkCompat:
+			outpath.realforces=path.deltaforce(cmppath)
+		else:
+			print "Skipping force difference calculation for inconsistent path, clearing forces"
+			outpath.realforces=[]
+		print "Writing target path checkpoint"
+		outpath.writecheckpoint("target")
+
+if options.dimer>0:
+	#construct a dimer from the specified image number
+	print "extractind dimer at image %d" %(options.dimer)
+	from comatsci import Dimer
+	prepDimer=Dimer.Dimer()
+	prepDimer.setR0Geo(path.geos[options.dimer-1])
+	#calculate using standard formula and use tangent at selected image for dimer direction
+	path._calctangents()
+	dimerDir=array(path.tangents[options.dimer-1],Float)
+	dimerDir/=2*math.sqrt(dot(dimerDir,dimerDir))
+	prepDimer.setDeltaR(dimerDir)
+	#write the dimer to .fmg file
+	print "writing dimer to extracted_dimer.fmg"
+	prepDimer.writefmg("extracted_dimer.fmg")
+
+
+if options.bondcounts:
+	#write per image element-element bind counts to bondcounts.dat
+	print "writing element-element bond counts to bondcounts.dat... ",
+	bcfile=open("bondcounts.dat","w")
+	elements=sort(path.geos[0].elem_elem_bondcounts().keys())
+	num_elements=len(elements)
+	# descriptive header line
+	print >> bcfile, "#img   ",
+	for i in range(num_elements):
+		for j in range(i,num_elements):
+			print >> bcfile, "%3s-%3s" % (path.geos[0].PTE[elements[i]],path.geos[0].PTE[elements[j]]),
+	print >> bcfile, ""
+	# one line of element-element bondcounts per image
+	for k in range(path.numImages):
+		print >> bcfile, " %6d " % (k+1),
+		for i in range(num_elements):
+			for j in range(i,num_elements):
+				print >> bcfile, "%6d" % (path.geos[k].elem_elem_bondcounts()[elements[i]][elements[j]]),
+		print >> bcfile, ""
+	#finished writing bond count lines
+	bcfile.close()
+	print "done."
+	
+
+if options.coordinations:
+	# write atomic differences of coordinationm from ideal into beta column of pathcoordinations.pdb
+	print "Writing multiframe .pdb file pathcoordinations.pdb containing atomic coordination differeces"
+	# open output file for geometries and initialize coordination analyses list
+	coordinationsfile=open("pathcoordinations.pdb","w") #: .pdb trajectory with coordinations differences in beta column
+	coordinationsTrace=open("pathcoordinations-differences.dat","w") #: ascii file with coordination differences, one column per atom, one line per image
+	coordinationAnalyses=[]
+	# initialize analysis range variables
+	minDev=0
+	maxDev=0
+	# iterate through images, write geometries and store analysis Results
+	print "Analyzing Path images."
+	progressMeter=comatsci.utils.ProgressMeter(total=path.numimages(),unit="images")
+	for i in range(path.numimages()):
+		coord_diffs=path.geos[i].atom_coordination_differences
+		print >> coordinationsfile,path.geos[i].getPDBString(beta=coord_diffs)
+		for j in coord_diffs:
+				print >> coordinationsTrace,"%4d\t"%(j,),
+		print >> coordinationsTrace, ""
+		coordinationAnalyses.append(path.geos[i].coordinationAnalysis(1.2))
+		if coordinationAnalyses[-1]["stats"]["devMin"]<minDev: minDev=coordinationAnalyses[-1]["stats"]["devMin"]
+		if coordinationAnalyses[-1]["stats"]["devMax"]>maxDev: maxDev=coordinationAnalyses[-1]["stats"]["devMax"]
+		progressMeter.update(1)
+
+	#finished with coordinations file, close it
+	coordinationsfile.close()
+	coordinationsTrace.close()
+	#write coordination analysis files
+	deviationsrange=range(minDev,maxDev+1)
+	elementlist=path.geos[0].getatomsymlistdict()[0]
+	print "Writing element coordination analysis files, this may take some time."
+	progressMeter=comatsci.utils.ProgressMeter(total=len(elementlist)*path.numimages())
+	for i in elementlist:
+		analysisFile=open("pathcoordinations-%s.dat"%path.geos[0].PTE[i],"w")
+		print >>analysisFile,"#",
+		for j in deviationsrange:
+				print >>analysisFile, "%3d\t"%j,
+		print >> analysisFile, ""
+		for k in range(path.numimages()):
+				for j in deviationsrange:
+						print >>analysisFile, "%d\t"%coordinationAnalyses[k][i].get(j,0),
+				print >> analysisFile, ""
+				progressMeter.update(1)
+		analysisFile.close()
+	#print extremal coordination defetcs for user
+	print "Largest undercoordination: %d\nLargest overcoordination:  %d"%(minDev,maxDev)
+	#finished
+
+
+if options.anglehists!=None:
+		print "Writing by central element bond angle histograms to *-pathbondangles.dat"
+		# write total and per central element bond angle histogram trajectory files suitable for gnuplot
+		angles=anglehists(path,options.anglehists)
+		# get central elements:
+		centralelements=[]
+		for i in angles:
+				for j in i.keys():
+						if not j in centralelements:
+								centralelements.append(j)
+		# make a an empty array of counts, in case the the list of central elements changes along the trajectory
+		empty=zeros(len(angles[0][angles[0].keys()[0]][0]))
+		# calculate bin centers
+		halfbin=(angles[0][angles[0].keys()[0]][1][1]-angles[0][angles[0].keys()[0]][1][0])/2.0
+		bincenters=zeros(shape(empty),Float)
+		for i in range(len(bincenters)):
+				bincenters[i]=angles[0][angles[0].keys()[0]][1][i]+halfbin
+		# open output files
+		ofiles={}
+		for i in centralelements:
+				ofiles[i]=open(path.geos[0].PTE[i]+"-pathbondangles.dat","w")
+		# iterate through images and write gnuplot grid data files
+		for i in range(path.numImages):
+				for j in centralelements:
+						if angles[i].has_key(j):
+								data=angles[i][j][0]
+						else:
+								data=empty
+						for k in range(len(data)):
+								print >> ofiles[j], "%d\t%f\t%f"% (i,bincenters[k],data[k])
+						print >> ofiles[j], ""
+		# close output files
+		for i in centralelements:
+				ofiles[i].close()
+	
+
+if options.anglestats:
+		# write bond angle statistics into bondaglestats.dat file
+		print "Writing per central atom element bond angle statistics to bondanglestats.dat"
+		# compile bond angle statistics for each image, also build a list of central atom elements
+		# central atom elements may change along the path!
+		angleStats=[]
+		centralElements=[]
+		for i in range(path.numImages):
+				angleStats.append(path.geos[i].getBondAngleStats())
+				for j in angleStats[i].keys():
+						if not j in centralElements:
+								centralElements.append(j)
+		# open output file and write header line
+		ofile=open("bondanglestats.dat","w")
+		print >> ofile, "#step",
+		for i in centralElements:
+				print >> ofile,"\t%s\t%s"%(path.geos[0].PTE[i],"sigma"+path.geos[0].PTE[i]),
+		print >> ofile,""
+		# iterate through images and write data
+		for j in range(path.numImages):
+				print >> ofile,"%d"%j,
+				for i in  centralElements:
+						if angleStats[j].has_key(i):
+								print >> ofile,"\t%f\t%f"%(angleStats[j][i]["mean"],angleStats[j][i]["sigma"]),
+						else:
+								print >> ofile,"\tNaN\tNaN",
+				print >> ofile,""
+		# finished, close output file
+		ofile.close()
+
+
+	
+if options.lengthhists!=None:
+		print "Writing per bond type bond length histograms to *-pathbondlengths.dat"
+		# write total and per central element bond angle histogram trajectory files suitable for gnuplot
+		#  get bond length histograms
+		lengths=bondlengthhists(path,options.lengthhists)
+		#  construct list of bond type keys, bond types may vary along the path
+		bondkeys=[]
+		for i in lengths:
+				for j in i.keys():
+						if not j in bondkeys:
+								bondkeys.append(j)
+		#  remove key (-1,-1) from bond keys, as that is special for the total distribution
+		bondkeys.remove((-1,-1))
+		#  reference bin centers in short hand for less typing below
+		bincenters=lengths[0][lengths[0].keys()[0]][0]
+		#  make a an empty array of counts, in case the the list of central elements changes along the trajectory
+		empty=zeros(len(lengths[0][lengths[0].keys()[0]][0]))		
+		#  open output files and write header lines
+		ofiles={}
+		for i in bondkeys:
+				ofiles[i]=open(path.geos[0].PTE[i[0]]+"-"+path.geos[0].PTE[i[1]]+"-pathbondlengths.dat","w")
+				print >> ofiles[i], "#bond_length\tcount"
+		totalfile=open("total-pathbondlengths.dat","w")
+		print >> totalfile, "#bond_length\tcount"
+		#  iterate through images and write gnuplot grid data files
+		for i in range(path.numImages):
+		#  treat total distribution separately
+				data=lengths[i][(-1,-1)][1]
+				for k in range(len(data)):
+						print >> totalfile, "%d\t%f\t%f"% (i,bincenters[k],data[k])
+				print >> totalfile, ""
+				for j in bondkeys:
+		#  if no bond hostogram exists for this key in this image (i.e. bond count==0), write zeros instead
+						if lengths[i].has_key(j):
+								data=lengths[i][j][1]
+						else:
+								data=empty
+						for k in range(len(data)):
+								print >> ofiles[j], "%d\t%f\t%f"% (i,bincenters[k],data[k])
+						print >> ofiles[j], ""
+		#  close output files
+		for i in bondkeys:
+				ofiles[i].close()	
+
+
+if options.lengthstats:
+		# write bond angle statistics into bondaglestats.dat file
+		print "Writing per bond type bond length statistics to bondlengthstats.dat"
+		# compile bond length statistics for each image, also build a list of bond types
+		# central bond types may change along the path!
+		lengthStats=[]
+		bondTypes=[]
+		for i in range(path.numImages):
+				lengthStats.append(path.geos[i].bondLengthStatistics())
+				for j in lengthStats[i].keys():
+						if not j in bondTypes:
+								bondTypes.append(j)
+		# open output file and write header line
+		ofile=open("bondlengthstats.dat","w")
+		print >> ofile, "#step",
+		for i in bondTypes:
+				btstring=path.geos[0].PTE[i[0]]+"-"+path.geos[0].PTE[i[1]]
+				print >> ofile,"\t%s\t%s"%(btstring,"sigma_"+btstring),
+		print >> ofile,""
+		# iterate through images and write data
+		for j in range(path.numImages):
+				print >> ofile,"%d"%j,
+				for i in  bondTypes:
+						if lengthStats[j].has_key(i):
+								print >> ofile,"\t%f\t%f"%(lengthStats[j][i]["mean"],lengthStats[j][i]["sigma"]),
+						else:
+								print >> ofile,"\tNaN\tNaN",
+				print >> ofile,""
+		# finished, close output file
+		ofile.close()
+
+
+if options.trackvacancy!=None:
+	#initialize reference geometry object
+	
+	print "calculating vacancy trajectory..."
+	
+	sys.stdout.flush()
+
+	progress=comatsci.utils.ProgressMeter(total=path.numimages())
+	
+	refgeo=comatsci.Geometry.Geometry()
+	refgeo.readfile(options.trackvacancy)
+	
+	#initialize vacancy position path object
+	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+	vac=path.geos[0].locateVacancies(neighborMethod="none",groupMethod="reference_d",
+			specvalences={22:6,8:3},tolerance=0.9,
+			canonicalNeighbors={22:{8:6},8:{22:3}},refold=True,reference=refgeo)
+	lastvac=vac
+	initvaccount=int(vac.Atomcount)
+	vpath.appendGeoObject(vac,checkCompat=False)
+	progress.update(1)
+	#locate vacancies in each frame
+	for i in range(1,path.numimages()):
+		vac=path.geos[i].locateVacancies(neighborMethod="none",groupMethod="reference_d",
+			specvalences={22:6,8:3},tolerance=0.9,
+			canonicalNeighbors={22:{8:6},8:{22:3}},refold=True,reference=refgeo)
+	
+		if vac.Atomcount!=initvaccount:
+			vpath.appendGeoObject(lastvac,checkCompat=False)
+			if options.verbosity >= comatsci.constants.VBL_TALKY: print "Warning, vacancy count mismatch!"
+			if options.verbosity >= comatsci.constants.VBL_DEBUG1:  print vac.xyzstring()
+		else:
+			vpath.appendGeoObject(vac,checkCompat=False)
+			lastvac=vac
+		progress.update(1)
+	#write vacancy location path
+	vpath.writexyzpath("vacancies.xyz")
+	print "counted %d vacancy hops along the path." % vpath.hopCount()
+	#finished.
+	print "done."
+
+
+if options.vmdcharges:
+		print "writing atomic charges to charges.vmd:"
+		vmdchrfile=open("charges.vmd","w")
+		for i in range(path.numimages()):
+				for j in range(path.Atomcount):
+						print >> vmdchrfile, path.geos[i].AtomCharges[j]," ",
+				print >> vmdchrfile, ""
+		vmdchrfile.close()
+		print "done."
+
+
+if options.vmdbondcounts:
+		print "writing per atom bond counts to bondcounts.vmd:"
+		progress=comatsci.utils.ProgressMeter(total=path.numimages())
+		vmdbcfile=open("bondcounts.vmd","w")
+		for i in range(path.numimages()):
+				for j in range(path.Atomcount):
+						print >> vmdbcfile, len(path.geos[i].bondlist()[j])," ",
+				print >> vmdbcfile, ""
+				progress.update(1)
+		vmdbcfile.close()
+		print "done."
+
+
+if options.counthops:
+	print "Counted %d hops along the path." % path.hopCount()
+
+
+print "Finished requested operations."
