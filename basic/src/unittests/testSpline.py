@@ -7,7 +7,7 @@ import unittest,numpy
 from comatsci import Spline
 
 
-class Test(unittest.TestCase):
+class splineTest(unittest.TestCase):
 
 
     def testSpline(self):
