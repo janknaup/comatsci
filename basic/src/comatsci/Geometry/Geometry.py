@@ -488,60 +488,148 @@ class Geometry:
 
 
 
-	def readgen(self, filename):
-		"""Read Geometry from dftb .gen file
-		@param filename: 	input file name
+#	def readgen(self, filename):
+#		"""Read Geometry from dftb .gen file
+#		@param filename: 	input file name
+#		"""
+#		self._reset_derived()
+#		infile=utils.compressedopen(filename,'r')
+#		line=infile.readline()
+#		dummy=line.split()
+#		self.Atomcount=int(dummy[0])
+#		self.Mode=dummy[1]
+#		self.Mode.strip()
+#		self.Mode.capitalize()
+#		line=infile.readline()
+#		dummy=line.split()
+#		AtomSymbols=[ s.lower() for s in dummy ]
+#		geo=[]
+#		self.LPops=[]
+#		self.AtomTypes=[]
+#		for i in range(self.Atomcount):
+#			line = infile.readline()
+#			dummy = line.split()
+#			geo.append([ float(s) for s in dummy[2:5] ])
+#			self.AtomTypes.append(int(self.RPTE[AtomSymbols[int(dummy[1])-1]]))
+#			self.LPops.append([])
+#		self.Geometry=numpy.array((geo))/Angstrom
+#		if self.Mode=="S":
+#			line = infile.readline()
+#			dummy=line.split()
+#			self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
+#			for i in range(3):
+#				line = infile.readline()
+#				dummy=line.split()
+#				self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
+#		elif self.Mode=="F":
+#			line = infile.readline()
+#			dummy=line.split()
+#			self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
+#			for i in range(3):
+#				line = infile.readline()
+#				dummy=line.split()
+#				self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
+#			#Undo angstrom conversion for fractional coordinates here!
+#			self.Geometry = numpy.dot(self.Geometry,self.Lattice)*Angstrom
+#			self.Mode="S"
+#		elif self.Mode=="C":
+#			self.Origin=numpy.array((0.,0.,0.),dtype=float)
+#			self.Lattice=numpy.array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),dtype=float)
+#		defaultlayer=GeoLayer("default layer")
+#		self.LayerDict={0: defaultlayer}
+#		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
+#		self.AtomLayers=[0 for s in range(self.Atomcount)]
+#		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+#		self._consistency_check()
+#		infile.close()
+		
+		
+	def readgen(self,filename):
 		"""
-		self._reset_derived()
-		infile=utils.compressedopen(filename,'r')
-		line=infile.readline()
-		dummy=line.split()
-		self.Atomcount=int(dummy[0])
-		self.Mode=dummy[1]
-		self.Mode.strip()
-		self.Mode.capitalize()
-		line=infile.readline()
-		dummy=line.split()
+		read Geometry from file in .gen format
+		@type filename: string
+		@param filename: name of the file to read
+		"""
+		infile=utils.compressedopen(filename, "r")
+		genString="".join(list(infile))
+		infile.close()
+		self.parseGenString(genString)
+		
+	
+			
+	def parseGenString(self,genstring):
+		"""
+		Parse geometry representation from string in DFTB .gen format
+		@type genstring: string
+		@param genstring: string containign DFTB .gen format geometry
+		"""
+		# split into lines, remove leading and trailing linebreaks
+		genLines=genstring.strip("\n").split("\n")
+		#parse atom count and geometry mode from fist line
+		dummy=genLines[0].split()
+		try:
+			self.Atomcount=int(dummy[0])
+			self.Mode=dummy[1]
+			self.Mode=self.Mode.strip()
+			self.Mode.capitalize()
+		except:
+			raise GeometryError("Error parsing first line of .gen file")
+		if not self.Mode in ('S','C','F'):
+			raise GeometryError("Error in gen file: unknown mode {0:s}".format(self.Mode))
+		# consistency-check input file
+		if ((self.Mode in ('S','F') and len(genLines)!=self.Atomcount+6) or (self.Mode=='C' and len(genLines)!=self.Atomcount+2)):
+			raise GeometryError("Number of lines in .gen file does not match number of atoms")
+		# parse atom type symbols from second line
+		dummy=genLines[1].split()
 		AtomSymbols=[ s.lower() for s in dummy ]
+		# iterate through Atom lines
 		geo=[]
 		self.LPops=[]
 		self.AtomTypes=[]
 		for i in range(self.Atomcount):
-			line = infile.readline()
-			dummy = line.split()
-			geo.append([ float(s) for s in dummy[2:5] ])
-			self.AtomTypes.append(int(self.RPTE[AtomSymbols[int(dummy[1])-1]]))
+			dummy = genLines[i+2].split()
+			try:
+				geo.append([ float(s) for s in dummy[2:5] ])
+			except:
+				raise GeometryError("Error parsing Atom position in line {0:d} of gen file".format(i+1))
+			try:
+				self.AtomTypes.append(int(self.RPTE[AtomSymbols[int(dummy[1])-1]]))
+			except:
+				raise GeometryError("Unable to parse atom type specification in line {0:d} of gen file.".format(i+1))
 			self.LPops.append([])
-		self.Geometry=numpy.array((geo))/Angstrom
-		if self.Mode=="S":
-			line = infile.readline()
-			dummy=line.split()
-			self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
-			for i in range(3):
-				line = infile.readline()
-				dummy=line.split()
-				self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
-		elif self.Mode=="F":
-			line = infile.readline()
-			dummy=line.split()
-			self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
-			for i in range(3):
-				line = infile.readline()
-				dummy=line.split()
-				self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
-			#Undo angstrom conversion for fractional coordinates here!
+		# convert Positions vector to numpy array
+		self.Geometry=numpy.array((geo))
+		# if direct coordinate mode, convert positions from Angstrom to atomic units
+		if self.Mode in ('S','C'):
+			self.Geometry/=Angstrom
+		# if periodic geometry, parse supercell vectors
+		if self.Mode in ('S','F'):
+			dummy=genLines[self.Atomcount+2].split()
+			try:
+				self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
+			except:
+				raise GeometryError("Error parsing periodic cell origin in gen file")
+			try:
+				for i in range(3):
+					dummy=genLines[self.Atomcount+3+i].split()
+					self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
+			except:
+				raise GeometryError("Error parsing supercell vectors in gen file")
+		# convert from fractional to direct coordinates
+		if self.Mode=="F":
 			self.Geometry = numpy.dot(self.Geometry,self.Lattice)*Angstrom
 			self.Mode="S"
+		# add dummy supercell spec to cluster Geometry
 		elif self.Mode=="C":
 			self.Origin=numpy.array((0.,0.,0.),dtype=float)
 			self.Lattice=numpy.array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),dtype=float)
+		# supply default datastructures which cannot be read from .gen file
 		defaultlayer=GeoLayer("default layer")
 		self.LayerDict={0: defaultlayer}
 		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
 		self._consistency_check()
-		infile.close()
 
 
 
