@@ -404,7 +404,7 @@ class DOS:
 		# initalize energies and DOS arrays
 		energies=numpy.arange(emin,emax,stepwidth) # energies for DOS values
 #		print >> sys.stderr, energies
-		numsteps=len(energies)
+		numsteps=int(len(energies))
 		peakenergies=numpy.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
 		# fill peak function array
 		spreadpeak=numpy.fromfunction(lambda II: self.spreadfunctions[spreadfunction](x=peakenergies[II],s=spread,x0=0.0),(numsteps,))
