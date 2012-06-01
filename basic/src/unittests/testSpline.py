@@ -51,6 +51,10 @@ class splineTest(unittest.TestCase):
 #        pf.close() 
 
 
+def suite():
+    suite = unittest.makeSuite(splineTest,'test')
+    return suite
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSpline']
     unittest.main()
