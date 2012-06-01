@@ -97,6 +97,11 @@ class geometryTest(unittest.TestCase):
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
 
 
+def suite():
+    suite = unittest.makeSuite(geometryTest,'test')
+    return suite
+
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testGeometry']
     unittest.main(verbosity=2)
