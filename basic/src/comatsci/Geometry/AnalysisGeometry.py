@@ -13,6 +13,8 @@
 from Geometry import Geometry
 from comatsci import constants #,  utils
 
+import geoext as gx #@UnresolvedImport
+
 import numpy
 from numpy import linalg
 
@@ -1111,14 +1113,15 @@ class AnalysisGeometry(Geometry):
 		@param reference: reference Geometry 
 		"""
 		# calculate matrix of all self<->reference atom distances
-		bothGeo=copy.deepcopy(self)
-		bothGeo.foldToCell()
-		bothGeo.appendgeometryflat(reference)
-		dmat=bothGeo.distancematrix()
-		interdistances=numpy.ma.masked_invalid(dmat[0:self.Atomcount][:,self.Atomcount:])
+		#bothGeo=copy.deepcopy(self)
+		#bothGeo.foldToCell()
+		#bothGeo.appendgeometryflat(reference)
+		#dmat=bothGeo.distancematrix()
+		#interdistances=numpy.ma.masked_invalid(dmat[0:self.Atomcount][:,self.Atomcount:])
+		interdistances=numpy.ma.masked_invalid(gx.crossSupercellDistanceMatrix(reference.Geometry,self.Geometry,reference.Lattice))
 		# free up some memory
-		del bothGeo
-		del dmat
+		#del bothGeo
+		#del dmat
 		
 		# commented oud old and far too slow loopidyloop assignment
 		uniqueMapped = False
@@ -1152,3 +1155,86 @@ class AnalysisGeometry(Geometry):
 
 		# finished, return
 		return (assignedSubAtoms,assignedRefAtoms)
+
+
+
+
+	def locateSingleVacancyByReference(self,reference,delta,tau,**kwargs):
+		"""
+		compare slef to reference geometry, map each atom of self to the closest atom of same element in reference.
+		return one continuous vacancy coordinate by averaging over reference positions with far neighbors weightd by
+		inverse Fermi function
+		@type reference: Geometry instance
+		@param reference: reference Geometry
+		@type delta:float 
+		@param delta: switchover distance between reference neighbor positions (equals \mu in Fermi function)
+		@type tau: float
+		@param tau: width of Fermi distribution (euqals kT in Fermi function) 
+		@return: geometry instance containing vacancy position
+		"""
+		# check type of reference
+		if not isinstance(reference,Geometry):
+			raise TypeError("reference must be a Geometry object")
+		# get the set of all atom types present in self and reference
+		presentElements=set(self.AtomTypes).union(set(reference.AtomTypes))
+		# initialize vacancy and interstitioal output geometries
+		vacancies=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
+		# for each element type
+		for element in presentElements:
+			# get element subgeometries of reference and self
+			subGeo=self.elementsubgeometry(element)
+			subGeo.foldToCell()
+			atomsOfElement=int(subGeo.Atomcount)
+			subRef=reference.elementsubgeometry(element,cache=True)
+			subRef.foldToCell()
+			refAtomsOfElement=int(subRef.Atomcount)
+			# check if element has exactly zero or one vacancy. Skip if zero vavancies
+			if atomsOfElement==refAtomsOfElement:
+				continue
+			elif not (atomsOfElement-refAtomsOfElement==-1):
+				raise ValueError("Snapshot must have exactly zero or one atoms of element less than reference")
+			# get minimum distances
+			refdists=gx.crossSupercellDistanceMatrix(subRef.Geometry,subGeo.Geometry,subRef.Lattice)
+			minDistances=numpy.min(refdists, 1)
+			# convert minimum distances to reference position weights using Fermi function
+			minDistances-=delta
+			minDistances/=tau
+			expMD=numpy.exp(minDistances)+1.0
+			weights=1.0-(1.0/expMD)
+			# calculate and store weight sum
+			weightsum=numpy.sum(weights)
+			# calculate weighted average of reference positions
+			srg=numpy.array(subRef.Geometry).transpose()
+			weightedcoords=numpy.multiply(srg,weights).transpose()
+			vacancyPosition=numpy.add.accumulate(weightedcoords)[-1]/weightsum
+			# if self-consistent distance weighting is requested, loop here
+			if kwargs.get("scdw",True):
+				scdwConverged=False
+				while not scdwConverged:
+					lastPosition=numpy.array(vacancyPosition)
+					modWeights=numpy.array(weights)
+					ptemp=numpy.array([vacancyPosition])
+					refDifferences=numpy.transpose(gx.crossSupercellDistanceMatrix(subRef.Geometry,ptemp,subRef.Lattice))[0]
+#					print "last position  :", lastPosition
+#					print "reference:     :", subRef.Geometry
+#					print "differences    :", refDifferences
+					weightmod=numpy.exp(-refDifferences/(1.5*delta))
+					modWeights=numpy.multiply(weights,weightmod)
+#					print "weights        :", weights
+#					print "modif. weights :", modWeights
+					modWeightsum=numpy.sum(modWeights)
+					weightedcoords=numpy.multiply(srg,modWeights).transpose()
+					vacancyPosition=numpy.add.accumulate(weightedcoords)[-1]/modWeightsum
+#					print "new postition  :", vacancyPosition
+					vacposdiff=vacancyPosition-lastPosition
+					vacposdist=numpy.sqrt(numpy.sum(vacposdiff*vacposdiff))
+#					print "change         :", vacposdiff,"  abschange :",vacposdist
+					if vacposdist<kwargs.get("scdc",1e-8):
+						scdwConverged=True
+#						print "scdw converged"
+			# add vacancy atom to output geometry
+			vacancies.addatom(element,vacancyPosition)
+		# finished building defect geometries, return:
+		return vacancies
+		#done.
+

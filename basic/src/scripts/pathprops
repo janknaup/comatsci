@@ -273,6 +273,10 @@ parser.add_option("--count-hops",
 				  action="store_true", dest="counthops", default=False,
 				  help="count atomic hopping events and print number of hops to standard out")
 
+parser.add_option("--pivot-er",
+				  action="store", nargs=3, type="string", dest="pivoter", default=None, metavar="R,do,tau",
+				  help="locate vacancies in every single frame by PIVOT with d0 and tau using external reference geometry read from file R. Write vacancy postions for each frame to 'pivot-er.xyz'")
+
 
 (options,args) = parser.parse_args()
 
@@ -708,6 +712,39 @@ if options.trackvacancy!=None:
 	print "counted %d vacancy hops along the path." % vpath.hopCount()
 	#finished.
 	print "done."
+
+
+if options.pivoter!=None:
+	print "calculating PIVOT-ER vacancy trajectory..."
+	
+	sys.stdout.flush()
+	
+	try:
+		d0=float(options.pivoter[1])
+		tau=float(options.pivoter[2])
+	except:
+		print "ERROR PARSING d0 and tau parameters for PIVOT. ABORT."
+		raise
+
+	progress=comatsci.utils.ProgressMeter(total=path.numimages())
+	
+	refgeo=comatsci.Geometry.Geometry()
+	refgeo.readfile(options.pivoter[0])
+	
+	#initialize vacancy position path object
+	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+	
+	#locate vacancies in each frame
+	for i in range(0,path.numimages()):
+		vac=path.geos[i].locateSingleVacancyByReference(refgeo,d0,tau,scdw=True)
+		vpath.appendGeoObject(vac,checkCompat=False)
+		progress.update(1)
+	#write vacancy location path
+	vpath.writexyzpath("vacancies.xyz")
+	print "counted %d vacancy hops along the path." % vpath.hopCount()
+	#finished.
+	print "done."
+
 
 
 if options.vmdcharges:
