@@ -1218,9 +1218,11 @@ class AnalysisGeometry(Geometry):
 #					print "last position  :", lastPosition
 #					print "reference:     :", subRef.Geometry
 #					print "differences    :", refDifferences
-					weightmod=numpy.exp(-refDifferences/(1.5*delta))
+					#weightmod=numpy.exp(-refDifferences/(1.5*delta))
+					weightmod=numpy.exp(-(refDifferences*refDifferences)/(1.5*delta*delta*3))
 					modWeights=numpy.multiply(weights,weightmod)
 #					print "weights        :", weights
+#					print "modifiers      :", weightmod
 #					print "modif. weights :", modWeights
 					modWeightsum=numpy.sum(modWeights)
 					weightedcoords=numpy.multiply(srg,modWeights).transpose()
