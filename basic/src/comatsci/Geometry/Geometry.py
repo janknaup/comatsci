@@ -651,7 +651,7 @@ class Geometry:
 			except IndexError:
 				typelabel=self.PTE[self.AtomTypes[i]]
 			# assemble atom line
-			rlines.append(("atom   %24E   %24E   %24E   "%tuple(coordinates))+typelabel)
+			rlines.append("atom   {0:24E}   {1:24E}   {2:24E}   {3:s}".format(tuple(coordinates),typelabel))
 		# write lattice vectors if supercell geometry
 		if self.Mode=="S":
 			for i in range(3):
@@ -659,7 +659,7 @@ class Geometry:
 				lv=numpy.array(self.Lattice[i])
 				lv*=constants.ANGSTROM
 				# assemble lattice line
-				rlines.append("lattice_vector   %24E   %24E   %24E   "%tuple(lv))
+				rlines.append("lattice_vector   {0:24E}   {1:24E}   {2:24E}   ".format(tuple(lv)))
 		# finished, return
 		return "\n".join(rlines)
 	
@@ -897,13 +897,13 @@ class Geometry:
 				# we only read lines of type atom, atom_frac and lattice_vector
 				if tokens[0].lower()=="lattice_vector":
 					if len(tokens)!=4:
-						raise ValueError("Error in line %d of FHI aims string: lattice vector needs exactly 3 components"%(i+1))
+						raise ValueError("Error in line {0:d} of FHI aims string: lattice vector needs exactly 3 components".format(i+1))
 					else:
 						templattice.append([tokens[1],tokens[2],tokens[3]])
 				# we support carthesian and fractional coordinates
 				elif tokens[0].lower() in ["atom","atom_frac"]:
 					if len(tokens)!=5:
-						raise ValueError("Error in line %d of FHI aims string: atom needs exactly 3 coordinates and atom type"%(i+1))
+						raise ValueError("Error in line {0:d} of FHI aims string: atom needs exactly 3 coordinates and atom type".format(i+1))
 					else:
 						tempcoords.append(numpy.array((tokens[1],tokens[2],tokens[3])))
 						if tokens[0]=="atom":
@@ -912,7 +912,7 @@ class Geometry:
 							tcfractional.append(True)
 						temptypes.append(self.RPTE[tokens[4].lower()])
 				else:
-					raise ValueError("Unrecognized keyword %s in line %d of FHI aims string"%(tokens[0],i+1))
+					raise ValueError("Unrecognized keyword {0:s} in line {1:d} of FHI aims string".format(tokens[0],i+1))
 		# Handle lattice vectors. We only support non-periodic and 3d periodic geometries
 		if len(templattice)<3:
 			self.Mode="C"
@@ -1395,7 +1395,7 @@ class Geometry:
 			if len(self.LPops[i])>0:
 				dummy=[]
 				for j in self.Lpops[i]:
-					dummy.append("%24E" % (j))
+					dummy.append("{0:24E}".format(j))
 				lines.append("\t\t<lpop>"+"\t".join(dummy)+"</lpop>")
 			lines.append("\t</atom>")
 		lines.append("</geometry>")
@@ -1439,7 +1439,7 @@ class Geometry:
 		# generate carthesian corrdinales lines using AtomSubType
 		for i in range(self.Atomcount):
 			# length unit for TM is Bohr
-			retstr+="%24E %24E %24E %s\n" % (self.Geometry[i][0]*constants.BOHR,self.Geometry[i][1]*constants.BOHR,self.Geometry[i][2]*constants.BOHR,self.AtomSubTypes[i])
+			retstr+="{0:24E} {1:24E} {2:24E} {3:s}\n".format(self.Geometry[i][0]*constants.BOHR,self.Geometry[i][1]*constants.BOHR,self.Geometry[i][2]*constants.BOHR,self.AtomSubTypes[i])
 		return retstr
 
 
@@ -1448,7 +1448,7 @@ class Geometry:
 		"""return a string describing self in gromacs file format
 		@return: string with geometry representation in gromos87 format"""
 		#initialze return string with title and number of atoms
-		retstr="comatsci geometry file\n%d\n" % (self.Atomcount,)
+		retstr="comatsci geometry file\n{0:d}\n".format(self.Atomcount,)
 		#add atom lines in fixed format as described in gromacs documentation
 		for i in range(self.Atomcount):
 			# residue name is layer index+1 (to start counting from 1)
@@ -1460,9 +1460,9 @@ class Geometry:
 			# atom number is index+1
 			anum=i+1
 			#positions from array, velocities are 0
-			retstr+="%5d%5s%5s%5d%8.3f%8.3f%8.3f%8.4f%8.4f%8.4f\n"%(resnum,resname,aname,anum,self.Geometry[i][0]*constants.NANOMETER,self.Geometry[i][1]*constants.NANOMETER,self.Geometry[i][2]*constants.NANOMETER,0.,0.,0.)
+			retstr+="{0:5d}{1:5s}{2:5s}{3:5d}{4:8.3f}{5:8.3f}{6:8.3f}{7:8.4f}{8:8.4f}{9:8.4f}\n".format(resnum,resname,aname,anum,self.Geometry[i][0]*constants.NANOMETER,self.Geometry[i][1]*constants.NANOMETER,self.Geometry[i][2]*constants.NANOMETER,0.,0.,0.)
 		# finally put the cell vectors
-		retstr+="%12.6f %12.6f %12.6f %12.6f %12.6f %12.6f %12.6f %12.6f %12.6f"%(self.Lattice[0][0],self.Lattice[1][1],self.Lattice[2][2],self.Lattice[0][1],self.Lattice[0][2],self.Lattice[1][0],self.Lattice[1][2],self.Lattice[2][0],self.Lattice[2][1])
+		retstr+="{0:12.6f} {1:12.6f} {2:12.6f} {3:12.6f} {4:12.6f} {5:12.6f} {6:12.6f} {7:12.6f} {8:12.6f}".format(self.Lattice[0][0],self.Lattice[1][1],self.Lattice[2][2],self.Lattice[0][1],self.Lattice[0][2],self.Lattice[1][0],self.Lattice[1][2],self.Lattice[2][0],self.Lattice[2][1])
 		#finished, return
 		return retstr
 
@@ -1489,15 +1489,15 @@ class Geometry:
 			currentatom=ET.SubElement(root,"atom")
 			# fill current atom with data, lengths are in ANGSTROM
 			x=ET.SubElement(currentatom,"x")
-			x.text="%24E"%(self.Geometry[i][0]*constants.ANGSTROM,)
+			x.text="{0:24E}".format(self.Geometry[i][0]*constants.ANGSTROM,)
 			y=ET.SubElement(currentatom,"y")
-			y.text="%24E"%(self.Geometry[i][1]*constants.ANGSTROM,)
+			y.text="{0:24E}".format(self.Geometry[i][1]*constants.ANGSTROM,)
 			z=ET.SubElement(currentatom,"z")
-			z.text="%24E"%(self.Geometry[i][2]*constants.ANGSTROM,)
+			z.text="0:24E".format(self.Geometry[i][2]*constants.ANGSTROM,)
 			atomradius=ET.SubElement(currentatom,"atomradius")
-			atomradius.text="%24E"%(self.CORAD[self.AtomTypes[i]]*constants.ANGSTROM,)
+			atomradius.text="{0:24E{".format(self.CORAD[self.AtomTypes[i]]*constants.ANGSTROM,)
 			charge=ET.SubElement(currentatom,"charge")
-			charge.text="%24E"%(self.AtomCharges[i],)
+			charge.text="{0:24E}".format(self.AtomCharges[i],)
 		# now build element tree and write XML to file
 		APBSTree=ET.ElementTree(root)
 		APBSTree.write(filename)
@@ -1553,7 +1553,7 @@ class Geometry:
 		# to be safe, convert Geometry to an array
 		outgeo=numpy.array(self.Geometry,dtype="double")*Angstrom
 		# add atom count line
-		outstring="%d\n\n" % (self.Atomcount)
+		outstring="{0:d}\n\n".format(self.Atomcount)
 		# iterate through atoms and append xyz lines
 		for j in range(self.Atomcount):
 #			outstring+="%3s\t%24E %24E %24E\n" % (self.PTE[self.AtomTypes[j]],
@@ -1588,9 +1588,9 @@ class Geometry:
 		lines.append("")
 		# output lattice vectors and origin in angstrom
 		for i in range(3):
-			lines.append(("%24E"*3) % tuple(self.Lattice[i]*Angstrom))
+			lines.append(("{24E}"*3).format(tuple(self.Lattice[i]*Angstrom)))
 		lines.append("")
-		lines.append(("%24E"*3) % tuple(self.Origin*Angstrom))
+		lines.append(("{24E{"*3).format(tuple(self.Origin*Angstrom)))
 		lines.append("")
 		# output dummy transformation coordinate system
 		lines.append("1. 0. 0.")
@@ -1601,15 +1601,15 @@ class Geometry:
 		for i in range(self.Atomcount):
 			# generate first column as specified
 			if atomColumn=="e":
-				prefix="%12s  " % self.PTE[self.AtomTypes[i]]
+				prefix="{0:12s}  ".format(self.PTE[self.AtomTypes[i]])
 			elif atomColumn=="n":
-				prefix="%4d  " % self.AtomTypes[i]
+				prefix="{0:4d}  ".format(self.AtomTypes[i])
 			elif atomColumn=="s":
-				prefix="%12s  " % self.AtomSubTypes[i]
+				prefix="{0:12s}  ".format(self.AtomSubTypes[i])
 			elif atomColumn=="c":
-				prefix="%24E  " % self.AtomCharges[i]
+				prefix="{0:24E}  ".format(self.AtomCharges[i])
 			# generate coordinates in carthesian angstroms
-			coordinates=("%24E "*3) % tuple(self.Geometry[i]*Angstrom)
+			coordinates=("{24E} "*3).format(tuple(self.Geometry[i]*Angstrom))
 			# assemble atom line and append to lines list
 			lines.append(prefix+coordinates)
 		# finished, convert lines list to output string and return
@@ -1654,7 +1654,7 @@ class Geometry:
 		retstr=""
 		outgeo=self.Geometry*Bohr
 		for i in range(self.Atomcount):
-			retstr+="%24E %24E %24E %24E\n" % (outgeo[i][0],
+			retstr+="{0:24E} {1:24E} {2:24E} {3:24E}\n".format(outgeo[i][0],
 				outgeo[i][1],outgeo[i][2],self.AtomCharges[i])
 		return retstr
 
@@ -1716,16 +1716,16 @@ class Geometry:
 			a=self.Lattice[0][0]*Angstrom
 			b=self.Lattice[1][1]*Angstrom
 			c=self.Lattice[2][2]*Angstrom
-			pdbLines.append("CRYST1%9.3f%9.3f%9.3f%7.2f%7.2f%7.2f  P 1          1" % (a,b,c,90.,90.,90.))
+			pdbLines.append("CRYST1{0:9.3f}{1:9.3f}{2:9.3f}{3:7.2f}{4:7.2f}{5:7.2f}  P 1          1".format(a,b,c,90.,90.,90.))
 		# add segment HET records for geometry layers
 		for i in self.LayerDict.keys():
-			pdbLines.append("HET   %3s %4d" % (self.LayerDict[i].Name[0:3].ljust(3).upper(), i+1))
+			pdbLines.append("HET   {0:3s} {1:4d}".format(self.LayerDict[i].Name[0:3].ljust(3).upper(), i+1))
 		# convert coordinates to Angstrom
 		outgeo=self.Geometry*Angstrom
 		# write HETATM records for each atom
 		for i in range(self.Atomcount):
 			# ***** begin very very long formatted string *****
-			pdbLines.append("HETATM%5d %3s  %4s %4i    %8.3f%8.3f%8.3f%6.2f%6.2f      %4s%2s%2s"% (
+			pdbLines.append("HETATM{0:5d} {1:3s}  {2:4s} {3:4i}    {4:8.3f}{5:8.3f}{6:8.3f}{7:6.2f}{8:6.2f}      {9:4s}{10:2s}{11:2s}".format(
 				# atom number, Atom Name
 				i+1,self.PTE[self.AtomTypes[i]].ljust(3),
 				# Layer name (corresponding to HET record created earlier)
@@ -1748,9 +1748,9 @@ class Geometry:
 				line=copy.deepcopy(blist[i])
 				while len(line) > 0:
 					token=line[0:4]
-					outstring="CONECT%5i" % (i+1)
+					outstring="CONECT{0:5i}".format(i+1)
 					for j in token:
-						outstring +="%5i"%(j+1)
+						outstring +="{0:5i}".format(j+1)
 					pdbLines.append(outstring)
 					line=line[4:len(line)]
 		# END of geometry entry
@@ -1796,12 +1796,12 @@ class Geometry:
 		rlines=[]
 		tmpgeo=self.Geometry*Angstrom
 		for i in range(self.Atomcount):
-			rlines.append(" %s %24E %24E %24E" % (self.PTE[self.AtomTypes[i]],
+			rlines.append(" {0:s} {1:24E} {2:24E} {3:24E}".format(self.PTE[self.AtomTypes[i]],
 			tmpgeo[i][0],tmpgeo[i][1],tmpgeo[i][2]))
 		if self.Mode=="S":
 			tmplattice=self.Lattice*Angstrom
 			for i in range(3):
-				rlines.append(" TV %24E %24E %24E" % (tmplattice[i][0],
+				rlines.append(" TV {0:24E} {1:24E} {2:24E}".format(tmplattice[i][0],
 					tmplattice[i][1],tmplattice[i][2]))
 		return "\n".join(rlines)
 
@@ -1821,7 +1821,7 @@ class Geometry:
 		constring=""
 		# iterate through atomlist and append the contraint lines
 		for i in atomlist:
-			constring+="ChargeConstraint = { Atoms = {%d}\nReferenceCharge = %24E\nPrefactor = %24E }\n" % (i+1,self.AtomCharges[i],prefactor)
+			constring+="ChargeConstraint = {{ Atoms = {{{0:d}}}\nReferenceCharge = {1:24E}\nPrefactor = {2:24E} }}\n".format(i+1,self.AtomCharges[i],prefactor)
 		# finished, return charge constraints string
 		return constring
 		

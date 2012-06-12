@@ -165,10 +165,10 @@ class xySplineFunction(potentialFunction):
 			"""@return string containing potential function file representation of the current instance"""
 			potLines=["&xyspline&"]
 			for i in range(len(self._parameters["x"])):
-				line="%12f\t%12f"%(self._parameters["x"][i],self._parameters["y"][i])
+				line="{0:12f}\t{1:12f}".format(self._parameters["x"][i],self._parameters["y"][i])
 				if i in self._mutables:
 					if self._boundaries[i]!=(None,None):
-						line+="\t%12f\t%12f" % self._boundaries[i]
+						line+="\t{0[0]:12f}\t{0[1]:12f}".format(self._boundaries[i])
 					else:
 						line+="\tTrue"
 				potLines.append(line)

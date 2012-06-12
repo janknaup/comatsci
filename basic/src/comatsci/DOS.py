@@ -110,7 +110,7 @@ class DOS:
 						tempEigenValues[spinindex].append([])
 						tempFillings[spinindex].append([])
 				except:
-					print('Error parsing line %d of file "{0:s}" in band.out format. Abort.'.format(i+1,filename))
+					print('Error parsing line {0:d} of file "{1:s}" in band.out format. Abort.'.format(i+1,filename))
 					raise
 				continue
 			elif len(dummy)==0:
@@ -213,7 +213,7 @@ class DOS:
 		eigenShape=(eigenvalEntry.shape[2],eigenvalEntry.shape[1],eigenvalEntry.shape[0])
 		# catch results.tag files, that do not contain eigenvalues:
 		if eigenvalEntry==None:
-			raise ValueError("No eigenvalues in tagged.out file '%s'." % filename)
+			raise ValueError("No eigenvalues in tagged.out file '{0:s}'.".format(filename))
 		else:
 			self.eigenValues=numpy.reshape(numpy.array(eigenvalEntry.value,dtype=float),eigenShape)
 			#self.eigenValues=numpy.reshape(numpy.array(eigenvalEntry.value,dtype=float),eigenvalEntry.shape)
@@ -224,7 +224,7 @@ class DOS:
 		else:
 			self.fillings=numpy.reshape(numpy.array(fillingsEntry.value,dtype=float),eigenShape)
 		if len(self.fillings) != len(self.eigenValues):
-			raise ValueError("Number of fillings in tagged.out file '%s' does not match number of eigenvalues!" % filename)
+			raise ValueError("Number of fillings in tagged.out file '{0:s}' does not match number of eigenvalues!".format(filename))
 		# set shape variables
 		self.spins=len(self.eigenValues)
 		self.kpoints=len(self.eigenValues[0])
@@ -581,7 +581,7 @@ class PDOS(DOS):
 			raise ValueError("Attempt to read eigenvectors without reading eigenvalues first.")
 		# check if input file exists
 		if not os.path.exists(filename):
-			raise ValueError("Specified DFTB+ eigenvector file '%s' does not exist"%filename)
+			raise ValueError("Specified DFTB+ eigenvector file '{0:s}' does not exist".format(filename))
 		# open compressed files transparently (but without automatic compressed file extension replacement)
 		EVfile=utils.compressedopen(filename,autodetect=False)
 		# read whole file into memory and close file object. May waste memory but mich easier to implement
@@ -590,12 +590,12 @@ class PDOS(DOS):
 		# the first line contains junk (human readable header), 2nd line is empty
 		#    check first line, if we find the expected junk
 		if not EVlines[0][:60]=="Coefficients and Mulliken populations of the atomic orbitals":
-			raise ValueError("did not found expected header in eigenvector file '%s'."%filename)
+			raise ValueError("did not found expected header in eigenvector file '{0:s}'.".format(filename))
 		# The number of eigenvectors should be the same as the number of eigenvalues
 		# we have to determine the number of atoms and orbitals from the first eigenvalue block
 		#   first check line 3 if it shows Eigenvector: 1 and Spin: 1
 		if not len(EVlines[2].split()) >=3 or not(int(EVlines[2].split()[1])==1) or not (int(EVlines[2].split()[3][0])==1):
-			raise ValueError("Did not find expected Eigenvector 1 Spin 1 component in line 3 of file '%s'"%filename)
+			raise ValueError("Did not find expected Eigenvector 1 Spin 1 component in line 3 of file '{0:s}'".format(filename))
 		# initialize list of orbitals per atom, number of atoms
 		orbitalsperAtom=[]
 		tempcoefficients=[]
@@ -617,7 +617,7 @@ class PDOS(DOS):
 				continue
 			else:
 				if not lineParts[0].strip()==self.AOLabels[orbitalindex]:
-					raise ValueError("Expected did not find expected orbital %s at line %d of file '%s'"%(self.AOLabels[orbitalindex],currentline+1,filename))
+					raise ValueError("Expected did not find expected orbital {0:s} at line {1:d} of file '{2:s}'".format(self.AOLabels[orbitalindex],currentline+1,filename))
 				tempcoefficients[-1].append(float(lineParts[1]))
 				tempmulliken[-1].append(float(lineParts[2]))
 				orbitalindex+=1
@@ -641,7 +641,7 @@ class PDOS(DOS):
 		elif len(EVlines)==2+2*blockLength*numOrbitals:
 			numSpins=2
 		else:
-			raise ValueError("Unexpected number of lines in file '%s' file is probably malformed."%filename)
+			raise ValueError("Unexpected number of lines in file '{0:s}' file is probably malformed.".format(filename))
 		# allocate data arrays
 		self.orbitalCoeficients=numpy.zeros(numSpins*numOrbitals**2,dtype=float)
 		self.orbitalMulliken=numpy.zeros(numSpins*numOrbitals**2,dtype=float)
@@ -658,7 +658,7 @@ class PDOS(DOS):
 				blockBase=2+blockLength*(EVindex+spinIndex)
 				# check for expected eigenvalue block header (file indices count from 1)
 				if not len(EVlines[blockBase].split()) >=3 or not(int(EVlines[blockBase].split()[1])==EVindex+1) or not (int(EVlines[blockBase].split()[3][0])==spinIndex+1):
-					raise ValueError("Did not find expected Eigenvector %d Spin %d component in file '%s'"%(EVindex+1,spinIndex+1,filename))
+					raise ValueError("Did not find expected Eigenvector {0:d} Spin {1:d} component in file '{2:s}'".format(EVindex+1,spinIndex+1,filename))
 				# iterate atoms per spin eigenvalue
 				for atomIndex in range(atomcount):
 					# iterate orbitals per atom
@@ -669,13 +669,13 @@ class PDOS(DOS):
 						lineIndex=blockBase+int(orbitalsum[atomIndex])+2+atomIndex+aoIndex
 						lineParts=EVlines[lineIndex].split()
 						if not lineParts[0].strip()==self.AOLabels[aoIndex]:
-							raise ValueError("Did not find expected atomic orbital '%s' in line %d of egenvector file '%s'"%(self.AOLabels[aoIndex],lineIndex+1,filename))
+							raise ValueError("Did not find expected atomic orbital '{0:s}' in line {1:d} of egenvector file '{2:s}'".format(self.AOLabels[aoIndex],lineIndex+1,filename))
 						else:
 							try:
 								self.orbitalCoeficients[coeffIndex]=float(lineParts[1])
 								self.orbitalMulliken[coeffIndex]=float(lineParts[2])
 							except:
-								raise ValueError("failed to parse line %d of eigenvector file '%s'"%(lineIndex+1,filename))
+								raise ValueError("failed to parse line {0:d} of eigenvector file '{1:s}'".format(lineIndex+1,filename))
 								raise
 		# done
 
