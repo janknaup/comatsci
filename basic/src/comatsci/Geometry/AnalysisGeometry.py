@@ -139,14 +139,14 @@ class AnalysisGeometry(Geometry):
 		lines.append("<H2>Composition</H2>")
 		lines.append("<table border=2 rules=all>\n<tr><th>Element</th><th># of atoms</th><th>%</th></tr>")
 		for i in elemcounts.keys():
-			workstring="<tr><td>%4s</td><td>%6d</td><td>%5.1f%%</td></tr>" % (self.PTE[i],elemcounts[i],float(elemcounts[i])*100./float(self.Atomcount))
+			workstring="<tr><td>{0:4s}</td><td>{1:6d}</td><td>{2:5.1f}%</td></tr>".format(self.PTE[i],elemcounts[i],float(elemcounts[i])*100./float(self.Atomcount))
 			lines.append(workstring)
-		lines.append("<tr><td>%6d</td><td>%5.1f%%</td></tr>\n</table>" % (self.Atomcount,100))
+		lines.append("<tr><td>{0:6d}</td><td>{1:5.1f}%</td></tr>\n</table>".format(self.Atomcount,100))
 		lines.append("<H2>Coordination</H2>")
 		lines.append("<H3>Average coordination by element</H3>")
 		lines.append("<table border=2 rules=all>\n<tr><th>Element</th><th>count</th><th>avg. coord.</th></tr>")
 		for i in elemavg.keys():
-			workstring="<tr><td>%4s</td><td>%6d</td><td>%6.3f</td></tr>" % (self.PTE[i],elemcounts[i],elemavg[i])
+			workstring="<tr><td>{0:4s}</td><td>{1:6d}</td><td>{2:6.3f}</td></tr>".format(self.PTE[i],elemcounts[i],elemavg[i])
 			lines.append(workstring)
 		lines.append("</table>")
 		lines.append("<H3>Element coordination breakdown</H3>")
@@ -154,20 +154,20 @@ class AnalysisGeometry(Geometry):
 		lines.append("<tr><th>Element</th><th>coordination</th><th># of atoms</th><th>% of element</th></tr>")
 		for i in elcoco.keys():
 			for j in elcoco[i].keys():
-				workstring="<tr><td>%2s</td><td>%2d</td><td>%5d</td><td>%5.1f%%</td></tr>"%(self.PTE[i],j,elcoco[i][j],float(elcoco[i][j])/float(elemcounts[i])*100)
+				workstring="<tr><td>{0:2s}</td><td>{1:2d}</td><td>{2:5d}</td><td>{3:5.1f}%</td></tr>".format(self.PTE[i],j,elcoco[i][j],float(elcoco[i][j])/float(elemcounts[i])*100)
 				lines.append(workstring)
 		lines.append("</table>")
 		lines.append("<H3>Average element-element coordinations</H3>")
 		lines.append("<table border=2 rules=all>\n<tr><th>Elements</th><th>avg. coord.</th><th>avg. bond length [A]</th></tr>")
 		for i in elelco.keys():
 			for j in elelco[i].keys():
-				workstring="<tr><td>%2s-%2s</td><td>%6.3f</td>" % (self.PTE[i],self.PTE[j],elelco[i][j])
+				workstring="<tr><td>{0:2s}-{1:2s}</td><td>{2:6.3f}</td>".format(self.PTE[i],self.PTE[j],elelco[i][j])
 				if i<=j:
 					blkey=(i,j)
 				else:
 					blkey=(j,i)
 				if blstats.has_key(blkey):
-					workstring+="<td>%8.4f &plusmn; %8.4f</td>" % (blstats[blkey]["mean"]*constants.ANGSTROM,blstats[blkey]["delta"]*constants.ANGSTROM)
+					workstring+="<td>{0:8.4f} &plusmn; {1:8.4f}</td>".format(blstats[blkey]["mean"]*constants.ANGSTROM,blstats[blkey]["delta"]*constants.ANGSTROM)
 				else:
 					workstring+="<td>N/A</td>"
 				workstring+="</tr>"
@@ -195,14 +195,14 @@ class AnalysisGeometry(Geometry):
 		bc=self.atom_bondcounts()
 		bcols=max(bc)
 		lines=['<H2>Bond List</H2>','<table rules=all border=2>']
-		lines.append("<tr><th>Atom</th><th colspan=%d> bond partners</th></tr>"%(bcols))
+		lines.append("<tr><th>Atom</th><th colspan={0:d}> bond partners</th></tr>".format(bcols))
 		for i in range(self.Atomcount):
-			workstring="<tr><td>%2s%6d</td>" %(self.PTE[self.AtomTypes[i]],i+1)
+			workstring="<tr><td>{0:2s}{1:6d}</td>".format(self.PTE[self.AtomTypes[i]],i+1)
 			for j in range(len(bl[i])):
 				at=bl[i][j]
-				workstring+="<td>%2s%6d</td>" %(self.PTE[self.AtomTypes[at]],at+1)
+				workstring+="<td>{0:2s}{1:6d}</td>".format(self.PTE[self.AtomTypes[at]],at+1)
 			if len(bl[i])<bcols:
-				workstring+="<td colspan=%d></td>"%(bcols-len(bl[i]))
+				workstring+="<td colspan={0:d}></td>".format(bcols-len(bl[i]))
 			lines.append(workstring+"</tr>")
 		lines.append("</table>")
 		newline="\n"
@@ -376,21 +376,21 @@ class AnalysisGeometry(Geometry):
 		# Header
 		lines=['<H2>Charges</H2>']
 		# Total Charges
-		lines.append("System total charge: %f e<sup>-</sup>" % (self.totalcharge()))
+		lines.append("System total charge: {0:f} e<sup>-</sup>".format(self.totalcharge()))
 		# Charges by Layers, if number of layers > 1
 		if len(self.LayerDict)>1:
 			lines.append("<H3>Charges by Layers</H3>")
 			lines.append("<table border=2 rules=all><tr><th>Layer</th><th>charge [e<sup>-</sup>]</th></tr>")
 			for i in self.LayerDict.keys():
 				tmpgeo=self.layersubgeometry(i)
-				lines.append("<tr><td>%s</td><td>%f</td></tr>"%(self.LayerDict[i].Name,tmpgeo.totalcharge()))
+				lines.append("<tr><td>{0:s}</td><td>{1:f}</td></tr>".format(self.LayerDict[i].Name,tmpgeo.totalcharge()))
 			lines.append("</table>")
 		# Charges by Elements
 		lines.append("<H3>Charge by Elements</H3>")
 		lines.append("<table border=2 rules=all><tr><th>Element</th><th>avg. Charge [e<sup>-</sup>]</th></tr>")
 		echr=self.elem_avg_charges()
 		for i in echr.keys():
-			lines.append("<tr><td>%s</td><td>%f</td></tr>"%(self.PTE[i],echr[i]))
+			lines.append("<tr><td>{0:s}</td><td>{1:f}</td></tr>".format(self.PTE[i],echr[i]))
 		lines.append("</table>")
 		# Element-Element charge transfer coefficients
 		# get charge transfer coefficients dictionary and create a sorted list of keys
@@ -399,10 +399,10 @@ class AnalysisGeometry(Geometry):
 		dqKeys.sort()
 		# output as html table
 		lines.append("<H3>Charge Transfer Coefficients</H3>")
-		lines.append("<table><tr><th>S</th><td>: %12f</td><tr><tr><th>&sigma;<sup>2</sup></th><td>: %12f</td></tr></table>"%(S,sigma))
+		lines.append("<table><tr><th>S</th><td>: {0:12f}</td><tr><tr><th>&sigma;<sup>2</sup></th><td>: {1:12f}</td></tr></table>".format(S,sigma))
 		lines.append("""<table border="2" rules="all"><tr><th>Elements</th><th>dq<sub>a,b</sub></th></tr>""")
 		for i in dqKeys:
-			lines.append("<tr><td>%03s-%3s</td><td>%11.8f</td>" % (self.PTE[i[0]],self.PTE[i[1]],dq[i]))
+			lines.append("<tr><td>{0:03s}-{1:3s}</td><td>{2:11.8f}</td>".format(self.PTE[i[0]],self.PTE[i[1]],dq[i]))
 		lines.append("</table>")
 		return"\n".join(lines)
 

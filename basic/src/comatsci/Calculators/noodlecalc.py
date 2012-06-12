@@ -75,7 +75,7 @@ class FloatConverter(Converter):
       try:
         ll.append(float(val))
       except Exception:
-        raise ConversionError, "Unable to convert float '%s'" % val
+        raise ConversionError, "Unable to convert float '{0:s}'".format(val)
     return ll
 
 
@@ -89,7 +89,7 @@ class IntConverter(Converter):
       try:
         ll.append(int(val))
       except Exception:
-        raise ConversionError, "Unable to convert integer '%s'" % val
+        raise ConversionError, "Unable to convert integer '{0:s}'".format(val)
     return ll
 
 
@@ -116,8 +116,7 @@ class ComplexConverter(Converter):
       try:
         ll.append(complex(float(values[ii]), float(values[ii+1])))
       except Exception:
-        raise ConversionError, ("Unable to convert complex '(%s,%s)'"
-                                % (values[ii], values[ii+1]))
+        raise ConversionError, ("Unable to convert complex '({0:s},{1:s})'".format(values[ii], values[ii+1]))
     return ll
 
 
@@ -133,7 +132,7 @@ class LogicalConverter(Converter):
       elif val == 'F' or val == 'f':
         ll.append(0)
       else:
-        raise ConversionError, "Unable to convert logical '%s'" % val
+        raise ConversionError, "Unable to convert logical '{0:s}'".format(val)
     return ll
 ############################################################################
 # Tagged data related objects
@@ -163,7 +162,7 @@ class TaggedEntry(object):
     """
 
     if not type in self.__validTypes:
-      raise InvalidEntry(msg="Invalid data type '%s'" % type)
+      raise InvalidEntry(msg="Invalid data type '{0:s}'".format(type))
     self.__name = name
     self.__type = type
     self.__rank = rank
