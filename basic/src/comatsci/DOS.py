@@ -191,8 +191,6 @@ class DOS:
 			self.kweights=numpy.array([1.0,])
 			# reset calculated properties, in case someone in reusing this instance
 			self.reset_calculated()
-#			print >> sys.stderr, self.eigenValues
-#			print >> sys.stderr, self.fillings
 			# finished
 
 
@@ -309,7 +307,7 @@ class DOS:
 				try:
 					self.fermiEnergy=float(tokens[-1])
 				except:
-					print >> sys.stderr,"Failed to parse Fermi level in line %d of aims output file"%(i+1)
+					print("Failed to parse Fermi level in line {0:d} of aims output file".format(i+1))
 					raise
 		# iterate below KSpivot to read eigenvalue lines.
 		# Block of eigenvalues is enclosed in empty lines
@@ -322,7 +320,7 @@ class DOS:
 				tempfillings.append(float(tokens[1]))
 				tempEigenvalues.append(float(tokens[3]))
 			except:
-				print >> sys.stderr, "Failed to parse Kohn-Sham eigenvalues line in line %d of aims output file"%(i+1)
+				print("Failed to parse Kohn-Sham eigenvalues line in line {0:d} of aims output file".format(i+1))
 				raise
 			i+=1
 		# finished parsing, now store fillings and eigenvalues
@@ -405,7 +403,6 @@ class DOS:
 			raise ValueError("emax not greater than emin")
 		# initalize energies and DOS arrays
 		energies=numpy.arange(emin,emax,stepwidth) # energies for DOS values
-#		print >> sys.stderr, energies
 		numsteps=int(len(energies))
 		peakenergies=numpy.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
 		# fill peak function array
@@ -597,7 +594,6 @@ class PDOS(DOS):
 		# The number of eigenvectors should be the same as the number of eigenvalues
 		# we have to determine the number of atoms and orbitals from the first eigenvalue block
 		#   first check line 3 if it shows Eigenvector: 1 and Spin: 1
-#		print >> sys.stderr, EVlines[2].split()
 		if not len(EVlines[2].split()) >=3 or not(int(EVlines[2].split()[1])==1) or not (int(EVlines[2].split()[3][0])==1):
 			raise ValueError("Did not find expected Eigenvector 1 Spin 1 component in line 3 of file '%s'"%filename)
 		# initialize list of orbitals per atom, number of atoms
