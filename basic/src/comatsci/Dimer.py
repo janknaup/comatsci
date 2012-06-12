@@ -903,7 +903,7 @@ class Dimer(Geometry):
 			print("C0                          = {0:12.6f} H/Bohr**2".format(self.C0))
 		sys.stdout.flush()
 		# write initial data to convergence info file
-		print >> dimerInfoFile, "%d\t%12.8e\t%12.8e\t%12.8e\t%12.8e" % (0,self.E0,max(self.f0.ravel()),math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))),self.C0)
+		print("{0:d}\t{1:12.8e}\t{2:12.8e}\t{3:12.8e}\t{4:12.8e}".format(0,self.E0,max(self.f0.ravel()),math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))),self.C0),file=dimerInfoFile)
 		dimerInfoFile.flush()
 		# check if we can skip iterations (you wish)
 		if self.checkConvergence():
@@ -930,7 +930,7 @@ class Dimer(Geometry):
 			self.writefmg("dimercheckpoint.fmg")
 			self._setCount+=1
 			# write data to convergence info file
-			print >> dimerInfoFile, "%d\t%12.8e\t%12.8e\t%12.8e\t%12.8e" % (i+1,self.E0,max(self.f0.ravel()),math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))),self.C0)
+			print("{0:d}\t{1:12.8e}\t{2:12.8e}\t{3:12.8e}\t{4:12.8e}".format(i+1,self.E0,max(self.f0.ravel()),math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))),self.C0),file=dimerInfoFile)
 			dimerInfoFile.flush()
 			self.writexyz("dimer-animation.xyz","a")
 			if self.verbosity>=constants.VBL_NORMAL:
