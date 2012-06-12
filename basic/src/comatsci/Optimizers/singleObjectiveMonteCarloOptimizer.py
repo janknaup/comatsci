@@ -14,6 +14,8 @@
 #@license: Open Software License version 3.0
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
+from __future__ import print_function
+
 from Optimizer import Optimizer,constants
 import copy
 
@@ -43,37 +45,37 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 		@param fitnessOptions dictionary of options to pass to the fitness function
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
-			print "SOMC Optimizer: initializing."
+			print("SOMC Optimizer: initializing.")
 		#call base class constructor
 		Optimizer.__init__(self,options)
 		#digest opions, c.f. documentation
 		self._maxF=options["maxF"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOMC Optimizer: max fitness: %f." % (self._maxF)
+			print("SOMC Optimizer: max fitness: {0:f}.".format(self._maxF))
 
 		self._mutator=options["mutator"]
 ##		if type(self._mutator)!="function":
 ##			raise "SOMC Optimizer: mutator function must be of type function"
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOMC Optimizer: mutator function stored"
+			print("SOMC Optimizer: mutator function stored")
 		
 		self._mutatorOptions=options["mutatorOptions"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOMC Optimizer: mutator options stored"
+			print("SOMC Optimizer: mutator options stored")
 		elif self._verbosity >= constants.VBL_DEBUG2:
-			print "SOMC Optimizer: mutator options: %s" % (str(self._mutatorOptions))
+			print("SOMC Optimizer: mutator options: {0:s}".format(str(self._mutatorOptions)))
 		
 		self._fitness=options["fitness"]
 ##		if type(self._fitness)!="function":
 ##			raise "SOMC Optimizer: fitness function must be of type function"
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOMC Optimizer: fitness function stored"
+			print("SOMC Optimizer: fitness function stored")
 		
 		self._fitnessOptions=options["fitnessOptions"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOMC Optimizer: fitness options stored"
+			print("SOMC Optimizer: fitness options stored")
 		elif self._verbosity >= constants.VBL_DEBUG2:
-			print "SOMC Optimizer: fitness options: %s" % (str(self._fitnessOptions))
+			print("SOMC Optimizer: fitness options: {0:s}".format(str(self._fitnessOptions)))
 		
 		# initialize internal valiables
 		# optimization specific
@@ -85,7 +87,7 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 		self._mutations=0
 		
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOMC Optimizer: initialized"
+			print("SOMC Optimizer: initialized")
 	
 	
 	
@@ -106,16 +108,16 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 		if self._lastFitness < self._maxF:
 			self._convreason="Max fitness convergence"
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOMC Optimizer: convergence criterion met: %s" %(self._convreason)
+				print("SOMC Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		#also check number of iterations
 		if self._iterations>=self._maxIterations:
 			self._convreason="Maximum iterations reached"
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOMC Optimizer: convergence criterion met: %s" %(self._convreason)
+				print("SOMC Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		if self._verbosity >= constants.VBL_DEBUG2:
-			print "SOMC Optimizer: not yet converged"
+			print("SOMC Optimizer: not yet converged")
 		return False
 
 
@@ -131,7 +133,7 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 		#at first iteration, calculate fitness for input vector and return
 		if self.iterations==0:
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOMC Optimizer: calculating fitness of initial X"
+				print("SOMC Optimizer: calculating fitness of initial X")
 			self._bestFitness=self._fitness(self._fitnessOptions,X)
 			self._lastFitness=copy.deepcopy(self._bestFitness)
 			self._bestX=copy.deepcopy(X)
@@ -141,21 +143,21 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 		#otherwise mutate X, calculate new fitness and return the fitter X
 			#mutate X
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOMC Optimizer: mutating X"
+				print("SOMC Optimizer: mutating X")
 			newX=self._mutator(self._mutatorOptions,X)
 			self._mutations+=1
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOMC Optimizer: calculating fitness of mutated X"
+				print("SOMC Optimizer: calculating fitness of mutated X")
 			self._lastFitness=self._fitness(self._fitnessOptions,newX)
 			if self._lastFitness<self._bestFitness:
 				self._bestFitness=copy.deepcopy(self._lastFitness)
 				self._bestX=newX
 				self._accepted+=1
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "SOMC Optimizer: mutated X is fitter, returning X'"
+					print("SOMC Optimizer: mutated X is fitter, returning X'")
 			else:
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "SOMC Optimizer: mutated X is not fitter, returning X"
+					print("SOMC Optimizer: mutated X is not fitter, returning X")
 				self._lastSolutions=copy.deepcopy(X)
 			self._lastSolutions=((self._bestFitness,self._bestX),)
 			return self._bestX
