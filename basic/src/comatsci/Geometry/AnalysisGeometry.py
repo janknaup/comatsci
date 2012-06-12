@@ -10,6 +10,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from Geometry import Geometry
 from comatsci import constants #,  utils
 
@@ -298,10 +299,10 @@ class AnalysisGeometry(Geometry):
 				progressfunction(progress)
 			#before bisection, check, if datapoint is within binning range
 			if i < bins[0]:
-				print "low outside"
+				print("low outside")
 				outside+=1
 			elif i>bins[-1]:
-				print "high outside"
+				print("high outside")
 				outside+=1
 			#find bin using bisection
 			else:
@@ -571,10 +572,6 @@ class AnalysisGeometry(Geometry):
 		import numpy.oldnumeric.linear_algebra as LinearAlgebra
 		charges=numpy.array(self.AtomCharges,dtype=float)
 		(q_ab,S,rankA,A)=LinearAlgebra.linear_least_squares(qMatrix,charges) #@UnusedVariable
-##		print "q_ab : ",q_ab
-##		print "rms  : ",rms
-##		print "rankA: ",rankA
-##		print "A    : ",A
 		# calculate sums of squared residuals by dot product formula
 		S=numpy.dot(charges,charges)
 		S-=numpy.dot(numpy.dot(qMatrix,numpy.transpose(q_ab)),charges)
@@ -917,10 +914,10 @@ class AnalysisGeometry(Geometry):
 			canonicalValence=specvalences.get(self.AtomTypes[i],canonicalValence)
 			if canonicalValence==None:
 				if ignoreUnknownCanonical:
-					print >> sys.stderr, "WARNING: no canonical valence count for element %s. Ignoring atom Number %d." %(self.PTE[self.AtomTypes[i]],i+1)
+					print("WARNING: no canonical valence count for element {0:s}. Ignoring atom Number {1:d}.".format(self.PTE[self.AtomTypes[i]],i+1),file=sys.stderr)
 					canonicalValence=-1
 				else:
-					print >> sys.stderr, "ERROR: no canonical valence count for element %s (atom %d). Aborting."%(self.PTE[self.AtomTypes[i]],i+1)
+					print("ERROR: no canonical valence count for element {0:s} (atom {1:d}). Aborting.".format(self.PTE[self.AtomTypes[i]],i+1),file=sys.stderr)
 					raise ValueError("no canonical valence found for atom")
 			# check if current atom is undercoordinated and if yes, append its index to the list of undercorrdinated atoms
 			if len(blist[i])<canonicalValence:
@@ -977,17 +974,9 @@ class AnalysisGeometry(Geometry):
 						mask[j]=False					# add proximate atom and mask it out
 						vacancy.append(j)
 				vacancies.append(vacancy)			# this vacancy is finished, store it
-##		print vacancies
 		latticeArray=numpy.array(self.Lattice)
 		# for each vacancy, calculate the centroid
 		for i in range(len(vacancies)):
-			# warn about vacancies consisting of exactly two atoms, they may be higher-order bonds
-#			if len(vacancies[i])==2:
-#				print >> sys.stderr, "WARNING: Vacancy with two neighbors found, this may actually be a double- or triple bond."
-#			# skip vacancies consisting of only one atom but warn
-#			elif len(vacancies[i])==1:
-#				print >> sys.stderr, "WARNING: Isolated undercoordinated atom found. Check Vacancy radius parameter."
-#			else:
 				# calculate centroid of vacancy:
 				centroid=numpy.zeros(3,dtype=float)
 				# treat cluster and supercell geometries differently
@@ -1133,7 +1122,6 @@ class AnalysisGeometry(Geometry):
 					if selfClosest[refClosest[i]]!=i:
 						uniqueMapped = False
 						interdistances[refClosest[i]][selfClosest[refClosest[i]]]=numpy.ma.masked
-#						print "msk ",selfClosest[refClosest[i]],"  ",refClosest[i]
 					else:
 						assignedSubAtoms.append(refClosest[i])
 						assignedRefAtoms.append(i)
@@ -1142,7 +1130,6 @@ class AnalysisGeometry(Geometry):
 					if refClosest[selfClosest[i]]!=i:
 						uniqueMapped = False
 						interdistances[refClosest[selfClosest[i]]][selfClosest[i]]=numpy.ma.masked
-#						print "msk ",selfClosest[refClosest[i]],"  ",refClosest[i]
 					else:
 						assignedSubAtoms.append(i)
 						assignedRefAtoms.append(selfClosest[i])
