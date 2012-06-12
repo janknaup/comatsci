@@ -412,7 +412,6 @@ class noodlecalc(Calculator):
 		#keep the geometry file separate
 		print("""Geometry = GenFormat {\n <<< "input.gen" \n}""",file=ninput)
 ##		#this should hopefully give us forces and total energies at a single point
-##		print >> ninput, "!Driver = ConjugateGradient{MovedAtoms=Range{1 -1} MaxSteps=0}"
 		#override initial charge reuse according to options  and existence of charge file
 		if self.rchr:
 			if os.path.exists("charges.bin"):
@@ -489,12 +488,12 @@ class noodlecalc(Calculator):
 	def _postrun(self, steplabel):
 		"""Things to do after noodle run, i.e. save charges.bin, clean up c.f. base class"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "noodle postrun cleanup and statistics"
+			print("noodle postrun cleanup and statistics")
 		# first some statistics
 		self.totalscf+=self.scfit
 		self.totalruns+=1
 		if self.verbosity>=constants.VBL_TALKY:
-			print "%s: SCC iterations: %3d   ----   Total Energy: %12.6fH" % (steplabel,self.scfit,self.etot)
+			print("{0:s}: SCC iterations: {1:3d}   ----   Total Energy: {2:12.6f} H".format(steplabel,self.scfit,self.etot))
 		if os.path.exists(self.rundir+"/charges.bin"):
 			chargefilename=steplabel+"-charges.bin"
 			if not os.path.exists(self.chrdir):
@@ -513,7 +512,7 @@ class noodlecalc(Calculator):
 		"""Read total energy and gradients from result files in current directory
 		@param : atomcount number of atoms in system (ignored!)"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "parsing noodle output"
+			print("parsing noodle output")
 		#overwrite atomcount, if we were working on a subgeometry
 		if self.remapatoms!=None:
 			realatomcount=atomcount
@@ -537,7 +536,7 @@ class noodlecalc(Calculator):
 		if tagresults.getEntry("scc").value[0]:
 			self.scfit=int(tagresults.getEntry("n_scc_iters").value[0])
 			if not tagresults.getEntry("scc_convergence").value[0] and self.verbosity>=constants.VBL_TALKY:
-				print "Warning: noodle SCC not converged, forces may be wrong!"
+				print("Warning: noodle SCC not converged, forces may be wrong!")
 		else:
 			self.scfit=1
 		#remap forces, in case we have been working on a subgeometry
@@ -555,5 +554,5 @@ class noodlecalc(Calculator):
 			self.remove_workdir()
 		Calculator.shutdown(self)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "noodle calculator shut down"
+			print("noodle calculator shut down")
 
