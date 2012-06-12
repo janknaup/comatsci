@@ -309,7 +309,7 @@ class Reactionpath:
 		outstring+=self.fmgTrjinfoString()+"\n"
 		outstring+='</fmg>\n'
 		outfile=open(name,"w")
-		print >> outfile, outstring
+		print(outstring,file=outfile)
 		outfile.close()
 
 	
@@ -571,12 +571,12 @@ class Reactionpath:
 		@param: name="neb.frc" output filename
 		"""
 		outFile=open(name,"w")
-		print >>outFile,"%6d %6d" % (self.Atomcount, self.numimages())
+		print("{0:6d} {1:6d}".format(self.Atomcount, self.numimages()),file=outfile)
 		for i in range(self.numimages()):
-			print >>outFile, "%d" % (i)
+			print("{0:d}".format(i),file=outfile)
 			tempforce=self.realforces[i].ravel()
 			for j in range(self.Atomcount):
-				print >>outFile, "%24E %24E %24E " %(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2])
+				print("{0:24E} {1:24E} {2:24E} ".format(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2]),file=outfile)
 		outFile.close()
 
 
@@ -589,7 +589,7 @@ class Reactionpath:
 		"""
 		outFile=open(name,"w")
 		for i in range(self.numimages()):
-			print >> outFile,"%5d  %24E" % (i,self.energies[i])
+			print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=outFile)
 		outFile.close()
 
 
@@ -937,7 +937,7 @@ class Reactionpath:
 		"""
 		outFile=open(filename,'w')
 		for i in self.geos[image].centerdists(center):
-			print >> outFile, "%24E" % (i)
+			print("{0:24E}".format(i),file=outFile)
 		outFile.close
 
 
@@ -961,7 +961,7 @@ class Reactionpath:
 		"""
 		ofile=open(filename,'w')
 		for i in self.rmsds():
-			print >>ofile,"%24E" % (i)
+			print("{0:24E}".format(i),file=ofile)
 		ofile.close()
 
 
@@ -1221,8 +1221,6 @@ class Reactionpath:
 			del cVectors[0]
 			cVectors.append(numpy.array(self.geos[i].Geometry.flat))
 			newCoordinates=numpy.reshape(numpy.average(numpy.array(cVectors),0),geoshape)
-			##print newCoordinates
-			##print newCoordinates-self.geos[i].Geometry
 			tempgeo=geoclass(Mode,self.Atomcount,AtomTypes,Origin,lattice,newCoordinates,
 				iAtomLayers=AtomLayers,iLayerDict=LayerDict,iAtomCharges=None,iAtomSubTypes=AtomSubTypes)
 			newgeos.append(tempgeo)

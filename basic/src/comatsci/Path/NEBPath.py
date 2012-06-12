@@ -703,12 +703,12 @@ class NEBPath(Reactionpath):
 				y+= cubicparms[i][1]*x*x
 				y+= cubicparms[i][2]*x
 				y+= cubicparms[i][3]
-				print >> CEfile,"%24E %24E" % ((x+xoffset)/totallength,y)
+				print("{0:24E} {1:24E}".format((x+xoffset)/totallength,y),file=CEfile)
 			xoffset+=cubicparms[i][4]
-		print >> CEfile,"\n"
+		print("\n",file=CEfile)
 		x=0
 		for i in range(self.numimages()):
-			print >> CEfile,"%24E %24E" %(x/totallength,self.energies[i])
+			print("{0:24E} {1:24E}".format(x/totallength,self.energies[i]),file=CEfile)
 			if i < self.numimages()-1:
 				x+=cubicparms[i][4]
 		CEfile.close()
@@ -751,7 +751,7 @@ class NEBPath(Reactionpath):
 			print("Initial barrier:{0:12.6f} H".format(barrier))
 		for i in range(self.numimages()):
 			print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=energyfile)
-		print >> energyfile,"\n"
+		print("\n",file=energyfile)
 		energyfile.flush()
 		#Do some sanity checking on start- and endpoints and warn the user if necessary
 		srms=self.rmsforce([0],self._fixatoms(self.realforces))
@@ -787,7 +787,7 @@ class NEBPath(Reactionpath):
 			self.realforcesfunc(calculator,charge=self.charge)
 			for i in range(self.numimages()):
 				print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=energyfile)
-			print >> energyfile,"\n"
+			print("\n",file=energyfile)
 			energyfile.flush()
 			if self.convcheckfunc()!=0:
 				if self.verbosity>=constants.VBL_QUIET:

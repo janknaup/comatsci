@@ -50,10 +50,7 @@ class AnalysisPath(Reactionpath):
 		Ft=numpy.array(targetpath.realforces).ravel()
 		dF=abs(Ff-Ft)
 #		dF=reshape(abs(Ff-Ft),(-1,3))
-##		print dF
 #		dF=MLab.max(dF,1)
-##		print "."
-##		print dF
 #		dF/=MLab.max(reshape(abs(Ft),(-1,3)),1)
 		return numpy.dot(dF,dF)
 
