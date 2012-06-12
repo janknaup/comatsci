@@ -9,6 +9,7 @@
 # Licensed under the Non-Profit Open Software License version 3.0
 # see file LICENSE for details.
 ##############################################################################
+from __future__ import print_function
 
 from comatsci import constants
 
@@ -44,7 +45,7 @@ class AnalysisPath(Reactionpath):
 		@param opt: dummy parameter required by API (default None)		
 """
 		if self._verbosity>=constants.VBL_DEBUG2:
-			print "Analysispath: calculating forceSquares"
+			print("Analysispath: calculating forceSquares")
 		Ff=numpy.array(self.realforces).ravel()
 		Ft=numpy.array(targetpath.realforces).ravel()
 		dF=abs(Ff-Ft)
@@ -64,11 +65,11 @@ class AnalysisPath(Reactionpath):
 		@param opt: dummy parameter required by API (default None)		
 """
 		if self._verbosity>=constants.VBL_DEBUG2:
-			print "Analysispath: calculating forceRms"
+			print("Analysispath: calculating forceRms")
 		if not targetpath.has_forces():
-			raise "AnalysisPath: target path has no forces!"
+			raise("AnalysisPath: target path has no forces!")
 		if not self.has_forces():
-			raise "AnalysisPath: AnalysisPath has no forces!"
+			raise("AnalysisPath: AnalysisPath has no forces!")
 		return math.sqrt(self.forceSquares(targetpath)/(self.geos[0].Atomcount*self.numImages))
 
 
@@ -77,7 +78,7 @@ class AnalysisPath(Reactionpath):
 		"""return squared energy difference btw. self and targetpath
 		@param: targetpath:	second path to compare self against"""
 		if self._verbosity>=constants.VBL_DEBUG2:
-			print "Analysispath: calculating energySquares"
+			print("Analysispath: calculating energySquares")
 		Ef=numpy.array(self.energies).ravel()
 		Et=numpy.array(targetpath.energies).ravel()
 		dE=Ef-Et
@@ -88,11 +89,11 @@ class AnalysisPath(Reactionpath):
 
 	def energyRms(self, targetpath):
 		if self._verbosity>=constants.VBL_DEBUG2:
-			print "Analysispath: calculating energyRms"
+			print("Analysispath: calculating energyRms")
 		if not targetpath.has_energies():
-			raise "AnalysisPath: target path has no energies!"
+			raise("AnalysisPath: target path has no energies!")
 		if not self.has_energies():
-			raise "AnalysisPath: AnalysisPath has no energies!"
+			raise("AnalysisPath: AnalysisPath has no energies!")
 		"""return rms energy difference btw. self and targetpath
 		@param: targetpath:	second path to compare self against"""
 		return math.sqrt(self.energySquares(targetpath)/(self.numImages))
@@ -116,7 +117,7 @@ class AnalysisPath(Reactionpath):
 		else:
 			reference=0.0
 		if self._verbosity>=constants.VBL_DEBUG2:
-			print "Analysispath: calculating deltaE"
+			print("Analysispath: calculating deltaE")
 		return self.energies[product]-self.energies[educt]-reference
 
 
@@ -131,14 +132,14 @@ class AnalysisPath(Reactionpath):
 """
 		if targetpath!=None:
 			if not targetpath.has_energies():
-				raise "AnalysisPath: target path has no energies!"
+				raise("AnalysisPath: target path has no energies!")
 			if not self.has_energies():
-				raise "AnalysisPath: AnalysisPath has no energies!"
+				raise("AnalysisPath: AnalysisPath has no energies!")
 			reference=targetpath.deltaE(educt,product)
 		else:
 			reference=0.0
 		if self._verbosity>=constants.VBL_DEBUG2:
-			print "Analysispath: calculating deltaESquare"
+			print("Analysispath: calculating deltaESquare")
 		#rather inline than call deltaE for performance reasons
 		return (self.energies[product]-self.energies[educt]-reference)**2
 
@@ -152,7 +153,7 @@ class AnalysisPath(Reactionpath):
 """
 		squares=0.0
 		if self._verbosity>=constants.VBL_DEBUG2:
-			print "Analysispath: calculating all squared Energy differences"
+			print("Analysispath: calculating all squared Energy differences")
 		for i in range (self.numImages):
 			for j in range(i+1,self.numImages):
 				squares+=self.deltaESquare(i,j,targetpath)

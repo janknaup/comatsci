@@ -3,6 +3,7 @@ Created on Mar 8, 2012
 
 @author: Jan M. Knaup <janknaup@gmail.com>
 '''
+from __future__ import print_function
 import unittest,numpy
 from comatsci import Spline
 
@@ -47,7 +48,7 @@ class splineTest(unittest.TestCase):
         self.assertTrue(numpy.allclose(IYC[1:-2], CIX[1:-2], 5E-4,2E-3),"cosine interpolation deviation too large")
 #        pf=open("renner.dat","w")
 #        for ii in range(len(IX)):
-#            print >> pf, IX[ii], IYS[ii], SIX[ii], IYC[ii], CIX[ii]
+#            print(IX[ii], IYS[ii], SIX[ii], IYC[ii], CIX[ii], file=pf)
 #        pf.close() 
 
 
