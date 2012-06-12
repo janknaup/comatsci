@@ -10,6 +10,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from comatsci import constants, utils
 #from numpy.oldnumeric import *
 import geoext as gx #@UnresolvedImport
@@ -672,7 +673,7 @@ class Geometry:
 		Write geometry as FHI AIMS inout file
 		"""
 		outfile=open(filename, "w")
-		print >> outfile,self.aimsString
+		print(self.aimsString,file=outfile)
 		outfile.close()
 
 
@@ -916,7 +917,7 @@ class Geometry:
 		if len(templattice)<3:
 			self.Mode="C"
 			if len(templattice)>0:
-				print "Warning, less than 3D periodicity ignored!"
+				print("Warning, less than 3D periodicity ignored!")
 		elif len(templattice)==3:
 			self.Mode="S"
 			self.Lattice=numpy.array(templattice,dtype=float)/Angstrom
@@ -972,7 +973,7 @@ class Geometry:
 		try:
 			tempAtomCount=(int(line))
 		except:
-			print "atom count '%s' in xyz string could not be parsed. Abort" %(line,)
+			print("atom count '{0:s}' in xyz string could not be parsed. Abort".format(line))
 			raise
 		# discard comment line, then check if number of atom lines
 		# matches number of atom
@@ -986,13 +987,13 @@ class Geometry:
 			try:
 				tempAtomTypes.append(self.RPTE[atsym])
 			except:
-				print "Atom symbol '%s' in line %d of xyz string could not be parsed. Abort." %(atsym,i+3)
+				print("Atom symbol '{0:s}' in line {0:d} of xyz string could not be parsed. Abort.".format(atsym,i+3))
 				raise
 			tempLPops.append([])
 			try:
 				tempgeo.append([ float(s)/Angstrom for s in line[1:4] ])
 			except:
-				print "Atomic coordinates in line %d of xyz string could not be parsed. Abort." %(i+3,)
+				print("Atomic coordinates in line {0:d} of xyz string could not be parsed. Abort.".format(i+3))
 				raise
 			# DFTB specialty: try parsing coulumn 6 as atomic charge, ignore if unsuccessful
 			if len(line)>=5:
@@ -1035,7 +1036,7 @@ class Geometry:
 		try:
 			self.parseXyzString(instring)
 		except:
-			print "Parsing of .xyz file '%s' failed. Abort." % (filename,)
+			print("Parsing of .xyz file '{0:s}' failed. Abort.".format(filename))
 			raise
 
 
@@ -1411,7 +1412,7 @@ class Geometry:
 		outstring+=self.fmgString
 		outstring+='\n</fmg>\n'
 		outfile=open(filename,"w")
-		print >> outfile, outstring
+		print(outstring,file=outfile)
 		outfile.close()
 
 
@@ -1424,7 +1425,7 @@ class Geometry:
 		if self.Mode!="C":
 			raise GeometryError("Turbomole file of non-cluster geometry requested")
 		outfile=open(filename,"w")
-		print >> outfile, self.tmString()
+		print(self.tmString(),file=outfile)
 		outfile.close()
 
 
@@ -1472,7 +1473,7 @@ class Geometry:
 		@param filename: output filename
 		"""
 		outfile=open(filename,"w")
-		print >> outfile, self.getGromacsString()
+		print(self.getGromacsString(),file=outfile)
 		outfile.close()
 
 
@@ -1522,7 +1523,7 @@ class Geometry:
 			writemode="F"
 		else:
 			writemode=self.Mode
-		print >> outfile,str(self.Atomcount)+"\t"+writemode
+		print(str(self.Atomcount)+"\t"+writemode,file=outfile)
 		atlist,AtomSymbols = self.getatomsymlistdict()
 		line=""
 		for i in atlist:
@@ -1537,12 +1538,12 @@ class Geometry:
 		else:
 			outgeo=self.Geometry*Angstrom
 		for i in range(self.Atomcount):
-			print >>outfile,"%4i %2i\t%24E %24E %24E" %(i+1, AtomSymbols[ self.AtomTypes[i] ]+1,
-				outgeo[i][0], outgeo[i][1], outgeo[i][2])
+			print("{0:4i} {1:2i}\t{2:24E} {3:24}E {4:24E}".format(i+1, AtomSymbols[ self.AtomTypes[i] ]+1,
+				outgeo[i][0], outgeo[i][1], outgeo[i][2]),file=outfile)
 		if self.Mode=="S" or cmode=="F":
-			print >>outfile, ("%24E "*3) % tuple(self.Origin*Angstrom)
+			print("{0:24E} {1:24E} {2:24E}".format(tuple(self.Origin*Angstrom)),file=outfile)
 			for i in range(3):
-				print >> outfile,("%24E "*3) % tuple(self.Lattice[i]*Angstrom)
+				print("{0:24E} {1:24E} {2:24E} ".format(tuple(self.Lattice[i]*Angstrom)),file=outfile)
 		outfile.close()
 
 
@@ -1626,7 +1627,7 @@ class Geometry:
 		"""
 		#create output file, build .cdf string of self, write it to output file and close that
 		outfile=open(filename,"w")
-		print >>outfile, self.cdfString(name,description,atomColumn)
+		print(self.cdfString(name,description,atomColumn),file=outfile)
 		outfile.close()
 
 
@@ -1679,7 +1680,7 @@ class Geometry:
 		# open output file
 		outfile=open(filename,"w")
 		# get PDB string representation of self and print it into the output file
-		print >> outfile,(self.getPDBString(occupancy,beta,writebondlist))
+		print(self.getPDBString(occupancy,beta,writebondlist),file=outfile)
 		# finished, close output file
 		outfile.close()
 
@@ -1767,26 +1768,26 @@ class Geometry:
 		"""
 		outfile=open(filename,'w')
 		atlist,AtomSymbols = self.getatomsymlistdict()
-		print >>outfile,"NumberOfSpecies %i" % (len(atlist))
-		print >>outfile,"%block ChemicalSpeciesLabel"
+		print("NumberOfSpecies {0:i}".format(len(atlist)),file=outfile)
+		print("%block ChemicalSpeciesLabel",file=outfile)
 		for i in range(len(AtomSymbols)):
-			print >>outfile,"%5d\t%3d\t%s" % (i+1,atlist[i],self.PTE[atlist[i]])
-		print >>outfile,"%endblock ChemicalSpeciesLabel\n"
-		print >>outfile,"NumberOfAtoms %d\n\nAtomicCoordinatesFormat Ang" % (self.Atomcount)
-		print >>outfile,"%block AtomicCoordinatesAndAtomicSpecies"
+			print("{0:5d}\t{1:3d}\t{2s}".format(i+1,atlist[i],self.PTE[atlist[i]]),file=outfile)
+		print("%endblock ChemicalSpeciesLabel\n",file=outfile)
+		print("NumberOfAtoms {0:d}\n\nAtomicCoordinatesFormat Ang".format(self.Atomcount),file=outfile)
+		print("%block AtomicCoordinatesAndAtomicSpecies",file=outfile)
 		outgeo=self.Geometry*Angstrom
 		for i in range(self.Atomcount):
-			print >> outfile,"%24E %24E %24E %d" % (outgeo[i][0],outgeo[i][1],outgeo[i][2],
-					AtomSymbols[self.AtomTypes[i]]+1)
-		print >>outfile,"%endblock AtomicCoordinatesAndAtomicSpecies\n"
+			print("{0:24E} {1:24E} {2:24E} {3:d}".format(outgeo[i][0],outgeo[i][1],outgeo[i][2],
+					AtomSymbols[self.AtomTypes[i]]+1),file=outfile)
+		print("%endblock AtomicCoordinatesAndAtomicSpecies\n",file=outfile)
 		if self.Mode=="S":
-			print >> outfile,"LatticeConstant  1.0 Ang\n"
-			print >> outfile,"%block LatticeVectors"
+			print("LatticeConstant  1.0 Ang\n",file=outfile)
+			print("%block LatticeVectors",file=outfile)
 			outlattice=self.Lattice*Angstrom
 			for i in range(3):
-				print >> outfile,"%24E %24E %24E" % (outlattice[i][0],outlattice[i][1],
-						outlattice[i][2])
-			print >> outfile,"%endblock LatticeVectors"
+				print("{0:24E} {1:24E} {2:24E}".format(outlattice[i][0],outlattice[i][1],
+						outlattice[i][2]),file=outfile)
+			print("%endblock LatticeVectors",file=outfile)
 
 
 
