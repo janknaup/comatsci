@@ -433,7 +433,7 @@ class NEBPath(Reactionpath):
 			DebugInfoEnergiesFile=open("pathDebug.nrg","w")
 			self._writePathDebugInfoEnergiesFile=True
 			print("#idx     E(max)        Freal(rms)    Freal(max)    Fneb(rms)     Fneb(max)",file=DebugInfoEnergiesFile)
-		pathFileNamePrefix="debugpath.%04d" % index
+		pathFileNamePrefix="debugpath.{0:04d}".format(index)
 		self.writexyzpath(pathFileNamePrefix+".xyz")
 		self.writefmgpath(pathFileNamePrefix+".fmg")
 		if len(self.nebforces)==0:
@@ -475,7 +475,7 @@ class NEBPath(Reactionpath):
 			converged=1
 		elif self.dt < self.minstepsize:
 			if self.verbosity>=constants.VBL_QUIET:
-				print("stepsize below %6e -> displacement converged" % (self.minstepsize))
+				print("stepsize below {0:6e} -> displacement converged".format(self.minstepsize))
 			converged=1
 		return converged
 
@@ -672,7 +672,7 @@ class NEBPath(Reactionpath):
 			newcoordinates=numpy.reshape(newcoordinates,geoshape)
 			# store new coordinates and append to new geometres array
 			newgeoarray.append(Geometry.Geometry(self.geos[segment].Mode, self.geos[segment].Atomcount, self.geos[segment].AtomTypes, self.geos[segment].Origin, self.geos[segment].Lattice, newcoordinates, self.geos[segment].AtomLayers, self.geos[segment].LayerDict, self.geos[segment].AtomCharges, self.geos[segment].AtomSubTypes, self.geos[segment].LPops))
-			newgeoarray[-1].writexyz("dbg-%05d.xyz"%(i))
+			newgeoarray[-1].writexyz("dbg-{0:05d}.xyz".format(i))
 		# append end geometry
 		newgeoarray.append(self.geos[-1])
 		returnpath.geos=newgeoarray
