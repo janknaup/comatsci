@@ -10,6 +10,8 @@
 # see file LICENSE for details.
 ##############################################################################
 
+
+from __future__ import print_function
 import numpy
 
 import os,sys,math,re
@@ -81,7 +83,7 @@ class DOS:
 		try:
 			bandoutfile=utils.compressedopen(filename,"r")
 		except:
-			print 'Could not open file "%s" in band.out format. Abort.' % filename
+			print('Could not open file "{0:s}" in band.out format. Abort.'.format(filename))
 			raise
 		eigenlines=list(bandoutfile)
 		bandoutfile.close()
@@ -108,7 +110,7 @@ class DOS:
 						tempEigenValues[spinindex].append([])
 						tempFillings[spinindex].append([])
 				except:
-					print 'Error parsing line %d of file "%s" in band.out format. Abort.' % (i+1,filename)
+					print('Error parsing line %d of file "{0:s}" in band.out format. Abort.'.format(i+1,filename))
 					raise
 				continue
 			elif len(dummy)==0:
@@ -119,18 +121,18 @@ class DOS:
 				dummy.append("0.0")
 			elif len(dummy)!=2:
 				# we expect one energy and one filling, if we find anything more or less, abort.
-				print 'Unexpected entry in line %d of "%s", cannot parse line "%s". Abort.' %(i+1,filename,eigenlines[i])
+				print('Unexpected entry in line {0:d} of "{1:s}", cannot parse line "{2:s}". Abort.'.format(i+1,filename,eigenlines[i]))
 				sys.exit(1)
 			# try to convert energy and filling to floats
 			try:
 				tempEigenValues[spinindex][kindex].append(float(dummy[0]))
 			except:
-				print 'Could not parse eigenvalue "%s" in line %d of file "%s".' %(dummy[0],i+1,filename)
+				print('Could not parse eigenvalue "{0:s}" in line {1:d} of file "{2:s}".'.format(dummy[0],i+1,filename))
 				raise
 			try:
 				tempFillings[spinindex][kindex].append(float(dummy[1]))
 			except:
-				print 'Could not parse filling "%s" in line %d of file "%s".' %(dummy[1],i+1,filename)
+				print('Could not parse filling "{0:s}" in line {1:d} of file "{2:s}".'.format(dummy[1],i+1,filename))
 				raise
 			# end eigenvalue line parsing loop
 		# store internal data
@@ -153,7 +155,7 @@ class DOS:
 		try:
 			bandoutfile=utils.compressedopen(filename,"r")
 		except:
-			print 'Could not open file "%s" in .EIG format. Abort.' % filename
+			print('Could not open file "{0:s}" in .EIG format. Abort.'.format(filename))
 			raise
 		eigenlines=list(bandoutfile)
 		bandoutfile.close()
@@ -172,13 +174,13 @@ class DOS:
 				continue
 			elif len(dummy)!=1:
 				# we expect exactly one energy, if we find anything more , abort.
-				print 'Unexpected entry in line %d of "%s", cannot parse line "%s". Abort.' %(i+1,filename,eigenlines[i])
+				print('Unexpected entry in line {0:d} of "{1:s}", cannot parse line "{2:s}". Abort.'.format(i+1,filename,eigenlines[i]))
 				sys.exit(1)
 			# try to convert energy and filling to floats
 			try:
 				tempEigenValues[0][0].append(float(dummy[0]))
 			except:
-				print 'Could not parse eigenvalue "%s" in line %d of file "%s".' %(i+1,dummy[0],filename)
+				print('Could not parse eigenvalue "{0:s}" in line {1:d} of file "{2:s}".'.format(i+1,dummy[0],filename))
 				raise
 			# eig files contain no filling, so just store zero
 			tempFillings[0][0].append(0.)
@@ -202,7 +204,7 @@ class DOS:
 		try:
 			resultsfile=utils.compressedopen(filename,"r")
 		except:
-			print 'Could not open file "%s" in band.out format. Abort.' % filename
+			print('Could not open file "{0:s}" in band.out format. Abort.'.format(filename))
 			raise
 		# now parse the tagged.out file using Balint's code
 		tagresults=utils.TaggedCollection(utils.ResultParser(resultsfile).entries)
@@ -244,7 +246,7 @@ class DOS:
 		try:
 			eigFile=utils.compressedopen(filename,"r")
 		except:
-			print "could not open input file '%s'. abort." % (filename)
+			print("could not open input file '{0:s}'. abort.".format(filename))
 			raise
 		eigLines=list(eigFile)
 		eigFile.close()
