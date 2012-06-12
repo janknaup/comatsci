@@ -1219,7 +1219,17 @@ class AnalysisGeometry(Geometry):
 #					print "reference:     :", subRef.Geometry
 #					print "differences    :", refDifferences
 					#weightmod=numpy.exp(-refDifferences/(1.5*delta))
-					weightmod=numpy.exp(-(refDifferences*refDifferences)/(1.5*delta*delta*3))
+					scwf=kwargs.get("scdf","GAUSS").upper()
+					if scwf=="GAUSS":
+						gw=kwargs.get("scgw",1.5*delta)
+						gw*=2*gw
+						weightmod=numpy.exp(-(refDifferences*refDifferences)/(gw))
+					elif scwf=="FERMI":
+						gw=kwargs.get("scgw",1.5*delta)
+						gt=kwargs.get("scgt",tau)
+						weightmod=1.0-(1.0/(numpy.exp((refDifferences-gw)/gt)+1.0))
+					else:
+						raise ValueError("Unknown weight function '{0}' for self-consistent distance weighting".format(scwf))
 					modWeights=numpy.multiply(weights,weightmod)
 #					print "weights        :", weights
 #					print "modifiers      :", weightmod
