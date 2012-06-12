@@ -78,7 +78,7 @@ class Scheduler:
 		#check if scheduler is iterationCountready
 		if self._status!=SCHEDSTATUS_READY:
 			#if not, report fatal error
-			raise("fatal scheduler error: scheduler %s"%SCHEDSTATUSDICT[self._status])
+			raise("fatal scheduler error: scheduler {0:s}".format(SCHEDSTATUSDICT[self._status]))
 		else:
 			if self._verbosity>=constants.VBL_TALKY:
 				print("Executing a schedule of {0:d} jobs.".format(len(schedule)))
@@ -282,7 +282,7 @@ class mpiScheduler(Scheduler):
 		# wait for init message from master and initialize
 		initmsg, status = self.pypar.receive(0, tag=self.INITTAG, return_status=True)
 		if self._verbosity >=constants.VBL_DEBUG2:
-			sys.stderr.write("[SLAVE %d]: received init message: %s"%(self.__MPI_myid,initmsg))
+			sys.stderr.write("[SLAVE {0:d}]: received init message: {1:s}".format(self.__MPI_myid,initmsg))
 		os.chdir(initmsg["rundir"])
 		#create the local worker instance
 		self._worker=self.__initializer(initmsg["initarg"])
@@ -292,12 +292,12 @@ class mpiScheduler(Scheduler):
 			work=None
 			work, status = self.pypar.receive(0, tag=self.pypar.any_tag, return_status=True) 
 			if self._verbosity>=constants.VBL_DEBUG2:
-				sys.stderr.write("[SLAVE %d]: received work '%s' with tag '%d' from node '%d'\n"\
-					%(self.__MPI_myid, work, status.tag, status.source))
+				sys.stderr.write("[SLAVE {0:d}]: received work '{1:s}' with tag '{2:d}' from node '{3:d}'\n".format(
+							self.__MPI_myid, work, status.tag, status.source))
 			#gracefully shutdown this slave, if DIE message is received
 			if (status.tag == self.DIETAG):
 				if self._verbosity >= constants.VBL_DEBUG1:
-					sys.stderr.write("[SLAVE %d]: received termination from node '%d'\n" %(MPI_myid, 0)) #@UndefinedVariable
+					sys.stderr.write("[SLAVE {0:d}]: received termination from node '{1:d}'\n".format(MPI_myid, 0)) #@UndefinedVariable
 				#if worker has a shutdown method, call it, otherwise ignore
 				try:
 					self._worker.shutdown()
@@ -329,10 +329,10 @@ class mpiScheduler(Scheduler):
 					result["iterations"]=1
 				self.pypar.send(result, 0, tag=self.RESULTTAG)
 				if self._verbosity >=constants.VBL_DEBUG2:
-					sys.stderr.write("[SLAVE %d]: sent result '%s' to node '%d'\n" %(self.__MPI_myid, result, 0))
+					sys.stderr.write("[SLAVE {0:d}]: sent result '{1:s}' to node '{2:d}'\n".format(self.__MPI_myid, result, 0))
 			#an unexpected tag is, of course, a fatal error
 			else:
-				sys.stderr.write("[SLAVE %d]: unexpected tag received, aborting" %(self.__MPI_myid))
+				sys.stderr.write("[SLAVE {0:d}]: unexpected tag received, aborting".format(self.__MPI_myid))
 				self.pypar.Finalize()
 				sys.exit(1)
 
@@ -373,7 +373,7 @@ class mpiScheduler(Scheduler):
 			work = { "work": job}
 			self.pypar.send(work, i+1, tag=self.WORKTAG) 
 			if self._verbosity >= constants.VBL_DEBUG1:
-				sys.stderr.write("[MASTER]: sent work '%s' to node '%d'\n" %(work, i+1))
+				sys.stderr.write("[MASTER]: sent work '{0:s}' to node '{1:d}'\n".format(work, i+1))
 		# inital batch of work sent out, now process remaining jobs
 		while(len(myschedule)>0):
 			# wait for results from slaves
@@ -387,7 +387,7 @@ class mpiScheduler(Scheduler):
 			work = { "work": job}
 			self.pypar.send(work, status.source, tag=self.WORKTAG)
 			if self._verbosity >= constants.VBL_DEBUG1:
-				sys.stderr.write("[MASTER]: sent job '%s' to node '%d'\n" %(work, status.source))
+				sys.stderr.write("[MASTER]: sent job '{0:s}' to node '{1:d}'\n".format(work, status.source))
 		# now that all work has been sent out, we must collect the remaining results
 		while(len(whatswhere)>0): 
 			self.__receiveresult(resultsdict, whatswhere)
@@ -413,7 +413,7 @@ class mpiScheduler(Scheduler):
 		self._cputimer+=result["cputime"]
 		self._walltimer+=result["walltime"]
 		if self._verbosity > constants.VBL_DEBUG2:
-			sys.stderr.write("[MASTER]: received result '%s' from node '%d'\n" %(result["workresult"], status.source))
+			sys.stderr.write("[MASTER]: received result '{0:s}' from node '{1:d}'\n".format(result["workresult"], status.source))
 		resultsdict[whatswhere[status.source]]=result["workresult"]
 		del whatswhere[status.source]
 		return status

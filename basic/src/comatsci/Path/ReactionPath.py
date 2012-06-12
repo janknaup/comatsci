@@ -251,7 +251,7 @@ class Reactionpath:
 		@param: nameprefix="path" string to prepend to each filename
 		"""
 		for i in range(self.numimages()):
-			filename="%s.%04.2f.gen" % (nameprefix, (float(i)/(self.numimages()-1)))
+			filename="{0:s}.{1:04.2f}.gen".format(nameprefix, (float(i)/(self.numimages()-1)))
 			self.geos[i].writegen(filename)
 
 
@@ -274,7 +274,7 @@ class Reactionpath:
 			if len(self.realforces)>0:
 				FElines.append("\t<forces>")
 				for j in range(self.geos[0].Atomcount):
-					FElines.append("\t\t%24E  %24E  %24E" % (self.realforces[i][j][0],
+					FElines.append("\t\t{0:24E}  {1:24E}  {2:24E}".format(self.realforces[i][j][0],
 						self.realforces[i][j][1],self.realforces[i][j][2]))
 				FElines.append("\t</forces>")
 			FElines.append("</trjstep>")
@@ -288,7 +288,7 @@ class Reactionpath:
 		infolines=[]
 		#only append stepcount if >0
 		if self.nstep>0:
-			infolines.append("\t<stepcount>%d</stepcount>"%(self.nstep))
+			infolines.append("\t<stepcount>{0:d}</stepcount>".format(self.nstep))
 		#only return <trjinfo> element, if not empty
 		if len(infolines)>0:
 			return "<trjinfo>\n"+"\n".join(infolines)+"\n</trjinfo>"
@@ -487,7 +487,7 @@ class Reactionpath:
 		# iterate through path images
 		refGroup=None
 		for image in range(self.numimages()):
-			imagelabel="frame%010i"%(image,)
+			imagelabel="frame{0:010i}".format(image)
 			# first write the image geometry
 			if image==0 and savespace:
 				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel)[1] #@UndefinedVariable
@@ -683,8 +683,8 @@ class Reactionpath:
 					imglist.append(i)
 			imglist.sort()
 		else:
-			errstr= "Checkpoint directory %s does not exist" % (checkpointdir)
-			raise(errstr)
+			errstr= "Checkpoint directory {0:s} does not exist".format(checkpointdir)
+			raise ValueError(errstr)
 		for i in imglist:
 			self.appendgeofile(checkpointdir+'/'+i,checkCompat=checkCompat)
 		if self.verbosity >= constants.VBL_NORMAL:
@@ -751,7 +751,7 @@ class Reactionpath:
 			self.realforces=[]
 			for i in range(self.numimages()):
 				if calculator.status()==Calculators.CALCSTATUS_READY:
-					label="%s-%6.4f" % (steplabelprefix,(float(i)/(float(self.numimages())-1)))
+					label="{0:s}-{1:6.4f}".format(steplabelprefix,(float(i)/(float(self.numimages())-1)))
 					calculator.runfg(self.geos[i],label,charge)
 					self.energies.append(calculator.getenergy())
 					self.realforces.append(calculator.getforces())
@@ -774,7 +774,7 @@ class Reactionpath:
 			self.realforces=[Ffirst]
 			for i in range(1,(self.numimages()-1)):
 				if calculator.status()==Calculators.CALCSTATUS_READY:
-					label="%s-%6.4f" % (steplabelprefix,(float(i)/(float(self.numimages())-1)))
+					label="{0:s}-{1:6.4f}".format(steplabelprefix,(float(i)/(float(self.numimages())-1)))
 					calculator.runfg(self.geos[i],label,charge)
 					self.energies.append(calculator.getenergy())
 					self.realforces.append(calculator.getforces())
@@ -863,7 +863,7 @@ class Reactionpath:
 		# assemble options dictionaries
 		joblist=[]
 		for i in range(startoff,self.numimages()-endoff):
-			label="%s-%6.4f" % (steplabelprefix,(float(i)/(float(self.numimages())-1)))
+			label="{0:s}-{1:6.4f}".format(steplabelprefix,(float(i)/(float(self.numimages())-1)))
 			joblist.append({
 				"Geometry":copy.deepcopy(self.geos[i]),
 				"Charge":charge,
