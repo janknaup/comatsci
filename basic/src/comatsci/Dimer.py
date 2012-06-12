@@ -10,6 +10,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 import numpy
 
 #rename geometry to cure naming Awkwardnesses
@@ -190,7 +191,7 @@ class Dimer(Geometry):
 			except GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					if self.verbosity>constants.VBL_SILENCE:
-						print "ReactionPath warning: Geometry lattice mismatch"
+						print("ReactionPath warning: Geometry lattice mismatch")
 				else:
 					raise
 		#now store now c.o.m.
@@ -266,7 +267,7 @@ class Dimer(Geometry):
 		except GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					if self.verbosity>constants.VBL_SILENCE:
-						print "ReactionPath warning: Geometry lattice mismatch"
+						print("ReactionPath warning: Geometry lattice mismatch")
 				else:
 					raise
 		# reset the Dimer object
@@ -337,7 +338,7 @@ class Dimer(Geometry):
 			except GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					if self.verbosity>constants.VBL_SILENCE:
-						print "ReactionPath warning: Geometry lattice mismatch"
+						print("ReactionPath warning: Geometry lattice mismatch")
 				else:
 					raise	
 		R2=copy.deepcopy(self)
@@ -376,7 +377,7 @@ class Dimer(Geometry):
 			except GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					if self.verbosity>constants.VBL_SILENCE:
-						print "ReactionPath warning: Geometry lattice mismatch"
+						print("ReactionPath warning: Geometry lattice mismatch")
 				else:
 					raise
 		R1=copy.deepcopy(self.Geometry)
@@ -757,34 +758,34 @@ class Dimer(Geometry):
 		if max(self.f0.ravel())>self.maxFt:
 			converged=False
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "max f0 component            : No"
+				print("max f0 component            : No")
 		else:
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "max f0 component            : Yes"
+				print("max f0 component            : Yes")
 		#check maximum force in dimer direction
 		if max(f0_proj.ravel())>self.maxFp:
 			converged=False
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "max projected f0 component  : No"
+				print("max projected f0 component  : No")
 		else:
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "max projected f0 component  : Yes"
+				print("max projected f0 component  : Yes")
 		#check RMSD force
 		if math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0)))>self.maxFtRMS:
 			converged=False
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "RMS f0                      : No"
+				print("RMS f0                      : No")
 		else:
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "RMS f0                      : Yes"
+				print("RMS f0                      : Yes")
 		#check projected RMSD force
 		if math.sqrt(numpy.dot(f0_proj,f0_proj)/float(len(self.f0)))>self.maxFpRMS:
 			converged=False
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "RMS projected f0            : No"
+				print("RMS projected f0            : No")
 		else:
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "RMS projected f0            : Yes"
+				print("RMS projected f0            : Yes")
 		return converged
 
 
@@ -876,54 +877,54 @@ class Dimer(Geometry):
 		"""
 		# some general chatter
 		if self.verbosity>=constants.VBL_NORMAL:
-			print """
-     Number of atoms        : %d
-     Number of fixed atoms  : %d
-     Dimer separation       : %e Ang
-			""" % (self.Atomcount,len(self.fixedAtoms),self.displacement*constants.ANGSTROM)
-			print "initial energies and forces calculation"
+			print("""
+     Number of atoms        : {0:d}
+     Number of fixed atoms  : {1:d}
+     Dimer separation       : {2:e} Ang
+			""".format(self.Atomcount,len(self.fixedAtoms),self.displacement*constants.ANGSTROM))
+			print("initial energies and forces calculation")
 		# first energies and forces calculation (if not read from file)
 		if self.E0==None:
 			self.calcEnergiesForces(scheduler)
 			# write convergence information into a new file
 			dimerInfoFile=open("dimerinfo.dat","w")
-			print >> dimerInfoFile, "#iteration E0 max(f_0) RMS (f_0) C0"
+			print("#iteration E0 max(f_0) RMS (f_0) C0",file=dimerInfoFile)
 			dimerInfoFile.flush()
 		else:
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Using Energies and forces from previous run"
+				print("Using Energies and forces from previous run")
 			# append convergence information to existing file
 			dimerInfoFile=open("dimerinfo.dat","a")
 		self.writexyz("dimer-animation.xyz","w")
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "E0                          = %12.6f H" % (self.E0)
-			print "max f0                      = %12.6f H/Bohr" % (max(self.f0.ravel()))
-			print "RMS f0                      = %12.6f H/Bohr" % (math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))))
-			print "C0                          = %12.6f H/Bohr**2" % (self.C0)
+			print("E0                          = {0:12.6f} H".format(self.E0))
+			print("max f0                      = {0:12.6f} H/Bohr".format(max(self.f0.ravel())))
+			print("RMS f0                      = {0:12.6f} H/Bohr".format(math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0)))))
+			print("C0                          = {0:12.6f} H/Bohr**2".format(self.C0))
 		sys.stdout.flush()
 		# write initial data to convergence info file
 		print >> dimerInfoFile, "%d\t%12.8e\t%12.8e\t%12.8e\t%12.8e" % (0,self.E0,max(self.f0.ravel()),math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))),self.C0)
 		dimerInfoFile.flush()
 		# check if we can skip iterations (you wish)
 		if self.checkConvergence():
-			print "Already converged, nothing to optimize."
+			print("Already converged, nothing to optimize.")
 			return
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "starting improved dimer iterations"
+			print("starting improved dimer iterations")
 			sys.stdout.flush()
 		for i in range(self.maxIt):
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "iteration %5d" %(i+1)
-				print "rotation step"
+				print("iteration {0:5d}".format(i+1))
+				print("rotation step")
 				sys.stdout.flush()
 			self._rotationStep(scheduler)
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "translation step"
+				print("translation step")
 				sys.stdout.flush()
 			self._translationStep(scheduler)
 			self.writefmg("dimercheckpoint.fmg")
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "recalculating energies and forces"
+				print("recalculating energies and forces")
 				sys.stdout.flush()
 			self.calcEnergiesForces(scheduler)
 			self.writefmg("dimercheckpoint.fmg")
@@ -933,12 +934,12 @@ class Dimer(Geometry):
 			dimerInfoFile.flush()
 			self.writexyz("dimer-animation.xyz","a")
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "E0                          = %12.6f H" % (self.E0)
-				print "max f0                      = %12.6f H/Bohr" % (max(self.f0.ravel()))
-				print "RMS f0                      = %12.6f H/Bohr" % (math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0))))
-				print "C0                          = %12.6f H/Bohr**2" % (self.C0)
+				print("E0                          = {0:12.6f} H".format(self.E0))
+				print("max f0                      = {0:12.6f} H/Bohr".format(max(self.f0.ravel())))
+				print("RMS f0                      = {0:12.6f} H/Bohr".format(math.sqrt(numpy.dot(self.f0,self.f0)/float(len(self.f0)))))
+				print("C0                          = {0:12.6f} H/Bohr**2".format(self.C0))
 				sys.stdout.flush()
-				print "convergence check"
+				print("convergence check")
 			# check for convergence and stop if converged
 			if self.checkConvergence():
 				dimerInfoFile.close()
@@ -946,12 +947,12 @@ class Dimer(Geometry):
 			# check for stop file and stop if present
 			if os.path.exists("STOP_PESTO"):
 				if self.verbosity>=constants.VBL_QUIET:
-					print "Stop-file encountered, stopping dimer iterations."
+					print("Stop-file encountered, stopping dimer iterations.")
 				dimerInfoFile.close()
 				return
 		if self.verbosity>=constants.VBL_QUIET:
 			dimerInfoFile.close()
-			print "maximum number of iterations reached. stopping."
+			print("maximum number of iterations reached. stopping.")
 			sys.stdout.flush()
 
 
