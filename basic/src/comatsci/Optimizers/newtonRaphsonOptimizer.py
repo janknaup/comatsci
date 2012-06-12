@@ -14,7 +14,7 @@
 #@license: Open Software License version 3.0
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
-
+from __future__ import print_function
 from Optimizer import Optimizer,constants
 import numpy
 
@@ -41,23 +41,23 @@ class newtonRaphsonOptimizer(Optimizer):
 		Default: False := report convergence, if any convergence criterion is met.
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
-			print "Newton-Raphson Optimizer: initializing."
+			print("Newton-Raphson Optimizer: initializing.")
 		#call base class constructor
 		Optimizer.__init__(self,options)
 		#digest opions, c.f. documentation
 		self._maxF=options["maxF"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Newton-Raphson Optimizer: max derivative component: %f." % (self._maxF)
+			print("Newton-Raphson Optimizer: max derivative component: {0:f}.".format(self._maxF))
 		
 		self._maxFRMS=options.get("maxFRMS",-1.0)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Newton-Raphson Optimizer: max RMS derivative: %f." % (self._maxFRMS)
+			print("Newton-Raphson Optimizer: max RMS derivative: {0:f}.".format(self._maxFRMS))
 		
 		self._hardConvergence=options.get("hardConvergence",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Newton-Raphson Optimizer: using hard convergence: %s." % (str(self._maxF))
+			print("Newton-Raphson Optimizer: using hard convergence: {0:s}.".format(str(self._maxF)))
 		if self._hardConvergence and (self._maxF<=0 or self._maxFRMS<=0):
-			raise "Newton-Raphson Optimizer: Warning: hard convergence with negative force criterion. Will never converge due to force."
+			raise("Newton-Raphson Optimizer: Warning: hard convergence with negative force criterion. Will never converge due to force.")
 
 
 
@@ -77,27 +77,27 @@ class newtonRaphsonOptimizer(Optimizer):
 		if RMS < self._maxFRMS and maxF < self._maxF:
 			self._convreason="Hard convergence"
 			if self._verbosity >= constants.VBL_DEBUG2:
-					print "Newton-Raphson Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Newton-Raphson Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		elif not self._hardConvergence:
 			if maxF < self._maxF:
 				self._convreason="Max force component convergence"
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Newton-Raphson Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Newton-Raphson Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 				return True
 			if RMS < self._maxFRMS:
 				self._convreason="Force RMS convergence"
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Newton-Raphson Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Newton-Raphson Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 				return True
 		#also check number of iterations
 		if self._iterations>=self._maxIterations:
 			self._convreason="Maximum iterations reached"
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "Newton-Raphson Optimizer: convergence criterion met: %s" %(self._convreason)
+				print("Newton-Raphson Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		if self._verbosity >= constants.VBL_DEBUG2:
-			print "Newton-Raphson Optimizer: not yet converged"
+			print("Newton-Raphson Optimizer: not yet converged")
 		return False
 
 

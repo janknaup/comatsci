@@ -14,7 +14,7 @@
 #@license: Open Software License version 3.0
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
-
+from __future__ import print_function
 from Optimizer import Optimizer,constants
 import copy,numpy
 
@@ -46,68 +46,68 @@ class steepestDescentOptimizer(Optimizer):
 		@param shrinkThreshold=0.5 if (dF' dot dF) < shrinkThreshold, shrink adaptive stepsize
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
-			print "Steepest Descent Optimizer: initializing."
+			print("Steepest Descent Optimizer: initializing.")
 		#call base class constructor
 		Optimizer.__init__(self,options)
 		#digest opions, c.f. documentation
 		self._maxF=options["maxF"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Steepest Descent Optimizer: max Force component: %f." % (self._maxF)
+			print("Steepest Descent Optimizer: max Force component: {0:f}.".format(self._maxF))
 			
 		self._maxFRMS=options.get("maxFRMS",-1.0)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Steepest Descent Optimizer: max RMS Force: %f." % (self._maxFRMS)
+			print("Steepest Descent Optimizer: max RMS Force: {0:f}.".format(self._maxFRMS))
 			
 		self._hardConvergence=options.get("hardConvergence",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Steepest Descent Optimizer: using hard convergence: %s." % (str(self._hardConvergence))
+			print("Steepest Descent Optimizer: using hard convergence: {0:s}.".format(str(self._hardConvergence)))
 		if self._hardConvergence and (self._maxF<=0 or self._maxFRMS<=0):
 ##			raise "Hard convergence demands all positive derivative convergence criteria"
 				if self._verbosity >= constants.VBL_SILENCE:
-					print "Steepest Descent Optimizer: Warning: hard convergence with negative froce criterion. Will never converge due to force."
+					print("Steepest Descent Optimizer: Warning: hard convergence with negative force criterion. Will never converge due to force.")
 			
 		self._stepSize=options["stepSize"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Steepest Descent Optimizer: initial step size: %f." % (self._stepSize)
+			print("Steepest Descent Optimizer: initial step size: {0:f}.".format(self._stepSize))
 			
 		self._adaptive=options.get("adaptive",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Steepest Descent Optimizer: adaptive stepsize: %s." % (str(self._adaptive))
+			print("Steepest Descent Optimizer: adaptive stepsize: {0:s}.".format(str(self._adaptive)))
 			
 		self._constantDisplacement=options.get("constantDisplacement",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Steepest Descent Optimizer: derivative indepentent displacement: %s." % (str(self._constantDisplacement))
+			print("Steepest Descent Optimizer: derivative indepentent displacement: {0:s}.".format(str(self._constantDisplacement)))
 			
 		self._stepAdaptFactor=options.get("stepAdaptFactor",1.618033988)
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Steepest Descent Optimizer: stepsize adaption factor: %f." % (self._stepAdaptFactor)
+			print("Steepest Descent Optimizer: stepsize adaption factor: {0:f}.".format(self._stepAdaptFactor))
 		if self._adaptive and self._stepAdaptFactor<=1:
-			raise "Steepest descent optimizer: stepsiza adaption factor must be > 1"
+			raise("Steepest descent optimizer: stepsiza adaption factor must be > 1")
 			
 		# save arithmetic operations: If stepsize is to remain > minStepSize, it must
 		# be > minStepSize*stepAdaptFactor before scaling. Calculate the comparison value
 		# one here
 		self._minStepSize=options.get("minStepSize",self._stepSize/1000)*self._stepAdaptFactor
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Steepest Descent Optimizer: minimum adaptive stepsize: %f." % (self._minStepSize/self._stepAdaptFactor)
+			print("Steepest Descent Optimizer: minimum adaptive stepsize: {0:f}.".format(self._minStepSize/self._stepAdaptFactor))
 		
 		# c.f. minStepSize above
 		self._maxStepSize=options.get("maxStepSize",self._stepSize*10)/self._stepAdaptFactor
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Steepest Descent Optimizer: maximuim adaptive stepsize: %f." % (self._maxStepSize*self._stepAdaptFactor)
+			print("Steepest Descent Optimizer: maximuim adaptive stepsize: {0:f}.".format(self._maxStepSize*self._stepAdaptFactor))
 			
 		self._growThreshold=options.get("growThreshold",0.9)
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Steepest Descent Optimizer: alignment threshold for stepsize growth: %f." % (self._growThreshold)
+			print("Steepest Descent Optimizer: alignment threshold for stepsize growth: {0:f}.".format(self._growThreshold))
 			
 		self._shrinkThreshold=options.get("shrinkThreshold",0.5)
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Steepest Descent Optimizer: alignment threshold for stepsize shrink: %f." % (self._shrinkThreshold)
+			print("Steepest Descent Optimizer: alignment threshold for stepsize shrink: {0:f}.".format(self._shrinkThreshold))
 			
 		#initialize history needed for stepsize adaption, convergence checking etc.
 		self._oldForces=None
 		if self._verbosity >= constants.VBL_DEBUG2:
-			print "Steepest Descent Optimizer: Initialized."
+			print("Steepest Descent Optimizer: Initialized.")
 
 
 
@@ -118,7 +118,7 @@ class steepestDescentOptimizer(Optimizer):
 		if self._oldForces==None:
 			self._oldForces=copy.deepcopy(dF)
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "Steepest Descent Optimizer: No force alignment info, skipping stepsize adaption"
+				print("Steepest Descent Optimizer: No force alignment info, skipping stepsize adaption")
 			return
 		#calculate derivative alignment
 		align=numpy.dot(self._oldForces,dF)
@@ -130,18 +130,18 @@ class steepestDescentOptimizer(Optimizer):
 			if self._stepSize > self._minStepSize:
 				self._stepSize/=self._stepAdaptFactor
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Steepest Descent Optimizer: shrinking stepsize"
+					print("Steepest Descent Optimizer: shrinking stepsize")
 			else:
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Steepest Descent Optimizer: stepsize too small, skipping stepsize shrink"
+					print("Steepest Descent Optimizer: stepsize too small, skipping stepsize shrink")
 		elif align >= self._growThreshold:
 			if self._stepSize < self._maxStepSize:
 				self._stepSize*=self._stepAdaptFactor
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Steepest Descent Optimizer: growing stepsize"
+					print("Steepest Descent Optimizer: growing stepsize")
 			else:
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Steepest Descent Optimizer: stepsize too large, skipping stepsize grow"
+					print("Steepest Descent Optimizer: stepsize too large, skipping stepsize grow")
 		self._oldForces=copy.deepcopy(dF)
 		return
 	
@@ -159,15 +159,15 @@ class steepestDescentOptimizer(Optimizer):
 			raise "derivative required for steepest descent optimization"
 		if self._constantDisplacement:
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "Steepest Descent Optimizer: normalizing derivative vector"
+				print("Steepest Descent Optimizer: normalizing derivative vector")
 			dF/=numpy.sqrt(numpy.dot(dF,dF))
 		if self._adaptive:
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "Steepest Descent Optimizer: checking stepsize"
+				print("Steepest Descent Optimizer: checking stepsize")
 			self.__adaptStepSize(dF)
 		newX=X-dF*self._stepSize
 		if self._verbosity >= constants.VBL_DEBUG2:
-				print "Steepest Descent Optimizer: steepest descent step performed" 
+				print("Steepest Descent Optimizer: steepest descent step performed") 
 		return newX
 
 
@@ -186,27 +186,27 @@ class steepestDescentOptimizer(Optimizer):
 		if RMS < self._maxFRMS and maxF < self._maxF:
 			self._convreason="Hard convergence"
 			if self._verbosity >= constants.VBL_DEBUG2:
-					print "Steepest Descent Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Steepest Descent Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		elif not self._hardConvergence:
 			if maxF < self._maxF:
 				self._convreason="Max force component convergence"
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Steepest Descent Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Steepest Descent Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 				return True
 			if RMS < self._maxFRMS:
 				self._convreason="Force RMS convergence"
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Steepest Descent Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Steepest Descent Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 				return True
 		#also check number of iterations
 		if self._iterations>=self._maxIterations:
 			self._convreason="Maximum iterations reached"
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "Steepest Descent Optimizer: convergence criterion met: %s" %(self._convreason)
+				print("Steepest Descent Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		if self._verbosity >= constants.VBL_DEBUG2:
-			print "Steepest Descent Optimizer: not yet converged"
+			print("Steepest Descent Optimizer: not yet converged")
 		return False
 	
 	

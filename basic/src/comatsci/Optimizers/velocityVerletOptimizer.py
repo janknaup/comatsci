@@ -14,6 +14,7 @@
 #@license: Open Software License version 3.0
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
+from __future__ import print_function
 from Optimizer import Optimizer,constants
 import numpy
 
@@ -54,62 +55,62 @@ class velocityVerletOptimizer(Optimizer):
 		direction, following the projected Velocity Verlet method
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
-			print "Steepest Descent Optimizer: initializing."
+			print("Steepest Descent Optimizer: initializing.")
 		#call base class constructor
 		Optimizer.__init__(self,options)
 		#digest opions, c.f. documentation
 		self._maxF=options["maxF"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Velocity Verlet Optimizer: max derivative component: %f." % (self._maxF)
+			print("Velocity Verlet Optimizer: max derivative component: {0:f}.".format(self._maxF))
 		
 		self._maxFRMS=options.get("maxFRMS",-1.0)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Velocity Verlet Optimizer: max RMS derivative: %f." % (self._maxFRMS)
+			print("Velocity Verlet Optimizer: max RMS derivative: {0:f}.".format(self._maxFRMS))
 		
 		self._hardConvergence=options.get("hardConvergence",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Velocity Verlet Optimizer: using hard convergence: %s." % (str(self._maxF))
+			print("Velocity Verlet Optimizer: using hard convergence: {0:s}.".format(str(self._maxF)))
 		if self._hardConvergence and (self._maxF<=0 or self._maxFRMS<=0):
 				if self._verbosity >= constants.VBL_SILENCE:
-					print "Velocity Verlet Optimizer: Warning: hard convergence with negative froce criterion. Will never converge due to force."
+					print("Velocity Verlet Optimizer: Warning: hard convergence with negative force criterion. Will never converge due to force.")
 		
 		self._stepSize=options["stepSize"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Velocity Verlet Optimizer: initial stepSize: %f." % (self._stepSize)
+			print("Velocity Verlet Optimizer: initial stepSize: {0:f}.".format(self._stepSize))
 			
 		self._adaptive=options.get("adaptive",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Velocity Verlet Optimizer: using adaptive step size: %s." % (str(self._adaptive))
+			print("Velocity Verlet Optimizer: using adaptive step size: {0:s}.".format(str(self._adaptive)))
 			
 		self._stepAdaptFactor=options.get("stepAdaptFactor",1.618033988)
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Velocity Verlet Optimizer: step size adaption factor: %f." % (self._stepAdaptFactor)
+			print("Velocity Verlet Optimizer: step size adaption factor: {0:f}.".format(self._stepAdaptFactor))
 	
 		# save arithmetic operations: If stepsize is to remain > minStepSize, it must
 		# be > minStepSize*stepAdaptFactor before scaling. Calculate the comparison value
 		# one here
 		self._minStepSize=options.get("minStepSize",self._stepSize/1000)
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Velocity Verlet Optimizer: minimum adaptive step size: %f." % (self._minStepSize)
+			print("Velocity Verlet Optimizer: minimum adaptive step size: {0:f}.".format(self._minStepSize))
 		self._minStepSize*=self._stepAdaptFactor
 		
 		# c.f. minStepSize
 		self._maxStepSize=options.get("maxStepSize",self._stepSize*10)
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Velocity Verlet Optimizer: maximum adaptive step size: %f." % (self._maxStepSize)
+			print("Velocity Verlet Optimizer: maximum adaptive step size: {0:f}.".format(self._maxStepSize))
 		self._minStepSize/=self._stepAdaptFactor
 
 		self._growThreshold=options.get("growThreshold",0.9)
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Velocity Verlet Optimizer: alignment threshold for stepsize growth: %f." % (self._growThreshold)
+			print("Velocity Verlet Optimizer: alignment threshold for stepsize growth: {0:f}.".format(self._growThreshold))
 			
 		self._shrinkThreshold=options.get("shrinkThreshold",0.5)
 		if self._verbosity >= constants.VBL_DEBUG1 and self._adaptive:
-			print "Velocity Verlet Optimizer: alignment threshold for stepsize shrink: %f." % (self._shrinkThreshold)
+			print("Velocity Verlet Optimizer: alignment threshold for stepsize shrink: {0:f}.".format(self._shrinkThreshold))
 		
 		self._projectVelocities=options.get("projectVelocities",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "Velocity Verlet Optimizer: using projected Velocity Verlet: %s." % (str(self._projectVelocities))
+			print("Velocity Verlet Optimizer: using projected Velocity Verlet: {0:s}.".format(str(self._projectVelocities)))
 		
 		#initialize velocities Vector and required shape of velocities array
 		self._velocities=None
@@ -186,27 +187,27 @@ class velocityVerletOptimizer(Optimizer):
 		if RMS < self._maxFRMS and maxF < self._maxF:
 			self._convreason="Hard convergence"
 			if self._verbosity >= constants.VBL_DEBUG2:
-					print "Velocity Verlet Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Velocity Verlet Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		elif not self._hardConvergence:
 			if maxF < self._maxF:
 				self._convreason="Max force component convergence"
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Velocity Verlet Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Velocity Verlet Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 				return True
 			if RMS < self._maxFRMS:
 				self._convreason="Force RMS convergence"
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Velocity Verlet Optimizer: convergence criterion met: %s" %(self._convreason)
+					print("Velocity Verlet Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 				return True
 		#also check number of iterations
 		if self._iterations>=self._maxIterations:
 			self._convreason="Maximum iterations reached"
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "Velocity Verlet Optimizer: convergence criterion met: %s" %(self._convreason)
+				print("Velocity Verlet Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		if self._verbosity >= constants.VBL_DEBUG2:
-			print "Velocity Verlet Optimizer: not yet converged"
+			print("Velocity Verlet Optimizer: not yet converged")
 		return False
 
 	
@@ -218,7 +219,7 @@ class velocityVerletOptimizer(Optimizer):
 		if self._velocities==None or numpy.add.reduce(numpy.equal(self._velocities,0.0))==self._velocities.shape[0]:
 			self._velocities=numpy.zeros(dF.shape,dtype=float)
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "Velocity Verlet Optimizer: No force-verlocity alignment info, skipping stepsize adaption"
+				print("Velocity Verlet Optimizer: No force-verlocity alignment info, skipping stepsize adaption")
 			return
 		#calculate derivative-velocity alignment
 		align=numpy.dot(self._velocities,-dF)
@@ -230,18 +231,18 @@ class velocityVerletOptimizer(Optimizer):
 			if self._stepSize > self._minStepSize:
 				self._stepSize/=self._stepAdaptFactor
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Velocity Verlet Optimizer: shrinking stepsize"
+					print("Velocity Verlet Optimizer: shrinking stepsize")
 			else:
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Velocity Verlet Optimizer: stepsize too small, skipping stepsize shrink"
+					print("Velocity Verlet Optimizer: stepsize too small, skipping stepsize shrink")
 		elif align >= self._growThreshold:
 			if self._stepSize < self._maxStepSize:
 				self._stepSize*=self._stepAdaptFactor
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Velocity Verlet Optimizer: growing stepsize"
+					print("Velocity Verlet Optimizer: growing stepsize")
 			else:
 				if self._verbosity >= constants.VBL_DEBUG2:
-					print "Velocity Verlet Optimizer: stepsize too large, skipping stepsize grow"
+					print("Velocity Verlet Optimizer: stepsize too large, skipping stepsize grow")
 		return
 
 
@@ -280,10 +281,10 @@ class velocityVerletOptimizer(Optimizer):
 			self._masses=numpy.ones(X.shape,dtype=float)
 		#check if we have forces
 		if dF==None:
-			raise "derivative required for Velocity Verlet optimization"
+			raise ValueError("derivative required for Velocity Verlet optimization")
 		if self._adaptive:
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "Velocity Verlet Optimizer: checking stepsize"
+				print("Velocity Verlet Optimizer: checking stepsize")
 			self.__adaptStepSize(dF)
 		if self._projectVelocities:
 			self._velocitiesProject(dF)
@@ -292,7 +293,7 @@ class velocityVerletOptimizer(Optimizer):
 		#then calculate new parameters
 		newX=X+self._stepSize*self._velocities
 		if self._verbosity >= constants.VBL_DEBUG2:
-				print "Velocity Verlet Optimizer: step performed" 
+				print("Velocity Verlet Optimizer: step performed") 
 		return newX
 
 
