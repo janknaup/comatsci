@@ -1,0 +1,97 @@
+#!/usr/bin/python
+##############################################################################
+# pathprops
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2012 by Jan M. Knaup <janknaup@gmail.com>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+'''
+Created on May 31, 2012
+
+@author: Jan M. Knaup
+'''
+
+import comatsci
+import os,re,shutil
+
+import copy
+import ConfigParser
+from optparse import OptionParser
+         
+
+def completeSupercell(unclecell, additionalcell, config):
+    """
+    add atoms ignored by UNCLE to supercell by expanding additionalcell
+    @type unclecell: comatsci.Geometry
+    @param unclecell: incomplete supercell Geometry returned by UNCLE
+    @type additionalcell: comatsci.Geometry
+    @param additionalcell: unit cell of the atoms ignored by UNCLE
+    @type config: config
+    @param config: config instance containing mapping parameters
+    @return: complete expanded supercell  
+    """
+    uncleA=config.getfloat("uncle", "uncle_a")
+    uncleB=config.getfloat("uncle", "uncle_a")
+    uncleC=config.getfloat("uncle", "uncle_a")
+    # calculate supercell size in unit cells
+    aSize=int(unclecell.Lattice[0][0]/uncleA)
+    bSize=int(unclecell.Lattice[1][1]/uncleB)
+    cSize=int(unclecell.Lattice[2][2]/uncleC)
+    print "sizes: A ",aSize,"  B ",bSize,"  C ",cSize
+    addgeo=copy.deepcopy(additionalcell)
+    addgeo.periodicexpand((aSize,bSize,cSize))
+    unclecell.Geometry*=config.getfloat("uncle","real_lattice")
+    unclecell.Lattice*=config.getfloat("uncle","real_lattice")
+    addgeo.appendgeometryflat(unclecell.elementsubgeometry(config.getint("uncle", "element")))
+    return addgeo
+   
+
+if __name__ == '__main__':
+    usage=("usage: %prog [options] <ignored atoms unit cell>\n"+
+    "Ignored atoms unit cell must be a valid geometry file specifying a periodic geometry\n"+
+    "Licensed under the Non-Profit Open Software License version 3.0")
+    parser=OptionParser(usage)
+    (options,args) = parser.parse_args()
+    
+    print "READING CONFIG FILE"
+    config = ConfigParser.ConfigParser()
+    config.read(['uncleJobs.cfg', os.path.expanduser('~/.uncleJobs.cfg')])
+    
+    # read the UNCLE output file
+    print "READING UNCLE ENERGY CALCULATION REQUESTS FROM COORD.out"
+    uncleFile=comatsci.utils.compressedopen("COORD.out", "r")
+    uncleLines=list(uncleFile)
+    uncleFile.close()
+    
+    print "READING UNIT CELL OF IGNORED ATOMS FROM {0:s}".format(args[0])
+    # read the unit cell of ignored atoms
+    ignoredUnitCell=comatsci.Geometry.Geometry()
+    ignoredUnitCell.readfile(args[0])
+    
+    print "GENERATING DFTB INPUT FILES:"
+    # locate Geometry specifications in uncle file
+    for i in range(len(uncleLines)):
+        line=uncleLines[i]
+        if "##Structure #" in line:
+            predictionIndex=int(re.search("\(prediction #\s*(\d*)\)",line).groups()[0])
+            endline=i+1
+            while not "#============" in uncleLines[endline]: 
+                endline+=1
+            tempGeo=comatsci.Geometry.Geometry()
+            tempGeo.parseGenString("".join(uncleLines[i+1:endline]))
+            fullGeo=completeSupercell(tempGeo,ignoredUnitCell,config)
+            dirname="{0:04d}".format(predictionIndex)
+            print "PREDICTION #{0:d} IN DIRECTORY {1:s}".format(predictionIndex,dirname)
+            if os.path.exists(dirname):
+                raise ValueError("prediction directory already exists")
+            else:
+                os.mkdir(dirname)
+                fullGeo.writegen(dirname+"/input.gen")
+                shutil.copy(os.path.realpath(config.get("dftb", "inputfile")), dirname)
+                
+            
+    print "FINISHED."
