@@ -7,7 +7,7 @@ import unittest,numpy
 from comatsci import Spline
 
 
-class Test(unittest.TestCase):
+class splineTest(unittest.TestCase):
 
 
     def testSpline(self):
@@ -50,6 +50,10 @@ class Test(unittest.TestCase):
 #            print >> pf, IX[ii], IYS[ii], SIX[ii], IYC[ii], CIX[ii]
 #        pf.close() 
 
+
+def suite():
+    suite = unittest.makeSuite(splineTest,'test')
+    return suite
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSpline']
