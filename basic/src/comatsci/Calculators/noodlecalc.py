@@ -8,6 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
 from comatsci.Calculators.CalcError import CalcError
@@ -354,7 +355,7 @@ class noodlecalc(Calculator):
 		#@todo: replace option file name by passing a dictionary of configuration options
 		Calculator.__init__(self, verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "initializing noodle calculator"
+			print("initializing noodle calculator")
 		# first parse config file and store into internal variables
 		self.config = ConfigParser.SafeConfigParser(defaults=self.defaults)
 		self.config.read(optionfname)
@@ -371,7 +372,7 @@ class noodlecalc(Calculator):
 			self.workdir=os.path.abspath(self.workdir)
 			if not os.path.exists(self.workdir):
 				if self.verbosity>=constants.VBL_DEBUG1:
-					print 'noodle calculator: workdir "%s" does not exist, creating it.'
+					print('noodle calculator: workdir "{0:s}" does not exist, creating it.'.format(self.workdir))()
 				os.mkdir(self.workdir)
 				self._rmworkdir=True
 			else:
@@ -405,21 +406,21 @@ class noodlecalc(Calculator):
 		ninput = open(self.infilename,"w")
 		# first input the  user-provided parameters, then specify all our own data with override
 		if self.paraminclude[-4:-1].lower==".xml":
-			print >> ninput, "<<! %s" % (self.paraminclude)
+			print("<<! {0:s}".format(self.paraminclude),file=ninput)
 		else:
-			print >> ninput, "<<+ %s" % (self.paraminclude)
+			print("<<+ {0:s}".format(self.paraminclude),file=ninput)
 		#keep the geometry file separate
-		print >> ninput, """Geometry = GenFormat {\n <<< "input.gen" \n}"""
+		print("""Geometry = GenFormat {\n <<< "input.gen" \n}""",file=ninput)
 ##		#this should hopefully give us forces and total energies at a single point
 ##		print >> ninput, "!Driver = ConjugateGradient{MovedAtoms=Range{1 -1} MaxSteps=0}"
 		#override initial charge reuse according to options  and existence of charge file
 		if self.rchr:
 			if os.path.exists("charges.bin"):
-				print >> ninput, "*Hamiltonian = *DFTB {!ReadInitialCharges = Yes}"
+				print("*Hamiltonian = *DFTB {!ReadInitialCharges = Yes}",file=ninput)
 		else:
-			print >> ninput, "*Hamiltonian = *DFTB {!ReadInitialCharges = No}"
+			print("*Hamiltonian = *DFTB \{!ReadInitialCharges = No\}",file=ninput)
 		#specify system charge
-		print >> ninput, "*Hamiltonian = *DFTB {!Charge = %f}" % charge
+		print("*Hamiltonian = *DFTB {{!Charge = {0:f} }}".format(charge),file=ninput)
 		#specify the Slater-Koster files and Max angular momenta
 		sklist=[]
 		mxalist=[]
@@ -434,20 +435,20 @@ class noodlecalc(Calculator):
 					sklist.append(Geo.PTE[i]+"-"+Geo.PTE[j]+' = "./'
 					+Geo.PTE[i].capitalize()+"-"+Geo.PTE[j].capitalize()+'.skf"')
 		newline="\n"
-		print >> ninput, "*Hamiltonian = *DFTB {!SlaterKosterFiles = {"
-		print >> ninput, newline.join(sklist)+"}"
-		print >> ninput, "!MaxAngularMomentum = {"
-		print >> ninput, newline.join(mxalist)+"}}"
+		print("*Hamiltonian = *DFTB {!SlaterKosterFiles = {",file=ninput)
+		print(newline.join(sklist)+"}",file=ninput)
+		print("!MaxAngularMomentum = {",file=ninput)
+		print(newline.join(mxalist)+"}}",file=ninput)
 		#override output options to our own needs
-		print >> ninput, """*Options = {
+		print(ninput, """*Options = {
 !AtomResolvedEnergies = No
 !WriteResultsTag = Yes
-!CalculateForces = Yes}"""
+!CalculateForces = Yes}""",file=ninput)
 		#set pointcharges options, if specified
 		if pchr:
-			print >> ninput,"*Hamiltonian = *DFTB {*ElectricField ={ *PointCharges= {"
-			print >> ninput,'<<< "pointcharges.xyzq"'
-			print >> ninput,'}}}'
+			print("*Hamiltonian = *DFTB {*ElectricField ={ *PointCharges= {",file=ninput)
+			print('<<< "pointcharges.xyzq"',file=ninput)
+			print('}}}',file=ninput)
 		ninput.close()
 
 
@@ -455,7 +456,7 @@ class noodlecalc(Calculator):
 	def _prepare(self, steplabel, Geometry, charge):
 		"""prepare NOODLE calculator run c.f. base class"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "preparing noodle run"
+			print("preparing noodle run")
 		# if exitsts, copy old chages file
 		chrfilename=steplabel+"-charges.bin"
 		if os.path.exists(self.chrdir+"/"+chrfilename):
