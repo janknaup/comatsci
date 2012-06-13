@@ -8,6 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
 from comatsci.Calculators.CalcError import CalcError
@@ -42,7 +43,7 @@ class siestacalc(Calculator):
 		#@todo: replace option file name by passing a dictionary of configuration options
 		Calculator.__init__(self, verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "initializing SIESTA calculator"
+			print("initializing SIESTA calculator")
 		# first parse config file and store into internal variables
 		self.config = ConfigParser.SafeConfigParser(defaults=self.defaults)
 		self.config.read(optionfname)
@@ -59,7 +60,7 @@ class siestacalc(Calculator):
 			self.workdir=os.path.abspath(self.workdir)
 			if not os.path.exists(self.workdir):
 				if self.verbosity>=constants.VBL_DEBUG1:
-					print 'siesta calculator: workdir "%s" does not exist, creating it.'
+					print('siesta calculator: workdir "{0:s}" does not exist, creating it.'.format(self.workdir))
 				os.mkdir(self.workdir)
 				self._rmworkdir=True
 			else:
@@ -70,7 +71,7 @@ class siestacalc(Calculator):
 		self.rdms=self.config.getboolean("SIESTA","rdms")
 		self.paraminclude=self.config.get("SIESTA","paraminclude")
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "siesta calculator initialized"
+			print("siesta calculator initialized")
 
 
 	def _writesiestainput(self, steplabel, charge=0.0):
@@ -78,18 +79,18 @@ class siestacalc(Calculator):
 		@param steplabel: name of current calculation
 		@param charge: system total charge"""
 		sinput = open("input.fdf","w")
-		print >> sinput, "SystemLabel path"
-		print >> sinput, "SystemName comatsci calculation for %s" % (steplabel)
+		print("SystemLabel path",file=sinput)
+		print("SystemName comatsci calculation for {0:s}".format(steplabel),file=sinput)
 		if self.rdms:
 			if os.path.exists("path.DM"):
-				print >> sinput, "DM.useSaveDM .true."
+				print("DM.useSaveDM .true.",file=sinput)
 			else:
-				print >> sinput, "DM.useSaveDM .false."
+				print("DM.useSaveDM .false.",file=sinput)
 		else:
-			print >> sinput, "DM.useSavedDM .false."
-		print >> sinput, "MD.TypeOfRun CG\nMD.NumCGSteps 0"
-		print >> sinput, "NetCharge %d" %(float(charge))
-		print >> sinput, "%%include %s\n%%include geometry.fdf" % (self.paraminclude)
+			print("DM.useSavedDM .false.",file=sinput)
+		print("MD.TypeOfRun CG\nMD.NumCGSteps 0",file=sinput)
+		print("NetCharge {0:d}".float(float(charge)),file=sinput)
+		print("%include {0:s}\n%include geometry.fdf".format(self.paraminclude),file=sinput)
 		sinput.close()
 
 
@@ -104,12 +105,12 @@ class siestacalc(Calculator):
 			"""Things to do after SIESTA run, i.e. save DM file, clean up
 			@param steplabel: name of current calculation"""
 			if self.verbosity>=constants.VBL_DEBUG2:
-				print "SIESTA postrun statistics and cleanup"
+				print("SIESTA postrun statistics and cleanup")
 			# first some statistics
 			self.totalscf+=self.scfit
 			self.totalruns+=1
 			if self.verbosity>=constants.VBL_TALKY:
-				print "%s: SCF iterations: %3d   ----   Total Energy: %12.6fH" % (steplabel,self.scfit,self.etot)
+				print("{0:s}: SCF iterations: {1:3d}   ----   Total Energy: {2:12.6f} H".format(steplabel,self.scfit,self.etot))
 			dmfilename=steplabel+".DM"
 			if not os.path.exists(self.dmdir):
 				os.mkdir(self.dmdir)
@@ -127,7 +128,7 @@ class siestacalc(Calculator):
 			"""Read total energy and gradients from result files in current directory
 			@param atomcount: number of atoms in this calculation"""
 			if self.verbosity>=constants.VBL_DEBUG2:
-				print "parsing SIESTA results"
+				print("parsing SIESTA results")
 			if self.status()!=CALCSTATUS_FINISHED:
 				raise CalcError('Try to get results form unfinished calculation')
 			# Check if parseable output exists
@@ -161,7 +162,7 @@ class siestacalc(Calculator):
 	def _prepare(self, steplabel, Geometry, charge):
 		"""prepare SIESTA calculator run c.f. base class"""
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "preparing SIESTA run"
+			print("preparing SIESTA run")
 		# if exitsts, copy old DM file
 		dmfilename=steplabel+".DM"
 		if os.path.exists(self.dmdir+"/"+dmfilename):
@@ -190,4 +191,4 @@ class siestacalc(Calculator):
 			self.remove_workdir()
 		Calculator.shutdown(self)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "siesta calculator shut down"
+			print("siesta calculator shut down")

@@ -8,6 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
 from comatsci.Calculators.CalcError import CalcError
@@ -74,7 +75,7 @@ class FloatConverter(Converter):
       try:
         ll.append(float(val))
       except Exception:
-        raise ConversionError, "Unable to convert float '%s'" % val
+        raise ConversionError, "Unable to convert float '{0:s}'".format(val)
     return ll
 
 
@@ -88,7 +89,7 @@ class IntConverter(Converter):
       try:
         ll.append(int(val))
       except Exception:
-        raise ConversionError, "Unable to convert integer '%s'" % val
+        raise ConversionError, "Unable to convert integer '{0:s}'".format(val)
     return ll
 
 
@@ -115,8 +116,7 @@ class ComplexConverter(Converter):
       try:
         ll.append(complex(float(values[ii]), float(values[ii+1])))
       except Exception:
-        raise ConversionError, ("Unable to convert complex '(%s,%s)'"
-                                % (values[ii], values[ii+1]))
+        raise ConversionError, ("Unable to convert complex '({0:s},{1:s})'".format(values[ii], values[ii+1]))
     return ll
 
 
@@ -132,7 +132,7 @@ class LogicalConverter(Converter):
       elif val == 'F' or val == 'f':
         ll.append(0)
       else:
-        raise ConversionError, "Unable to convert logical '%s'" % val
+        raise ConversionError, "Unable to convert logical '{0:s}'".format(val)
     return ll
 ############################################################################
 # Tagged data related objects
@@ -162,7 +162,7 @@ class TaggedEntry(object):
     """
 
     if not type in self.__validTypes:
-      raise InvalidEntry(msg="Invalid data type '%s'" % type)
+      raise InvalidEntry(msg="Invalid data type '{0:s}'".format(type))
     self.__name = name
     self.__type = type
     self.__rank = rank
@@ -354,7 +354,7 @@ class noodlecalc(Calculator):
 		#@todo: replace option file name by passing a dictionary of configuration options
 		Calculator.__init__(self, verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "initializing noodle calculator"
+			print("initializing noodle calculator")
 		# first parse config file and store into internal variables
 		self.config = ConfigParser.SafeConfigParser(defaults=self.defaults)
 		self.config.read(optionfname)
@@ -371,7 +371,7 @@ class noodlecalc(Calculator):
 			self.workdir=os.path.abspath(self.workdir)
 			if not os.path.exists(self.workdir):
 				if self.verbosity>=constants.VBL_DEBUG1:
-					print 'noodle calculator: workdir "%s" does not exist, creating it.'
+					print('noodle calculator: workdir "{0:s}" does not exist, creating it.'.format(self.workdir))()
 				os.mkdir(self.workdir)
 				self._rmworkdir=True
 			else:
@@ -405,21 +405,20 @@ class noodlecalc(Calculator):
 		ninput = open(self.infilename,"w")
 		# first input the  user-provided parameters, then specify all our own data with override
 		if self.paraminclude[-4:-1].lower==".xml":
-			print >> ninput, "<<! %s" % (self.paraminclude)
+			print("<<! {0:s}".format(self.paraminclude),file=ninput)
 		else:
-			print >> ninput, "<<+ %s" % (self.paraminclude)
+			print("<<+ {0:s}".format(self.paraminclude),file=ninput)
 		#keep the geometry file separate
-		print >> ninput, """Geometry = GenFormat {\n <<< "input.gen" \n}"""
+		print("""Geometry = GenFormat {\n <<< "input.gen" \n}""",file=ninput)
 ##		#this should hopefully give us forces and total energies at a single point
-##		print >> ninput, "!Driver = ConjugateGradient{MovedAtoms=Range{1 -1} MaxSteps=0}"
 		#override initial charge reuse according to options  and existence of charge file
 		if self.rchr:
 			if os.path.exists("charges.bin"):
-				print >> ninput, "*Hamiltonian = *DFTB {!ReadInitialCharges = Yes}"
+				print("*Hamiltonian = *DFTB {!ReadInitialCharges = Yes}",file=ninput)
 		else:
-			print >> ninput, "*Hamiltonian = *DFTB {!ReadInitialCharges = No}"
+			print("*Hamiltonian = *DFTB \{!ReadInitialCharges = No\}",file=ninput)
 		#specify system charge
-		print >> ninput, "*Hamiltonian = *DFTB {!Charge = %f}" % charge
+		print("*Hamiltonian = *DFTB {{!Charge = {0:f} }}".format(charge),file=ninput)
 		#specify the Slater-Koster files and Max angular momenta
 		sklist=[]
 		mxalist=[]
@@ -434,20 +433,20 @@ class noodlecalc(Calculator):
 					sklist.append(Geo.PTE[i]+"-"+Geo.PTE[j]+' = "./'
 					+Geo.PTE[i].capitalize()+"-"+Geo.PTE[j].capitalize()+'.skf"')
 		newline="\n"
-		print >> ninput, "*Hamiltonian = *DFTB {!SlaterKosterFiles = {"
-		print >> ninput, newline.join(sklist)+"}"
-		print >> ninput, "!MaxAngularMomentum = {"
-		print >> ninput, newline.join(mxalist)+"}}"
+		print("*Hamiltonian = *DFTB {!SlaterKosterFiles = {",file=ninput)
+		print(newline.join(sklist)+"}",file=ninput)
+		print("!MaxAngularMomentum = {",file=ninput)
+		print(newline.join(mxalist)+"}}",file=ninput)
 		#override output options to our own needs
-		print >> ninput, """*Options = {
+		print(ninput, """*Options = {
 !AtomResolvedEnergies = No
 !WriteResultsTag = Yes
-!CalculateForces = Yes}"""
+!CalculateForces = Yes}""",file=ninput)
 		#set pointcharges options, if specified
 		if pchr:
-			print >> ninput,"*Hamiltonian = *DFTB {*ElectricField ={ *PointCharges= {"
-			print >> ninput,'<<< "pointcharges.xyzq"'
-			print >> ninput,'}}}'
+			print("*Hamiltonian = *DFTB {*ElectricField ={ *PointCharges= {",file=ninput)
+			print('<<< "pointcharges.xyzq"',file=ninput)
+			print('}}}',file=ninput)
 		ninput.close()
 
 
@@ -455,7 +454,7 @@ class noodlecalc(Calculator):
 	def _prepare(self, steplabel, Geometry, charge):
 		"""prepare NOODLE calculator run c.f. base class"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "preparing noodle run"
+			print("preparing noodle run")
 		# if exitsts, copy old chages file
 		chrfilename=steplabel+"-charges.bin"
 		if os.path.exists(self.chrdir+"/"+chrfilename):
@@ -488,12 +487,12 @@ class noodlecalc(Calculator):
 	def _postrun(self, steplabel):
 		"""Things to do after noodle run, i.e. save charges.bin, clean up c.f. base class"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "noodle postrun cleanup and statistics"
+			print("noodle postrun cleanup and statistics")
 		# first some statistics
 		self.totalscf+=self.scfit
 		self.totalruns+=1
 		if self.verbosity>=constants.VBL_TALKY:
-			print "%s: SCC iterations: %3d   ----   Total Energy: %12.6fH" % (steplabel,self.scfit,self.etot)
+			print("{0:s}: SCC iterations: {1:3d}   ----   Total Energy: {2:12.6f} H".format(steplabel,self.scfit,self.etot))
 		if os.path.exists(self.rundir+"/charges.bin"):
 			chargefilename=steplabel+"-charges.bin"
 			if not os.path.exists(self.chrdir):
@@ -512,7 +511,7 @@ class noodlecalc(Calculator):
 		"""Read total energy and gradients from result files in current directory
 		@param : atomcount number of atoms in system (ignored!)"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "parsing noodle output"
+			print("parsing noodle output")
 		#overwrite atomcount, if we were working on a subgeometry
 		if self.remapatoms!=None:
 			realatomcount=atomcount
@@ -536,7 +535,7 @@ class noodlecalc(Calculator):
 		if tagresults.getEntry("scc").value[0]:
 			self.scfit=int(tagresults.getEntry("n_scc_iters").value[0])
 			if not tagresults.getEntry("scc_convergence").value[0] and self.verbosity>=constants.VBL_TALKY:
-				print "Warning: noodle SCC not converged, forces may be wrong!"
+				print("Warning: noodle SCC not converged, forces may be wrong!")
 		else:
 			self.scfit=1
 		#remap forces, in case we have been working on a subgeometry
@@ -554,5 +553,5 @@ class noodlecalc(Calculator):
 			self.remove_workdir()
 		Calculator.shutdown(self)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "noodle calculator shut down"
+			print("noodle calculator shut down")
 

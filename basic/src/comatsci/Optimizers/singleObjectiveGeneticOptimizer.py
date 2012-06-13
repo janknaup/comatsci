@@ -14,7 +14,7 @@
 #@license: Open Software License version 3.0
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
-
+from __future__ import print_function
 from Optimizer import Optimizer,constants,populationKey
 import copy,random
 
@@ -55,55 +55,55 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		default use same options as for evolution mutator
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
-			print "SOGA Optimizer: initializing."
+			print("SOGA Optimizer: initializing.")
 		#call base class constructor
 		Optimizer.__init__(self,options)
 		#digest opions, c.f. documentation
 		self._maxF=options["maxF"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: max fitness: %f." % (self._maxF)
+			print("SOGA Optimizer: max fitness: {0:f}.".format(self._maxF))
 
 		self._mutator=options["mutator"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: mutator function stored"
+			print("SOGA Optimizer: mutator function stored")
 		
 		self._mutatorOptions=options["mutatorOptions"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: mutator options stored"
+			print("SOGA Optimizer: mutator options stored")
 		elif self._verbosity >= constants.VBL_DEBUG2:
-			print "SOGA Optimizer: mutator options: %s" % (str(self._mutatorOptions))
+			print("SOGA Optimizer: mutator options: {0:s}".format(str(self._mutatorOptions)))
 		
 		self._fitness=options["fitness"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: fitness function stored"
+			print("SOGA Optimizer: fitness function stored")
 		
 		self._fitnessOptions=options["fitnessOptions"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: fitness options stored"
+			print("SOGA Optimizer: fitness options stored")
 		elif self._verbosity >= constants.VBL_DEBUG2:
-			print "SOGA Optimizer: fitness options: %s" % (str(self._fitnessOptions))
+			print("SOGA Optimizer: fitness options: {0:s}".format(str(self._fitnessOptions)))
 		
 		self._combiner=options["combiner"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: combiner stored"
+			print("SOGA Optimizer: combiner stored")
 		
 		self._combinerOptions=options["combinerOptions"]
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: combiner options stored"
+			print("SOGA Optimizer: combiner options stored")
 		elif self._verbosity >= constants.VBL_DEBUG2:
-			print "SOGA Optimizer: combiner options: %s" % (str(self._combinerOptions))
+			print("SOGA Optimizer: combiner options: {0:s}".format(str(self._combinerOptions)))
 		
 		self._populationSize=options.get("populationSize",20)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: population size: %d." % (self._populationSize)
+			print("SOGA Optimizer: population size: {0:d}.".format(self._populationSize))
 		
 		self._breederCount=options.get("breederCount",5)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: breeder Count: %d." % (self._breederCount)
+			print("SOGA Optimizer: breeder Count: {0:d}.".format(self._breederCount))
 		
 		self._keepFitterElders=options.get("keepFitterElders",False)
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: keeping fitter elders: %s." % (str(self._keepFitterElders))
+			print("SOGA Optimizer: keeping fitter elders: {0:s}.".format(str(self._keepFitterElders)))
 		
 		self._initialMutator=options.get("initalMutator",self._mutator)
 		self._initialMutatorOptions=options.get("initialMutatorOptions",self._mutatorOptions)
@@ -117,7 +117,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		self._accepted=0
 		
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: initialized"
+			print("SOGA Optimizer: initialized")
 			
 	
 
@@ -138,16 +138,16 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		if self._lastPopulation[0][0] < self._maxF:
 			self._convreason="Max fitness convergence"
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOGA Optimizer: convergence criterion met: %s" %(self._convreason)
+				print("SOGA Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		#also check number of iterations
 		if self._iterations>=self._maxIterations:
 			self._convreason="Maximum iterations reached"
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOGA Optimizer: convergence criterion met: %s" %(self._convreason)
+				print("SOGA Optimizer: convergence criterion met: {0:s}".format(self._convreason))
 			return True
 		if self._verbosity >= constants.VBL_DEBUG2:
-			print "SOGA Optimizer: not yet converged"
+			print("SOGA Optimizer: not yet converged")
 		return False
 
 
@@ -163,14 +163,14 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		#at first iteration, generate initial population and return
 		if self.iterations==0:
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOGA Optimizer: generating inital population"
+				print("SOGA Optimizer: generating inital population")
 			self.__initialPopulate(X)
 			self._lastSolutions=self._bestPopulation
 			return self._bestPopulation[0][1]
 		else:
 		#otherwise combine, mutate, and evaluate required number of offspring
 			if self._verbosity >= constants.VBL_DEBUG2:
-				print "SOGA Optimizer: breeding new generation"
+				print("SOGA Optimizer: breeding new generation")
 			newPopulation=copy.deepcopy(self._lastPopulation[0:self._breederCount])
 			for i in range (self._breederCount,self._populationSize):
 				#combine
@@ -219,7 +219,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		"""generate initial population for genetic optimization
 		@param X initial input vector to generate population from"""
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "SOGA Optimizer: generating initial population and fitnesses"
+			print("SOGA Optimizer: generating initial population and fitnesses")
 		#We store the population as a list of (F(X),X) tuples
 		#calculate the fitness of the initial X here and store in population list
 		self._lastPopulation=[(self._fitness(self._fitnessOptions,X),X),]

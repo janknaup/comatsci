@@ -8,6 +8,8 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
+
 SCHEDSTATUS_READY=0
 SCHEDSTATUS_BUSY=1
 SCHEDSTATUS_JOBERROR=2
@@ -76,15 +78,15 @@ class Scheduler:
 		#check if scheduler is iterationCountready
 		if self._status!=SCHEDSTATUS_READY:
 			#if not, report fatal error
-			raise("fatal scheduler error: scheduler %s"%SCHEDSTATUSDICT[self._status])
+			raise("fatal scheduler error: scheduler {0:s}".format(SCHEDSTATUSDICT[self._status]))
 		else:
 			if self._verbosity>=constants.VBL_TALKY:
-				print "Executing a schedule of %d jobs." % (len(schedule))
+				print("Executing a schedule of {0:d} jobs.".format(len(schedule)))
 			self._status=SCHEDSTATUS_BUSY
 			results=self._realperform(schedule, progressfunction)
 			self._status=SCHEDSTATUS_READY
 			if self._verbosity>=constants.VBL_TALKY:
-				print "Finished schedule."
+				print("Finished schedule.")
 			return results
 	
 	
@@ -142,7 +144,7 @@ class Scheduler:
 			pass
 		self._status=SCHEDSTATUS_DEAD
 		if self._verbosity>=constants.VBL_DEBUG1:
-			print "Scheduler shut down"
+			print("Scheduler shut down")
 
 
 
@@ -181,7 +183,7 @@ class serialScheduler(Scheduler):
 		#now just do the work
 		for i in range(len(schedule)):
 			if self._verbosity>=constants.VBL_DEBUG1:
-				print "Serial scheduler: starting job %d of %d" %(i, totaljobs)
+				print("Serial scheduler: starting job {0:d} of {1:d}".format(i, totaljobs))
 			#measure CPU-time inside walltime bracket
 			startwalltime=time.time()
 			startcputime=time.clock()
@@ -194,14 +196,14 @@ class serialScheduler(Scheduler):
 			if progressfunction!=None:
 				progressfunction(int(i*100/totaljobs))
 			if self._verbosity>=constants.VBL_DEBUG1:
-				print "Serial scheduler: finished job after %10.4f seconds CPU time (%10.4f seconds wall time)." %(
-					cputime, walltime)
+				print("Serial scheduler: finished job after {0:10.4f} seconds CPU time ({1:10.4f} seconds wall time).".format(
+					cputime, walltime))
 			#worker may not implement an iteration count property
 			try:
 				self._iterationcounter+=self._worker.iterations
 			except:
 				if self._verbosity>=constants.VBL_DEBUG2:
-					print "Serial scheduler: could not get iteration count from worker, assuming 1 iteration"
+					print("Serial scheduler: could not get iteration count from worker, assuming 1 iteration")
 				self._iterationcounter+=1
 			self._jobcounter+=1
 			results.append(self._worker.getresults())
@@ -232,32 +234,33 @@ class mpiScheduler(Scheduler):
 		self.__initializer=initializer
 		#now initialize MPI
 		if self._verbosity >= constants.VBL_DEBUG1:
-			print "MPI scheduler: initializing MPI."
+			print("MPI scheduler: initializing MPI.")
 		try:
 			self.pypar = __import__("pypar")
 		except:
-			raise 'Module pypar must be present to run parallel'
+			print('Module pypar must be present to run parallel')
+			raise
 		self.__MPI_numproc=self.pypar.size()
 		self.__MPI_myid =   self.pypar.rank()
 		self.__MPI_node =    self.pypar.Get_processor_name()
 		if self.__MPI_myid==0 and self.__MPI_numproc==1:
-			print "MPI scheduler: No slaves present, no work can be performed"
+			print("MPI scheduler: No slaves present, no work can be performed")
 			raise "no MPI slaves"
 		elif self.__MPI_myid==0 and self.__MPI_numproc==2 and self._verbosity >= constants.VBL_NORMAL:
-			print "*\n*\n*\nMPI scheduler: *** Warning, only one slave is present, no parallel execution possible! ***\n*\n*\n*"
+			print("*\n*\n*\nMPI scheduler: *** Warning, only one slave is present, no parallel execution possible! ***\n*\n*\n*")
 		if self.__MPI_myid==0 and self._verbosity >= constants.VBL_DEBUG1:
-			print "MPI scheduler: MPI initialized successfully"
+			print("MPI scheduler: MPI initialized successfully")
 		if self._verbosity >= constants.VBL_TALKY:
-			print "MPI scheduler: %s: I am node %d of %d" % (self.__MPI_node, self.__MPI_myid, self.__MPI_numproc)
+			print("MPI scheduler: {0:s}: I am node {1:d} of {2:d}".format(self.__MPI_node, self.__MPI_myid, self.__MPI_numproc))
 		if self._verbosity >=constants.VBL_NORMAL:
 			if self.__MPI_myid==0:
-				print "MPI scheduler: %s: I am master" % (self.__MPI_node)
+				print("MPI scheduler: {0:s}: I am master".format(self.__MPI_node))
 			elif self._verbosity >=constants.VBL_TALKY:
-				print "MPI scheduler: %s: I am slave" % (self.__MPI_node)
+				print("MPI scheduler: {0:s}: I am slave".format(self.__MPI_node))
 		# If we are master, initialize the slaves and return, otherwise switch to slave mode
 		if self.__MPI_myid==0:
 			if self._verbosity >=constants.VBL_NORMAL:
-				print "MPI scheduler: initializing slaves"
+				print("MPI scheduler: initializing slaves")
 			initmsg={
 				"rundir"		: os.path.abspath('.'),
 				"initarg"    : copy.deepcopy(initargument),
@@ -265,7 +268,7 @@ class mpiScheduler(Scheduler):
 			for i in range(1, self.__MPI_numproc):
 				self.pypar.send(initmsg, i, tag=self.INITTAG)
 			if self._verbosity >=constants.VBL_NORMAL:
-				print "MPI scheduler: Sent init messages to slaves."
+				print("MPI scheduler: Sent init messages to slaves.")
 			#only the master controls the scheduler's status
 			self._status=SCHEDSTATUS_READY
 		else:
@@ -279,7 +282,7 @@ class mpiScheduler(Scheduler):
 		# wait for init message from master and initialize
 		initmsg, status = self.pypar.receive(0, tag=self.INITTAG, return_status=True)
 		if self._verbosity >=constants.VBL_DEBUG2:
-			sys.stderr.write("[SLAVE %d]: received init message: %s"%(self.__MPI_myid,initmsg))
+			sys.stderr.write("[SLAVE {0:d}]: received init message: {1:s}".format(self.__MPI_myid,initmsg))
 		os.chdir(initmsg["rundir"])
 		#create the local worker instance
 		self._worker=self.__initializer(initmsg["initarg"])
@@ -289,12 +292,12 @@ class mpiScheduler(Scheduler):
 			work=None
 			work, status = self.pypar.receive(0, tag=self.pypar.any_tag, return_status=True) 
 			if self._verbosity>=constants.VBL_DEBUG2:
-				sys.stderr.write("[SLAVE %d]: received work '%s' with tag '%d' from node '%d'\n"\
-					%(self.__MPI_myid, work, status.tag, status.source))
+				sys.stderr.write("[SLAVE {0:d}]: received work '{1:s}' with tag '{2:d}' from node '{3:d}'\n".format(
+							self.__MPI_myid, work, status.tag, status.source))
 			#gracefully shutdown this slave, if DIE message is received
 			if (status.tag == self.DIETAG):
 				if self._verbosity >= constants.VBL_DEBUG1:
-					sys.stderr.write("[SLAVE %d]: received termination from node '%d'\n" %(MPI_myid, 0)) #@UndefinedVariable
+					sys.stderr.write("[SLAVE {0:d}]: received termination from node '{1:d}'\n".format(MPI_myid, 0)) #@UndefinedVariable
 				#if worker has a shutdown method, call it, otherwise ignore
 				try:
 					self._worker.shutdown()
@@ -302,7 +305,7 @@ class mpiScheduler(Scheduler):
 					pass
 				self.pypar.Finalize()
 				if self._verbosity>=constants.VBL_TALKY:
-					print "[SLAVE %d]: MPI environment finalized."%(self.__MPI_myid)
+					print("[SLAVE {0:d}]: MPI environment finalized.".format(self.__MPI_myid))
 				sys.exit(0)
 			#now for the work part
 			elif (status.tag == self.WORKTAG):
@@ -314,8 +317,8 @@ class mpiScheduler(Scheduler):
 				self._cputimer+=cputime
 				self._walltimer+=walltime
 				if self._verbosity>=constants.VBL_DEBUG1:
-					print "[SLAVE %d]: finished job after %10.4f seconds CPU time (%10.4f second wall time)." %(
-						self.__MPI_myid,cputime, walltime)
+					print("[SLAVE {0:d}]: finished job after {1:10.4f} seconds CPU time ({2:10.4f} seconds wall time).".format(
+						self.__MPI_myid,cputime, walltime))
 				result={"workresult":self._worker.getresults(),
 					"cputime": cputime,
 					"walltime": walltime}
@@ -326,10 +329,10 @@ class mpiScheduler(Scheduler):
 					result["iterations"]=1
 				self.pypar.send(result, 0, tag=self.RESULTTAG)
 				if self._verbosity >=constants.VBL_DEBUG2:
-					sys.stderr.write("[SLAVE %d]: sent result '%s' to node '%d'\n" %(self.__MPI_myid, result, 0))
+					sys.stderr.write("[SLAVE {0:d}]: sent result '{1:s}' to node '{2:d}'\n".format(self.__MPI_myid, result, 0))
 			#an unexpected tag is, of course, a fatal error
 			else:
-				sys.stderr.write("[SLAVE %d]: unexpected tag received, aborting" %(self.__MPI_myid))
+				sys.stderr.write("[SLAVE {0:d}]: unexpected tag received, aborting".format(self.__MPI_myid))
 				self.pypar.Finalize()
 				sys.exit(1)
 
@@ -370,7 +373,7 @@ class mpiScheduler(Scheduler):
 			work = { "work": job}
 			self.pypar.send(work, i+1, tag=self.WORKTAG) 
 			if self._verbosity >= constants.VBL_DEBUG1:
-				sys.stderr.write("[MASTER]: sent work '%s' to node '%d'\n" %(work, i+1))
+				sys.stderr.write("[MASTER]: sent work '{0:s}' to node '{1:d}'\n".format(work, i+1))
 		# inital batch of work sent out, now process remaining jobs
 		while(len(myschedule)>0):
 			# wait for results from slaves
@@ -384,7 +387,7 @@ class mpiScheduler(Scheduler):
 			work = { "work": job}
 			self.pypar.send(work, status.source, tag=self.WORKTAG)
 			if self._verbosity >= constants.VBL_DEBUG1:
-				sys.stderr.write("[MASTER]: sent job '%s' to node '%d'\n" %(work, status.source))
+				sys.stderr.write("[MASTER]: sent job '{0:s}' to node '{1:d}'\n".format(work, status.source))
 		# now that all work has been sent out, we must collect the remaining results
 		while(len(whatswhere)>0): 
 			self.__receiveresult(resultsdict, whatswhere)
@@ -410,7 +413,7 @@ class mpiScheduler(Scheduler):
 		self._cputimer+=result["cputime"]
 		self._walltimer+=result["walltime"]
 		if self._verbosity > constants.VBL_DEBUG2:
-			sys.stderr.write("[MASTER]: received result '%s' from node '%d'\n" %(result["workresult"], status.source))
+			sys.stderr.write("[MASTER]: received result '{0:s}' from node '{1:d}'\n".format(result["workresult"], status.source))
 		resultsdict[whatswhere[status.source]]=result["workresult"]
 		del whatswhere[status.source]
 		return status
@@ -421,14 +424,14 @@ class mpiScheduler(Scheduler):
 		"""send shutdown messages to all slaves and shutdown local worker"""
 		#send shutdown messages to slaves
 		if self._verbosity >=constants.VBL_NORMAL:
-			print "MPI scheduler: shutting down slaves"
+			print("MPI scheduler: shutting down slaves")
 		stopmsg={
 			"rundir"		: os.path.abspath('.'),
 			}
 		for i in range(1, self.__MPI_numproc):
 			self.pypar.send(stopmsg, i, tag=self.DIETAG)
 		if self._verbosity >=constants.VBL_NORMAL:
-			print "MPI scheduler: Sent shutdown messages to slaves."
+			print("MPI scheduler: Sent shutdown messages to slaves.")
 		#shutdown local worker, ignore if no shutdown method
 		try:
 			self._worker.shutdown()
@@ -437,7 +440,7 @@ class mpiScheduler(Scheduler):
 		#call the base class shutdown
 		self.pypar.Finalize()
 		if self._verbosity>=constants.VBL_NORMAL:
-			print "MPI scheduler: [master] MPI environment finalized"
+			print("MPI scheduler: [master] MPI environment finalized")
 		Scheduler.shutdown(self)
 
 
@@ -475,7 +478,7 @@ class threadScheduler(Scheduler):
 		#  (only necessary in case of very short worke runtime, but nonetheless...
 		self.__finishedlock=self.threading.Semaphore(1)
 		if self._verbosity>=constants.VBL_DEBUG1:
-			print "threading scheduler: mutlithreading initialized"
+			print("threading scheduler: mutlithreading initialized")
 		# now we're ready
 		self._status=SCHEDSTATUS_READY
 		return
@@ -506,7 +509,7 @@ class threadScheduler(Scheduler):
 		startwalltime=time.time()
 		for i in range(maxworkers):
 			if self._verbosity>=constants.VBL_DEBUG1:
-				print "threading scheduler: starting job %d of %d" %(i+1, numjobs)
+				print("threading scheduler: starting job {0:d} of {1:d}".format(i+1, numjobs))
 			#create thread object and immideately start the thread
 			workthreads.append(self.threading.Thread(target=self.__threadworker,
 				args=(i,resultsdict,schedule[i])))
@@ -523,7 +526,7 @@ class threadScheduler(Scheduler):
 			if jobswaiting>0:
 				currentjob=numjobs-jobswaiting
 				if self._verbosity>=constants.VBL_DEBUG1:
-					print "threading scheduler: starting job %d of %d" %(currentjob+1, numjobs)
+					print("threading scheduler: starting job {0:d} of {1:d}".format(currentjob+1, numjobs))
 				workthreads.append(self.threading.Thread(target=self.__threadworker,
 					args=(currentjob,resultsdict,schedule[currentjob])))
 				workthreads[-1].start()
@@ -551,7 +554,7 @@ class threadScheduler(Scheduler):
 	def __threadworker(self, jobid, resultsdict, jobarguments):
 		"""helper function executed inside each single thread"""
 		if self._verbosity>=constants.VBL_DEBUG2:
-			print "threading scheduler: starting worker thread with input data %s" %(jobarguments)
+			print("threading scheduler: starting worker thread with input data {0:s}".format(jobarguments))
 		#initialize thread local data
 		mydata = self.threading.local()
 		mydata.startcputime=time.clock()
@@ -571,7 +574,7 @@ class threadScheduler(Scheduler):
 			self._iterationcounter+=mydata.myworker.iterations
 		except:
 			if self._verbosity>=constants.VBL_DEBUG2:
-				print "threading scheduler: could not get iteration count from worker, assuming 1 iteration"
+				print("threading scheduler: could not get iteration count from worker, assuming 1 iteration")
 			self._iterationcounter+=1
 		# increase various statistics counters
 		self._cputimer+=mydata.cputime

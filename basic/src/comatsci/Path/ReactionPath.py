@@ -10,6 +10,8 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
+
 import numpy
 
 import os, sys, copy
@@ -70,26 +72,26 @@ class Reactionpath:
 		if icmode=='s':
 			self.realforcesfunc=self.calcenergiesforces
 			if self.verbosity >= constants.VBL_NORMAL:
-				print "Serial calculation of energies and forces"
+				print("Serial calculation of energies and forces")
 		elif icmode=='p':
 			self.realforcesfunc=self.pcalcenergiesforces
 			if self.verbosity >= constants.VBL_NORMAL:
-				print "Parallel calculation of energies and forces"
+				print("Parallel calculation of energies and forces")
 		elif icmode=='d':
 			self.realforcesfunc=self.schedcalcenergiesforces
 			if self.verbosity >= constants.VBL_NORMAL:
-				print "Externally scheduled calculation of energies and forces"
+				print("Externally scheduled calculation of energies and forces")
 		else:
 			raise("Unknown energies/forces calculation mode")
 		self.forcetol=ifmax
 		if self.verbosity >= constants.VBL_NORMAL:
-			print "ReactionPath: Maximum normal force criterion:      %12.6f a.u." %(self.forcetol)
+			print("ReactionPath: Maximum normal force criterion:      {0:12.6f} a.u.".format(self.forcetol))
 		self.rmstol=ifrms
 		if self.verbosity >= constants.VBL_NORMAL:
-			print "ReactionPath: Maximum RMS normal force criterion:  %12.6f a.u." %(self.rmstol)
+			print("ReactionPath: Maximum RMS normal force criterion:  {0:12.6f} a.u.".format(self.rmstol))
 		self.maxit=imaxit
 		if self.verbosity >= constants.VBL_NORMAL:
-			print "ReactionPath: Maximum number of iterations:        %12d" %(self.maxit)
+			print("ReactionPath: Maximum number of iterations:        {0:12d}".format(self.maxit))
 		self.stopsignal=None
 		self.charge=charge
 		# spline representation interpolating coordinates, lattice, and charges
@@ -127,7 +129,7 @@ class Reactionpath:
 				self.geos[0].compatcheck(geo)
 			except Geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
-					print "ReactionPath warning: Geometry lattice mismatch"
+					print("ReactionPath warning: Geometry lattice mismatch")
 				else:
 					raise
 		else:
@@ -154,11 +156,11 @@ class Reactionpath:
 		try:
 			atomcount=int(inlist[0].strip())
 		except:
-			print "Atom count '%s' from line 1 of xyz path file '%s' could not be parsed. Abort." % (inlist[1],filename,)
+			print("Atom count '{0:s}' from line 1 of xyz path file '{:s}' could not be parsed. Abort.".format(inlist[1],filename))
 			raise
 		blocklength=atomcount+2
 		if len(inlist)%blocklength!=0:
-			raise(ValueError,"Number of lines in input file '%s' does not match atom count. Abort." % (filename,))
+			raise(ValueError,"Number of lines in input file '{0:s}' does not match atom count. Abort.".format(filename))
 		# iterate through xyz blocks, parse and append geometries
 		imagecount=(len(inlist))//(atomcount+2)
 		if progressFunction != None: progress=progressFunction(total=imagecount)
@@ -167,12 +169,12 @@ class Reactionpath:
 			try:
 				temp.parseXyzString("".join(inlist[image*blocklength:(image+1)*blocklength]))
 			except:
-				print "Parsing of xyz path image number %d failed. Abort." % (image+1)
+				print("Parsing of xyz path image number {0:d} failed. Abort.".format(image+1))
 				raise
 			try:
 				self.appendGeoObject(temp,checkCompat=True)
 			except:
-				print "Inconsistancy in xyz Path file at image %d detected. Abort." % (image+1)
+				print("Inconsistancy in xyz Path file at image {0:d} detected. Abort.".format(image+1))
 				raise
 			if stepsFunction != None : stepsFunction(progress,1)
 		#finished
@@ -191,11 +193,11 @@ class Reactionpath:
 		try:
 			atomcount=int(inlist[0].strip())
 		except:
-			print "Atom count '%s' from line 1 of xyz path file '%s' could not be parsed. Abort." % (inlist[1],filename,)
+			print("Atom count '{0:s}' from line 1 of xyz path file '{0:s}' could not be parsed. Abort.".format(inlist[1],filename))
 			raise
 		blocklength=atomcount+2
 		if len(inlist)%blocklength!=0:
-			raise(ValueError,"Number of lines in input file '%s' does not match atom count. Abort." % (filename,))
+			raise(ValueError,"Number of lines in input file '{0:s}' does not match atom count. Abort.".format(filename))
 		# iterate through xyz blocks, parse and append geometries and forces
 		imagecount=(len(inlist))//(atomcount+2)
 		gradients=[]
@@ -204,12 +206,12 @@ class Reactionpath:
 			try:
 				temp.parseXyzString("".join(inlist[image*blocklength:(image+1)*blocklength]))
 			except:
-				print "Parsing of xyz path image number %d failed. Abort." % (image+1)
+				print("Parsing of xyz path image number {0:d} failed. Abort.".format(image+1))
 				raise
 			try:
 				self.appendGeoObject(temp,checkCompat=True)
 			except:
-				print "Inconsistancy in xyz Path file at image %d detected. Abort." % (image+1)
+				print("Inconsistancy in xyz Path file at image {0:d} detected. Abort.".format(image+1))
 				raise
 			gradsbuf=[]
 			for line in inlist[(image*blocklength+2):(image+1)*blocklength]:
@@ -249,7 +251,7 @@ class Reactionpath:
 		@param: nameprefix="path" string to prepend to each filename
 		"""
 		for i in range(self.numimages()):
-			filename="%s.%04.2f.gen" % (nameprefix, (float(i)/(self.numimages()-1)))
+			filename="{0:s}.{1:04.2f}.gen".format(nameprefix, (float(i)/(self.numimages()-1)))
 			self.geos[i].writegen(filename)
 
 
@@ -272,7 +274,7 @@ class Reactionpath:
 			if len(self.realforces)>0:
 				FElines.append("\t<forces>")
 				for j in range(self.geos[0].Atomcount):
-					FElines.append("\t\t%24E  %24E  %24E" % (self.realforces[i][j][0],
+					FElines.append("\t\t{0:24E}  {1:24E}  {2:24E}".format(self.realforces[i][j][0],
 						self.realforces[i][j][1],self.realforces[i][j][2]))
 				FElines.append("\t</forces>")
 			FElines.append("</trjstep>")
@@ -286,7 +288,7 @@ class Reactionpath:
 		infolines=[]
 		#only append stepcount if >0
 		if self.nstep>0:
-			infolines.append("\t<stepcount>%d</stepcount>"%(self.nstep))
+			infolines.append("\t<stepcount>{0:d}</stepcount>".format(self.nstep))
 		#only return <trjinfo> element, if not empty
 		if len(infolines)>0:
 			return "<trjinfo>\n"+"\n".join(infolines)+"\n</trjinfo>"
@@ -307,7 +309,7 @@ class Reactionpath:
 		outstring+=self.fmgTrjinfoString()+"\n"
 		outstring+='</fmg>\n'
 		outfile=open(name,"w")
-		print >> outfile, outstring
+		print(outstring,file=outfile)
 		outfile.close()
 
 	
@@ -323,30 +325,30 @@ class Reactionpath:
 		self.geos=[]
 		# parse xml file and construct overall ElementTree
 		if self.verbosity >= constants.VBL_DEBUG2:
-			print 'Parse xml file "%s" and build elementTree... ' % (filename),
+			print('Parse xml file "{0:s}" and build elementTree... '.format(filename),end="")
 			sys.stdout.flush()
 		# handle the file outside of ET to allow use of transparent decompression
 		fmgfile=utils.compressedopen(filename)
 		tree = ET.parse(fmgfile)
 		fmgfile.close()
 		if self.verbosity >= constants.VBL_DEBUG2:
-			print 'done.'
+			print('done.')
 		# iterate through Geometry Elements
 		if self.verbosity >= constants.VBL_DEBUG2:
-			print 'iterate through geometries ',
+			print('iterate through geometries ',end="")
 		geometryElements=tree.findall("geometry")
 		for currentGeometryElement in geometryElements:
 			tempGeometry=GeoConstructor()
 			tempGeometry.handleGeoElementTree(currentGeometryElement)
 			if self.verbosity >= constants.VBL_DEBUG2:
-				print '.',
+				print('.',end="")
 				sys.stdout.flush()
 			if self.numimages()>1 and checkCompat:
 				try:
 					self.geos[0].compatcheck(tempGeometry)
 				except Geometry.GeometryError,inst:
 					if inst.args[0]=='Geometry lattice mismatch' and self.verbosity>=constants.VBL_SILENCE:
-						print "ReactionPath warning: Geometry lattice mismatch"
+						print("ReactionPath warning: Geometry lattice mismatch")
 					else:
 						raise
 			self.geos.append(tempGeometry)
@@ -356,30 +358,30 @@ class Reactionpath:
 		# check if trajectory steps data is present and store if true
 		trjsteps=tree.findall("trjstep")
 		if len(trjsteps)!=self.numimages() and len(trjsteps)!=0 and self.verbosity>=constants.VBL_SILENCE:
-			print "ReactionPath warning: Pathfile contains trajectory steps but number does not match image count.\n ignoring forces and energies from file."
-			print len(trjsteps)
-			print self.numimages()
+			print("ReactionPath warning: Pathfile contains trajectory steps but number does not match image count.\n ignoring forces and energies from file.")
+			print(len(trjsteps))
+			print(self.numimages())
 		elif len(trjsteps)==self.numimages():
 			if self.verbosity >= constants.VBL_DEBUG2:
-				print 'Interate through trajectory steps ',
+				print('Interate through trajectory steps ',end="")
 			self.energies=[]
 			self.realforces=[]
 			for i in trjsteps:
 				self.handletrjstep_etree(i)
 				if self.verbosity >= constants.VBL_DEBUG2:
-					print '.',
+					print('.',end="")
 		if self.verbosity >= constants.VBL_DEBUG2:
-			print 'done.'
+			print('done.')
 		# check if global trahectory info is present
 		trjinfo=tree.findall("trjinfo")
 		if len(trjinfo)!=0:
 			if self.verbosity >= constants.VBL_DEBUG2:
-				print 'Handle trajectory info.'
+				print('Handle trajectory info.')
 			self.handletrjinfo_etree(trjinfo[0])
 		# kill possibly stored spline representation
 		self.splineRep=None
 		if self.verbosity >= constants.VBL_DEBUG2:
-			print 'done reading .fmg path.'
+			print('done reading .fmg path.')
 
 
 	readfmgpath=etReadFmgPath
@@ -433,7 +435,7 @@ class Reactionpath:
 		if len(forces)>1:
 			raise "FMG ERROR: trajectory step for path must contain exactly one forces block!"
 		elif len(forces)<1:
-			print "FMG WARNING: no forces in trajectory step"
+			print("FMG WARNING: no forces in trajectory step")
 		else:
 			dummy=forces[0].childNodes[0].data.strip().split()
 			gradsbuf=[ float(s) for s in dummy ]
@@ -455,7 +457,7 @@ class Reactionpath:
 		if len(forces)>1:
 			raise "FMG ERROR: trajectory step for path must contain exactly one forces block!"
 		elif len(forces)<1:
-			print "FMG WARNING: no forces in trajectory step"
+			print("FMG WARNING: no forces in trajectory step")
 		else:
 			dummy=forces[0].text.strip().split()
 			gradsbuf=[ float(s) for s in dummy ]
@@ -476,7 +478,7 @@ class Reactionpath:
 				self.geos[0].compatcheck(self.geos[-1])
 			except Geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
-					print "ReactionPath warning: Geometry lattice mismatch"
+					print("ReactionPath warning: Geometry lattice mismatch")
 					globalSets.remove("lattice")
 				else:
 					savespace=False
@@ -485,7 +487,7 @@ class Reactionpath:
 		# iterate through path images
 		refGroup=None
 		for image in range(self.numimages()):
-			imagelabel="frame%010i"%(image,)
+			imagelabel="frame{0:010i}".format(image)
 			# first write the image geometry
 			if image==0 and savespace:
 				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel)[1] #@UndefinedVariable
@@ -569,12 +571,12 @@ class Reactionpath:
 		@param: name="neb.frc" output filename
 		"""
 		outFile=open(name,"w")
-		print >>outFile,"%6d %6d" % (self.Atomcount, self.numimages())
+		print("{0:6d} {1:6d}".format(self.Atomcount, self.numimages()),file=outfile)
 		for i in range(self.numimages()):
-			print >>outFile, "%d" % (i)
+			print("{0:d}".format(i),file=outfile)
 			tempforce=self.realforces[i].ravel()
 			for j in range(self.Atomcount):
-				print >>outFile, "%24E %24E %24E " %(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2])
+				print("{0:24E} {1:24E} {2:24E} ".format(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2]),file=outfile)
 		outFile.close()
 
 
@@ -587,7 +589,7 @@ class Reactionpath:
 		"""
 		outFile=open(name,"w")
 		for i in range(self.numimages()):
-			print >> outFile,"%5d  %24E" % (i,self.energies[i])
+			print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=outFile)
 		outFile.close()
 
 
@@ -673,7 +675,7 @@ class Reactionpath:
 		"""
 		if os.path.isdir(checkpointdir):
 			if self.verbosity >= constants.VBL_NORMAL:
-				print "Reading path images, energies and forces from checkpoint %s" % (checkpointdir)
+				print("Reading path images, energies and forces from checkpoint {0:s}".format(checkpointdir))
 			imglist=[]
 			dirlist=os.listdir(checkpointdir)
 			for i in dirlist:
@@ -681,18 +683,18 @@ class Reactionpath:
 					imglist.append(i)
 			imglist.sort()
 		else:
-			errstr= "Checkpoint directory %s does not exist" % (checkpointdir)
-			raise(errstr)
+			errstr= "Checkpoint directory {0:s} does not exist".format(checkpointdir)
+			raise ValueError(errstr)
 		for i in imglist:
 			self.appendgeofile(checkpointdir+'/'+i,checkCompat=checkCompat)
 		if self.verbosity >= constants.VBL_NORMAL:
-			print "Sucessfully read %d images into path" % (self.numimages())
+			print("Sucessfully read {0:d} images into path".format(self.numimages()))
 		if checkCompat:
 			self.readenergiesforces(checkpointdir+'/'+'neb.nrg',checkpointdir+'/'+'neb.frc')
 		else:
 			self._readenergies(checkpointdir+'/'+'neb.nrg')
 		if self.verbosity >= constants.VBL_NORMAL:
-			print "Forces and Energies read successfully"
+			print("Forces and Energies read successfully")
 		# kill possibly stored spline representation
 		self.splineRep=None
 
@@ -749,7 +751,7 @@ class Reactionpath:
 			self.realforces=[]
 			for i in range(self.numimages()):
 				if calculator.status()==Calculators.CALCSTATUS_READY:
-					label="%s-%6.4f" % (steplabelprefix,(float(i)/(float(self.numimages())-1)))
+					label="{0:s}-{1:6.4f}".format(steplabelprefix,(float(i)/(float(self.numimages())-1)))
 					calculator.runfg(self.geos[i],label,charge)
 					self.energies.append(calculator.getenergy())
 					self.realforces.append(calculator.getforces())
@@ -772,7 +774,7 @@ class Reactionpath:
 			self.realforces=[Ffirst]
 			for i in range(1,(self.numimages()-1)):
 				if calculator.status()==Calculators.CALCSTATUS_READY:
-					label="%s-%6.4f" % (steplabelprefix,(float(i)/(float(self.numimages())-1)))
+					label="{0:s}-{1:6.4f}".format(steplabelprefix,(float(i)/(float(self.numimages())-1)))
 					calculator.runfg(self.geos[i],label,charge)
 					self.energies.append(calculator.getenergy())
 					self.realforces.append(calculator.getforces())
@@ -861,7 +863,7 @@ class Reactionpath:
 		# assemble options dictionaries
 		joblist=[]
 		for i in range(startoff,self.numimages()-endoff):
-			label="%s-%6.4f" % (steplabelprefix,(float(i)/(float(self.numimages())-1)))
+			label="{0:s}-{1:6.4f}".format(steplabelprefix,(float(i)/(float(self.numimages())-1)))
 			joblist.append({
 				"Geometry":copy.deepcopy(self.geos[i]),
 				"Charge":charge,
@@ -935,7 +937,7 @@ class Reactionpath:
 		"""
 		outFile=open(filename,'w')
 		for i in self.geos[image].centerdists(center):
-			print >> outFile, "%24E" % (i)
+			print("{0:24E}".format(i),file=outFile)
 		outFile.close
 
 
@@ -959,7 +961,7 @@ class Reactionpath:
 		"""
 		ofile=open(filename,'w')
 		for i in self.rmsds():
-			print >>ofile,"%24E" % (i)
+			print("{0:24E}".format(i),file=ofile)
 		ofile.close()
 
 
@@ -1002,7 +1004,7 @@ class Reactionpath:
 		@param nnodes: number of nodes to resample
 		"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-				print "Spline-resampling Reactionpath from nodecount"
+				print("Spline-resampling Reactionpath from nodecount")
 		# construct list of evenly spaced parameter values
 		positions=[float(i)/(nnodes-1.0) for i in range(nnodes)]
 		# call splineListResample with the calulated positions
@@ -1014,7 +1016,7 @@ class Reactionpath:
 		"""spline resample with nodes at specified parameter values
 		@param paramlist: list of parameter values at which to place the new nodes"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-				print "Spline-resampling Reactionpath from parameter list"
+				print("Spline-resampling Reactionpath from parameter list")
 		# initialize spline representation, if necessary
 		if not self.hasSplineRep:
 			self._genSplineRep()
@@ -1050,7 +1052,7 @@ class Reactionpath:
 	def _genSplineRep(self):
 		"""generate and store splien representation of path which interpolates coordinates, lattice and charges"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-				print "generating spline representation of Reactionpath"
+				print("generating spline representation of Reactionpath")
 		nImages=self.numimages()
 		parameter=numpy.zeros((nImages),dtype=float)
 		vectors=numpy.zeros((nImages,self.Atomcount*3),dtype=float)
@@ -1219,8 +1221,6 @@ class Reactionpath:
 			del cVectors[0]
 			cVectors.append(numpy.array(self.geos[i].Geometry.flat))
 			newCoordinates=numpy.reshape(numpy.average(numpy.array(cVectors),0),geoshape)
-			##print newCoordinates
-			##print newCoordinates-self.geos[i].Geometry
 			tempgeo=geoclass(Mode,self.Atomcount,AtomTypes,Origin,lattice,newCoordinates,
 				iAtomLayers=AtomLayers,iLayerDict=LayerDict,iAtomCharges=None,iAtomSubTypes=AtomSubTypes)
 			newgeos.append(tempgeo)

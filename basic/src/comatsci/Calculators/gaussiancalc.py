@@ -8,6 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from comatsci.Calculators.Calculator import Calculator#,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
 from comatsci.Calculators.CalcError import CalcError
@@ -46,7 +47,7 @@ class gaussiancalc(Calculator):
 		#@todo: replace option file name by passing a dictionary of configuration options
 		Calculator.__init__(self, verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "initializing gaussien(03) calculator"
+			print("initializing gaussien(03) calculator")
 		# first parse config file and store into internal variables
 		self.config = ConfigParser.SafeConfigParser(defaults=self.defaults)
 		self.config.read(optionfname)
@@ -62,7 +63,7 @@ class gaussiancalc(Calculator):
 			self.workdir=os.path.abspath(self.workdir)
 			if not os.path.exists(self.workdir):
 				if self.verbosity>=constants.VBL_DEBUG1:
-					print 'gaussian calculator: workdir "%s" does not exist, creating it.'
+					print('gaussian calculator: workdir "{0:s}" does not exist, creating it.')
 				os.mkdir(self.workdir)
 				self._rmworkdir=True
 			else:
@@ -78,7 +79,7 @@ class gaussiancalc(Calculator):
 		self.routeopts=self.config.get("Gaussian","routeopts")
 		self.spinmul=self.config.getint("Gaussian","spinmul")
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "gaussian calculator initialized"
+			print("gaussian calculator initialized")
 
 
 	def _writegaussianinput(self, steplabel, Geometry, charge=0.0):
@@ -87,23 +88,23 @@ class gaussiancalc(Calculator):
 		@param charge: system total charge"""
 		ginput=open('input.com','w')
 		#Link 0 section
-		print >> ginput," %chk=path.chk"
+		print(" %chk=path.chk",file=ginput)
 		if self.link0lines!='':
-			print >>ginput,self.link0lines
+			print(self.link0lines,file=ginput)
 		#Route section
 		routeline=" #"
 		routeline+=self.hamiltonian+" FChk=ForceCart"
 		routeline+=" force "
 		routeline+=" "+self.routeopts
-		print >>ginput,routeline
-		print >>ginput," "
+		print(routeline,file=ginput)
+		print(" ",file=ginput)
 		#Title section
-		print >>ginput,steplabel+"\n"
+		print(steplabel+"\n",file=ginput)
 		#Molecule spec
-		print >>ginput," %d %d" % (charge,self.spinmul)
-		print >>ginput,Geometry.gaussianstring()
+		print(" {0:d} {1:d}".format(charge,self.spinmul),file=ginput)
+		print(Geometry.gaussianstring(),file=ginput)
 		#!trailing empty line!
-		print >>ginput,"\n"
+		print("\n",file=ginput)
 
 
 
@@ -117,12 +118,12 @@ class gaussiancalc(Calculator):
 			"""Things to do after Gaussian run, i.e. save .com file, clean up
 			@param steplabel: name of current calculation"""
 			if self.verbosity>=constants.VBL_DEBUG2:
-				print "gaussian postrun cleanup and statistics"
+				print("gaussian postrun cleanup and statistics")
 			# first some statistics
 			self.totalscf+=self.scfit
 			self.totalruns+=1
 			if self.verbosity>=constants.VBL_TALKY:
-				print "%s: SCF iterations: %3d   ----   Total Energy: %12.6fH" % (steplabel,self.scfit,self.etot)
+				print("{0:s}: SCF iterations: {1:3d}   ----   Total Energy: {2:12.6f} H".format(steplabel,self.scfit,self.etot))
 			chkfilename=steplabel+".chk"
 			if not os.path.exists(self.chkdir):
 				os.mkdir(self.chkdir)
@@ -140,7 +141,7 @@ class gaussiancalc(Calculator):
 		"""prese results from Gaussian(03) calculation
 		@param atomcount: Number of atoms in calculation"""
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "parsing gaussian output"
+			print("parsing gaussian output")
 		# read fchk file into Memory
 		fchkfile=utils.compressedopen("Test.FChk")
 		fchklines=list(fchkfile)
@@ -180,7 +181,7 @@ class gaussiancalc(Calculator):
 	def _prepare(self, steplabel, Geometry, charge):
 		"""prepare Gaussian calculator run c.f. base class"""
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "preparing gaussian run"
+			print("preparing gaussian run")
 		# if exitsts and we want to read it, copy old DM file
 		chkfilename=steplabel+".chk"
 		if os.path.exists(self.chkdir+"/"+chkfilename) and self.rchk:
@@ -197,4 +198,4 @@ class gaussiancalc(Calculator):
 			self.remove_workdir()
 		Calculator.shutdown(self)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "gaussian calculator shut down"
+			print("gaussian calculator shut down")
