@@ -571,12 +571,12 @@ class Reactionpath:
 		@param: name="neb.frc" output filename
 		"""
 		outFile=open(name,"w")
-		print("{0:6d} {1:6d}".format(self.Atomcount, self.numimages()),file=outfile)
+		print("{0:6d} {1:6d}".format(self.Atomcount, self.numimages()),file=outFile)
 		for i in range(self.numimages()):
-			print("{0:d}".format(i),file=outfile)
+			print("{0:d}".format(i),file=outFile)
 			tempforce=self.realforces[i].ravel()
 			for j in range(self.Atomcount):
-				print("{0:24E} {1:24E} {2:24E} ".format(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2]),file=outfile)
+				print("{0:24E} {1:24E} {2:24E} ".format(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2]),file=outFile)
 		outFile.close()
 
 
