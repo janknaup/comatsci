@@ -1556,8 +1556,6 @@ class Geometry:
 		outstring="{0:d}\n\n".format(self.Atomcount)
 		# iterate through atoms and append xyz lines
 		for j in range(self.Atomcount):
-#			outstring+="%3s\t%24E %24E %24E\n" % (self.PTE[self.AtomTypes[j]],
-#			outgeo[j][0],outgeo[j][1],outgeo[j][2])
 			outstring+="{0:3}\t{1:24E} {2:24E} {3:24E}\n".format(self.PTE[self.AtomTypes[j]],
 			outgeo[j][0],outgeo[j][1],outgeo[j][2])
 		return outstring
