@@ -1538,7 +1538,7 @@ class Geometry:
 		else:
 			outgeo=self.Geometry*Angstrom
 		for i in range(self.Atomcount):
-			print("{0:4i} {1:2i}\t{2:24E} {3:24}E {4:24E}".format(i+1, AtomSymbols[ self.AtomTypes[i] ]+1,
+			print("{0:4d} {1:2d}\t{2:24E} {3:24E} {4:24E}".format(i+1, AtomSymbols[ self.AtomTypes[i] ]+1,
 				outgeo[i][0], outgeo[i][1], outgeo[i][2]),file=outfile)
 		if self.Mode=="S" or cmode=="F":
 			print("{0:24E} {1:24E} {2:24E}".format(tuple(self.Origin*Angstrom)),file=outfile)
@@ -1723,7 +1723,7 @@ class Geometry:
 		# write HETATM records for each atom
 		for i in range(self.Atomcount):
 			# ***** begin very very long formatted string *****
-			pdbLines.append("HETATM{0:5d} {1:3s}  {2:4s} {3:4i}    {4:8.3f}{5:8.3f}{6:8.3f}{7:6.2f}{8:6.2f}      {9:4s}{10:2s}{11:2s}".format(
+			pdbLines.append("HETATM{0:5d} {1:3s}  {2:4s} {3:4d}    {4:8.3f}{5:8.3f}{6:8.3f}{7:6.2f}{8:6.2f}      {9:4s}{10:2s}{11:2s}".format(
 				# atom number, Atom Name
 				i+1,self.PTE[self.AtomTypes[i]].ljust(3),
 				# Layer name (corresponding to HET record created earlier)
@@ -1746,9 +1746,9 @@ class Geometry:
 				line=copy.deepcopy(blist[i])
 				while len(line) > 0:
 					token=line[0:4]
-					outstring="CONECT{0:5i}".format(i+1)
+					outstring="CONECT{0:5d}".format(i+1)
 					for j in token:
-						outstring +="{0:5i}".format(j+1)
+						outstring +="{0:5d}".format(j+1)
 					pdbLines.append(outstring)
 					line=line[4:len(line)]
 		# END of geometry entry
@@ -1766,10 +1766,10 @@ class Geometry:
 		"""
 		outfile=open(filename,'w')
 		atlist,AtomSymbols = self.getatomsymlistdict()
-		print("NumberOfSpecies {0:i}".format(len(atlist)),file=outfile)
+		print("NumberOfSpecies {0:d}".format(len(atlist)),file=outfile)
 		print("%block ChemicalSpeciesLabel",file=outfile)
 		for i in range(len(AtomSymbols)):
-			print("{0:5d}\t{1:3d}\t{2s}".format(i+1,atlist[i],self.PTE[atlist[i]]),file=outfile)
+			print("{0:5d}\t{1:3d}\t{2:s}".format(i+1,atlist[i],self.PTE[atlist[i]]),file=outfile)
 		print("%endblock ChemicalSpeciesLabel\n",file=outfile)
 		print("NumberOfAtoms {0:d}\n\nAtomicCoordinatesFormat Ang".format(self.Atomcount),file=outfile)
 		print("%block AtomicCoordinatesAndAtomicSpecies",file=outfile)

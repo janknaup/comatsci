@@ -80,7 +80,7 @@ class NEBPath(Reactionpath):
 				print("Will use climbing image NEB mode")
 				print("Image No. {0:d} selected as climbing image".format(self.climber))
 		else:
-			raise("Unknown NEB force mode")
+			raise ValueError("Unknown NEB force mode")
 		if itangmode=='w':
 			self.tangfunc=self._calcweightedtangents
 			if self.verbosity>=constants.VBL_NORMAL:
@@ -94,10 +94,10 @@ class NEBPath(Reactionpath):
 			if self.verbosity>=constants.VBL_NORMAL:
 				print("Will use spline tangents")
 		else:
-			raise("Unknown NEB tangents mode")
+			raise ValueError("Unknown NEB tangents mode")
 		self.springk=ispringk
 		if self.verbosity>=constants.VBL_NORMAL:
-			print("Spring constant set to {0:d}".format(self.springk))
+			print("Spring constant set to {0:f}".format(self.springk))
 		if irelmode=="v":
 			self.relaxor=self.veloverlet
 			if self.verbosity>=constants.VBL_NORMAL:
@@ -109,7 +109,7 @@ class NEBPath(Reactionpath):
 			if self.verbosity>=constants.VBL_NORMAL:
 				print("Relaxing path using adaptive displacement steepest descent")
 		else:
-			raise("Unknown NEB relaxation mode")
+			raise ValueError("Unknown NEB relaxation mode")
 		self.dt=istepwidth
 		if self.verbosity>=constants.VBL_NORMAL:
 			print("Initial stepwidth set to {0:6.3f}".format(self.dt))

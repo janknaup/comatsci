@@ -24,7 +24,7 @@ def compressedopen(filename, mode="r", compresslevel=0, autodetect=True):
 	"""
 	# compression level sanity check
 	if compresslevel > 9 or compresslevel <0 :
-		raise "Invalid compression level specified!"
+		raise ValueError("Invalid compression level specified!")
 	#  check if filename already specifies a compressed file. If true, try to open that file only, using the proper compressed file object
 	if filename[-3:].lower()==".gz":
 		# compresslevel 0 is undefined in gzip and bz2, so work around it
@@ -50,7 +50,7 @@ def compressedopen(filename, mode="r", compresslevel=0, autodetect=True):
 				gzexist=os.path.exists(filename+".gz")
 				# bail out if both compressed variants exist
 				if bz2exist and gzexist and not autodetect:
-					raise "Cannot decide wether to open {0:s} or {1:s}.".format(filename+".bz2",filename+".gz")
+					raise ValueError("Cannot decide wether to open {0:s} or {1:s}.".format(filename+".bz2",filename+".gz"))
 				# if one of the compressed variants exists, open that:
 				elif bz2exist and autodetect:
 					if compresslevel>0:
@@ -67,7 +67,7 @@ def compressedopen(filename, mode="r", compresslevel=0, autodetect=True):
 						return gzip.open(filename,mode,compresslevel)
 				# if all else fails, raise a file not found exception
 				else:
-					raise "No file candiate to open for read was found."
+					raise ValueError("No file candiate to open for read was found for file '{0:s}'".format(filename))
 		# If a file is to be opened for write, just create a normal or compressed file, based on compresslevel
 		else:
 			if compresslevel==0:
