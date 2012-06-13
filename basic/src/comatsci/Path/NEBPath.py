@@ -9,7 +9,7 @@
 # Licensed under the Non-Profit Open Software License version 3.0
 # see file LICENSE for details.
 ##############################################################################
-
+from __future__ import print_function
 import numpy
 
 import os, sys, copy
@@ -59,7 +59,7 @@ class NEBPath(Reactionpath):
 		#base class constructor
 		Reactionpath.__init__(self,icheckpointdir,ifixedatoms,icmode,ifmax,ifrms,imaxit,charge,verbosity)
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Initializing NEB Path."
+			print("Initializing NEB Path.")
 		self.nebforces=[]
 		self.tangents=[]
 		self.velocities=[]
@@ -67,7 +67,7 @@ class NEBPath(Reactionpath):
 		if iforcemode=='s':
 			self.forcefunc=self.stdnebforces
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Will use standard NEB mode"
+				print("Will use standard NEB mode")
 			self.convcheckfunc=self._sconvcheck
 		elif iforcemode=='c':
 			if iclimber==-1:
@@ -77,42 +77,42 @@ class NEBPath(Reactionpath):
 			self.forcefunc=self.cinebforces
 			self.convcheckfunc=self._ciconvcheck
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Will use climbing image NEB mode"
-				print "Image No. %d selected as climbing image" % (self.climber)
+				print("Will use climbing image NEB mode")
+				print("Image No. {0:d} selected as climbing image".format(self.climber))
 		else:
 			raise("Unknown NEB force mode")
 		if itangmode=='w':
 			self.tangfunc=self._calcweightedtangents
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Will use weighted tangents"
+				print("Will use weighted tangents")
 		elif itangmode=='s':
 			self.tangfunc=self._calctangents
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Will use simple tangents"
+				print("Will use simple tangents")
 		elif itangmode=='p':
 			self.tangfunc=self._calcSplineTangents
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Will use spline tangents"
+				print("Will use spline tangents")
 		else:
 			raise("Unknown NEB tangents mode")
 		self.springk=ispringk
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Spring constant set to %d" % (self.springk)
+			print("Spring constant set to {0:d}".format(self.springk))
 		if irelmode=="v":
 			self.relaxor=self.veloverlet
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Relaxing path using projected velocity verlet"
+				print("Relaxing path using projected velocity verlet")
 			self.minstepsize=0.0001
 		elif irelmode=="s":
 			self.relaxor=self.adsd
 			self.minstepsize=0.00001
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Relaxing path using adaptive displacement steepest descent"
+				print("Relaxing path using adaptive displacement steepest descent")
 		else:
 			raise("Unknown NEB relaxation mode")
 		self.dt=istepwidth
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Initial stepwidth set to %6.3f" % (self.dt)
+			print("Initial stepwidth set to {0:6.3f}".format(self.dt))
 		self.dtadapted = 0 # in case of overshoot, no further stepsize adaption should take place
 		self.__ovr_history_available=False
 		self.__forces_history_available=False
@@ -288,7 +288,7 @@ class NEBPath(Reactionpath):
 			else:
 				self.velocities[i]=numpy.zeros((3*self.Atomcount),dtype=float)
 				if self.verbosity>=constants.VBL_QUIET:
-					print "Warning: Verlet velocity vector for image %d opposed to force." % (i)
+					print("Warning: Verlet velocity vector for image {0:d} opposed to force.".format(i))
 			accel=0.5*forces[i]
 			for j in range(self.Atomcount):
 				accel[j]/=self.amasses[j]
@@ -299,7 +299,7 @@ class NEBPath(Reactionpath):
 				d=numpy.sqrt(numpy.dot(displace[j],displace[j]))
 				if d > 0.4:
 					if self.verbosity>=constants.VBL_QUIET:
-						print "Warning: Displacement > 0.4 Ang detected in image %d." % (i)
+						print("Warning: Displacement > 0.4 Ang detected in image {0:d}.".format(i))
 			coords+=displace
 			self.geos[i].setcoordinates(coords)
 		# kill possibly stored spline representation
@@ -376,17 +376,17 @@ class NEBPath(Reactionpath):
 			fdircheck=1.
 		if fdircheck<0:
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Force reversal detected, reducing stepsize"
+				print("Force reversal detected, reducing stepsize")
 			self.dt/=stepsizechange #golden section
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "New stepsize is %12.6f" %(self.dt)
+				print("New stepsize is {0:12.6f}".format(self.dt))
 			self.dtadapted=1
 		elif fdircheck > 0.8 and fdircheck < 1.:
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "Low force direction change, increasing stepsize"
+				print("Low force direction change, increasing stepsize")
 			self.dt *=stepsizechange #goldener schnitt
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "New stepsize is %12.6f" %(self.dt)
+				print("New stepsize is {0:12.6f}".format(self.dt))
 			# paranoia setting: still adapt stepsize in case of overshoot
 			self.dtadapted=0
 		self.oldforces=forces
@@ -429,19 +429,19 @@ class NEBPath(Reactionpath):
 		global DebugInfoEnergiesFile
 		if self._writePathDebugInfoEnergiesFile==None:
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "writing path debug information to disk"
+				print("writing path debug information to disk")
 			DebugInfoEnergiesFile=open("pathDebug.nrg","w")
 			self._writePathDebugInfoEnergiesFile=True
-			print >> DebugInfoEnergiesFile, "#idx     E(max)        Freal(rms)    Freal(max)    Fneb(rms)     Fneb(max)"
-		pathFileNamePrefix="debugpath.%04d" % index
+			print("#idx     E(max)        Freal(rms)    Freal(max)    Fneb(rms)     Fneb(max)",file=DebugInfoEnergiesFile)
+		pathFileNamePrefix="debugpath.{0:04d}".format(index)
 		self.writexyzpath(pathFileNamePrefix+".xyz")
 		self.writefmgpath(pathFileNamePrefix+".fmg")
 		if len(self.nebforces)==0:
-			print >> DebugInfoEnergiesFile, "%4d  %24E  %24E  %24E  %24E  %24E" % (
-				index, max(self.energies), self.rmsforce(force=self.realforces), self.maxforce(force=self.realforces), 0, 0)
+			print("{0:4d}  {1:24E}  {2:24E}  {3:24E}  {4:24E}  {5:24E}".format(
+				index, max(self.energies), self.rmsforce(force=self.realforces), self.maxforce(force=self.realforces), 0, 0),file=DebugInfoEnergiesFile)
 		else:
-			print >> DebugInfoEnergiesFile, "%4d  %24E  %24E  %24E  %24E  %24E" % (
-				index, max(self.energies), self.rmsforce(force=self.realforces), self.maxforce(force=self.realforces), self.rmsforce(force=self.nebforces), self.maxforce(force=self.nebforces))
+			print("{0:4d}  {1:24E}  {2:24E}  {3:24E}  {4:24E}  {5:24E}".format(
+				index, max(self.energies), self.rmsforce(force=self.realforces), self.maxforce(force=self.realforces), self.rmsforce(force=self.nebforces), self.maxforce(force=self.nebforces)))
 
 
 
@@ -456,26 +456,26 @@ class NEBPath(Reactionpath):
 		maxNormal=self.maxforce(force=self._fixatoms(self.realnormalforces()), images=self.mobrng)
 		rmsNormal=self.rmsforce(force=self._fixatoms(self.realnormalforces()), images=self.mobrng)
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Path RMS NEB force:    %12.6f a.u.\nPath max NEB force:    %12.6f a.u." % (rms,maxF)
-			print "Path RMS normal force: %12.6f a.u.\nPath max normal force: %12.6f a.u." % (rmsNormal,maxNormal)
-			print "Path max Engergy:      %12.6f H" % (maxE)
+			print("Path RMS NEB force:    {0:12.6f} a.u.\nPath max NEB force:    {1:12.6f} a.u.".format(rms,maxF))
+			print("Path RMS normal force: {0:12.6f} a.u.\nPath max normal force: {1:12.6f} a.u.".format(rmsNormal,maxNormal))
+			print("Path max Engergy:      {0:12.6f} H".format(maxE))
 		if self.energies[0] > self.energies[self.numimages()-1]:
 			barrier=abs(maxE-self.energies[0])
 		else:
 			barrier=abs(maxE-self.energies[self.numimages()-1])
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Barrier:               %12.6f H" %barrier
+			print("Barrier:               {0:12.6f} H".format(barrier))
 		if rms<self.rmstol:
 			if self.verbosity>=constants.VBL_QUIET:
-				print "path RMS force converged"
+				print("path RMS force converged")
 			converged=1
 		elif  maxF<self.forcetol:
 			if self.verbosity>=constants.VBL_QUIET:
-				print "path maximum atomic force converged"
+				print("path maximum atomic force converged")
 			converged=1
 		elif self.dt < self.minstepsize:
 			if self.verbosity>=constants.VBL_QUIET:
-				print "stepsize below %6e -> displacement converged" % (self.minstepsize)
+				print("stepsize below {0:6e} -> displacement converged".format(self.minstepsize))
 			converged=1
 		return converged
 
@@ -495,28 +495,28 @@ class NEBPath(Reactionpath):
 		Crms=self.rmsforce(force=self._fixatoms(self.cinebforces()), images=[self.climber])
 		CmaxF=self.maxforce(force=self._fixatoms(self.cinebforces()), images=[self.climber])
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Path RMS NEB force:     %12.6f a.u.\nPath max NEB force:     %12.6f a.u." % (rms,maxF)
-			print "CI RMS NEB force:       %12.6f a.u.\nCI max NEB force:       %12.6f a.u." % (Crms,CmaxF)
-			print "Path RMS normal force:  %12.6f a.u.\nPath max normal force:  %12.6f a.u." % (rmsNormal,maxNormal)
-			print "CI RMS normal force:    %12.6f a.u.\nCI max normal force:    %12.6f a.u." % (CrmsNormal,CmaxNormal)
-			print "Climbing Image Engergy: %12.6f H" % (self.energies[self.climber])
+			print("Path RMS NEB force:     {0:12.6f} a.u.\nPath max NEB force:     {1:12.6f} a.u.".format(rms,maxF))
+			print("CI RMS NEB force:       {0:12.6f} a.u.\nCI max NEB force:       {1:12.6f} a.u.".format(Crms,CmaxF))
+			print("Path RMS normal force:  {0:12.6f} a.u.\nPath max normal force:  {1:12.6f} a.u.".format(rmsNormal,maxNormal))
+			print("CI RMS normal force:    {0:12.6f} a.u.\nCI max normal force:    {1:12.6f} a.u.".format(CrmsNormal,CmaxNormal))
+			print("Climbing Image Engergy: {0:12.6f} H".format(self.energies[self.climber]))
 		if self.energies[0] > self.energies[self.numimages()-1]:
 			barrier=abs(self.energies[self.climber]-self.energies[0])
 		else:
 			barrier=abs(self.energies[self.climber]-self.energies[self.numimages()-1])
 		if self.verbosity>=constants.VBL_NORMAL:	
-			print "Barrier:                %12.6f H" %barrier
+			print("Barrier:                {0:12.6f} H".format(barrier))
 		if Crms<self.rmstol:
 			if self.verbosity>=constants.VBL_QUIET:
-				print "Climbing image RMS force converged"
+				print("Climbing image RMS force converged")
 			converged=1
 		elif  CmaxF<self.forcetol:
 			if self.verbosity>=constants.VBL_QUIET:
-				print "Climbing image maximum atomic force converged"
+				print("Climbing image maximum atomic force converged")
 			converged=1
 		elif self.dt < self.minstepsize:
 			if self.verbosity>=constants.VBL_QUIET:
-				print "stepsize below %8e -> displacement converged" % (self.minstepsize)
+				print("stepsize below {0:8e} -> displacement converged".format(self.minstepsize))
 			converged=1
 		return converged
 
@@ -538,7 +538,7 @@ class NEBPath(Reactionpath):
 			#######################################################
 			if self.maxforce(force=forces) > 2*oldmaxf or self.rmsforce(force=forces) > 2*oldrmsf:
 				if self.verbosity>=constants.VBL_NORMAL:
-					print "Strong force increase (probably overshoot), reverting geometries and forces"
+					print("Strong force increase (probably overshoot), reverting geometries and forces")
 					#clear histoy
 				self.geos=self.ovr_oldgeos
 				self.forces=self.ovr_oldforces
@@ -556,8 +556,8 @@ class NEBPath(Reactionpath):
 					self.dt /= 1.618033988 #goldener schnitt
 					self.dtadapted=1
 					if self.verbosity>=constants.VBL_NORMAL:
-						print "Reducing stepsize due to probable overshoot"
-						print "New stepsize = %8e" % (self.dt)
+						print("Reducing stepsize due to probable overshoot")
+						print("New stepsize = {0:8e}".format(self.dt))
 		#store history information
 		if self.__ovr_intermediate_available:
 			self.ovr_oldgeos = self.ovr_intermedgeos
@@ -665,14 +665,14 @@ class NEBPath(Reactionpath):
 			# calculate new coordinates:
 			geoshape=numpy.shape(self.geos[segment].Geometry)
 			newcoordinates=self.geos[segment].Geometry.ravel()
-			print x
+			print("{0}".format(x))
 			newcoordinates+=x*cubicparms[segment][2]
 			newcoordinates+=x*x*cubicparms[segment][1]
 			newcoordinates+=x*x*x*cubicparms[segment][0]
 			newcoordinates=numpy.reshape(newcoordinates,geoshape)
 			# store new coordinates and append to new geometres array
 			newgeoarray.append(Geometry.Geometry(self.geos[segment].Mode, self.geos[segment].Atomcount, self.geos[segment].AtomTypes, self.geos[segment].Origin, self.geos[segment].Lattice, newcoordinates, self.geos[segment].AtomLayers, self.geos[segment].LayerDict, self.geos[segment].AtomCharges, self.geos[segment].AtomSubTypes, self.geos[segment].LPops))
-			newgeoarray[-1].writexyz("dbg-%05d.xyz"%(i))
+			newgeoarray[-1].writexyz("dbg-{0:05d}.xyz".format(i))
 		# append end geometry
 		newgeoarray.append(self.geos[-1])
 		returnpath.geos=newgeoarray
@@ -703,12 +703,12 @@ class NEBPath(Reactionpath):
 				y+= cubicparms[i][1]*x*x
 				y+= cubicparms[i][2]*x
 				y+= cubicparms[i][3]
-				print >> CEfile,"%24E %24E" % ((x+xoffset)/totallength,y)
+				print("{0:24E} {1:24E}".format((x+xoffset)/totallength,y),file=CEfile)
 			xoffset+=cubicparms[i][4]
-		print >> CEfile,"\n"
+		print("\n",file=CEfile)
 		x=0
 		for i in range(self.numimages()):
-			print >> CEfile,"%24E %24E" %(x/totallength,self.energies[i])
+			print("{0:24E} {1:24E}".format(x/totallength,self.energies[i]),file=CEfile)
 			if i < self.numimages()-1:
 				x+=cubicparms[i][4]
 		CEfile.close()
@@ -721,7 +721,7 @@ class NEBPath(Reactionpath):
 		"""
 		stopsignal=None
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Initializing NEB path search."
+			print("Initializing NEB path search.")
 		#open energy trajectory output file
 		energyfile=open("energies.dat","a")
 		#initialize relaxation
@@ -731,8 +731,8 @@ class NEBPath(Reactionpath):
 		self.mobrng = range(1,self.numimages()-1)
 		#Initial calculations
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "%d Images in path, %d mobile images" % (self.numimages(),len(self.mobrng))
-			print "Initial Energies and forces calculation"
+			print("{0:d} Images in path, {1:d} mobile images" .format(self.numimages(),len(self.mobrng)))
+			print("Initial Energies and forces calculation")
 		self.realforcesfunc(calculator,charge=self.charge)
 		rms=self.rmsforce(force=self.realforces)
 		maxE=max(self.energies)
@@ -741,69 +741,69 @@ class NEBPath(Reactionpath):
 		maxNormal=self.maxforce(force=self.realnormalforces())
 		rmsNormal=self.rmsforce(force=self.realnormalforces())
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Initial path RMS real force  : %12.6f\nInitial path max real force  : %12.6f\nInitial path max Engergy: %16.6f" % (rms,maxF,maxE)
-			print "Initial path RMS normal force: %12.6f\nInitial path max normal force: %12.6f\n" % (rmsNormal,maxNormal)
+			print("Initial path RMS real force  : {0:12.6f}\nInitial path max real force  : {1:12.6f}\nInitial path max Engergy: {2:16.6f}".format(rms,maxF,maxE))
+			print("Initial path RMS normal force: {0:12.6f}\nInitial path max normal force: {1:12.6f}\n".format(rmsNormal,maxNormal))
 		if self.energies[0] > self.energies[self.numimages()-1]:
 			barrier=abs(maxE-self.energies[0])
 		else:
 			barrier=abs(maxE-self.energies[self.numimages()-1])
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Initial barrier:%12.6f H" %barrier
+			print("Initial barrier:{0:12.6f} H".format(barrier))
 		for i in range(self.numimages()):
-			print >> energyfile,"%5d  %24E" % (i,self.energies[i])
-		print >> energyfile,"\n"
+			print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=energyfile)
+		print("\n",file=energyfile)
 		energyfile.flush()
 		#Do some sanity checking on start- and endpoints and warn the user if necessary
 		srms=self.rmsforce([0],self._fixatoms(self.realforces))
 		if srms>self.rmstol:
 			if self.verbosity>=constants.VBL_QUIET:
-				print " *** WARNING: start image rms force%12.6f a.u. larger than tolerace ***" % (srms)
+				print(" *** WARNING: start image rms force {0:12.6f} a.u. larger than tolerace ***".format(srms))
 		smaxF=self.maxforce([0],self._fixatoms(self.realforces))
 		if smaxF>self.rmstol:
 			if self.verbosity>=constants.VBL_QUIET:
-				print " *** WARNING: start image max force%12.6f a.u. larger than tolerace ***"% (smaxF)
+				print(" *** WARNING: start image max force {0:12.6f} a.u. larger than tolerace ***".format(smaxF))
 		erms=self.rmsforce([self.numimages()-1],self.realforces)
 		if erms>self.rmstol:
 			if self.verbosity>=constants.VBL_QUIET:
-				print " *** WARNING:   end image rms force%12.6f a.u. larger than tolerace ***"% (erms)
+				print(" *** WARNING:   end image rms force {0:12.6f} a.u. larger than tolerace ***".format(erms))
 		emaxF=self.maxforce([self.numimages()-1],self.realforces)
 		if emaxF>self.rmstol:
 			if self.verbosity>=constants.VBL_QUIET:
-				print " *** WARNING:   end image max force%12.6f a.u. larger than tolerace ***"% (emaxF)
+				print(" *** WARNING:   end image max force {0:12.6f} a.u. larger than tolerace ***".format(emaxF))
 		# Now start cycling
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Writing inital checkpoint"
+			print("Writing inital checkpoint")
 		self.writecheckpoint(self.checkpointdir)
 ##		self.writefmgpath()
 		if self.verbosity>=constants.VBL_NORMAL:
-			print "Starting NEB iterations"
+			print("Starting NEB iterations")
 		for j in range(self.maxit): #@UnusedVariable
 			if self.verbosity>=constants.VBL_NORMAL:
-				print "NEB Relaxation step: %5d" % (self.nstep)
+				print("NEB Relaxation step: {0:5d}".format(self.nstep))
 			# write debug output, if requested
 			if self.writePathDebugInfo:
 				self.__writePathDebugInfo(self.nstep)
 			self.nebstep()
 			self.realforcesfunc(calculator,charge=self.charge)
 			for i in range(self.numimages()):
-				print >> energyfile,"%5d  %24E" % (i,self.energies[i])
-			print >> energyfile,"\n"
+				print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=energyfile)
+			print("\n",file=energyfile)
 			energyfile.flush()
 			if self.convcheckfunc()!=0:
 				if self.verbosity>=constants.VBL_QUIET:
-					print "Stopping due to convergence."
+					print("Stopping due to convergence.")
 				break
 			elif os.path.isfile("STOP_comatsci"):
 				if self.verbosity>=constants.VBL_QUIET:
-					print "Stopping due to stopfile."
+					print("Stopping due to stopfile.")
 				break
 			elif self.stopsignal!=None:
 				if self.verbosity>=constants.VBL_QUIET:
-					print "Stopping due to Signal: %s." % (stopsignal)
+					print("Stopping due to Signal: {0}.".format(stopsignal))
 				break
 			elif self.nstep>=(self.maxit):
 				if self.verbosity>=constants.VBL_QUIET:
-					print "Maximum number of iterations reached. Stopping."
+					print("Maximum number of iterations reached. Stopping.")
 				break
 			sys.stdout.flush()
 
@@ -815,7 +815,7 @@ class NEBPath(Reactionpath):
 		self.writexyzpath("path.xyz")
 
 		if self.verbosity>=constants.VBL_QUIET:
-			print "finished."
+			print("finished.")
 
 
 

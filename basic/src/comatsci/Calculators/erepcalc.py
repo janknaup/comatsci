@@ -8,6 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED,CALCSTATUS_ERROR,CALCSTATUS_DISABLED #@UnusedImport
 
 from comatsci.Calculators.CalcError import CalcError
@@ -43,7 +44,7 @@ class erepcalc(Calculator):
 			self._setEreps(Erep)
 		Calculator.__init__(self,verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "initializing E_rep calculator"
+			print("initializing E_rep calculator")
 		self._status=CALCSTATUS_READY
 
 

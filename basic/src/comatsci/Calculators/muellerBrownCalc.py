@@ -8,6 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
 #from comatsci.Calculators.CalcError import CalcError
@@ -30,7 +31,7 @@ class muellerBrownCalc(Calculator):
 """
 		Calculator.__init__(self,verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "initializing Mueller-Brown calculator"
+			print("initializing Mueller-Brown calculator")
 		self._status=CALCSTATUS_READY
 
 
