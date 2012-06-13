@@ -89,7 +89,7 @@ class siestacalc(Calculator):
 		else:
 			print("DM.useSavedDM .false.",file=sinput)
 		print("MD.TypeOfRun CG\nMD.NumCGSteps 0",file=sinput)
-		print("NetCharge {0:d}".float(float(charge)),file=sinput)
+		print("NetCharge {0:f}".format(float(charge)),file=sinput)
 		print("%include {0:s}\n%include geometry.fdf".format(self.paraminclude),file=sinput)
 		sinput.close()
 
