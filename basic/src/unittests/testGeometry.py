@@ -3,7 +3,7 @@ Created on Mar 13, 2012
 
 @author: Jan M. Knaup <janknaup@gmail.com>
 '''
-import unittest,numpy
+import unittest,numpy,os
 from comatsci import Geometry
 
 class geometryTest(unittest.TestCase):
@@ -49,6 +49,13 @@ class geometryTest(unittest.TestCase):
         self.assertTrue(numpy.allclose(georef, g.Geometry), "geometry coordinates differ")
         self.assertEqual([6,6,1,1,1,1], g.AtomTypes, "geometry types differ")
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
+        g.writexyz("test.xyz")
+        g2=Geometry.Geometry()
+        g2.readfile("test.xyz")
+        os.unlink("test.xyz")
+        self.assertTrue(numpy.allclose(g.Geometry, g2.Geometry), "written geometry coordinates differ")
+        self.assertEqual([6,6,1,1,1,1], g2.AtomTypes, "written geometry types differ")
+        self.assertEqual(["C","C","H","H","H","H"], g2.AtomSubTypes, "written geometry subtypes differ")
 
     
     
@@ -65,6 +72,13 @@ class geometryTest(unittest.TestCase):
         self.assertTrue(numpy.allclose(georef, g.Geometry), "geometry coordinates differ")
         self.assertEqual([6,6,1,1,1,1], g.AtomTypes, "geometry types differ")
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
+        g.writegen("test.gen")
+        g2=Geometry.Geometry()
+        g2.readfile("test.gen")
+        os.unlink("test.gen")
+        self.assertTrue(numpy.allclose(g.Geometry, g2.Geometry), "written geometry coordinates differ")
+        self.assertEqual([6,6,1,1,1,1], g2.AtomTypes, "written geometry types differ")
+        self.assertEqual(["C","C","H","H","H","H"], g2.AtomSubTypes, "written geometry subtypes differ")
         
     
     def testCDHio(self):
@@ -80,6 +94,13 @@ class geometryTest(unittest.TestCase):
         self.assertTrue(numpy.allclose(georef, g.Geometry), "geometry coordinates differ")
         self.assertEqual([6,6,1,1,1,1], g.AtomTypes, "geometry types differ")
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
+        g.writeCDH("test.cdh")
+        g2=Geometry.Geometry()
+        g2.readCDHFile("test.cdh")
+        os.unlink("test.cdh")
+        self.assertTrue(numpy.allclose(g.Geometry, g2.Geometry), "written geometry coordinates differ")
+        self.assertEqual([6,6,1,1,1,1], g2.AtomTypes, "written geometry types differ")
+        self.assertEqual(["C","C","H","H","H","H"], g2.AtomSubTypes, "written geometry subtypes differ")
         
     
     def testFMGio(self):
@@ -95,6 +116,13 @@ class geometryTest(unittest.TestCase):
         self.assertTrue(numpy.allclose(georef, g.Geometry), "geometry coordinates differ")
         self.assertEqual([6,6,1,1,1,1], g.AtomTypes, "geometry types differ")
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
+        g.writefmg("test.fmg")
+        g2=Geometry.Geometry()
+        g2.readfile("test.fmg")
+        os.unlink("test.fmg")
+        self.assertTrue(numpy.allclose(g.Geometry, g2.Geometry), "written geometry coordinates differ")
+        self.assertEqual([6,6,1,1,1,1], g2.AtomTypes, "written geometry types differ")
+        self.assertEqual(["C","C","H","H","H","H"], g2.AtomSubTypes, "written geometry subtypes differ")
 
 
 def suite():
