@@ -16,7 +16,7 @@ Created on May 31, 2012
 '''
 
 import comatsci
-import os,re,shutil
+import os,re,shutil,math
 
 import copy
 import ConfigParser
@@ -35,12 +35,12 @@ def completeSupercell(unclecell, additionalcell, config):
     @return: complete expanded supercell  
     """
     uncleA=config.getfloat("uncle", "uncle_a")
-    uncleB=config.getfloat("uncle", "uncle_a")
-    uncleC=config.getfloat("uncle", "uncle_a")
+    uncleB=config.getfloat("uncle", "uncle_b")
+    uncleC=config.getfloat("uncle", "uncle_c")
     # calculate supercell size in unit cells
-    aSize=int(unclecell.Lattice[0][0]/uncleA)
-    bSize=int(unclecell.Lattice[1][1]/uncleB)
-    cSize=int(unclecell.Lattice[2][2]/uncleC)
+    aSize=int(math.ceil(unclecell.Lattice[0][0]/uncleA))
+    bSize=int(math.ceil(unclecell.Lattice[1][1]/uncleB))
+    cSize=int(math.ceil(unclecell.Lattice[2][2]/uncleC))
     print "sizes: A ",aSize,"  B ",bSize,"  C ",cSize
     addgeo=copy.deepcopy(additionalcell)
     addgeo.periodicexpand((aSize,bSize,cSize))
