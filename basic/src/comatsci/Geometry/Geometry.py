@@ -651,7 +651,7 @@ class Geometry:
 			except IndexError:
 				typelabel=self.PTE[self.AtomTypes[i]]
 			# assemble atom line
-			rlines.append("atom   {0:24E}   {1:24E}   {2:24E}   {3:s}".format(tuple(coordinates),typelabel))
+			rlines.append("atom   {0[0]:24E}   {0[1]:24E}   {0[2]:24E}   {1:s}".format(coordinates,typelabel))
 		# write lattice vectors if supercell geometry
 		if self.Mode=="S":
 			for i in range(3):
@@ -1493,9 +1493,9 @@ class Geometry:
 			y=ET.SubElement(currentatom,"y")
 			y.text="{0:24E}".format(self.Geometry[i][1]*constants.ANGSTROM,)
 			z=ET.SubElement(currentatom,"z")
-			z.text="0:24E".format(self.Geometry[i][2]*constants.ANGSTROM,)
+			z.text="{0:24E}".format(self.Geometry[i][2]*constants.ANGSTROM,)
 			atomradius=ET.SubElement(currentatom,"atomradius")
-			atomradius.text="{0:24E{".format(self.CORAD[self.AtomTypes[i]]*constants.ANGSTROM,)
+			atomradius.text="{0:24E}".format(self.CORAD[self.AtomTypes[i]]*constants.ANGSTROM,)
 			charge=ET.SubElement(currentatom,"charge")
 			charge.text="{0:24E}".format(self.AtomCharges[i],)
 		# now build element tree and write XML to file
@@ -1541,9 +1541,9 @@ class Geometry:
 			print("{0:4d} {1:2d}\t{2:24E} {3:24E} {4:24E}".format(i+1, AtomSymbols[ self.AtomTypes[i] ]+1,
 				outgeo[i][0], outgeo[i][1], outgeo[i][2]),file=outfile)
 		if self.Mode=="S" or cmode=="F":
-			print("{0:24E} {1:24E} {2:24E}".format(tuple(self.Origin*Angstrom)),file=outfile)
+			print("{0[0]:24E} {0[1]:24E} {0[2]:24E}".format(self.Origin*Angstrom),file=outfile)
 			for i in range(3):
-				print("{0:24E} {1:24E} {2:24E} ".format(tuple(self.Lattice[i]*Angstrom)),file=outfile)
+				print("{0[0]:24E} {0[1]:24E} {0[2]:24E} ".format(self.Lattice[i]*Angstrom),file=outfile)
 		outfile.close()
 
 
