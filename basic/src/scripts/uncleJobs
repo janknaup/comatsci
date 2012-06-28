@@ -15,13 +15,46 @@ Created on May 31, 2012
 @author: Jan M. Knaup
 '''
 
+from __future__ import print_function
 import comatsci
-import os,re,shutil,math
+import os,re,shutil,math,numpy
 
 import copy
 import ConfigParser
 from optparse import OptionParser
-         
+
+
+
+def getCircumscribingCell(cell,unitcell=None):
+    """
+    get the size of the supercell of unitcells circumscribing the given arbitrary cell
+    @type cell: 3x3 array like
+    @param cell: the arbitrary periodic cell to be circumscribed
+    @type unitcell: 3x3 array like or none
+    @param unitcell: the unit cell to construct the circumscribing cell from
+    @return: tuple of circumscribing cell size in unitcells and origin position in unitcell vector lengths
+    """
+    # calculate inverse of lattice vectors
+    if unitcell==None:
+        inverseUnitcell=numpy.array(((1.,0.,0.),(0.,1.,0.),(0.,0.,1.)))
+    else:
+        inverseUnitcell=numpy.linalg.inv(unitcell)
+    # express the arbitrary cell in unit cell vectors
+    reducedCell=numpy.round(numpy.dot(cell,inverseUnitcell),0)
+    print(reducedCell)
+    # shorthand variables
+    a=reducedCell[0]
+    b=reducedCell[1]
+    c=reducedCell[2]
+    # calculate reduced cell vertices
+    reducedVertices=numpy.array(((0,0,0),a,b,c,a+b,a+c,b+c,a+b+c),dtype=int)
+    # get x,y,z extrema
+    minimax=numpy.array((numpy.min(reducedVertices, 0),numpy.max(reducedVertices, 0)),dtype=int)
+    # return origin and circumscribing cell size
+    print(minimax)
+    return (minimax[0],minimax[1]-minimax[0])
+    
+    
 
 def completeSupercell(unclecell, additionalcell, config):
     """
@@ -34,20 +67,29 @@ def completeSupercell(unclecell, additionalcell, config):
     @param config: config instance containing mapping parameters
     @return: complete expanded supercell  
     """
-    uncleA=config.getfloat("uncle", "uncle_a")
-    uncleB=config.getfloat("uncle", "uncle_b")
-    uncleC=config.getfloat("uncle", "uncle_c")
-    # calculate supercell size in unit cells
-    aSize=int(math.ceil(unclecell.Lattice[0][0]/uncleA))
-    bSize=int(math.ceil(unclecell.Lattice[1][1]/uncleB))
-    cSize=int(math.ceil(unclecell.Lattice[2][2]/uncleC))
-    print "sizes: A ",aSize,"  B ",bSize,"  C ",cSize
+    # make a copy of the reference cell
     addgeo=copy.deepcopy(additionalcell)
-    addgeo.periodicexpand((aSize,bSize,cSize))
+    # scale the uncle cell into carthesian coordinates
     unclecell.Geometry*=config.getfloat("uncle","real_lattice")
     unclecell.Lattice*=config.getfloat("uncle","real_lattice")
+    unclecell.foldToCell()
+    addgeo.foldToCell()
+    print(addgeo.Lattice)
+    print(unclecell.Lattice)
+    # get the size and origin of the supercell of reference geometries circumscribing the uncle cell
+    (origin,size)=getCircumscribingCell(unclecell.Lattice,addgeo.Lattice)
+    print("sizes: A {0[0]:d} B {0[1]:d} C {0[2]:d}".format(size))
+    # build the circumscribing additional geometry and shift it into place
+    addgeo.periodicexpand(size)
+    for ii in (0,1,2):
+        addgeo.Geometry+=additionalcell.Lattice[ii]*origin[ii]
+    # replace the additional geometrie's lattice and assemble the full Geometry
+    addgeo.Lattice=numpy.array(unclecell.Lattice)
     addgeo.appendgeometryflat(unclecell.elementsubgeometry(config.getint("uncle", "element")))
-    return addgeo
+    # prune the additional atoms outside the uncle cell and return
+    retgeo=addgeo.outOfCellPruned()
+#    retgeo.foldToCell()
+    return retgeo
    
 
 if __name__ == '__main__':
@@ -57,22 +99,22 @@ if __name__ == '__main__':
     parser=OptionParser(usage)
     (options,args) = parser.parse_args()
     
-    print "READING CONFIG FILE"
+    print("READING CONFIG FILE")
     config = ConfigParser.ConfigParser()
     config.read(['uncleJobs.cfg', os.path.expanduser('~/.uncleJobs.cfg')])
     
     # read the UNCLE output file
-    print "READING UNCLE ENERGY CALCULATION REQUESTS FROM COORD.out"
+    print("READING UNCLE ENERGY CALCULATION REQUESTS FROM COORD.out")
     uncleFile=comatsci.utils.compressedopen("COORD.out", "r")
     uncleLines=list(uncleFile)
     uncleFile.close()
     
-    print "READING UNIT CELL OF IGNORED ATOMS FROM {0:s}".format(args[0])
+    print("READING UNIT CELL OF IGNORED ATOMS FROM {0:s}".format(args[0]))
     # read the unit cell of ignored atoms
     ignoredUnitCell=comatsci.Geometry.Geometry()
     ignoredUnitCell.readfile(args[0])
     
-    print "GENERATING DFTB INPUT FILES:"
+    print("GENERATING DFTB INPUT FILES:")
     # locate Geometry specifications in uncle file
     for i in range(len(uncleLines)):
         line=uncleLines[i]
@@ -85,7 +127,7 @@ if __name__ == '__main__':
             tempGeo.parseGenString("".join(uncleLines[i+1:endline]))
             fullGeo=completeSupercell(tempGeo,ignoredUnitCell,config)
             dirname="{0:04d}".format(predictionIndex)
-            print "PREDICTION #{0:d} IN DIRECTORY {1:s}".format(predictionIndex,dirname)
+            print("PREDICTION #{0:d} IN DIRECTORY {1:s}".format(predictionIndex,dirname))
             if os.path.exists(dirname):
                 raise ValueError("prediction directory already exists")
             else:
@@ -94,4 +136,5 @@ if __name__ == '__main__':
                 shutil.copy(os.path.realpath(config.get("dftb", "inputfile")), dirname)
                 
             
-    print "FINISHED."
+    print("FINISHED.")
+    

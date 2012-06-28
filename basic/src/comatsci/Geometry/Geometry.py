@@ -2370,3 +2370,24 @@ class Geometry:
 		for atom in atomlist:
 			self.Geometry[atom]=numpy.dot(self.Geometry[atom],rotmatrix)
 		# done
+		
+	
+	def outOfCellPruned(self):
+		"""
+		return a copy of self with atoms outside the 0th unit cell removed
+		@return: Geometry derived from self with any atom outide 0th lattice cell removed
+		"""
+		pruned=copy.deepcopy(self)
+		fractional=pruned.fractionalGeometry
+		# construct list of atoms thet need to be removed.
+		# list must be in descending order to avoid index shifting problems
+		pruneList=[]
+		for i in range(pruned.Atomcount-1,-1,-1):
+			if (fractional[i][0]>=0.95 or fractional[i][1]>=0.95 or fractional[i][2]>=0.95 or
+			 fractional[i][0]<0 or fractional[i][1]<0 or fractional[i][2]<0):
+				pruneList.append(i)
+		# now remove atoms
+		for i in pruneList:
+			pruned.delatom(i)
+		# finished pruning, return
+		return pruned
