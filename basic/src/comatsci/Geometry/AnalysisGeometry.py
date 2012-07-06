@@ -11,8 +11,11 @@
 ##############################################################################
 
 from __future__ import print_function
+
 from Geometry import Geometry
 from comatsci import constants #,  utils
+
+import geoext as gx #@UnresolvedImport
 
 import numpy
 from numpy import linalg
@@ -1100,14 +1103,15 @@ class AnalysisGeometry(Geometry):
 		@param reference: reference Geometry 
 		"""
 		# calculate matrix of all self<->reference atom distances
-		bothGeo=copy.deepcopy(self)
-		bothGeo.foldToCell()
-		bothGeo.appendgeometryflat(reference)
-		dmat=bothGeo.distancematrix()
-		interdistances=numpy.ma.masked_invalid(dmat[0:self.Atomcount][:,self.Atomcount:])
+		#bothGeo=copy.deepcopy(self)
+		#bothGeo.foldToCell()
+		#bothGeo.appendgeometryflat(reference)
+		#dmat=bothGeo.distancematrix()
+		#interdistances=numpy.ma.masked_invalid(dmat[0:self.Atomcount][:,self.Atomcount:])
+		interdistances=numpy.ma.masked_invalid(gx.crossSupercellDistanceMatrix(reference.Geometry,self.Geometry,reference.Lattice))
 		# free up some memory
-		del bothGeo
-		del dmat
+		#del bothGeo
+		#del dmat
 		
 		# commented oud old and far too slow loopidyloop assignment
 		uniqueMapped = False
@@ -1139,3 +1143,159 @@ class AnalysisGeometry(Geometry):
 
 		# finished, return
 		return (assignedSubAtoms,assignedRefAtoms)
+
+
+
+
+	def locateSingleVacancyByReference(self,reference,delta,tau,**kwargs):
+		"""
+		compare slef to reference geometry, map each atom of self to the closest atom of same element in reference.
+		return one continuous vacancy coordinate by averaging over reference positions with far neighbors weightd by
+		inverse Fermi function
+		@type reference: Geometry instance
+		@param reference: reference Geometry
+		@type delta:float 
+		@param delta: switchover distance between reference neighbor positions (equals \mu in Fermi function)
+		@type tau: float
+		@param tau: width of Fermi distribution (euqals kT in Fermi function) 
+		@return: geometry instance containing vacancy position
+		"""
+		# check type of reference
+		if not isinstance(reference,Geometry):
+			raise TypeError("reference must be a Geometry object")
+		# get the set of all atom types present in self and reference
+		presentElements=set(self.AtomTypes).union(set(reference.AtomTypes))
+		# initialize vacancy and interstitioal output geometries
+		vacancies=self.__class__(iMode=self.Mode,iLattice=self.Lattice)
+		# for each element type
+		for element in presentElements:
+			# get element subgeometries of reference and self
+			subGeo=self.elementsubgeometry(element)
+			subGeo.foldToCell()
+			atomsOfElement=int(subGeo.Atomcount)
+			subRef=reference.elementsubgeometry(element,cache=True)
+			subRef.foldToCell()
+			refAtomsOfElement=int(subRef.Atomcount)
+			# check if element has exactly zero or one vacancy. Skip if zero vavancies
+			if atomsOfElement==refAtomsOfElement:
+				continue
+			elif not (atomsOfElement-refAtomsOfElement==-1):
+				raise ValueError("Snapshot must have exactly zero or one atoms of element less than reference")
+			# get minimum distances
+			refdists=gx.crossSupercellDistanceMatrix(subRef.Geometry,subGeo.Geometry,subRef.Lattice)
+			minDistances=numpy.min(refdists, 1)
+			# convert minimum distances to reference position weights using Fermi function
+			minDistances-=delta
+			minDistances/=tau
+			expMD=numpy.exp(minDistances)+1.0
+			weights=1.0-(1.0/expMD)
+			# calculate and store weight sum
+			weightsum=numpy.sum(weights)
+			# calculate weighted average of reference positions
+			srg=numpy.array(subRef.Geometry).transpose()
+			weightedcoords=numpy.multiply(srg,weights).transpose()
+			vacancyPosition=numpy.add.accumulate(weightedcoords)[-1]/weightsum
+			# if self-consistent distance weighting is requested, loop here
+			if kwargs.get("scdw",True):
+				scdwConverged=False
+				while not scdwConverged:
+					lastPosition=numpy.array(vacancyPosition)
+					modWeights=numpy.array(weights)
+					ptemp=numpy.array([vacancyPosition])
+					refDifferences=numpy.transpose(gx.crossSupercellDistanceMatrix(subRef.Geometry,ptemp,subRef.Lattice))[0]
+#					print "last position  :", lastPosition
+#					print "reference:     :", subRef.Geometry
+#					print "differences    :", refDifferences
+					#weightmod=numpy.exp(-refDifferences/(1.5*delta))
+					scwf=kwargs.get("scdf","GAUSS").upper()
+					if scwf=="GAUSS":
+						gw=kwargs.get("scgw",1.5*delta)
+						gw*=2*gw
+						weightmod=numpy.exp(-(refDifferences*refDifferences)/(gw))
+					elif scwf=="FERMI":
+						gw=kwargs.get("scgw",1.5*delta)
+						gt=kwargs.get("scgt",tau)
+						weightmod=1.0-(1.0/(numpy.exp((refDifferences-gw)/gt)+1.0))
+					else:
+						raise ValueError("Unknown weight function '{0}' for self-consistent distance weighting".format(scwf))
+					modWeights=numpy.multiply(weights,weightmod)
+#					print "weights        :", weights
+#					print "modifiers      :", weightmod
+#					print "modif. weights :", modWeights
+					modWeightsum=numpy.sum(modWeights)
+					weightedcoords=numpy.multiply(srg,modWeights).transpose()
+					vacancyPosition=numpy.add.accumulate(weightedcoords)[-1]/modWeightsum
+#					print "new postition  :", vacancyPosition
+					vacposdiff=vacancyPosition-lastPosition
+					vacposdist=numpy.sqrt(numpy.sum(vacposdiff*vacposdiff))
+#					print "change         :", vacposdiff,"  abschange :",vacposdist
+					if vacposdist<kwargs.get("scdc",1e-8):
+						scdwConverged=True
+#						print "scdw converged"
+			# add vacancy atom to output geometry
+			vacancies.addatom(element,vacancyPosition)
+		# finished building defect geometries, return:
+		return vacancies
+		#done.
+
+
+	def voidAnalysis(self,**kwargs):
+		"""Analyze the supercell for voids by subdividing into voxels and measuring voxel distance from closest atom.
+		Only x-y-z aligned orthorhombic cells supported for now!
+		@return: tuple of numpy mesh grid and boolean grid of voxel occupation 
+		"""
+		# only makes sense on supercell geometries
+		if (self.Mode!="S"):
+			raise ValueError("Void analysis is only meaningful on periodic gemetries")
+		# check if cell ihs x-y-z aligned orthorhombic
+		if not (self.Lattice[0][1]==self.Lattice[0][2]==self.Lattice[1][0]==self.Lattice[1][2]==self.Lattice[2][0]==self.Lattice[2][1]==0.0):
+			raise ValueError("Void analysis requires orthorhomic, x-y-z aligned supercell")
+		# all atom coordinates must be within the central supercell for analysis
+		coordinates=self.getFoldedBackCoordinates()
+		# construct the axis and voxel arrays
+		step=kwargs.get("voxelstep",0.2)
+		voxMesh=numpy.mgrid[0.:self.Lattice[0][0]:step,0.:self.Lattice[1][1]:step,0.:self.Lattice[2][2]:step]
+		voxShape=voxMesh.shape[1:]
+		voxels=numpy.zeros(voxShape,dtype=bool)
+		voxMesh=numpy.reshape(voxMesh, (3,-1))
+		voxMesh=numpy.transpose(voxMesh)
+		# mark voxels occupied by each atom
+		for atom in range(self.Atomcount):
+			# get r from single bond covalent radius of atom type or supplied radius dictionary, apply optional radius factor
+			rsqr=kwargs.get("atomradii",self.SBCR)[self.AtomTypes[atom]]*kwargs.get("radiusfactor",1.1)/constants.ANGSTROM
+			# build distance list
+			distance=gx.crossSupercellDistanceMatrix(voxMesh,numpy.array([coordinates[atom]]),self.Lattice)
+			distance=numpy.reshape(distance,voxShape)
+			# build temporary voxel array
+			tvox=numpy.less_equal(distance,rsqr)
+			# stencil out occupied voxels in global occupation array
+			voxels=numpy.logical_or(tvox,voxels)
+			numpy.reshape(voxels,voxShape)
+		# dummy cube file writer
+		if (kwargs.get("writecube",True)):
+			cfile=open(kwargs.get("cubefilename","voids.cube"),"w")
+			print("VOID ANALYSIS BY COMATSCI",file=cfile)
+			print("RADIUSFACTOR {0:f}".format(kwargs.get("radiusfactor",1.1)),file=cfile)
+			print("{0:d}  0.000 0.000 0.000".format(self.Atomcount),file=cfile)
+			for i in (0,1,2):
+				print("{0:d} {1[0]:f}  {1[1]:f}  {1[2]:f}".format(voxShape[i],self.Lattice[i]/voxShape[i]) ,file=cfile)
+			for i in range(self.Atomcount):
+				print("{0:3d} {1:f} {2[0]:f} {2[1]:f} {2[2]:f}".format(self.AtomTypes[i],self.AtomCharges[i],coordinates[i]),file=cfile)
+			colcount=0
+			for xx in range(voxShape[0]):
+				for yy in range(voxShape[1]):
+					for zz in range(voxShape[2]):
+						if voxels[xx][yy][zz]:
+							data=1.0
+						else:
+							data=0.0
+						print("{0:f}  ".format(data),end=" ",file=cfile)
+						if colcount==5:
+							colcount=0
+							print("",file=cfile)
+						else:
+							colcount+=1
+			print("",file=cfile)
+			cfile.close()
+		# finished, return grid and voxels
+		return (numpy.mgrid[0.:self.Lattice[0][0]:step,0.:self.Lattice[1][1]:step,0.:self.Lattice[2][2]:step],voxels)
