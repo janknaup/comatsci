@@ -294,6 +294,7 @@ class Geometry:
 				self.LPops.append([])
 		else:
 			self.LPops=iLPops
+		self._elementSubGeos={}
 		self.uuid=uuid.uuid4()
 		self._reset_derived()
 		self._consistency_check()
@@ -347,6 +348,7 @@ class Geometry:
 		self._dmat=None
 		self._blmat=None
 		self._lal={}
+		self._elementSubGeos={}
 
 
 
@@ -382,19 +384,27 @@ class Geometry:
 
 
 
-	def elementsubgeometry(self, element, mode=None):
+	def elementsubgeometry(self, element, mode=None, cache=False):
 		"""return a Geometry object identical to self but containing only
 		atoms of element *element*
 		@param element: element to filter for
 		@param mode: Mode of the new Geometry, Autoinit to parent Geometry mode if None (default None)
 		"""
-		if mode==None:
-			mode=self.Mode
-		esubgeo=self.__class__(iMode=mode,iLattice=self.Lattice,iOrigin=self.Origin)
-		for i in range(self.Atomcount):
-			if self.AtomTypes[i]==element:
-				esubgeo.addatom(self.AtomTypes[i],self.Geometry[i],None,
-					self.AtomCharges[i],self.AtomSubTypes[i])
+		if cache and self._elementSubGeos.has_key(element):
+			return self._elementSubGeos[element]
+		else:
+			if mode==None:
+				mode=self.Mode
+			typesArray=numpy.array(self.AtomTypes)
+			subIndices=(typesArray==element).nonzero()[0]
+			chargesArray=numpy.array(self.AtomCharges)
+			stArray=numpy.array(self.AtomSubTypes)
+			esubgeo=self.__class__(iMode=mode,iLattice=self.Lattice,iOrigin=self.Origin,
+								iAtomcount=len(subIndices), iAtomTypes=list(typesArray[subIndices]),
+								iGeometry=self.Geometry[subIndices],
+								iAtomSubTypes=list(stArray[subIndices]))
+			if cache:
+				self._elementSubGeos[element]=esubgeo
 		return esubgeo
 	
 	
@@ -413,7 +423,8 @@ class Geometry:
 			raise GeometryError("Trying to add to nonexistent layer")
 		self._reset_derived()
 		self.AtomTypes.append(type)
-		tempgeo=numpy.zeros((self.Atomcount+1,3),dtype=float)
+		#tempgeo=numpy.zeros((self.Atomcount+1,3),dtype=float)
+		tempgeo=numpy.empty((self.Atomcount+1,3),dtype=float)
 		if self.Atomcount > 0:
 			tempgeo[0:self.Atomcount]=self.Geometry
 		tempgeo[self.Atomcount]=numpy.array(position)
@@ -431,7 +442,7 @@ class Geometry:
 			self.LPops.append([])
 		else:
 			self.LPops.append(LPop)
-		self._consistency_check()
+		if checkConsistency: self._consistency_check()
 
 
 

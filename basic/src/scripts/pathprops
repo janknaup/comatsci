@@ -19,6 +19,7 @@ sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
 import comatsci
 
 from numpy.oldnumeric import *
+import numpy
 
 from optparse import OptionParser
 
@@ -272,6 +273,31 @@ parser.add_option("--vmd-bondcounts",
 parser.add_option("--count-hops",
 				  action="store_true", dest="counthops", default=False,
 				  help="count atomic hopping events and print number of hops to standard out")
+
+parser.add_option("--pivot-er",
+				  action="store", nargs=3, type="string", dest="pivoter", default=None, metavar="R,do,tau",
+				  help="locate vacancies in every single frame by PIVOT with d0 and tau using external reference geometry read from file R. Write vacancy postions for each frame to 'pivot-er.xyz'")
+
+parser.set_defaults(voids_element=None,voids_radius=None,voids_stride=100,voids_voxelsize=0.2)
+parser.add_option("--voids",
+				  action="store_true", dest="voids", default=False,
+				  help="perform voids analysis along the path. cf. voids-element, voids-stride and voids-voxelsize options")
+parser.add_option("--voids-element",
+				  action="store", type="int", dest="voids_element", metavar="E",
+				  help="only take into account element subgeometry for element E when performing voids analysis")
+parser.add_option("--voids-stride",
+				  action="store", type="int", dest="voids_stride", metavar="S",
+				  help="only take into account every S-th geometry when performing voids analysis")
+parser.add_option("--voids-voxelsize",
+				  action="store", type="float", dest="voids_voxelsize", metavar="S",
+				  help="subdivide the supercell into SxSxS Angstom voxels when performing voids analysis")
+parser.add_option("--voids-radius",
+				  action="store", type="float", dest="voids_radius", metavar="S",
+				  help="radius factor for voids analysis, acts as atomic radius when analyzing element subgeometry")
+parser.add_option("--voids-nocubes",
+				  action="store_false", dest="voids_cubes", default=True,
+				  help="if selected, no cube files of the void analysis will be written")
+
 
 
 (options,args) = parser.parse_args()
@@ -710,6 +736,39 @@ if options.trackvacancy!=None:
 	print "done."
 
 
+if options.pivoter!=None:
+	print "calculating PIVOT-ER vacancy trajectory..."
+	
+	sys.stdout.flush()
+	
+	try:
+		d0=float(options.pivoter[1])
+		tau=float(options.pivoter[2])
+	except:
+		print "ERROR PARSING d0 and tau parameters for PIVOT. ABORT."
+		raise
+
+	progress=comatsci.utils.ProgressMeter(total=path.numimages())
+	
+	refgeo=comatsci.Geometry.Geometry()
+	refgeo.readfile(options.pivoter[0])
+	
+	#initialize vacancy position path object
+	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+	
+	#locate vacancies in each frame
+	for i in range(0,path.numimages()):
+		vac=path.geos[i].locateSingleVacancyByReference(refgeo,d0,tau,scdw=True)
+		vpath.appendGeoObject(vac,checkCompat=False)
+		progress.update(1)
+	#write vacancy location path
+	vpath.writexyzpath("vacancies.xyz")
+	print "counted %d vacancy hops along the path." % vpath.hopCount()
+	#finished.
+	print "done."
+
+
+
 if options.vmdcharges:
 		print "writing atomic charges to charges.vmd:"
 		vmdchrfile=open("charges.vmd","w")
@@ -732,6 +791,41 @@ if options.vmdbondcounts:
 				progress.update(1)
 		vmdbcfile.close()
 		print "done."
+
+
+if options.voids:
+	print "performing voids analysis and writing occupancy cube files."
+	progress=comatsci.utils.ProgressMeter(total=path.numimages()/options.voids_stride)
+	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+	volfile=open("void-volumes.dat","w")
+	print >> volfile, "#frame  volume[\AA^3]"
+	for i in range(0, path.numimages(), options.voids_stride):
+		rfactor=1.0
+		if options.voids_element!=None:
+			geo=path.geos[i].elementsubgeometry(options.voids_element)
+			if options.voids_radius!=None:
+				radii={options.voids_element:options.voids_radius/comatsci.constants.ANGSTROM}
+			else:
+				radii=array(geo.SBCR)/comatsci.constants.ANGSTROM
+		else:
+			geo=path.geos[i]
+			radii=array(geo.SBCR)/comatsci.constants.ANGSTROM
+			if options.voids_radius!=None:
+				rfactor=options.voids_radius
+		cubename="voids.{0:06d}.cube".format(i)
+		(grid,voxels)=geo.voidAnalysis(radiusfactor=rfactor,atomradii=radii,voxelstep=options.voids_voxelsize,cubefilename=cubename,writecube=options.voids_cubes)
+		xmasked=numpy.ma.array(grid[0,:,:,:],mask=voxels)
+		ymasked=numpy.ma.array(grid[1,:,:,:],mask=voxels)
+		zmasked=numpy.ma.array(grid[2,:,:,:],mask=voxels)
+		dummygeo=comatsci.Geometry.AnalysisGeometry()
+		dummygeo.addatom(8,numpy.array((numpy.ma.average(xmasked),numpy.ma.average(ymasked),numpy.ma.average(zmasked))))
+		vpath.appendGeoObject(dummygeo,checkCompat=False)
+		volume=numpy.ma.count(xmasked)*0.2*0.2*0.2*comatsci.constants.ANGSTROM*comatsci.constants.ANGSTROM*comatsci.constants.ANGSTROM
+		print >> volfile, "{0:6d}\t{1:14e}".format(i,volume)
+		progress.update(1)
+	print "writing void COG path"
+	vpath.writexyzpath("voids-cog.xyz")
+	print "done."
 
 
 if options.counthops:
