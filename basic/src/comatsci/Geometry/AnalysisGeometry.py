@@ -10,6 +10,8 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
+
 from Geometry import Geometry
 from comatsci import constants #,  utils
 
@@ -300,10 +302,10 @@ class AnalysisGeometry(Geometry):
 				progressfunction(progress)
 			#before bisection, check, if datapoint is within binning range
 			if i < bins[0]:
-				print "low outside"
+#				print "low outside"
 				outside+=1
 			elif i>bins[-1]:
-				print "high outside"
+#				print "high outside"
 				outside+=1
 			#find bin using bisection
 			else:
@@ -1250,3 +1252,64 @@ class AnalysisGeometry(Geometry):
 		return vacancies
 		#done.
 
+
+	def voidAnalysis(self,**kwargs):
+		"""Analyze the supercell for voids by subdividing into voxels and measuring voxel distance from closest atom.
+		Only x-y-z aligned orthorhombic cells supported for now!
+		@return: tuple of numpy mesh grid and boolean grid of voxel occupation 
+		"""
+		# only makes sense on supercell geometries
+		if (self.Mode!="S"):
+			raise ValueError("Void analysis is only meaningful on periodic gemetries")
+		# check if cell ihs x-y-z aligned orthorhombic
+		if not (self.Lattice[0][1]==self.Lattice[0][2]==self.Lattice[1][0]==self.Lattice[1][2]==self.Lattice[2][0]==self.Lattice[2][1]==0.0):
+			raise ValueError("Void analysis requires orthorhomic, x-y-z aligned supercell")
+		# all atom coordinates must be within the central supercell for analysis
+		coordinates=self.getFoldedBackCoordinates()
+		# construct the axis and voxel arrays
+		step=kwargs.get("voxelstep",0.2)
+		voxMesh=numpy.mgrid[0.:self.Lattice[0][0]:step,0.:self.Lattice[1][1]:step,0.:self.Lattice[2][2]:step]
+		voxShape=voxMesh.shape[1:]
+		voxels=numpy.zeros(voxShape,dtype=bool)
+		voxMesh=numpy.reshape(voxMesh, (3,-1))
+		voxMesh=numpy.transpose(voxMesh)
+		# mark voxels occupied by each atom
+		for atom in range(self.Atomcount):
+			# get r from single bond covalent radius of atom type or supplied radius dictionary, apply optional radius factor
+			rsqr=kwargs.get("atomradii",self.SBCR)[self.AtomTypes[atom]]*kwargs.get("radiusfactor",1.1)/constants.ANGSTROM
+			# build distance list
+			distance=gx.crossSupercellDistanceMatrix(voxMesh,numpy.array([coordinates[atom]]),self.Lattice)
+			distance=numpy.reshape(distance,voxShape)
+			# build temporary voxel array
+			tvox=numpy.less_equal(distance,rsqr)
+			# stencil out occupied voxels in global occupation array
+			voxels=numpy.logical_or(tvox,voxels)
+			numpy.reshape(voxels,voxShape)
+		# dummy cube file writer
+		if (kwargs.get("writecube",True)):
+			cfile=open(kwargs.get("cubefilename","voids.cube"),"w")
+			print("VOID ANALYSIS BY COMATSCI",file=cfile)
+			print("RADIUSFACTOR {0:f}".format(kwargs.get("radiusfactor",1.1)),file=cfile)
+			print("{0:d}  0.000 0.000 0.000".format(self.Atomcount),file=cfile)
+			for i in (0,1,2):
+				print("{0:d} {1[0]:f}  {1[1]:f}  {1[2]:f}".format(voxShape[i],self.Lattice[i]/voxShape[i]) ,file=cfile)
+			for i in range(self.Atomcount):
+				print("{0:3d} {1:f} {2[0]:f} {2[1]:f} {2[2]:f}".format(self.AtomTypes[i],self.AtomCharges[i],coordinates[i]),file=cfile)
+			colcount=0
+			for xx in range(voxShape[0]):
+				for yy in range(voxShape[1]):
+					for zz in range(voxShape[2]):
+						if voxels[xx][yy][zz]:
+							data=1.0
+						else:
+							data=0.0
+						print("{0:f}  ".format(data),end=" ",file=cfile)
+						if colcount==5:
+							colcount=0
+							print("",file=cfile)
+						else:
+							colcount+=1
+			print("",file=cfile)
+			cfile.close()
+		# finished, return grid and voxels
+		return (numpy.mgrid[0.:self.Lattice[0][0]:step,0.:self.Lattice[1][1]:step,0.:self.Lattice[2][2]:step],voxels)
