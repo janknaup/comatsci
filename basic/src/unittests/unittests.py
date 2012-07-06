@@ -4,6 +4,8 @@ Created on Mar 13, 2012
 @author: Jan M. Knaup <janknaup@gmail.com>
 '''
 
+from __future__ import print_function
+
 import unittest
 
 testNames=("testGeometry",
@@ -19,6 +21,6 @@ class comatsciTest(unittest.TestSuite):
 
 if __name__ == '__main__':
     tests=map(__import__, testNames)
-    print tests
+    print(tests)
     allsuite=unittest.TestSuite(tests)
     unittest.TextTestRunner(verbosity=2).run(allsuite)

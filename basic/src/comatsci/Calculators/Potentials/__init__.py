@@ -44,7 +44,7 @@ def getPotentialFromFile(filename):
         else:
             # check if potentialFunction is known
             if not POTENTIALLABELMAP.has_key(name):
-                raise ValueError("Unknown potential function '%s' specified" % name[1:-1])
+                raise ValueError("Unknown potential function '{0:s}' specified".format(name[1:-1]))
             returnPotential= POTENTIALLABELMAP[name]({})
             returnPotential.parseString("\n".join(inlines))
         return returnPotential

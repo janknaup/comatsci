@@ -14,6 +14,7 @@
 #@license: Open Software License version 3.0
 #@copyright: Jan M. Knaup  <janknaup@gmail.com>
 
+from __future__ import print_function
 from comatsci.Calculators.CalcError import *
 
 class potentialFunction:
@@ -109,5 +110,5 @@ class potentialFunction:
                 """write file representation of current instance that can be read back in
                 @parameter filename: name of the file to be written"""
                 outfile=open(filename,"w")
-                print >> outfile, self.getString()
+                print(self.getString(),file=outfile)
                 outfile.close()

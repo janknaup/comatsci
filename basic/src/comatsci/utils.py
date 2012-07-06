@@ -24,7 +24,7 @@ def compressedopen(filename, mode="r", compresslevel=0, autodetect=True):
 	"""
 	# compression level sanity check
 	if compresslevel > 9 or compresslevel <0 :
-		raise "Invalid compression level specified!"
+		raise ValueError("Invalid compression level specified!")
 	#  check if filename already specifies a compressed file. If true, try to open that file only, using the proper compressed file object
 	if filename[-3:].lower()==".gz":
 		# compresslevel 0 is undefined in gzip and bz2, so work around it
@@ -50,7 +50,7 @@ def compressedopen(filename, mode="r", compresslevel=0, autodetect=True):
 				gzexist=os.path.exists(filename+".gz")
 				# bail out if both compressed variants exist
 				if bz2exist and gzexist and not autodetect:
-					raise "Cannot decide wether to open %s or %s." % (filename+".bz2",filename+".gz")
+					raise ValueError("Cannot decide wether to open {0:s} or {1:s}.".format(filename+".bz2",filename+".gz"))
 				# if one of the compressed variants exists, open that:
 				elif bz2exist and autodetect:
 					if compresslevel>0:
@@ -67,7 +67,7 @@ def compressedopen(filename, mode="r", compresslevel=0, autodetect=True):
 						return gzip.open(filename,mode,compresslevel)
 				# if all else fails, raise a file not found exception
 				else:
-					raise "No file candiate to open for read was found."
+					raise ValueError("No file candiate to open for read was found for file '{0:s}'".format(filename))
 		# If a file is to be opened for write, just create a normal or compressed file, based on compresslevel
 		else:
 			if compresslevel==0:
@@ -85,10 +85,10 @@ def uncompresscopy(source, destination):
 	@param destination: destination path to copy (uncompressed) source to"""
 	# just check for a known compressed format filename extension and handle accordingly
 	if source[-3:].lower()==".gz":
-		os.system("gzip -d %s"%(source))
+		os.system("gzip -d {0:s}".format(source))
 		shutil.copy(source[:-4],destination)
 	elif source[-4:].lower()==".bz2":
-		os.system("gzip -d %s"%(source))
+		os.system("gzip -d {0:s}".format(source))
 		shutil.copy(source[:-5],destination)
 	# simply copy otherwise
 	else:
@@ -107,7 +107,7 @@ def compresscopy(source,destination,compresslevel=9):
 	if compresslevel <1 or compresslevel > 9:
 		raise "Invalid compression level specified"
 	# call gzip to compress
-	os.system("gzip -%d %s"%(compresslevel,source))
+	os.system("gzip -{0:d} {1:s}".format(compresslevel,source))
 	# copy compressed file
 	shutil.copy(source+".gz",destination)
 
@@ -164,7 +164,7 @@ class FloatConverter(Converter):
 			try:
 				ll.append(float(val))
 			except Exception:
-				raise ConversionError, "Unable to convert float '%s'" % val
+				raise ConversionError, "Unable to convert float '{0:s}'".format(val)
 		return ll
 
 
@@ -178,7 +178,7 @@ class IntConverter(Converter):
 			try:
 				ll.append(int(val))
 			except Exception:
-				raise ConversionError, "Unable to convert integer '%s'" % val
+				raise ConversionError, "Unable to convert integer '{0:s}'".format(val)
 		return ll
 
 
@@ -205,7 +205,7 @@ class ComplexConverter(Converter):
 			try:
 				ll.append(complex(float(values[ii]), float(values[ii+1])))
 			except Exception:
-				raise ConversionError, ("Unable to convert complex '(%s,%s)'" % (
+				raise ConversionError, ("Unable to convert complex '({0:s},{1:s})'".format(
 					values[ii], values[ii+1]))
 		return ll
 
@@ -222,7 +222,7 @@ class LogicalConverter(Converter):
 			elif val == 'F' or val == 'f':
 				ll.append(0)
 			else:
-				raise ConversionError, "Unable to convert logical '%s'" % val
+				raise ConversionError, "Unable to convert logical '{0:s}'".format(val)
 		return ll
 
 ############################################################################
@@ -252,7 +252,7 @@ class TaggedEntry(object):
 		"""
 
 		if not tpe in self.__validTypes:
-			raise InvalidEntry(msg="Invalid data type '%s'" % tpe)
+			raise InvalidEntry(msg="Invalid data type '{0:s}'".format(tpe))
 		self.__name = name
 		self.__tpe = tpe
 		self.__rank = rank
@@ -493,7 +493,7 @@ class ProgressMeter(object):
 		bar = '-' * self.meter_value
 		pad = ' ' * (self.meter_ticks - self.meter_value)
 		perc = (float(self.count) / self.total) * 100
-		return '[%s>%s] %d%%  %.1f/sec' % (bar, pad, perc, self.rate_current)
+		return '[{0:s}>{1:s}] {2:d}%  {3:.1f}/sec'.format(bar, pad, perc, self.rate_current)
 
 	def refresh(self, **kw):
 		# Clear line
@@ -523,7 +523,7 @@ def dictionaryPrettyPrint(indict, leftskip=0):
 				labelsWidth=len(str(i))
 		# now iterate through dictionary and compile output string
 		#  perverse little trick to obtain variable length left column: create a template string, setting the output width of the left string part to labelsWidth. First for the leftskip, then append format string 
-		lineTemplate="".ljust(leftskip)+"%%%ds: %%s" % (labelsWidth, )
+		lineTemplate="".ljust(leftskip)+"{{0:{0:d}s}}: {{1:s}}".format(labelsWidth)
 		#  at first compile output lines as list, join at the end
 		prettyLines=[]
 		for i in labels:
@@ -532,6 +532,6 @@ def dictionaryPrettyPrint(indict, leftskip=0):
 				content="\n"+dictionaryPrettyPrint(indict[i],labelsWidth+3)
 			else:
 				content=str(indict[i])
-			prettyLines.append(lineTemplate%(i,content))
+			prettyLines.append(lineTemplate.format(i,content))
 		# compile output lines to string and return
 		return "\n".join(prettyLines)

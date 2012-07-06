@@ -10,6 +10,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 
 #import verbosity levels from outside, if available, otherwise use own definitions
 try:
@@ -60,7 +61,7 @@ class Optimizer:
 		self._maxIterations=options["maxIterations"]
 		self._convreason="Not yet converged"
 		if self._verbosity >= constants.VBL_DEBUG2:
-			print "Optimizer basic initialization complete."
+			print("Optimizer basic initialization complete.")
 
 
 
@@ -90,12 +91,12 @@ class Optimizer:
 		self._converged=self._checkConvergence(X,F,dF,d2F)
 		if not self._converged:
 			if self._verbosity >= constants.VBL_DEBUG1:
-				print "Optimizer: not converged, performing iteration step"
+				print("Optimizer: not converged, performing iteration step")
 			newX=self._step(X,F,dF,d2F)
 			self._iterations+=1
 		else:
 			if self._verbosity >= constants.VBL_DEBUG1:
-				print "Optimizer: converged, doing nothing"
+				print("Optimizer: converged, doing nothing")
 			newX=X
 		return newX
 	
