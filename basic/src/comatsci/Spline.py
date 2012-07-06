@@ -10,6 +10,8 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
+
 import splext #@UnresolvedImport
 import bisect
 import numpy.oldnumeric as num
@@ -219,7 +221,7 @@ class vectorSpline:
 			oldsample=losample
 			self.arcsamples[i*2]=losample
 			self.arcsamples[(i*2)-1]=hisample
-##		print "hi: %f  lo: %f" % (hiarc,loarc)
+##		print("hi: {0:f}  lo: {1:f}".format(hiarc,loarc))
 		while abs(hiarc-loarc)/hiarc>tolerance:
 			nsamples*=2
 			loarc=hiarc
@@ -234,7 +236,7 @@ class vectorSpline:
 				hiarc+=num.sqrt(num.dot(diff,diff))
 				oldsample=hisample
 				self.arcsamples[i]=hisample
-##			print "hi: %f  lo: %f" % (hiarc,loarc)
+##			print("hi: {0:f}  lo: {1:f}".format(hiarc,loarc))
 		# if we calculated the total arc length, store it for re-use
 		if points==None:
 			self.__arclength=hiarc

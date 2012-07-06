@@ -8,6 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 import copy
 import os
 import shutil
@@ -155,7 +156,7 @@ class Calculator:
 		#this will probably only work under *NIX, but who cares?
 #		self.WORKTHREAD.start()
 		if self.verbosity>=constants.VBL_TALKY:
-			print "started calculation for step: %s." %(steplabel)
+			print("started calculation for step: {0:s}.".format(steplabel))
 		self._status=CALCSTATUS_RUNNING
 
 
@@ -177,11 +178,11 @@ class Calculator:
 		os.chdir(self.rundir)
 		self._prepare(steplabel, Geometry, charge)
 		if self.verbosity>=constants.VBL_TALKY:
-			print "running calculation for step: %s." %(steplabel)
+			print("running calculation for step: {0:s}.".format(steplabel))
 		self._status=CALCSTATUS_RUNNING
 		self._worker()
 		if self.verbosity>=constants.VBL_TALKY:
-			print "calculation done for %s" % (steplabel)
+			print("calculation done for {0:s}".format(steplabel))
 		# read the results
 		self._readresults(Geometry.Atomcount)
 		# clean up
@@ -208,7 +209,7 @@ class Calculator:
 			os.mkdir(self.rundir)
 		os.chdir(self.rundir)
 		if self.verbosity>=constants.VBL_TALKY:
-			print "preparing run for step: %s." %(steplabel)
+			print("preparing run for step: {0:s}.".format(steplabel))
 		self._prepare(steplabel, Geometry, charge)
 		#return to path prior to input generation
 		os.chdir(priorpath)

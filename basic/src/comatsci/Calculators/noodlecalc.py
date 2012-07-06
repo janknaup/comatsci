@@ -8,6 +8,7 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
 from comatsci.Calculators.Calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
 
 from comatsci.Calculators.CalcError import CalcError
@@ -23,307 +24,309 @@ import numpy
 
 
 ################################################################################
-#  Helper classes to robustly parse noodle output
-#  written by Balint Aradi <Aradi@bccms.uni-bremen.de>, copy & pasted by Jan Knaup
+#    Helper classes to robustly parse noodle output
+#    written by Balint Aradi <Aradi@bccms.uni-bremen.de>, copy & pasted by Jan Knaup
 ################################################################################
+
+############################################################################
+# Exception classes by Jan M. Knaup
+############################################################################
+
+class ConversionError(Exception): pass
+
+class InvalidEntry(Exception): pass
 
 ############################################################################
 # Conversion functors
 ############################################################################
 
-class ConversionError(Exception):
-	pass
-
-class InvalidEntry(Exception):
-	pass
-
 class Converter(object):
-  """Base class for string to value converters"""
+	"""Base class for string to value converters"""
 
-  def __init__(self, nolist=False):
-    """nolist -- if True, not a list, but only a single value is returned after
-                 conversion.
-    """
-    self.nolist = nolist
+	def __init__(self, nolist=False):
+		"""nolist -- if True, not a list, but only a single value is returned after
+								 conversion.
+		"""
+		self.nolist = nolist
 
-  def __call__(self, strValue):
-    """strValue -- string represenation of the values to convert"""
-    values = strValue.split()
-    if self.nolist and len(values) > 1:
-      raise ConversionError, "Too many values"
-    result = self.convert(values)
-    if self.nolist:
-      return result[0]
-    else:
-      return result
+	def __call__(self, strValue):
+		"""strValue -- string represenation of the values to convert"""
+		values = strValue.split()
+		if self.nolist and len(values) > 1:
+			raise ConversionError("Too many values")
+		result = self.convert(values)
+		if self.nolist:
+			return result[0]
+		else:
+			return result
 
-  def convert(self, values):
-    """Conversion function
-    values -- list of strings representation of values to convert
-    """
-    return values
+	def convert(self, values):
+		"""Conversion function
+		values -- list of strings representation of values to convert
+		"""
+		return values
 
 
 
 class FloatConverter(Converter):
-  """Converts string to float"""
+	"""Converts string to float"""
 
-  def convert(self, values):
-    ll = []
-    for val in values:
-      try:
-        ll.append(float(val))
-      except Exception:
-        raise ConversionError, "Unable to convert float '%s'" % val
-    return ll
+	def convert(self, values):
+		ll = []
+		for val in values:
+			try:
+				ll.append(float(val))
+			except Exception:
+				raise ConversionError("Unable to convert float '%s'" % val)
+		return ll
 
 
 
 class IntConverter(Converter):
-  """Converts string to integer"""
+	"""Converts string to integer"""
 
-  def convert(self, values):
-    ll = []
-    for val in values:
-      try:
-        ll.append(int(val))
-      except Exception:
-        raise ConversionError, "Unable to convert integer '%s'" % val
-    return ll
+	def convert(self, values):
+		ll = []
+		for val in values:
+			try:
+				ll.append(int(val))
+			except Exception:
+				raise ConversionError("Unable to convert integer '%s'" % val)
+		return ll
 
 
 
 class ComplexConverter(Converter):
-  """Converts string to complex"""
+	"""Converts string to complex"""
 
-  def __call__(self, strValue):
-    values = strValue.split()
-    if len(values) % 2:
-      raise ConversionError, "Odd number of values"
-    if self.nolist and len(values) != 2:
-      raise ConversionError, "Too many values"
-    result = self.convert(values)
-    if self.nolist:
-      return result[0]
-    else:
-      return result
+	def __call__(self, strValue):
+		values = strValue.split()
+		if len(values) % 2:
+			raise ConversionError("Odd number of values")
+		if self.nolist and len(values) != 2:
+			raise ConversionError("Too many values")
+		result = self.convert(values)
+		if self.nolist:
+			return result[0]
+		else:
+			return result
 
 
-  def convert(self, values):
-    ll = []
-    for ii in range(0, len(values), 2):
-      try:
-        ll.append(complex(float(values[ii]), float(values[ii+1])))
-      except Exception:
-        raise ConversionError, ("Unable to convert complex '(%s,%s)'"
-                                % (values[ii], values[ii+1]))
-    return ll
+	def convert(self, values):
+		ll = []
+		for ii in range(0, len(values), 2):
+			try:
+				ll.append(complex(float(values[ii]), float(values[ii+1])))
+			except Exception:
+				raise ConversionError("Unable to convert complex '(%s,%s)'"
+																% (values[ii], values[ii+1]))
+		return ll
 
 
 
 class LogicalConverter(Converter):
-  """Converts string to logical"""
+	"""Converts string to logical"""
 
-  def convert(self, values):
-    ll = []
-    for val in values:
-      if val == 'T' or val == 't':
-        ll.append(1)
-      elif val == 'F' or val == 'f':
-        ll.append(0)
-      else:
-        raise ConversionError, "Unable to convert logical '%s'" % val
-    return ll
+	def convert(self, values):
+		ll = []
+		for val in values:
+			if val == 'T' or val == 't':
+				ll.append(1)
+			elif val == 'F' or val == 'f':
+				ll.append(0)
+			else:
+				raise ConversionError("Unable to convert logical '%s'" % val)
+		return ll
 ############################################################################
 # Tagged data related objects
 ############################################################################
 
 class TaggedEntry(object):
-  """Represents a tagged entry with data."""
+	"""Represents a tagged entry with data."""
 
-  # Converter from string for different types
-  __strToValue = { "integer" : IntConverter(),
-                   "real"    : FloatConverter(),
-                   "complex" : ComplexConverter(),
-                   "logical" : LogicalConverter()
-                   }
+	# Converter from string for different types
+	__strToValue = { "integer" : IntConverter(),
+									 "real"		: FloatConverter(),
+									 "complex" : ComplexConverter(),
+									 "logical" : LogicalConverter()
+									 }
 
-  # Valid types
-  __validTypes = __strToValue.keys()
-
-
-  def __init__(self, name, type, rank, shape, strValue):
-    """Instantiates an TaggedEntry object.
-    name     -- name of the tagged entry
-    type     -- type of the data
-    rank     -- rank of the data
-    shape    -- shape of the data (as tuple)
-    strValue -- 
-    """
-
-    if not type in self.__validTypes:
-      raise InvalidEntry(msg="Invalid data type '%s'" % type)
-    self.__name = name
-    self.__type = type
-    self.__rank = rank
-    self.__shape = shape
-    try:
-      self.__value = self.__strToValue[type](strValue)
-    except ConversionError, msg:
-      raise InvalidEntry(msg=msg)
-    if shape and (len(self.__value) != reduce(lambda x,y: x*y, shape)):
-      raise InvalidEntry(msg="Invalid nr. of values")
+	# Valid types
+	__validTypes = __strToValue.keys()
 
 
-  def getName(self):
-    return self.__name
-  name = property(getName, None, None, "name of the entry")
+	def __init__(self, name, type, rank, shape, strValue):
+		"""Instantiates an TaggedEntry object.
+		name		 -- name of the tagged entry
+		type		 -- type of the data
+		rank		 -- rank of the data
+		shape		-- shape of the data (as tuple)
+		strValue -- 
+		"""
+
+		if not type in self.__validTypes:
+			raise InvalidEntry("Invalid data type '%s'" % type)
+		self.__name = name
+		self.__type = type
+		self.__rank = rank
+		self.__shape = shape
+		try:
+			self.__value = self.__strToValue[type](strValue)
+		except ConversionError, msg:
+			raise InvalidEntry(msg=msg)
+		if shape and (len(self.__value) != reduce(lambda x,y: x*y, shape)):
+			raise InvalidEntry("Invalid nr. of values")
 
 
-  def getType(self):
-    return self.__type
-  type = property(getType, None, None, "type of the data in the entry")
+	def getName(self):
+		return self.__name
+	name = property(getName, None, None, "name of the entry")
 
 
-  def getRank(self):
-    return self.__rank
-  rank = property(getRank, None, None, "rank of the data in the entry")
+	def getType(self):
+		return self.__type
+	type = property(getType, None, None, "type of the data in the entry")
 
 
-  def getShape(self):
-    return self.__shape
-  shape = property(getShape, None, None, "shape of the data in the entry")
+	def getRank(self):
+		return self.__rank
+	rank = property(getRank, None, None, "rank of the data in the entry")
 
 
-  def getValue(self):
-    return self.__value
-  value = property(getValue, None, None, "value of the data in the entry")
+	def getShape(self):
+		return self.__shape
+	shape = property(getShape, None, None, "shape of the data in the entry")
 
 
-  def isComparable(self, other):
-    """Check if two entries are comparable"""
-    return (other.name == self.name and other.type == self.type
-            and other.rank == self.rank and other.shape == self.shape)
+	def getValue(self):
+		return self.__value
+	value = property(getValue, None, None, "value of the data in the entry")
+
+
+	def isComparable(self, other):
+		"""Check if two entries are comparable"""
+		return (other.name == self.name and other.type == self.type
+						and other.rank == self.rank and other.shape == self.shape)
 
 
 
 
 class TaggedCollection(object):
-  """Contains a collection of tagged entries"""
+	"""Contains a collection of tagged entries"""
 
-  def __init__(self, entries):
-    """file -- open file like object containing collection of tagged data"""
-    self.__entryNames = []
-    self.__entryLines = []
-    self.__entries = []
-    self.addEntries(entries)
-
-
-  def addEntries(self, entries):
-
-    for entry in entries:
-      taggedLine = ":".join((entry.name, entry.type, str(entry.rank),
-                             ",".join(map(str, entry.shape))))
-      self.__entryNames.append(entry.name)
-      self.__entryLines.append(taggedLine)
-      self.__entries.append(entry)
+	def __init__(self, entries):
+		"""file -- open file like object containing collection of tagged data"""
+		self.__entryNames = []
+		self.__entryLines = []
+		self.__entries = []
+		self.addEntries(entries)
 
 
-  def getMatchingEntries(self, pattern):
-    """Returns entries from the collection matching a given pattern
-    pattern -- compiled regular expression
-    """
-    result = []
-    for iEntry in range(len(self.__entries)):
-      if pattern.match(self.__entryLines[iEntry]):
-        result.append(self.__entries[iEntry])
+	def addEntries(self, entries):
 
-    return result
+		for entry in entries:
+			taggedLine = ":".join((entry.name, entry.type, str(entry.rank),
+														 ",".join(map(str, entry.shape))))
+			self.__entryNames.append(entry.name)
+			self.__entryLines.append(taggedLine)
+			self.__entries.append(entry)
 
 
-  def getEntry(self, name):
-    """Returns an entry with a given name from the collection
-    name -- name of the entry
-    """
-    try:
-      iEntry = self.__entryNames.index(name)
-    except ValueError:
-      result = None
-    else:
-      result = self.__entries[iEntry]
+	def getMatchingEntries(self, pattern):
+		"""Returns entries from the collection matching a given pattern
+		pattern -- compiled regular expression
+		"""
+		result = []
+		for iEntry in range(len(self.__entries)):
+			if pattern.match(self.__entryLines[iEntry]):
+				result.append(self.__entries[iEntry])
 
-    return result
+		return result
 
 
-  def delEntry(self, name):
-    """Deletes the specified entry from the collection
-    name -- name of the entry
-    """
-    try:
-      iEntry = self.__entryNames.index(name)
-    except ValueError:
-      pass
-    else:
-      del self.__entries[iEntry]
-      del self.__entryNames[iEntry]
-      del self.__entryLines[iEntry]
+	def getEntry(self, name):
+		"""Returns an entry with a given name from the collection
+		name -- name of the entry
+		"""
+		try:
+			iEntry = self.__entryNames.index(name)
+		except ValueError:
+			result = None
+		else:
+			result = self.__entries[iEntry]
+
+		return result
+
+
+	def delEntry(self, name):
+		"""Deletes the specified entry from the collection
+		name -- name of the entry
+		"""
+		try:
+			iEntry = self.__entryNames.index(name)
+		except ValueError:
+			pass
+		else:
+			del self.__entries[iEntry]
+			del self.__entryNames[iEntry]
+			del self.__entryLines[iEntry]
 
 class ResultParser(object):
-  """Parser the result files containing tagged data"""
+	"""Parser the result files containing tagged data"""
 
-  # Pattern for lines containing the describing tag for following data
-  patTagLine = re.compile(r"""(?P<name>[^: ]+)\s*:
-                              (?P<type>[^:]+):
-                              (?P<rank>\d):
-                              (?P<shape>(?:\d+(?:,\d+)*)*)
-                              """, re.VERBOSE)
-
-
-  def __init__(self, file):
-    """file -- file like object containing tagged data"""
-    self.__file = file
+	# Pattern for lines containing the describing tag for following data
+	patTagLine = re.compile(r"""(?P<name>[^: ]+)\s*:
+															(?P<type>[^:]+):
+															(?P<rank>\d):
+															(?P<shape>(?:\d+(?:,\d+)*)*)
+															""", re.VERBOSE)
 
 
-  def iterateEntries(self):
-    """Generator for iterating over the entries of the data file."""
+	def __init__(self, file):
+		"""file -- file like object containing tagged data"""
+		self.__file = file
 
-    name = None
-    type = None
-    rank = None
-    shape = None
-    value = []
-    for line in self.__file.readlines():
-      failed = False
-      match = self.patTagLine.match(line)
-      if match:
 
-        # Append data from previous tag if present
-        if name:
-          try:
-            yield TaggedEntry(name, type, rank, shape, " ".join(value))
-          except InvalidEntry, ee:
-            raise InvalidEntry(0, 0, msg=ee.msg)
+	def iterateEntries(self):
+		"""Generator for iterating over the entries of the data file."""
 
-        name = match.group("name")
-        type = match.group("type")
-        rank = int(match.group("rank"))
-        if rank > 0:
-          shape = tuple([ int(s) for s in match.group("shape").split(",") ])
-        else:
-          shape = ()
-        value = []
-##        iTaggedLine = iLine
-      else:
-        value.append(line)
+		name = None
+		type = None
+		rank = None
+		shape = None
+		value = []
+		for line in self.__file.readlines():
+			failed = False #@UnusedVariable
+			match = self.patTagLine.match(line)
+			if match:
 
-    # process last entry
-#    if name:
-#      try:
-      yield TaggedEntry(name, type, rank, shape, " ".join(value))
-#      except InvalidEntry, ee:
-#        raise InvalidEntry(iTaggedLine + 1, iLine, msg=ee.msg)
+				# Append data from previous tag if present
+				if name:
+					try:
+						yield TaggedEntry(name, type, rank, shape, " ".join(value))
+					except InvalidEntry, ee:
+						raise InvalidEntry(0, 0, msg=ee.msg)
 
-  entries = property(iterateEntries, None, None, "Iterator over parsed entries")
+				name = match.group("name")
+				type = match.group("type")
+				rank = int(match.group("rank"))
+				if rank > 0:
+					shape = tuple([ int(s) for s in match.group("shape").split(",") ])
+				else:
+					shape = ()
+				value = []
+##				iTaggedLine = iLine
+			else:
+				value.append(line)
+
+		# process last entry
+		if name:
+			try:
+				yield TaggedEntry(name, type, rank, shape, " ".join(value))
+			except InvalidEntry, ee:
+				raise
+
+	entries = property(iterateEntries, None, None, "Iterator over parsed entries")
 
 ################################################################################
 # End Code imported from Balint
@@ -354,7 +357,7 @@ class noodlecalc(Calculator):
 		#@todo: replace option file name by passing a dictionary of configuration options
 		Calculator.__init__(self, verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "initializing noodle calculator"
+			print("initializing noodle calculator")
 		# first parse config file and store into internal variables
 		self.config = ConfigParser.SafeConfigParser(defaults=self.defaults)
 		self.config.read(optionfname)
@@ -371,7 +374,7 @@ class noodlecalc(Calculator):
 			self.workdir=os.path.abspath(self.workdir)
 			if not os.path.exists(self.workdir):
 				if self.verbosity>=constants.VBL_DEBUG1:
-					print 'noodle calculator: workdir "%s" does not exist, creating it.'
+					print('noodle calculator: workdir "{0:s}" does not exist, creating it.'.format(self.workdir))()
 				os.mkdir(self.workdir)
 				self._rmworkdir=True
 			else:
@@ -403,27 +406,26 @@ class noodlecalc(Calculator):
 		#conversion from dftb to noodle maximum angular momentum spec
 		maxang=["x","s","p","d","f"]
 		ninput = open(self.infilename,"w")
-		# first input the  user-provided parameters, then specify all our own data with override
+		# first input the	user-provided parameters, then specify all our own data with override
 		if self.paraminclude[-4:-1].lower==".xml":
-			print >> ninput, "<<! %s" % (self.paraminclude)
+			print("<<! {0:s}".format(self.paraminclude),file=ninput)
 		else:
-			print >> ninput, "<<+ %s" % (self.paraminclude)
+			print("<<+ {0:s}".format(self.paraminclude),file=ninput)
 		#keep the geometry file separate
-		print >> ninput, """Geometry = GenFormat {\n <<< "input.gen" \n}"""
+		print("""Geometry = GenFormat {\n <<< "input.gen" \n}""",file=ninput)
 ##		#this should hopefully give us forces and total energies at a single point
-##		print >> ninput, "!Driver = ConjugateGradient{MovedAtoms=Range{1 -1} MaxSteps=0}"
-		#override initial charge reuse according to options  and existence of charge file
+		#override initial charge reuse according to options	and existence of charge file
 		if self.rchr:
 			if os.path.exists("charges.bin"):
-				print >> ninput, "*Hamiltonian = *DFTB {!ReadInitialCharges = Yes}"
+				print("*Hamiltonian = *DFTB {!ReadInitialCharges = Yes}",file=ninput)
 		else:
-			print >> ninput, "*Hamiltonian = *DFTB {!ReadInitialCharges = No}"
+			print("*Hamiltonian = *DFTB \{!ReadInitialCharges = No\}",file=ninput)
 		#specify system charge
-		print >> ninput, "*Hamiltonian = *DFTB {!Charge = %f}" % charge
+		print("*Hamiltonian = *DFTB {{!Charge = {0:f} }}".format(charge),file=ninput)
 		#specify the Slater-Koster files and Max angular momenta
 		sklist=[]
 		mxalist=[]
-		symlist,symdict=Geo.getatomsymlistdict()
+		symlist,symdict=Geo.getatomsymlistdict() #@UnusedVariable
 		for i in symlist:
 			mxalist.append(Geo.PTE[i]+' = "'+maxang[Geo.LMAX[i]]+'"')
 			for j in symlist:
@@ -434,20 +436,20 @@ class noodlecalc(Calculator):
 					sklist.append(Geo.PTE[i]+"-"+Geo.PTE[j]+' = "./'
 					+Geo.PTE[i].capitalize()+"-"+Geo.PTE[j].capitalize()+'.skf"')
 		newline="\n"
-		print >> ninput, "*Hamiltonian = *DFTB {!SlaterKosterFiles = {"
-		print >> ninput, newline.join(sklist)+"}"
-		print >> ninput, "!MaxAngularMomentum = {"
-		print >> ninput, newline.join(mxalist)+"}}"
+		print("*Hamiltonian = *DFTB {!SlaterKosterFiles = {",file=ninput)
+		print(newline.join(sklist)+"}",file=ninput)
+		print("!MaxAngularMomentum = {",file=ninput)
+		print(newline.join(mxalist)+"}}",file=ninput)
 		#override output options to our own needs
-		print >> ninput, """*Options = {
+		print("""*Options = {
 !AtomResolvedEnergies = No
 !WriteResultsTag = Yes
-!CalculateForces = Yes}"""
+!CalculateForces = Yes}""",file=ninput)
 		#set pointcharges options, if specified
 		if pchr:
-			print >> ninput,"*Hamiltonian = *DFTB {*ElectricField ={ *PointCharges= {"
-			print >> ninput,'<<< "pointcharges.xyzq"'
-			print >> ninput,'}}}'
+			print("*Hamiltonian = *DFTB {*ElectricField ={ *PointCharges= {",file=ninput)
+			print('<<< "pointcharges.xyzq"',file=ninput)
+			print('}}}',file=ninput)
 		ninput.close()
 
 
@@ -455,7 +457,7 @@ class noodlecalc(Calculator):
 	def _prepare(self, steplabel, Geometry, charge):
 		"""prepare NOODLE calculator run c.f. base class"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "preparing noodle run"
+			print("preparing noodle run")
 		# if exitsts, copy old chages file
 		chrfilename=steplabel+"-charges.bin"
 		if os.path.exists(self.chrdir+"/"+chrfilename):
@@ -473,7 +475,7 @@ class noodlecalc(Calculator):
 			self.remapatoms=None
 		self._writenoodleinput(Geometry,charge,pchrenable)
 		# copy the SK files into the rundir
-		symlist,symdict=Geometry.getatomsymlistdict()
+		symlist,symdict=Geometry.getatomsymlistdict() #@UnusedVariable
 		for i in symlist:
 			for j in symlist:
 				if self.oldSKnames:
@@ -488,12 +490,12 @@ class noodlecalc(Calculator):
 	def _postrun(self, steplabel):
 		"""Things to do after noodle run, i.e. save charges.bin, clean up c.f. base class"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "noodle postrun cleanup and statistics"
+			print("noodle postrun cleanup and statistics")
 		# first some statistics
 		self.totalscf+=self.scfit
 		self.totalruns+=1
 		if self.verbosity>=constants.VBL_TALKY:
-			print "%s: SCC iterations: %3d   ----   Total Energy: %12.6fH" % (steplabel,self.scfit,self.etot)
+			print("{0:s}: SCC iterations: {1:3d}	 ----	 Total Energy: {2:12.6f} H".format(steplabel,self.scfit,self.etot))
 		if os.path.exists(self.rundir+"/charges.bin"):
 			chargefilename=steplabel+"-charges.bin"
 			if not os.path.exists(self.chrdir):
@@ -512,7 +514,7 @@ class noodlecalc(Calculator):
 		"""Read total energy and gradients from result files in current directory
 		@param : atomcount number of atoms in system (ignored!)"""
 		if self.verbosity>=constants.VBL_DEBUG2:
-			print "parsing noodle output"
+			print("parsing noodle output")
 		#overwrite atomcount, if we were working on a subgeometry
 		if self.remapatoms!=None:
 			realatomcount=atomcount
@@ -536,7 +538,7 @@ class noodlecalc(Calculator):
 		if tagresults.getEntry("scc").value[0]:
 			self.scfit=int(tagresults.getEntry("n_scc_iters").value[0])
 			if not tagresults.getEntry("scc_convergence").value[0] and self.verbosity>=constants.VBL_TALKY:
-				print "Warning: noodle SCC not converged, forces may be wrong!"
+				print("Warning: noodle SCC not converged, forces may be wrong!")
 		else:
 			self.scfit=1
 		#remap forces, in case we have been working on a subgeometry
@@ -554,5 +556,4 @@ class noodlecalc(Calculator):
 			self.remove_workdir()
 		Calculator.shutdown(self)
 		if self.verbosity>=constants.VBL_DEBUG1:
-			print "noodle calculator shut down"
-
+			print("noodle calculator shut down")
