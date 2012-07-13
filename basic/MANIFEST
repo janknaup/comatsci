@@ -1,6 +1,7 @@
 .project
 .pydevproject
 LICENSE
+MANIFEST
 MANIFEST.in
 README
 epydoc-html.ini
@@ -11,6 +12,7 @@ doc/run.sh.example
 src/comatsci/DOS.py
 src/comatsci/Spline.py
 src/comatsci/__init__.py
+src/comatsci/_version.py
 src/comatsci/constants.py
 src/comatsci/utils.py
 src/comatsci/Calculators/CalcError.py
