@@ -1,11 +1,25 @@
 #!/usr/bin/env python
 from distutils.core import setup,Extension
 from distutils.dir_util import remove_tree
-import os
+import os,subprocess,sys
+
+from bzrlib.branch import BzrBranch
+branch = BzrBranch.open_containing('.')[0]
+
+sys.path.append("src/comatsci")
+
+from constants import VERSIONPREFIX as COMATSCI_VERSIONPREFIX
+from constants import VERSION as COMATSCI_VERSION
+
+print COMATSCI_VERSION
 
 startpath=os.getcwd()
 
-VERSIONTAG="1.2.0-pre001"
+if branch.nick!="trunk":
+	VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{1:s}-{0:d}".format(branch.last_revision_info()[0],branch.nick)
+else:
+	VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{0:d}".format(branch.last_revision_info()[0])
+
 AUTHOR="Jan M. Knaup"
 AU_EMAIL="janknaup@gmail.com"
 URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
@@ -48,9 +62,6 @@ distrib=setup (	name="comatsci-base",
 			'License :: OSI Approved :: Non-Profit Open Software License v3',
 			'Operating System :: POSIX',
 			'Programming Language :: Python',
-			'Programming Language :: Python :: 2.4',
-			'Programming Language :: Python :: 2.5',
-			'Programming Language :: Python :: 2.6',
 			'Programming Language :: Python :: 2.7',
 			'Topic :: Scientific/Enginieering',
 			'Topic :: Scientific/Enginieering :: Physics',
