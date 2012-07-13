@@ -2394,11 +2394,38 @@ class Geometry:
 		# list must be in descending order to avoid index shifting problems
 		pruneList=[]
 		for i in range(pruned.Atomcount-1,-1,-1):
-			if (fractional[i][0]>=0.95 or fractional[i][1]>=0.95 or fractional[i][2]>=0.95 or
+			if (fractional[i][0]>=1.0 or fractional[i][1]>=1.0 or fractional[i][2]>=1.0 or
 			 fractional[i][0]<0 or fractional[i][1]<0 or fractional[i][2]<0):
 				pruneList.append(i)
 		# now remove atoms
 		for i in pruneList:
 			pruned.delatom(i)
 		# finished pruning, return
+		return pruned
+	
+	
+	def doubleRemoved(self,doubleCutoff=0.2):
+		"""
+		return a copy of self with double atoms removed (which may occur at supercell boundaries)
+		Only useful for periodic Geometries
+		@type doubleCutoff: float
+		@param doubleCutoff: if atoms are closer than doubleCutoff * sum of covalent radii, remove one of them  
+		@return: Geometry derived from self where atoms falling closer than doubeCutoff to another atom are removed
+		"""
+		# first get a bond list with short cutoff
+		bondList=self.bondlist(doubleCutoff)
+		# initialize list of atoms to be removed
+		removeList=[]
+		# iterate through erroneous short bonds, list one atom to be removed, removed other side of erroneous bond to avoid removing both atoms
+		for ii in range(self.Atomcount):
+			for jj in bondList[ii]:
+				removeList.append(jj)
+				bondList[jj].remove(ii)
+		# sort list of atoms to be removed
+		removeList.sort(reverse=True)
+		# make a deep copy of self and remove the offending atoms
+		pruned=copy.deepcopy(self)
+		for ii in removeList:
+			pruned.delatom(ii)
+		# finisehd, return
 		return pruned

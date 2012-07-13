@@ -41,17 +41,19 @@ def getCircumscribingCell(cell,unitcell=None):
         inverseUnitcell=numpy.linalg.inv(unitcell)
     # express the arbitrary cell in unit cell vectors
     reducedCell=numpy.round(numpy.dot(cell,inverseUnitcell),0)
-    print(reducedCell)
+#    print(reducedCell)
     # shorthand variables
     a=reducedCell[0]
     b=reducedCell[1]
     c=reducedCell[2]
     # calculate reduced cell vertices
     reducedVertices=numpy.array(((0,0,0),a,b,c,a+b,a+c,b+c,a+b+c),dtype=int)
+    print("reducedvertices",reducedVertices)
     # get x,y,z extrema
     minimax=numpy.array((numpy.min(reducedVertices, 0),numpy.max(reducedVertices, 0)),dtype=int)
     # return origin and circumscribing cell size
-    print(minimax)
+    print("minimax",minimax)
+    print("return",(minimax[0],minimax[1]-minimax[0]))
     return (minimax[0],minimax[1]-minimax[0])
     
     
@@ -74,8 +76,8 @@ def completeSupercell(unclecell, additionalcell, config):
     unclecell.Lattice*=config.getfloat("uncle","real_lattice")
     unclecell.foldToCell()
     addgeo.foldToCell()
-    print(addgeo.Lattice)
-    print(unclecell.Lattice)
+#    print(addgeo.Lattice)
+#    print(unclecell.Lattice)
     # get the size and origin of the supercell of reference geometries circumscribing the uncle cell
     (origin,size)=getCircumscribingCell(unclecell.Lattice,addgeo.Lattice)
     print("sizes: A {0[0]:d} B {0[1]:d} C {0[2]:d}".format(size))
@@ -87,7 +89,7 @@ def completeSupercell(unclecell, additionalcell, config):
     addgeo.Lattice=numpy.array(unclecell.Lattice)
     addgeo.appendgeometryflat(unclecell.elementsubgeometry(config.getint("uncle", "element")))
     # prune the additional atoms outside the uncle cell and return
-    retgeo=addgeo.outOfCellPruned()
+    retgeo=addgeo.outOfCellPruned().doubleRemoved()
 #    retgeo.foldToCell()
     return retgeo
    
