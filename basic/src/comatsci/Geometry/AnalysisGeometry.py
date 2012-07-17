@@ -1289,7 +1289,7 @@ class AnalysisGeometry(Geometry):
 							data=1.0
 						else:
 							data=0.0
-						print("{0:f}  ".format(data),end=" ",file=cfile)
+						print("{0:3.1f}".format(data),end=" ",file=cfile)
 						if colcount==5:
 							colcount=0
 							print("",file=cfile)
