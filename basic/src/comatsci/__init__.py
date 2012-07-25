@@ -21,7 +21,7 @@ import DOS
 from Path import *
 import Calculators
 import Schedulers
-import Dimer
+#import Dimer
 import Optimizers
 
 __all__=["Geometry","Spline","constants","utils","DOS","Path","Calculators","Schedulers","Optimizers"]

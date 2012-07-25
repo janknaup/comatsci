@@ -22,7 +22,7 @@ VERSIONPREFIX="1.3.0"
 if bzrversion["branch_nick"]!="trunk": 
     VERSION=VERSIONPREFIX+"-{0:s}-{1:d}".format(bzrversion["branch_nick"],bzrversion["revno"])
 else:
-    VERSION=VERSIONPREFIX+"{0:d}".format(bzrversion["revno"])
+    VERSION=VERSIONPREFIX+"-{0:d}".format(bzrversion["revno"])
 
 # Verbosity levels:
 # only fatal errors
