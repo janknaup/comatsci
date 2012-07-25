@@ -3,22 +3,25 @@ from distutils.core import setup,Extension
 from distutils.dir_util import remove_tree
 import os,subprocess,sys
 
-from bzrlib.branch import BzrBranch
-branch = BzrBranch.open_containing('.')[0]
-
 sys.path.append("src/comatsci")
 
 from constants import VERSIONPREFIX as COMATSCI_VERSIONPREFIX
 from constants import VERSION as COMATSCI_VERSION
 
+from bzrlib.branch import BzrBranch
+try:
+	branch = BzrBranch.open_containing('.')[0]
+	if branch.nick!="trunk":
+		VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{1:s}-{0:d}".format(branch.last_revision_info()[0],branch.nick)
+	else:
+		VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{0:d}".format(branch.last_revision_info()[0])
+except:
+		VERSIONTAG=COMATSCI_VERSIONPREFIX
+	
+
 print COMATSCI_VERSION
 
 startpath=os.getcwd()
-
-if branch.nick!="trunk":
-	VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{1:s}-{0:d}".format(branch.last_revision_info()[0],branch.nick)
-else:
-	VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{0:d}".format(branch.last_revision_info()[0])
 
 AUTHOR="Jan M. Knaup"
 AU_EMAIL="janknaup@gmail.com"
