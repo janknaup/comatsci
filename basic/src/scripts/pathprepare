@@ -44,9 +44,9 @@ parser.add_option("-c","--calcinputs",
 parser.add_option("--inconsistent",
 		action="store_false", dest="checkCompat", default=True,
 		help="Do not check subsequent geometries for consistency with preceeding one. Useful for creating targets of isodesmic reactions etc. Default: check for consistency.")
-parser.add_option("-r","--rener-resample",
-		action="store", type="int", metavar="N", dest="rennerresample", default=0,
-		help="resample path by Renner Subsplines to contain a total of N images at equal arc length spacing, default: no Renner subspline resampling. Cannot be combined with -i, -s or -e")
+#parser.add_option("-r","--rener-resample",
+#		action="store", type="int", metavar="N", dest="rennerresample", default=0,
+#		help="resample path by Renner Subsplines to contain a total of N images at equal arc length spacing, default: no Renner subspline resampling. Cannot be combined with -i, -s or -e")
 
 
 (options,args) = parser.parse_args()
