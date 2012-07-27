@@ -9,6 +9,8 @@
 # see file LICENSE for details.
 ##############################################################################
 
+from __future__ import print_function
+
 import os,sys
 
 versionname="python%d.%d" % sys.version_info[0:2]
@@ -46,9 +48,12 @@ parser.add_option("-t", "--tolerance",
 
 
 if (len(args) > 2):
-	print "unexpected arguments in command line : %s" % (string(args[2:]))
-	print "aborting"
+	print("unexpected arguments in command line : {0:s}\nabort.".format(args[2:]))
 	sys.exit(1)
+elif len(args)<1:
+	print("expecting an input file name.\nabort.")
+	sys.exit(1)
+		
 
 infilename=os.path.abspath(args[0])
 
@@ -57,15 +62,15 @@ geo.readfile(infilename)
 # if a layer to add was specified, do it
 
 if options.layer!=None:
-	print "extracting layer subgeometry for layer %d:%s" % (
-		options.layer,geo.LayerDict[options.layer].Name)
+	print("extracting layer subgeometry for layer {0:d}:{1:s}".format(
+		options.layer,geo.LayerDict[options.layer].Name))
 	outgeo=geo.layersubgeometry(options.layer)
 else:
 	outgeo=geo
 
 if options.element!=None:
-	print "filtering for element %d%s" % (
-		options.element,geo.PTE[options.element])
+	print("filtering for element {0:d}:{1:s}".format(
+		options.element,geo.PTE[options.element]))
 	outgeo=outgeo.elementsubgeometry(options.element)
 else:
 	pass
@@ -78,5 +83,5 @@ else:
 	outfilename=os.path.basename(outfilename)[0:dotpos]+".pdb"
 		
 
-print "Using bond detection tolerance of %f"%options.tolerance
+print("Using bond detection tolerance of {0:10.7f}".format(options.tolerance))
 outgeo.writepdb(outfilename, beta=outgeo.get_atom_coordination_differences(options.tolerance), writebondlist=True)
