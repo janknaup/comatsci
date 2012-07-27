@@ -487,7 +487,7 @@ class Reactionpath:
 		# iterate through path images
 		refGroup=None
 		for image in range(self.numimages()):
-			imagelabel="frame{0:010i}".format(image)
+			imagelabel="frame{0:010d}".format(image)
 			# first write the image geometry
 			if image==0 and savespace:
 				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel)[1] #@UndefinedVariable
@@ -562,7 +562,10 @@ class Reactionpath:
 	
 	def has_realforces(self):
 		"""return true if calculated forces are available, else false"""
-		return len(self.realforces)==self.numimages()
+		if self.realforces!=None:
+			return len(self.realforces)==self.numimages()
+		else:
+			return False
 
 
 

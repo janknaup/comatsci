@@ -8,6 +8,7 @@
 # Licensed under the Non-Profit Open Software License version 3.0
 # see file LICENSE for details.
 ##############################################################################
+from __future__ import print_function
 
 import os,sys
 
@@ -53,17 +54,17 @@ parser.add_option("--inconsistent",
 
 
 if len(args)<2 and len(args)!=1:
-	print "You must specify at least one start and one end structure. Abort."
+	print("You must specify at least one start and one end structure. Abort.")
 	sys.exit()
 
 if options.interpolate!=0 and (options.splineresample!=0 or options.rennerresample!=0):
-	print "Cannot combine linear interpolation and spline resampling in one call. Abort."
+	print("Cannot combine linear interpolation and spline resampling in one call. Abort.")
 	sys.exit()
 if options.interpolate!=0 and (options.equisplineresample!=0  or options.rennerresample!=0):
-	print "Cannot combine linear interpolation and equidistant spline resampling in one call. Abort."
+	print("Cannot combine linear interpolation and equidistant spline resampling in one call. Abort.")
 	sys.exit()
 if options.equisplineresample!=0 and (options.splineresample!=0 or options.rennerresample!=0):
-	print "Cannot combine normal and equidistant spline resampling in one call. Abort."
+	print("Cannot combine normal and equidistant spline resampling in one call. Abort.")
 	sys.exit()
 
 # be yakky
@@ -73,32 +74,34 @@ tool to prepare reaction paths for NEB relaxation in PaSTaFARIAn"""
 
 # sanity-check geometry filetype spec
 if options.fileType!=None:
-	if not options.fileType in ("fmg","gen","xyz"):
-		raise """spefified geometry file type "%s" unknown! abort.""" % options.fileType
+	if not options.fileType in ("fmg","gen","xyz","cdh"):
+		raise ValueError("""spefified geometry file type "{0:s}" unknown! abort.""".format(options.fileType))
 
 
 #inititalize path and read geometry files
 path=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
-print "reading input geometries"
+print("reading input geometries")
 if len(args)==1:
 	if ".xyz" in args[0][-8:].lower():
 		path.readXyzPath(args[0])
 	elif ".fmg" in args[0][-8:].lower():
 		path.readfmgpath(args[0])
+	elif ".cdh" in args[0][-8:].lower():
+		path.readCDHPath(args[0])	
 	else:
-		print "ERROR: unknown path file format."
+		print("ERROR: unknown path file format.")
 		sys.exit(1)
 else:
 	for i in args:
 		path.appendgeofile(i,checkCompat=options.checkCompat,TypeSpec=options.fileType)
-		print i
-print "read %d geometries" % (path.numimages())
+		print(i)
+print("read {0:d} geometries".format(path.numimages()))
 
 #interpolate if specified
 if options.interpolate!=0:
 	path.pathinterpolate(options.interpolate)
-	print "interpolating %d intermediates per input geometry interval." % (options.interpolate)
-	print "path has now %d images total." % (path.numimages())
+	print("interpolating {0:d} intermediates per input geometry interval.".format(options.interpolate))
+	print("path has now {0:d} images total.".format(path.numimages()))
 ##	path.writecheckpoint("checkpoint")
 	path.writexyzpath("path.xyz")
 ##	print "interpolated path images wirtten to checkpoint"
@@ -106,46 +109,46 @@ if options.interpolate!=0:
 
 if options.splineresample!=0:
 	path.splineResample(options.splineresample)
-	print "spline resampling path at %d points." % (options.splineresample)
-	print "path has now %d images total." % (path.numimages())
+	print("spline resampling path at {0:d} points.".format(options.splineresample))
+	print("path has now {0:d} images total.".format(path.numimages()))
 ##	print "interpolated path images wirtten to checkpoint"
 
 
 if options.equisplineresample!=0:
-	print "spline resampling path at %d equidistant points." % (options.equisplineresample)
-	print "this may take a while, please wait..."
+	print("spline resampling path at {0:d} equidistant points.".format(options.equisplineresample))
+	print("this may take a while, please wait...")
 	path.equiDistSplineResample(options.equisplineresample)
-	print "path has now %d images total." % (path.numimages())
+	print("path has now {0:d} images total.".format(path.numimages()))
 
 
 
-if options.rennerresample!=0:
-	# sanity check: Renner Subspline resampling needs at least 5 images in path
-	if path.numimages() < 5:
-		print "Error: Renner Subspline resampling requires at least 5 images in original path. Abort."
-		sys.exit(1)
-	print "Renner Subspline resampling path at %d equidistant points." % (options.rennerresample)
-	# generate Rspline representation of path
-	path._genRsplineRep()
-	# calculate curve length points at which to interpolate
-	params= []
-	for i in range(options.rennerresample):
-		params.append((path._rSplineRep.totalLength/(options.rennerresample-1))*i)
-	print path._rSplineRep.totalLength
-	print params
-	# resample path
-	path.rennerSubsplineResample(params)
-	print "path has now %d images total." % (path.numimages())
+#if options.rennerresample!=0:
+#	# sanity check: Renner Subspline resampling needs at least 5 images in path
+#	if path.numimages() < 5:
+#		print "Error: Renner Subspline resampling requires at least 5 images in original path. Abort."
+#		sys.exit(1)
+#	print "Renner Subspline resampling path at %d equidistant points." % (options.rennerresample)
+#	# generate Rspline representation of path
+#	path._genRsplineRep()
+#	# calculate curve length points at which to interpolate
+#	params= []
+#	for i in range(options.rennerresample):
+#		params.append((path._rSplineRep.totalLength/(options.rennerresample-1))*i)
+#	print path._rSplineRep.totalLength
+#	print params
+#	# resample path
+#	path.rennerSubsplineResample(params)
+#	print "path has now %d images total." % (path.numimages())
 
 
 
 if options.calcinputs!=None:
 	#check if valid calculator type was specified
 	if not options.calcinputs in comatsci.constants.PASTACALCS:
-		print "Unknown (or unsupported) calculator '%s' specified. abort." % (options.calcinputs,)
+		print("Unknown (or unsupported) calculator '{0:s}' specified. abort.".format(options.calcinputs))
 		sys.exit(1)
 	#be verbose
-	print "preparing to generate input files for %s single point calculations." % (options.calcinputs)
+	print("preparing to generate input files for {0:s} single point calculations.".format(options.calcinputs))
 	#store cwd, create ./calcinputs and cd into it
 	oldpath=os.path.realpath(".")
 	if not os.path.exists("./calcinputs"):
@@ -154,8 +157,8 @@ if options.calcinputs!=None:
 	#prepare calculator to generate inputs
 	if options.calcinputs=="siesta":
 		dummycalc=comatsci.Calculators.siestacalc(optionfname="../pypath.ini")
-	elif options.calcinputs=="dftb":
-		dummycalc=comatsci.Calculators.dftbcalc(optionfname="../pypath.ini")
+#	elif options.calcinputs=="dftb":
+#		dummycalc=comatsci.Calculators.dftbcalc(optionfname="../pypath.ini")
 	elif options.calcinputs=="noodle":
 		dummycalc=comatsci.Calculators.noodlecalc(optionfname="../pypath.ini")
 	elif options.calcinputs=="gaussian":
@@ -168,11 +171,12 @@ if options.calcinputs!=None:
 		dummycalc.calcInput(path.geos[i], steplabel,charge=0)
 	#finally, return to old path
 	os.chdir(oldpath)
-	print "done."
+	print("done.")
 
 
-print '''finished all requested operations. Writing path checkpoint "preppath"'''
+print('''finished all requested operations. Writing path checkpoint "preppath"''')
 
 path.writecheckpoint("preppath")
 path.writexyzpath("preppath.xyz")
 path.writefmgpath("preppath.fmg")
+path.writeCDHPath("preppath.cdh")
