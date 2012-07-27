@@ -9,40 +9,46 @@
 # see file LICENSE for details.
 ##############################################################################
 
-import pypath
+from __future__ import print_function
+
+import comatsci
 import Numeric as num
 import sys
+
+if not len(sys.argv)==4:
+	print("Error: expecting exactly 4 arguments: {input file} {output file} {number of fixed atoms} {distance scale}")
+	sys.exit(-1)
 
 infilename=str(sys.argv[1])
 outfilename=str(sys.argv[2])
 coreatoms=int(sys.argv[3])
 distscale=float(sys.argv[4])
 
-g=pypath.Geometry.Geometry()
+g=comatsci.Geometry.Geometry()
 g.readfile(infilename)
 
 linkeds=g.bondlist()[coreatoms:]
 ##print linkeds
 links=[]
 for i in range(len(linkeds)):
-  for j in linkeds[i]:
-    links.append((i+coreatoms,j))
+	for j in linkeds[i]:
+		links.append((i+coreatoms,j))
 
 bdirs=num.zeros((len(links),3),num.Float)
 blens=num.zeros((len(links),),num.Float)
 
 reallinks=[]
 for i in range(len(links)):
-  if links[i][1]<coreatoms:
-    reallinks.append(links[i])
+	if links[i][1]<coreatoms:
+		reallinks.append(links[i])
 
 for i in range(len(reallinks)):
-##  print reallinks[i]
-  bdirs[i]=g.Geometry[reallinks[i][1]]-g.Geometry[reallinks[i][0]]
-  blens[i]=num.sqrt(num.dot(bdirs[i],bdirs[i]))
-  bdirs[i]/=blens[i]
+##	print reallinks[i]
+	bdirs[i]=g.Geometry[reallinks[i][1]]-g.Geometry[reallinks[i][0]]
+	blens[i]=num.sqrt(num.dot(bdirs[i],bdirs[i]))
+	bdirs[i]/=blens[i]
 
 for i in range(len(reallinks)):
-  g.Geometry[i+coreatoms]+=bdirs[i]*(blens[i]*(1-distscale))
+	g.Geometry[i+coreatoms]+=bdirs[i]*(blens[i]*(1-distscale))
 
 g.writegen(outfilename)
