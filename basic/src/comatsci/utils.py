@@ -493,7 +493,7 @@ class ProgressMeter(object):
 		bar = '-' * self.meter_value
 		pad = ' ' * (self.meter_ticks - self.meter_value)
 		perc = (float(self.count) / self.total) * 100
-		return '[{0:s}>{1:s}] {2:d}%  {3:.1f}/sec'.format(bar, pad, perc, self.rate_current)
+		return '[{0:s}>{1:s}] {2:4.1f}%  {3:.1f}/sec'.format(bar, pad, perc, self.rate_current)
 
 	def refresh(self, **kw):
 		# Clear line
