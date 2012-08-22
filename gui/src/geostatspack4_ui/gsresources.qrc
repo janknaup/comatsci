@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="images">
+    <file>images/GSLogo.svg</file>
+  </qresource>
+  <qresource prefix="html">
+    <file>html/about.htm</file>
+    <file>html/geostatsSplash.htm</file>
+  </qresource>
+</RCC>

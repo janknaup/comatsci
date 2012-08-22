@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>632</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>geostats</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="gsresources.qrc">
+    <normaloff>:/images/images/GSLogo.svg</normaloff>:/images/images/GSLogo.svg</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>-1</x>
+      <y>-1</y>
+      <width>631</width>
+      <height>431</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="cursor" stdset="0">
+        <cursorShape>ArrowCursor</cursorShape>
+       </property>
+       <property name="documentTitle">
+        <string>geostats</string>
+       </property>
+       <property name="html">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;title&gt;geostats&lt;/title&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;:/images/images/GSLogo.svg&quot; /&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;geostats&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;tool to analyze and manupulate molecular geometries for computational materials science&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;part of the comatsci computational materials science toolkit&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>632</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_geometry_as"/>
+    <addaction name="separator"/>
+    <addaction name="actionPrint_Output"/>
+    <addaction name="actionSave_output"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionEdit_Atoms"/>
+    <addaction name="actionPeriodic_Expand"/>
+    <addaction name="separator"/>
+    <addaction name="actionSimple_link_Layers"/>
+    <addaction name="actionBCTC_link_lLayers"/>
+   </widget>
+   <widget class="QMenu" name="menuStatistics">
+    <property name="title">
+     <string>Statistics</string>
+    </property>
+    <widget class="QMenu" name="menuSummaries">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Summaries</string>
+     </property>
+     <addaction name="actionCoordinations"/>
+     <addaction name="actionCharges"/>
+    </widget>
+    <widget class="QMenu" name="menuGraphs">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Graphs</string>
+     </property>
+     <addaction name="actionRadial_Distribution_Functions"/>
+     <addaction name="actionAngle_Distribution_Histogram"/>
+     <addaction name="actionBond_Length_Histogram"/>
+     <addaction name="separator"/>
+     <addaction name="actionElement_Charge_Historgrams"/>
+    </widget>
+    <addaction name="menuSummaries"/>
+    <addaction name="menuGraphs"/>
+    <addaction name="separator"/>
+    <addaction name="actionWrite_BCTC_Coefficients"/>
+    <addaction name="actionDFTB_Charge_Constraints"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionHelp"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuStatistics"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save Geometry</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_geometry_as">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save Geometry As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionSave_output">
+   <property name="text">
+    <string>Save Output</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="actionEdit_Atoms">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Edit Atoms</string>
+   </property>
+  </action>
+  <action name="actionPeriodic_Expand">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Periodic Expand</string>
+   </property>
+  </action>
+  <action name="actionSimple_link_Layers">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Simple-link Layers</string>
+   </property>
+  </action>
+  <action name="actionBCTC_link_lLayers">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>BCTC-link lLayers</string>
+   </property>
+  </action>
+  <action name="actionCoordinations">
+   <property name="text">
+    <string>Coordinations</string>
+   </property>
+  </action>
+  <action name="actionCharges">
+   <property name="text">
+    <string>Charges</string>
+   </property>
+  </action>
+  <action name="actionWrite_BCTC_Coefficients">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Write BCTC Coefficients</string>
+   </property>
+  </action>
+  <action name="actionDFTB_Charge_Constraints">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>DFTB Charge Constraints</string>
+   </property>
+  </action>
+  <action name="actionRadial_Distribution_Functions">
+   <property name="text">
+    <string>Radial Distribution Functions</string>
+   </property>
+  </action>
+  <action name="actionAngle_Distribution_Histogram">
+   <property name="text">
+    <string>Angle Distribution Histogram</string>
+   </property>
+  </action>
+  <action name="actionBond_Length_Histogram">
+   <property name="text">
+    <string>Bond Length Histogram</string>
+   </property>
+  </action>
+  <action name="actionElement_Charge_Historgrams">
+   <property name="text">
+    <string>Element Charge Historgrams</string>
+   </property>
+  </action>
+  <action name="actionPrint_Output">
+   <property name="text">
+    <string>Print Output</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="gsresources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>activated()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>showHelp()</slot>
+ </slots>
+</ui>
