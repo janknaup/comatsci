@@ -8,51 +8,128 @@
 # Licensed under the Non-Profit Open Software License version 3.0
 # see file LICENSE for details.
 ##############################################################################
+from __future__ import print_function
 
-import os,sys
+import os,sys,codecs
+import comatsci
 
-versionname="python%d.%d" % sys.version_info[0:2]
 
-sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
-		"../lib/",versionname,"site-packages"))
+#from optparse import OptionParser
 
-from optparse import OptionParser
+from PyQt4 import QtGui,QtCore
 
-from qt import *
+import geostatspack4
 
-import geostatspack.geostats_main as gsm
+class MainWindow(QtGui.QMainWindow):
+    def __init__(self,parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.ui = geostatspack4.geostatsMain.Ui_MainWindow()
+        self.ui.setupUi(self)
+        
+        QtCore.QObject.connect(self.ui.actionHelp, QtCore.SIGNAL("triggered()"),self.showHelp)
+        QtCore.QObject.connect(self.ui.actionAbout, QtCore.SIGNAL("triggered()"),self.showAbout)
+        QtCore.QObject.connect(self.ui.actionPrint_Output, QtCore.SIGNAL("triggered()"),self.handlePrint)
+        QtCore.QObject.connect(self.ui.actionSave_output, QtCore.SIGNAL("triggered()"),self.handleSave_Output)
+        QtCore.QObject.connect(self.ui.actionOpen, QtCore.SIGNAL("triggered()"),self.handleOpen)
+        QtCore.QObject.connect(self.ui.actionCoordinations, QtCore.SIGNAL("triggered()"),self.handleCoordinations)
+        QtCore.QObject.connect(self.ui.actionCharges, QtCore.SIGNAL("triggered()"),self.handleCharges)
+        
+        
+    def showHelp(self):
+        dlghelp=GeostatsHelp()
+        dlghelp.exec_()
 
-usage="usage: %prog [options] [<geometryfile>]\nLicensed under the Non-Profit Open Software License version 3.0"
+        
+    def showAbout(self):
+        about=QtGui.QMessageBox(parent=self)
+        about.setText("About geostats")
+        infoTextFile = QtCore.QFile(":/html/html/about.htm")
+        if infoTextFile.open(QtCore.QIODevice.ReadOnly):
+            infoString=QtCore.QString(infoTextFile.readAll())
+        else:
+            infoString="part of the comatsci computational materials science toolkit\nCopyright (c) 2004-2012 Jan M. Knaup\nError reading addition information"
+        about.setInformativeText(infoString)
+        infoTextFile.close()
+        about.setIconPixmap(QtGui.QPixmap(":/images/images/GSLogo.svg"))
+        about.show()
+    
+    
+    def handlePrint(self):
+        dialog = QtGui.QPrintDialog()
+        if dialog.exec_() == QtGui.QDialog.Accepted:
+            self.ui.textBrowser.document().print_(dialog.printer())
+    
+            
+    def handleSave_Output(self):
+        (savefile, savefilter)=QtGui.QFileDialog.getSaveFileNameAndFilter(parent=self, caption=QtCore.QString("Save Output"),
+                                                                          filter=QtCore.QString("plain text (*.txt);;html (*.htm *.html)"))#;;PDF (*.pdf)"))
+        if savefilter=="plain text (*.txt)":
+            if savefile.toLower()[-4:]!=".txt":
+                savefile+=".txt"
+            outfile=codecs.open(savefile,"w",encoding="ascii")
+            print(unicode(self.ui.textBrowser.document().toPlainText()).encode("ascii",'replace'),file=outfile)
+            outfile.close()
+        elif savefilter=="html (*.htm *.html)":
+            if savefile.toLower()[-4:]!=".htm" and savefile.toLower()[-5:]!=".html":
+                savefile+=".html"
+            outfile=open(savefile,"w")
+            print(unicode(self.ui.textBrowser.document().toHtml(encoding='utf-8')).encode("ascii",'xmlcharrefreplace'),file=outfile)
+            outfile.close()
+#        elif savefilter=="PDF (*.pdf)":
+#            if savefile.toLower()[-4:]!=".pdf":
+#                savefile+=".pdf"
+#            pass
+        else:
+            pass
+    
+    
+    def handleOpen(self):
+        geoFileName=QtGui.QFileDialog.getOpenFileName(parent=self, caption=QtCore.QString("Open Geometry"),
+                                                      filter=QtCore.QString("all supported files (*.gen *.xyz *.cdh *.fmg geometry.in);;DFTB generic (*.gen);;xmol xyz (*.xyz);;chemical data hierarchy (*.cdh);;FHI aims input (geometry.in);;flexible molecular geometry (*.fmg)"))
+        if not geoFileName.isEmpty():
+            self.readGeometry(str(geoFileName))        
+        else:
+            pass
+        
+    
+    def readGeometry(self,geoFileName):
+        self.geometry=comatsci.Geometry.AnalysisGeometry()
+        self.geometry.readfile(str(geoFileName))
+        self.ui.textBrowser.document().clear()
+        self.ui.textBrowser.insertHtml("<H1>Geometry Statistics</H1>\n<p>statistics for file &lsquo;{0:s}&rsquo;</p>\n<br>\n".format(geoFileName))
+        self.ui.actionSave.setEnabled(True)
+        self.ui.actionSave_geometry_as.setEnabled(True)
+        self.ui.menuSummaries.setEnabled(True)
+        self.ui.menuGraphs.setEnabled(True)
+        self.ui.actionWrite_BCTC_Coefficients.setEnabled(True)
+        self.ui.actionDFTB_Charge_Constraints.setEnabled(True)
 
-parser=OptionParser(usage)
+    
+    def handleCoordinations(self):
+        coordinationsSummary=self.geometry.rt_coordinations()
+        self.ui.textBrowser.insertHtml(coordinationsSummary)
+    
+    
+    def handleCharges(self):
+        chargesSummary=self.geometry.rt_charges()
+        self.ui.textBrowser.insertHtml(chargesSummary)
+    
 
-parser.add_option("-c","--convert",
-		action="store", type="str", metavar="TYPE", dest="conv", default=None,
-		help="convert input file to format TYPE and exit")
+class GeostatsHelp(QtGui.QDialog):
+    def __init__(self,parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.geostatsHelp.Ui_GeostatsHelp()
+        self.ui.setupUi(self)
 
-a = QApplication(sys.argv)
-QObject.connect(a,SIGNAL("lastWindowClosed()"),a,SLOT("quit()"))
-w = gsm.MainWindow()
-a.setMainWidget(w)
-(options,args) = parser.parse_args(a.argv())
-if len(args)>1 and os.path.exists(args[1]):
-	w.fileread(os.path.abspath(args[1]))
-if options.conv!=None:
-	oftype=options.conv.lstrip('.').strip().lower()
-	dotpos=w.filename.rfind('.')
-	ofname=os.path.basename(w.filename[:dotpos+1]+oftype)
-	if oftype=='gen':
-		w.geo.writegen(ofname)
-	elif oftype=='fdf':
-		w.geo.writefdf(ofname)
-	elif oftype=='xyz':
-		w.geo.writexyz(ofname)
-	elif oftype=='pdb':
-		w.geo.writepdb(ofname)
-	elif oftype=='fmg':
-		w.geo.writefmg(ofname)
-	else:
-		raise("Unknown output file type")
-	sys.exit(0)
-w.show()
-a.exec_loop()
+
+
+if __name__=="__main__":
+    app = QtGui.QApplication(sys.argv)
+    argList=app.arguments()
+    geostatsWidget=MainWindow()
+    if argList.count()==2:
+        geostatsWidget.readGeometry(str(argList.last()))
+    elif argList.count()>2:
+        raise ValueError("More than one geometry file specified on command line. Abort.")
+    geostatsWidget.show()
+    sys.exit(app.exec_())  
