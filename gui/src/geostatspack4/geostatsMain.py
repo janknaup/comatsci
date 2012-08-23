@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geostatsMain.ui'
 #
-# Created: Wed Aug 22 17:02:26 2012
+# Created: Thu Aug 23 14:24:28 2012
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -51,9 +51,9 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.actionOpen = QtGui.QAction(MainWindow)
         self.actionOpen.setObjectName("actionOpen")
-        self.actionSave = QtGui.QAction(MainWindow)
-        self.actionSave.setEnabled(False)
-        self.actionSave.setObjectName("actionSave")
+        self.actionSave_geometry = QtGui.QAction(MainWindow)
+        self.actionSave_geometry.setEnabled(False)
+        self.actionSave_geometry.setObjectName("actionSave_geometry")
         self.actionSave_geometry_as = QtGui.QAction(MainWindow)
         self.actionSave_geometry_as.setEnabled(False)
         self.actionSave_geometry_as.setObjectName("actionSave_geometry_as")
@@ -99,7 +99,7 @@ class Ui_MainWindow(object):
         self.actionPrint_Output.setObjectName("actionPrint_Output")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addSeparator()
-        self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionSave_geometry)
         self.menuFile.addAction(self.actionSave_geometry_as)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionPrint_Output)
@@ -153,8 +153,8 @@ class Ui_MainWindow(object):
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSave.setText(QtGui.QApplication.translate("MainWindow", "Save Geometry", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_geometry.setText(QtGui.QApplication.translate("MainWindow", "Save Geometry", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_geometry.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_geometry_as.setText(QtGui.QApplication.translate("MainWindow", "Save Geometry As", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_geometry_as.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_output.setText(QtGui.QApplication.translate("MainWindow", "Save Output", None, QtGui.QApplication.UnicodeUTF8))
