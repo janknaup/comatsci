@@ -61,6 +61,8 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.actionCharges, QtCore.SIGNAL("triggered()"),self.handleCharges)
         QtCore.QObject.connect(self.ui.actionSave_geometry, QtCore.SIGNAL("triggered()"),self.handleSave_geometry)
         QtCore.QObject.connect(self.ui.actionSave_geometry_as, QtCore.SIGNAL("triggered()"),self.handleSave_geometry_as)
+        QtCore.QObject.connect(self.ui.actionPeriodic_Expand, QtCore.SIGNAL("triggered()"),self.handlePeriodicExpand)
+        
         
     #*****************************************************************************
     #  Actual application logic  
@@ -161,8 +163,7 @@ class MainWindow(QtGui.QMainWindow):
                 errorDialog=QtGui.QErrorMessage(parent=self)
                 errorDialog.setModal(True)
                 errorDialog.showMessage(error.args[0])
-                
-
+            
         
     
 
@@ -171,11 +172,16 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.actionSave_geometry.setEnabled(True)
         self.ui.actionSave_geometry_as.setEnabled(True)
         self.ui.menuSummaries.setEnabled(True)
-        self.ui.menuGraphs.setEnabled(True)
-        self.ui.actionWrite_BCTC_Coefficients.setEnabled(True)
-        self.ui.actionDFTB_Charge_Constraints.setEnabled(True)
+        self.ui.actionCharges.setEnabled(True)
+        self.ui.actionCoordinations.setEnabled(True)
+        #self.ui.menuGraphs.setEnabled(True)
+        #self.ui.actionWrite_BCTC_Coefficients.setEnabled(True)
+        #self.ui.actionDFTB_Charge_Constraints.setEnabled(True)
+        if self.geometry.Mode=="S":
+            self.ui.actionPeriodic_Expand.setEnabled(True)
         self.ui.textBrowser.insertHtml("<H1>Geometry Statistics</H1>\n<p>statistics for file &lsquo;{0:s}&rsquo;</p>\n<br>\n".format(geoFileName))
         
+
 
     def readGeometry(self,geoFileName):
         self.geoFileName=str(geoFileName)
@@ -188,12 +194,26 @@ class MainWindow(QtGui.QMainWindow):
     def handleCoordinations(self):
         coordinationsSummary=self.geometry.rt_coordinations()
         self.ui.textBrowser.insertHtml(coordinationsSummary)
+        self.ui.actionCoordinations.setEnabled(False)
     
     
     def handleCharges(self):
         chargesSummary=self.geometry.rt_charges()
         self.ui.textBrowser.insertHtml(chargesSummary)
+        self.ui.actionCharges.setEnabled(False)
+        
     
+    def handlePeriodicExpand(self):
+        expandDialog=PeriodicExpand(parent=self)
+        result=expandDialog.exec_()
+        if result:
+            aRepeat=expandDialog.ui.aSpinBox.value()
+            bRepeat=expandDialog.ui.bSpinBox.value()
+            cRepeat=expandDialog.ui.cSpinBox.value()
+            self.geometry.periodicexpand((aRepeat,bRepeat,cRepeat))
+            self.resetForGeoChanged(self.geoFileName)
+    
+
 
 class GeostatsHelp(QtGui.QDialog):
     def __init__(self,parent=None):
@@ -201,6 +221,12 @@ class GeostatsHelp(QtGui.QDialog):
         self.ui = geostatspack4.geostatsHelp.Ui_GeostatsHelp()
         self.ui.setupUi(self)
 
+
+class PeriodicExpand(QtGui.QDialog):
+    def __init__(self,parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.periodicExpand.Ui_periodicExpand()
+        self.ui.setupUi(self)
 
 
 if __name__=="__main__":
