@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geostatsHelp.ui'
 #
-# Created: Wed Aug 22 17:02:25 2012
+# Created: Thu Aug 23 14:24:27 2012
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
