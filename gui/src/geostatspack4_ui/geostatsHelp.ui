@@ -25,7 +25,7 @@ Python:#########################################################################
   </property>
   <property name="windowIcon">
    <iconset resource="gsresources.qrc">
-    <normaloff>:/images/images/GSLogo.svg</normaloff>:/images/images/GSLogo.svg</iconset>
+    <normaloff>:/images/images/GSLogoHelp.svg</normaloff>:/images/images/GSLogoHelp.svg</iconset>
   </property>
   <property name="windowIconText">
    <string>Help on Geostats</string>

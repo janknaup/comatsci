@@ -40,7 +40,7 @@ class MainWindow(QtGui.QMainWindow):
                      "DFTB generic (*.gen)"                 :   "gen", 
                      "flexible molecular geometry (*.fmg)"  :   "fmg" ,
                      "DFTB point charge format (*.xyzq)"    :   "xyzq",
-                     "TurboMole geometry fromat (coord)"    :   "tm"  ,
+                     "TurboMole geometry format (coord)"    :   "tm"  ,
                      "FHI aims input (geometry.in)"         :   "aims",
                      "chemical data hierarchy (*.cdh)"      :   "cdh" 
                      }
@@ -165,18 +165,24 @@ class MainWindow(QtGui.QMainWindow):
 
         
     
-    def readGeometry(self,geoFileName):
-        self.geoFileName=str(geoFileName)
-        self.geometry=comatsci.Geometry.AnalysisGeometry()
-        self.geometry.readfile(str(geoFileName))
+
+    def resetForGeoChanged(self,geoFileName):
         self.ui.textBrowser.document().clear()
-        self.ui.textBrowser.insertHtml("<H1>Geometry Statistics</H1>\n<p>statistics for file &lsquo;{0:s}&rsquo;</p>\n<br>\n".format(geoFileName))
         self.ui.actionSave_geometry.setEnabled(True)
         self.ui.actionSave_geometry_as.setEnabled(True)
         self.ui.menuSummaries.setEnabled(True)
         self.ui.menuGraphs.setEnabled(True)
         self.ui.actionWrite_BCTC_Coefficients.setEnabled(True)
         self.ui.actionDFTB_Charge_Constraints.setEnabled(True)
+        self.ui.textBrowser.insertHtml("<H1>Geometry Statistics</H1>\n<p>statistics for file &lsquo;{0:s}&rsquo;</p>\n<br>\n".format(geoFileName))
+        
+
+    def readGeometry(self,geoFileName):
+        self.geoFileName=str(geoFileName)
+        self.geometry=comatsci.Geometry.AnalysisGeometry()
+        self.geometry.readfile(str(geoFileName))
+        self.resetForGeoChanged(geoFileName)
+        
 
     
     def handleCoordinations(self):

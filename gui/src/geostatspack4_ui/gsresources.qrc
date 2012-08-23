@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="images">
+    <file>images/GSLogoHelp.svg</file>
+    <file>images/GSLogoPeriodic.svg</file>
     <file>images/GSLogo.svg</file>
   </qresource>
   <qresource prefix="html">
