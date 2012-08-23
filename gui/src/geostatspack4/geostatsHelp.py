@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geostatsHelp.ui'
 #
-# Created: Thu Aug 23 14:24:27 2012
+# Created: Thu Aug 23 17:41:20 2012
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ class Ui_GeostatsHelp(object):
         GeostatsHelp.setObjectName("GeostatsHelp")
         GeostatsHelp.resize(486, 480)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/images/images/GSLogo.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/images/images/GSLogoHelp.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         GeostatsHelp.setWindowIcon(icon)
         self.hboxlayout = QtGui.QHBoxLayout(GeostatsHelp)
         self.hboxlayout.setObjectName("hboxlayout")

@@ -670,7 +670,7 @@ class Geometry:
 				lv=numpy.array(self.Lattice[i])
 				lv*=constants.ANGSTROM
 				# assemble lattice line
-				rlines.append("lattice_vector   {0:24E}   {1:24E}   {2:24E}   ".format(tuple(lv)))
+				rlines.append("lattice_vector   {0:24E}   {1:24E}   {2:24E}   ".format(lv[0],lv[1],lv[2]))
 		# finished, return
 		return "\n".join(rlines)
 	
