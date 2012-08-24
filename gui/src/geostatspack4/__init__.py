@@ -8,5 +8,6 @@ import gsresources_rc
 import geostatsMain
 import geostatsHelp
 import periodicExpand
+import plotDialog
 
 __all__=["geostatsMain","gsresources"]

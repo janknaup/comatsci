@@ -12,6 +12,9 @@ from __future__ import print_function
 
 import os,sys,codecs
 import comatsci
+import numpy
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 
 #from optparse import OptionParser
@@ -19,6 +22,49 @@ import comatsci
 from PyQt4 import QtGui,QtCore
 
 import geostatspack4
+
+class MyMplCanvas(FigureCanvas):
+    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.).
+    Based upon Matplotlib Qt4 example
+         Copyright (C) 2005 Florent Rougon
+                       2006 Darren Dale"""
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        # We want the axes to remain
+        self.axes.hold(True)
+
+        self.compute_initial_figure()
+
+        #
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+
+        FigureCanvas.setSizePolicy(self,
+                                   QtGui.QSizePolicy.Expanding,
+                                   QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+
+    def compute_initial_figure(self):
+        pass
+
+
+
+class MyDynamicMplCanvas(MyMplCanvas):
+    """A canvas that updates itself every second with a new plot."""
+    def __init__(self, *args, **kwargs):
+        MyMplCanvas.__init__(self, *args, **kwargs)
+
+    def compute_initial_figure(self):
+        self.axes.plot([0, 1, 2, 3], [1, 2, 0, 4], 'r')
+
+    def update_figure(self):
+        # Build a list of 4 random integers between 0 and 10 (both inclusive)
+        l = [ random.randint(0, 10) for i in xrange(4) ]
+
+        self.axes.plot([0, 1, 2, 3], l, 'r')
+        self.draw()
+
 
 class MainWindow(QtGui.QMainWindow):
     
@@ -62,6 +108,10 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.actionSave_geometry, QtCore.SIGNAL("triggered()"),self.handleSave_geometry)
         QtCore.QObject.connect(self.ui.actionSave_geometry_as, QtCore.SIGNAL("triggered()"),self.handleSave_geometry_as)
         QtCore.QObject.connect(self.ui.actionPeriodic_Expand, QtCore.SIGNAL("triggered()"),self.handlePeriodicExpand)
+        QtCore.QObject.connect(self.ui.actionRadial_Distribution_Functions, QtCore.SIGNAL("triggered()"),self.handleRadialDistributionFunctions)
+        QtCore.QObject.connect(self.ui.actionElement_Charge_Histograms, QtCore.SIGNAL("triggered()"),self.handleElementChargeHistograms)
+        QtCore.QObject.connect(self.ui.actionBond_Length_Histogram, QtCore.SIGNAL("triggered()"),self.handleBondLengthHistograms)
+        QtCore.QObject.connect(self.ui.actionAngle_Distribution_Histogram, QtCore.SIGNAL("triggered()"),self.handleBondAngleHistograms)
         
         
     #*****************************************************************************
@@ -133,7 +183,7 @@ class MainWindow(QtGui.QMainWindow):
     def handleSave_geometry(self):
         filemode=self.geoFileName.lower()[self.geoFileName.lower().rfind(".")+1:]
         if filemode!=-1:
-            self.saveModes[filemode][1](self.geometry,self.geoFileName)
+            self.saveModes[filemode][1](self.geo,self.geoFileName)
         else:
             errorDialog=QtGui.QErrorMessage(parent=self)
             errorDialog.showMessage("Error determining file type from file name '{0:s}'".format(self.geoFileName))
@@ -158,7 +208,7 @@ class MainWindow(QtGui.QMainWindow):
                 if savefile.find(filenamesuffix)==-1:
                     savefile=savefile+"."+filenamesuffix
             try:
-                self.saveModes[self.filterFileTypes[savefilter]][1](self.geometry,savefile)
+                self.saveModes[self.filterFileTypes[savefilter]][1](self.geo,savefile)
             except comatsci.Geometry.GeometryError as error:
                 errorDialog=QtGui.QErrorMessage(parent=self)
                 errorDialog.setModal(True)
@@ -174,10 +224,11 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.menuSummaries.setEnabled(True)
         self.ui.actionCharges.setEnabled(True)
         self.ui.actionCoordinations.setEnabled(True)
-        #self.ui.menuGraphs.setEnabled(True)
+        self.ui.menuGraphs.setEnabled(True)
+        self.ui.actionRadial_Distribution_Functions.setEnabled(True)
         #self.ui.actionWrite_BCTC_Coefficients.setEnabled(True)
         #self.ui.actionDFTB_Charge_Constraints.setEnabled(True)
-        if self.geometry.Mode=="S":
+        if self.geo.Mode=="S":
             self.ui.actionPeriodic_Expand.setEnabled(True)
         self.ui.textBrowser.insertHtml("<H1>Geometry Statistics</H1>\n<p>statistics for file &lsquo;{0:s}&rsquo;</p>\n<br>\n".format(geoFileName))
         
@@ -185,20 +236,20 @@ class MainWindow(QtGui.QMainWindow):
 
     def readGeometry(self,geoFileName):
         self.geoFileName=str(geoFileName)
-        self.geometry=comatsci.Geometry.AnalysisGeometry()
-        self.geometry.readfile(str(geoFileName))
+        self.geo=comatsci.Geometry.AnalysisGeometry()
+        self.geo.readfile(str(geoFileName))
         self.resetForGeoChanged(geoFileName)
         
 
     
     def handleCoordinations(self):
-        coordinationsSummary=self.geometry.rt_coordinations()
+        coordinationsSummary=self.geo.rt_coordinations()
         self.ui.textBrowser.insertHtml(coordinationsSummary)
         self.ui.actionCoordinations.setEnabled(False)
     
     
     def handleCharges(self):
-        chargesSummary=self.geometry.rt_charges()
+        chargesSummary=self.geo.rt_charges()
         self.ui.textBrowser.insertHtml(chargesSummary)
         self.ui.actionCharges.setEnabled(False)
         
@@ -210,9 +261,401 @@ class MainWindow(QtGui.QMainWindow):
             aRepeat=expandDialog.ui.aSpinBox.value()
             bRepeat=expandDialog.ui.bSpinBox.value()
             cRepeat=expandDialog.ui.cSpinBox.value()
-            self.geometry.periodicexpand((aRepeat,bRepeat,cRepeat))
+            self.geo.periodicexpand((aRepeat,bRepeat,cRepeat))
             self.resetForGeoChanged(self.geoFileName)
+            
     
+    def handleRadialDistributionFunctions(self):
+        plotDialog=RDFDialog(geometry=self.geo,parent=self)
+        result=plotDialog.exec_()
+        if result and plotDialog.ui.addOutputCheckBox.isChecked():
+            plotDialog.ui.plotCanvas.print_svg("rdfplot.svg")
+            self.ui.textBrowser.insertHtml("<H2>Radial Pair Distribution Function<H2>\n")
+            self.ui.textBrowser.insertHtml('<p><img src="rdfplot.svg" /></p><br />\n')
+    
+    
+    def handleElementChargeHistograms(self):
+        plotDialog=ElementChargeHistogramDialog(geometry=self.geo,parent=self)
+        result=plotDialog.exec_()
+        if result and plotDialog.ui.addOutputCheckBox.isChecked():
+            plotDialog.ui.plotCanvas.print_svg("element-Q-histograms.svg")
+            self.ui.textBrowser.insertHtml("<H2>Per Element Atomic Charge Distributions<H2>\n")
+            self.ui.textBrowser.insertHtml('<p><img src="element-Q-histograms.svg" /></p><br />\n')
+
+
+    def handleBondLengthHistograms(self):
+        plotDialog=BondLengthHistogramDialog(geometry=self.geo,parent=self)
+        result=plotDialog.exec_()
+        if result and plotDialog.ui.addOutputCheckBox.isChecked():
+            plotDialog.ui.plotCanvas.print_svg("bond-length-histograms.svg")
+            self.ui.textBrowser.insertHtml("<H2>Bond Length Distribution<H2>\n")
+            self.ui.textBrowser.insertHtml('<p><img src="bond-length-histograms.svg" /></p><br />\n')
+            
+    
+    def handleBondAngleHistograms(self):
+        plotDialog=BondAngleHistogramDialog(geometry=self.geo,parent=self)
+        result=plotDialog.exec_()
+        if result and plotDialog.ui.addOutputCheckBox.isChecked():
+            plotDialog.ui.plotCanvas.print_svg("bond-angle-histograms.svg")
+            self.ui.textBrowser.insertHtml("<H2>Per Element Bond Angle Distributions<H2>\n")
+            self.ui.textBrowser.insertHtml('<p><img src="bond-angle-histograms.svg" /></p><br />\n')
+
+
+class BondAngleHistogramDialog(QtGui.QDialog):
+    def __init__(self,geometry,parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.plotDialog.Ui_Dialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Bond Angle Histogram")
+        
+        self.geo=geometry
+        
+        self.ui.dataFileLineEdit.setText("bondangles.dat")
+
+        self.ui.outputLayout=QtGui.QVBoxLayout(self.ui.outputGroupBox)
+        self.ui.plotCanvas=MyMplCanvas(self.ui.outputGroupBox)
+        self.ui.outputLayout.addWidget(self.ui.plotCanvas)
+        
+        self.ui.paramsLayout=QtGui.QHBoxLayout(self.ui.parametersGroupBox)
+        self.ui.numberpars=QtGui.QFormLayout()
+        self.ui.checkboxpars=QtGui.QVBoxLayout()
+        self.ui.binCountLabel=QtGui.QLabel(self)
+        self.ui.binCountLabel.setText("angle bins per center atom element")
+        self.ui.binCountSpinBox=QtGui.QSpinBox(self)
+        self.ui.binCountSpinBox.setValue(36)
+        
+        self.ui.numberpars.addRow(self.ui.binCountLabel, self.ui.binCountSpinBox)
+        
+        self.ui.spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.ui.checkboxpars.addItem(self.ui.spacerItem2)
+        
+        self.ui.paramsLayout.addLayout(self.ui.numberpars)
+        self.ui.paramsLayout.addLayout(self.ui.checkboxpars)
+        
+        self.ui.outputGroupBox.layout=self.ui.outputLayout
+        self.ui.parametersGroupBox.layout=self.ui.paramsLayout
+        
+        self.handlePlot()
+        
+        QtCore.QObject.connect(self.ui.saveButton, QtCore.SIGNAL("released()"),self.handleSave)
+        QtCore.QObject.connect(self.ui.plotButton, QtCore.SIGNAL("released()"),self.handlePlot)
+        
+        
+    def handlePlot(self):
+        self.ui.plotCanvas.axes.cla()
+        angleDict=self.geo.getBondAnglesByElementsHistograms(self.ui.binCountSpinBox.value())
+        defaultColors=['r','g','b','c','m','k']
+        colorcounter=0
+        bonds=angleDict.keys()
+        bonds.sort()
+        for bond in bonds:
+            label=self.geo.PTE[bond]
+            width=angleDict[bond][1][1]-angleDict[bond][1][0]
+            self.ui.plotCanvas.axes.bar(angleDict[bond][1][:-1],angleDict[bond][0],width,alpha=0.5,color=defaultColors[colorcounter%len(defaultColors)],label=label)
+            colorcounter+=1
+        self.ui.plotCanvas.axes.legend(loc=0)
+        self.ui.plotCanvas.draw()
+        
+        
+
+    def handleSave(self):
+        self.handlePlot()
+        if self.ui.saveDataCheckBox.isChecked():
+            angleDict=self.geo.getBondAnglesByElementsHistograms(self.ui.binCountSpinBox.value())
+            for bond in angleDict.keys():
+                    label = self.geo.PTE[bond]
+                    outfile=open(label+"."+str(self.ui.dataFileLineEdit.text()),"w")
+                    print("#angle [deg]\tcount",file=outfile)
+                    for i in range(len(angleDict[bond][0])): #@UnusedVariable
+                        print("{0:e}\t{1:e}".format(angleDict[bond][1][i],angleDict[bond][0][i]),file=outfile)
+                    outfile.close()
+        self.accept()
+
+
+
+class BondLengthHistogramDialog(QtGui.QDialog):
+    def __init__(self,geometry,parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.plotDialog.Ui_Dialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Bond Length Histogram")
+        
+        self.geo=geometry
+        
+        self.ui.dataFileLineEdit.setText("bondlengths.dat")
+
+        self.ui.outputLayout=QtGui.QVBoxLayout(self.ui.outputGroupBox)
+        self.ui.plotCanvas=MyMplCanvas(self.ui.outputGroupBox)
+        self.ui.outputLayout.addWidget(self.ui.plotCanvas)
+        
+        self.ui.paramsLayout=QtGui.QHBoxLayout(self.ui.parametersGroupBox)
+        self.ui.numberpars=QtGui.QFormLayout()
+        self.ui.checkboxpars=QtGui.QVBoxLayout()
+        self.ui.binCountLabel=QtGui.QLabel(self)
+        self.ui.binCountLabel.setText("length bins per bond type")
+        self.ui.binCountSpinBox=QtGui.QSpinBox(self)
+        self.ui.binCountSpinBox.setValue(30)
+        self.ui.totalTooCheckBox=QtGui.QCheckBox(self)
+        self.ui.totalTooCheckBox.setText("include total histogram")
+        self.ui.totalTooCheckBox.setChecked(False)
+        
+        self.ui.numberpars.addRow(self.ui.binCountLabel, self.ui.binCountSpinBox)
+        
+        self.ui.checkboxpars.addWidget(self.ui.totalTooCheckBox)
+        self.ui.spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.ui.checkboxpars.addItem(self.ui.spacerItem2)
+        
+        self.ui.paramsLayout.addLayout(self.ui.numberpars)
+        self.ui.paramsLayout.addLayout(self.ui.checkboxpars)
+        
+        self.ui.outputGroupBox.layout=self.ui.outputLayout
+        self.ui.parametersGroupBox.layout=self.ui.paramsLayout
+        
+        self.handlePlot()
+        
+        QtCore.QObject.connect(self.ui.saveButton, QtCore.SIGNAL("released()"),self.handleSave)
+        QtCore.QObject.connect(self.ui.plotButton, QtCore.SIGNAL("released()"),self.handlePlot)
+        
+        
+    def handlePlot(self):
+        self.ui.plotCanvas.axes.cla()
+        lengthDict=self.geo.getBondLengthHistograms(self.ui.binCountSpinBox.value())
+        defaultColors=['r','g','b','c','m','k']
+        colorcounter=0
+        bonds=lengthDict.keys()
+        bonds.sort()
+        for bond in bonds:
+            label=self.getBondLabel(bond)
+            width=lengthDict[bond][0][1]-lengthDict[bond][0][0]
+            if bond!=(-1,-1) or self.ui.totalTooCheckBox.isChecked()==True:
+                self.ui.plotCanvas.axes.bar(lengthDict[bond][0],lengthDict[bond][1],width,alpha=0.5,color=defaultColors[colorcounter%len(defaultColors)],label=label)
+                colorcounter+=1
+        self.ui.plotCanvas.axes.legend(loc=0)
+        self.ui.plotCanvas.draw()
+        
+        
+        
+
+    def getBondLabel(self, bond):
+        if bond[0]==-1:
+            return "total"
+        else:
+            return self.geo.PTE[bond[0]] + "-" + self.geo.PTE[bond[1]]
+
+
+    def handleSave(self):
+        self.handlePlot()
+        if self.ui.saveDataCheckBox.isChecked():
+            lengthDict=self.geo.getBondLengthHistograms(self.ui.binCountSpinBox.value())
+            for bond in lengthDict.keys():
+                if bond!=(-1,-1) or self.ui.totalTooCheckBox.isChecked()==True:
+                    label = self.getBondLabel(bond)
+                    outfile=open(label+"."+str(self.ui.dataFileLineEdit.text()),"w")
+                    print("#r [a.u.]\tcount",file=outfile)
+                    for i in range(len(lengthDict[bond][0])): #@UnusedVariable
+                        print("{0:e}\t{1:e}".format(lengthDict[bond][0][i],lengthDict[bond][1][i]),file=outfile)
+                    outfile.close()
+        self.accept()
+
+
+
+class ElementChargeHistogramDialog(QtGui.QDialog):
+    def __init__(self,geometry,parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.plotDialog.Ui_Dialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Element Charge Histogram")
+        
+        self.geo=geometry
+        
+        self.ui.dataFileLineEdit.setText("elementcharges.dat")
+
+        self.ui.outputLayout=QtGui.QVBoxLayout(self.ui.outputGroupBox)
+        self.ui.plotCanvas=MyMplCanvas(self.ui.outputGroupBox)
+        self.ui.outputLayout.addWidget(self.ui.plotCanvas)
+        
+        self.ui.paramsLayout=QtGui.QHBoxLayout(self.ui.parametersGroupBox)
+        self.ui.numberpars=QtGui.QFormLayout()
+        self.ui.checkboxpars=QtGui.QVBoxLayout()
+        self.ui.binCountLabel=QtGui.QLabel(self)
+        self.ui.binCountLabel.setText("charge bins per element")
+        self.ui.binCountSpinBox=QtGui.QSpinBox(self)
+        self.ui.binCountSpinBox.setValue(10)
+        
+        self.ui.numberpars.addRow(self.ui.binCountLabel, self.ui.binCountSpinBox)
+        
+        self.ui.spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.ui.checkboxpars.addItem(self.ui.spacerItem2)
+        
+        self.ui.paramsLayout.addLayout(self.ui.numberpars)
+        self.ui.paramsLayout.addLayout(self.ui.checkboxpars)
+        
+        self.ui.outputGroupBox.layout=self.ui.outputLayout
+        self.ui.parametersGroupBox.layout=self.ui.paramsLayout
+        
+        self.handlePlot()
+        
+        QtCore.QObject.connect(self.ui.saveButton, QtCore.SIGNAL("released()"),self.handleSave)
+        QtCore.QObject.connect(self.ui.plotButton, QtCore.SIGNAL("released()"),self.handlePlot)
+        
+        
+    def handlePlot(self):
+        self.ui.plotCanvas.axes.cla()
+        chargeDict=self.geo.elem_charges_hist(self.ui.binCountSpinBox.value())
+        elementColors={
+                       1:"#BEBEBE",
+                       2:"b",
+                       3:"c",
+                       4:"m",
+                       5:"brown",
+                       6:"black",
+                       7:"blue",
+                       8:"r",
+                       9:"g",
+                       10:"b"}
+        defaultColors=['r','g','b','c','m','k']
+        for element in chargeDict.keys():
+            width=chargeDict[element][0][1]-chargeDict[element][0][0]
+            self.ui.plotCanvas.axes.bar(chargeDict[element][0],chargeDict[element][1],width,alpha=0.5,color=elementColors.get(element,defaultColors[element%len(defaultColors)]),label=self.geo.PTE[element])
+        self.ui.plotCanvas.axes.legend(loc=0)
+        self.ui.plotCanvas.draw()
+        
+        
+        
+    def handleSave(self):
+        self.handlePlot()
+        if self.ui.saveDataCheckBox.isChecked():
+            chargeDict=self.geo.elem_charges_hist(self.ui.binCountSpinBox.value())
+            for element in chargeDict.keys():
+                    outfile=open(self.geo.PTE[element]+"."+str(self.ui.dataFileLineEdit.text()),"w")
+                    print("#q [e]\tcount",file=outfile)
+                    for i in range(len(chargeDict[element][0])): #@UnusedVariable
+                        print("{0:e}\t{1:e}".format(chargeDict[element][0][i],chargeDict[element][1][i]),file=outfile)
+                    outfile.close()
+        self.accept()
+
+    
+class RDFDialog(QtGui.QDialog):
+    def __init__(self,geometry,parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.plotDialog.Ui_Dialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Radial Distribution Function")
+        
+        self.geo=geometry
+        
+        self.ui.dataFileLineEdit.setText("rdf.dat")
+        
+        self.ui.outputLayout=QtGui.QVBoxLayout(self.ui.outputGroupBox)
+        self.ui.plotCanvas=MyMplCanvas(self.ui.outputGroupBox)
+        self.ui.outputLayout.addWidget(self.ui.plotCanvas)
+        
+        self.ui.paramsLayout=QtGui.QHBoxLayout(self.ui.parametersGroupBox)
+        self.ui.numberpars=QtGui.QFormLayout()
+        self.ui.checkboxpars=QtGui.QVBoxLayout()
+        self.ui.binWidthLabel=QtGui.QLabel(self)
+        self.ui.binWidthLabel.setText("step width (a.u.)")
+        self.ui.bindWidthSpinBox=QtGui.QDoubleSpinBox(self)
+        self.ui.bindWidthSpinBox.setValue(0.2)
+        self.ui.bindWidthSpinBox.setSingleStep(0.05)
+        self.ui.perElementCheckBox=QtGui.QCheckBox(self)
+        self.ui.perElementCheckBox.setText("per element rdf")
+        self.ui.perElementCheckBox.setChecked(False)
+        self.ui.totalTooCheckBox=QtGui.QCheckBox(self)
+        self.ui.totalTooCheckBox.setText("total rdf")
+        self.ui.totalTooCheckBox.setChecked(True)
+        self.ui.totalTooCheckBox.setEnabled(False)
+        QtCore.QObject.connect(self.ui.perElementCheckBox, QtCore.SIGNAL("toggled(bool)"),
+                               self.ui.totalTooCheckBox,QtCore.SLOT("setEnabled(bool)"))
+        self.ui.spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        
+        
+        
+        self.ui.numberpars.addRow(self.ui.binWidthLabel, self.ui.bindWidthSpinBox)
+        
+        self.ui.checkboxpars.addWidget(self.ui.perElementCheckBox)
+        self.ui.checkboxpars.addWidget(self.ui.totalTooCheckBox)
+        self.ui.checkboxpars.addItem(self.ui.spacerItem2)
+        
+        self.ui.paramsLayout.addLayout(self.ui.numberpars)
+        self.ui.paramsLayout.addLayout(self.ui.checkboxpars)
+        
+        self.ui.outputGroupBox.layout=self.ui.outputLayout
+        self.ui.parametersGroupBox.layout=self.ui.paramsLayout
+        initRdf=self.geo.rdf()
+        self.plotSingle(initRdf)
+        
+        QtCore.QObject.connect(self.ui.saveButton, QtCore.SIGNAL("released()"),self.handleSave)
+        QtCore.QObject.connect(self.ui.plotButton, QtCore.SIGNAL("released()"),self.handlePlot)
+        
+ 
+        
+    def plotSingle(self,rdf):
+        """plot a single radial distribution function
+        @type rdf: sequence of two sequences of scalars ([[r],[rdf]]) 
+        @param rdf: sequences r and rdf(r)
+        """
+        self.ui.plotCanvas.axes.cla()
+        self.ui.plotCanvas.axes.plot(rdf[0],rdf[1])
+        self.ui.plotCanvas.draw()
+    
+    
+    def plotMultiple(self,rdfs):
+        """plot a single radial distribution function
+        @type rdfs: sequence of dictionaries 
+        @param rdfs: dictionaries containing at least "rdf" entries corresponding to plotSingle parameter, additionally can contain "label" string entry and "fill" boolean entry. 
+        """
+        self.ui.plotCanvas.axes.cla()
+        plotargs=[]
+        labels=[]
+        for entry in rdfs:
+            plotargs.append(entry["rdf"][0])
+            plotargs.append(entry["rdf"][1])
+            labels.append(entry.get("label","rdf"))
+        self.ui.plotCanvas.axes.plot(*plotargs)
+        self.ui.plotCanvas.axes.legend(labels)
+        self.ui.plotCanvas.draw()
+    
+    
+    def handleSave(self):
+        self.handlePlot()
+        if self.ui.saveDataCheckBox.isChecked():
+            if self.ui.perElementCheckBox.isChecked():
+                rdfs=self.getMultiRdfs()
+                for entry in rdfs:
+                    outfile=open(entry.get("label","rdf")+"."+str(self.ui.dataFileLineEdit.text()),"w")
+                    print("#r [a.u.]\trdf(r)",file=outfile)
+                    for i in range(len(entry["rdf"][0])):
+                        print("{0:e}\t{1:e}".format(entry["rdf"][0][i],entry["rdf"][1][i]),file=outfile)
+                    outfile.close()
+            else:
+                outfile=open(str(self.ui.dataFileLineEdit.text()),"w")
+                print("#r [a.u.]\trdf(r)",file=outfile)
+                rdf=self.geo.rdf(binwidth=self.ui.bindWidthSpinBox.value())
+                for i in range(len(rdf[0])):
+                    print("{0:e}\t{1:e}".format(rdf[0][i],rdf[1][i]),file=outfile)
+                outfile.close()
+        self.accept()
+    
+    
+
+    def getMultiRdfs(self):
+        rdfs = []
+        if self.ui.totalTooCheckBox.isChecked():
+            rdfs.append({"label":"total", "fillstyle":True, "rdf":self.geo.rdf(binwidth=self.ui.bindWidthSpinBox.value())})
+        symlist, symdict = self.geo.getatomsymlistdict() #@UnusedVariable
+        for symbol in symlist:
+            rdfs.append({"label":self.geo.PTE[symbol], "fillstyle":False, "rdf":self.geo.elementsubgeometry(symbol).rdf(binwidth=self.ui.bindWidthSpinBox.value())})
+        
+        return rdfs
+
+    def handlePlot(self):
+        if self.ui.perElementCheckBox.isChecked():
+            rdfs = self.getMultiRdfs()
+            self.plotMultiple(rdfs)
+        else:
+            rdf=self.geo.rdf(binwidth=self.ui.bindWidthSpinBox.value())
+            self.plotSingle(rdf)
 
 
 class GeostatsHelp(QtGui.QDialog):
