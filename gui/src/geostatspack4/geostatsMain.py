@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geostatsMain.ui'
 #
-# Created: Thu Aug 23 17:57:56 2012
+# Created: Fri Aug 24 16:45:03 2012
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -93,8 +93,8 @@ class Ui_MainWindow(object):
         self.actionAngle_Distribution_Histogram.setObjectName("actionAngle_Distribution_Histogram")
         self.actionBond_Length_Histogram = QtGui.QAction(MainWindow)
         self.actionBond_Length_Histogram.setObjectName("actionBond_Length_Histogram")
-        self.actionElement_Charge_Historgrams = QtGui.QAction(MainWindow)
-        self.actionElement_Charge_Historgrams.setObjectName("actionElement_Charge_Historgrams")
+        self.actionElement_Charge_Histograms = QtGui.QAction(MainWindow)
+        self.actionElement_Charge_Histograms.setObjectName("actionElement_Charge_Histograms")
         self.actionPrint_Output = QtGui.QAction(MainWindow)
         self.actionPrint_Output.setObjectName("actionPrint_Output")
         self.menuFile.addAction(self.actionOpen)
@@ -117,7 +117,7 @@ class Ui_MainWindow(object):
         self.menuGraphs.addAction(self.actionAngle_Distribution_Histogram)
         self.menuGraphs.addAction(self.actionBond_Length_Histogram)
         self.menuGraphs.addSeparator()
-        self.menuGraphs.addAction(self.actionElement_Charge_Historgrams)
+        self.menuGraphs.addAction(self.actionElement_Charge_Histograms)
         self.menuStatistics.addAction(self.menuSummaries.menuAction())
         self.menuStatistics.addAction(self.menuGraphs.menuAction())
         self.menuStatistics.addSeparator()
@@ -175,7 +175,8 @@ class Ui_MainWindow(object):
         self.actionRadial_Distribution_Functions.setText(QtGui.QApplication.translate("MainWindow", "Radial Distribution Functions", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAngle_Distribution_Histogram.setText(QtGui.QApplication.translate("MainWindow", "Angle Distribution Histogram", None, QtGui.QApplication.UnicodeUTF8))
         self.actionBond_Length_Histogram.setText(QtGui.QApplication.translate("MainWindow", "Bond Length Histogram", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionElement_Charge_Historgrams.setText(QtGui.QApplication.translate("MainWindow", "Element Charge Historgrams", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionElement_Charge_Histograms.setText(QtGui.QApplication.translate("MainWindow", "Element Charge Histograms", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionElement_Charge_Histograms.setToolTip(QtGui.QApplication.translate("MainWindow", "Element Charge Histograms", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPrint_Output.setText(QtGui.QApplication.translate("MainWindow", "Print Output", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPrint_Output.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+P", None, QtGui.QApplication.UnicodeUTF8))
 

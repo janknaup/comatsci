@@ -109,7 +109,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAngle_Distribution_Histogram"/>
      <addaction name="actionBond_Length_Histogram"/>
      <addaction name="separator"/>
-     <addaction name="actionElement_Charge_Historgrams"/>
+     <addaction name="actionElement_Charge_Histograms"/>
     </widget>
     <addaction name="menuSummaries"/>
     <addaction name="menuGraphs"/>
@@ -262,9 +262,12 @@ p, li { white-space: pre-wrap; }
     <string>Bond Length Histogram</string>
    </property>
   </action>
-  <action name="actionElement_Charge_Historgrams">
+  <action name="actionElement_Charge_Histograms">
    <property name="text">
-    <string>Element Charge Historgrams</string>
+    <string>Element Charge Histograms</string>
+   </property>
+   <property name="toolTip">
+    <string>Element Charge Histograms</string>
    </property>
   </action>
   <action name="actionPrint_Output">
