@@ -9,5 +9,7 @@ import geostatsMain
 import geostatsHelp
 import periodicExpand
 import plotDialog
+import dftbChargeConstraintDialog
+import embedDialogBase
 
 __all__=["geostatsMain","gsresources"]
