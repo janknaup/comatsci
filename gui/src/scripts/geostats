@@ -95,6 +95,9 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.actionElement_Charge_Histograms, QtCore.SIGNAL("triggered()"),self.handleElementChargeHistograms)
         QtCore.QObject.connect(self.ui.actionBond_Length_Histogram, QtCore.SIGNAL("triggered()"),self.handleBondLengthHistograms)
         QtCore.QObject.connect(self.ui.actionAngle_Distribution_Histogram, QtCore.SIGNAL("triggered()"),self.handleBondAngleHistograms)
+        QtCore.QObject.connect(self.ui.actionDFTB_Charge_Constraints, QtCore.SIGNAL("triggered()"),self.handleChargeConstraint)
+        QtCore.QObject.connect(self.ui.actionSimple_link_Layers, QtCore.SIGNAL("triggered()"),self.handleSimpleLink)
+        
         
         
     #*****************************************************************************
@@ -154,6 +157,13 @@ class MainWindow(QtGui.QMainWindow):
         else:
             pass
     
+    def handleSimpleLink(self):
+        embedDialog=SimpleLinkDialog(self.geo, self)
+        if embedDialog.exec_():
+            self.geo = embedDialog.linkedGeo
+            self.resetForGeoChanged("SLAlinked.fmg")
+            
+        
     
     def handleOpen(self):
         geoFileName=QtGui.QFileDialog.getOpenFileName(parent=self, caption=QtCore.QString("Open Geometry"),
@@ -210,16 +220,23 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.menuGraphs.setEnabled(True)
         self.ui.actionRadial_Distribution_Functions.setEnabled(True)
         #self.ui.actionWrite_BCTC_Coefficients.setEnabled(True)
-        #self.ui.actionDFTB_Charge_Constraints.setEnabled(True)
+        self.ui.actionSimple_link_Layers.setEnabled(True)
+        self.ui.actionDFTB_Charge_Constraints.setEnabled(True)
         if self.geo.Mode=="S":
             self.ui.actionPeriodic_Expand.setEnabled(True)
         self.ui.textBrowser.insertHtml("<H1>Geometry Statistics</H1>\n<p>statistics for file &lsquo;{0:s}&rsquo;</p>\n<br>\n".format(geoFileName))
+    
+    
+    
+    def handleChargeConstraint(self):
+        constraintDialog=chargeConstraintsDialog(self.geo, self)
+        constraintDialog.exec_()
         
 
 
     def readGeometry(self,geoFileName):
         self.geoFileName=str(geoFileName)
-        self.geo=comatsci.Geometry.AnalysisGeometry()
+        self.geo=comatsci.Geometry.qmmmGeometry()
         self.geo.readfile(str(geoFileName))
         self.resetForGeoChanged(geoFileName)
         
@@ -516,6 +533,7 @@ class ElementChargeHistogramDialog(QtGui.QDialog):
                         print("{0:e}\t{1:e}".format(chargeDict[element][0][i],chargeDict[element][1][i]),file=outfile)
                     outfile.close()
         self.accept()
+        
 
     
 class RDFDialog(QtGui.QDialog):
@@ -655,6 +673,84 @@ class PeriodicExpand(QtGui.QDialog):
         self.ui.setupUi(self)
 
 
+class chargeConstraintsDialog(QtGui.QDialog):
+    def __init__(self,geo,parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.dftbChargeConstraintDialog.Ui_Dialog()
+        self.ui.setupUi(self)
+        
+        QtCore.QObject.connect(self.ui.constraintButton, QtCore.SIGNAL("released()"),
+                               self.handleConstraint)
+        
+        self.geo=geo
+        
+    def handleConstraint(self):
+        try:
+            tokens=str(self.ui.serialListPlainTextEdit.toPlainText()).split()
+            serials=[ int(iii)-1 for iii in tokens ]
+        except ValueError as error:
+            errorDialog=QtGui.QErrorMessage(parent=self)
+            errorDialog.setModal(True)
+            errorDialog.showMessage(error.args[0])
+        except:
+            errorDialog=QtGui.QErrorMessage(parent=self)
+            errorDialog.setModal(True)
+            errorDialog.showMessage("Error parsing list of atom serials")
+            raise
+        try:
+            self.ui.constraintOutputTextBrowser.setPlainText(
+                self.geo.getHSDChargeConstraintString(serials,self.ui.prefactorSpinBox.value()) )
+        except comatsci.Geometry.GeometryError as error:
+            errorDialog=QtGui.QErrorMessage(parent=self)
+            errorDialog.setModal(True)
+            errorDialog.showMessage(error.args[0])
+        except ValueError as error:
+            errorDialog=QtGui.QErrorMessage(parent=self)
+            errorDialog.setModal(True)
+            errorDialog.showMessage(error.args[0])
+            
+
+class SimpleLinkDialog(QtGui.QDialog):
+    def __init__(self, geo, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.embedDialogBase.Ui_Dialog()
+        self.ui.setupUi(self)
+        
+        QtCore.QObject.connect(self.ui.buttonBox.button(QtGui.QDialogButtonBox.Apply), QtCore.SIGNAL("released()"),self.handleApply)
+        QtCore.QObject.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.handleAccept)
+        
+        
+        self.ui.neutralizeClusterCheckBox.setEnabled(False)
+        
+        self.geo=geo
+        
+        layerNames=QtCore.QStringList()
+        for lIndex in geo.LayerDict.keys():
+            layerNames.append(geo.LayerDict[lIndex].Name)
+        
+        self.ui.pchrComboBox.addItems(layerNames)
+        pchrIndex=self.ui.pchrComboBox.findText("PCHR")
+        if pchrIndex!=-1:
+            self.ui.pchrComboBox.setCurrentIndex(pchrIndex)
+        
+        self.ui.qmzComboBox.addItems(layerNames)
+        qmzIndex=self.ui.qmzComboBox.findText("QMZ")
+        if qmzIndex!=-1:
+            self.ui.qmzComboBox.setCurrentIndex(qmzIndex)
+    
+    
+    def handleApply(self):
+        QMZ=self.geo.layersubgeometry(self.geo.layerbyname(str(self.ui.qmzComboBox.currentText())))
+        PCHR=self.geo.layersubgeometry(self.geo.layerbyname(str(self.ui.pchrComboBox.currentText())))
+        self.linkedGeo,resultInfo=QMZ.SLALinkedGeometry(PCHR,distscale=self.ui.ladfSpinBox.value())
+        self.ui.resultsTextBrowser.setPlainText(comatsci.utils.dictionaryPrettyPrint(resultInfo))
+    
+    
+    def handleAccept(self):
+        self.handleApply()
+        self.accept()
+        
+
 if __name__=="__main__":
     app = QtGui.QApplication(sys.argv)
     argList=app.arguments()
@@ -665,3 +761,4 @@ if __name__=="__main__":
         raise ValueError("More than one geometry file specified on command line. Abort.")
     geostatsWidget.show()
     sys.exit(app.exec_())  
+    
