@@ -11,5 +11,6 @@ import periodicExpand
 import plotDialog
 import dftbChargeConstraintDialog
 import embedDialogBase
+import editAtoms
 
 __all__=["geostatsMain","gsresources"]

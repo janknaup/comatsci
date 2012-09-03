@@ -82,7 +82,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionPeriodic_Expand"/>
     <addaction name="separator"/>
     <addaction name="actionSimple_link_Layers"/>
-    <addaction name="actionBCTC_link_lLayers"/>
+    <addaction name="actionBCTC_link_Layers"/>
    </widget>
    <widget class="QMenu" name="menuStatistics">
     <property name="title">
@@ -213,12 +213,12 @@ p, li { white-space: pre-wrap; }
     <string>Simple-link Layers</string>
    </property>
   </action>
-  <action name="actionBCTC_link_lLayers">
+  <action name="actionBCTC_link_Layers">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>BCTC-link lLayers</string>
+    <string>BCTC-link Layers</string>
    </property>
   </action>
   <action name="actionCoordinations">
