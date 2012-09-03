@@ -2429,3 +2429,14 @@ class Geometry:
 			pruned.delatom(ii)
 		# finisehd, return
 		return pruned
+	
+	
+	def layerNames(self):
+		"""
+		return a list of the layer names in the present geometry
+		@return: list of strings
+		"""
+		namesList=[]
+		for layer in self.LayerDict.keys():
+			namesList.append(self.LayerDict[layer].Name)
+		return namesList
