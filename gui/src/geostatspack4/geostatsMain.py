@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'geostatsMain.ui'
 #
-# Created: Mon Aug 27 17:48:19 2012
+# Created: Mon Sep  3 15:55:17 2012
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -74,9 +74,9 @@ class Ui_MainWindow(object):
         self.actionSimple_link_Layers = QtGui.QAction(MainWindow)
         self.actionSimple_link_Layers.setEnabled(False)
         self.actionSimple_link_Layers.setObjectName("actionSimple_link_Layers")
-        self.actionBCTC_link_lLayers = QtGui.QAction(MainWindow)
-        self.actionBCTC_link_lLayers.setEnabled(False)
-        self.actionBCTC_link_lLayers.setObjectName("actionBCTC_link_lLayers")
+        self.actionBCTC_link_Layers = QtGui.QAction(MainWindow)
+        self.actionBCTC_link_Layers.setEnabled(False)
+        self.actionBCTC_link_Layers.setObjectName("actionBCTC_link_Layers")
         self.actionCoordinations = QtGui.QAction(MainWindow)
         self.actionCoordinations.setObjectName("actionCoordinations")
         self.actionCharges = QtGui.QAction(MainWindow)
@@ -110,7 +110,7 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionPeriodic_Expand)
         self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.actionSimple_link_Layers)
-        self.menuEdit.addAction(self.actionBCTC_link_lLayers)
+        self.menuEdit.addAction(self.actionBCTC_link_Layers)
         self.menuSummaries.addAction(self.actionCoordinations)
         self.menuSummaries.addAction(self.actionCharges)
         self.menuGraphs.addAction(self.actionRadial_Distribution_Functions)
@@ -167,7 +167,7 @@ class Ui_MainWindow(object):
         self.actionEdit_Atoms.setText(QtGui.QApplication.translate("MainWindow", "Edit Atoms", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPeriodic_Expand.setText(QtGui.QApplication.translate("MainWindow", "Periodic Expand", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSimple_link_Layers.setText(QtGui.QApplication.translate("MainWindow", "Simple-link Layers", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionBCTC_link_lLayers.setText(QtGui.QApplication.translate("MainWindow", "BCTC-link lLayers", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionBCTC_link_Layers.setText(QtGui.QApplication.translate("MainWindow", "BCTC-link Layers", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCoordinations.setText(QtGui.QApplication.translate("MainWindow", "Coordinations", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCharges.setText(QtGui.QApplication.translate("MainWindow", "Charges", None, QtGui.QApplication.UnicodeUTF8))
         self.actionWrite_BCTC_Coefficients.setText(QtGui.QApplication.translate("MainWindow", "Write BCTC Coefficients", None, QtGui.QApplication.UnicodeUTF8))

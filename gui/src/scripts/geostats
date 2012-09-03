@@ -2,7 +2,7 @@
 ##############################################################################
 # geostats
 # Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
-# (c) 2005-2008 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
+# (c) 2005-20012 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
 # all rights reserved
 ##############################################################################
 # Licensed under the Non-Profit Open Software License version 3.0
@@ -15,6 +15,7 @@ import comatsci
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+import copy
 
 #from optparse import OptionParser
 
@@ -97,6 +98,9 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.actionAngle_Distribution_Histogram, QtCore.SIGNAL("triggered()"),self.handleBondAngleHistograms)
         QtCore.QObject.connect(self.ui.actionDFTB_Charge_Constraints, QtCore.SIGNAL("triggered()"),self.handleChargeConstraint)
         QtCore.QObject.connect(self.ui.actionSimple_link_Layers, QtCore.SIGNAL("triggered()"),self.handleSimpleLink)
+        QtCore.QObject.connect(self.ui.actionBCTC_link_Layers, QtCore.SIGNAL("triggered()"),self.handleBCTCLink)
+        QtCore.QObject.connect(self.ui.actionWrite_BCTC_Coefficients, QtCore.SIGNAL("triggered()"),self.handleSaveBCTC)
+        QtCore.QObject.connect(self.ui.actionEdit_Atoms, QtCore.SIGNAL("triggered()"),self.handleEditAtoms)
         
         
         
@@ -135,6 +139,21 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.textBrowser.document().print_(dialog.printer())
     
             
+    def handleSaveBCTC(self):
+        bctcFileName=str(QtGui.QFileDialog.getSaveFileName(parent=self, caption=QtCore.QString("Open BCTC Coefficients"),
+                                                      filter=QtCore.QString("BCTC coefficient files (*.bctc);;all supported files (*.*)")))
+        if bctcFileName!="":
+            if not bctcFileName.endswith(".bctc"):
+                bctcFileName+=".bctc"
+            tempCTC=self.geo.getElementElementChargeTransfers()[0]
+            bctcFile=open(bctcFileName,"w")
+            print("#Elements  Bond_Charge_Transfer_Coefficient",file=bctcFile)
+            for coefficient in tempCTC.keys():
+                print("{0:d}\t{1:d}\t{2:10.6f}".format(coefficient[0],coefficient[1],tempCTC[coefficient]),file=bctcFile)
+            bctcFile.close()
+        
+    
+    
     def handleSave_Output(self):
         (savefile, savefilter)=QtGui.QFileDialog.getSaveFileNameAndFilter(parent=self, caption=QtCore.QString("Save Output"),
                                                                           filter=QtCore.QString("plain text (*.txt);;html (*.htm *.html)"))#;;PDF (*.pdf)"))
@@ -163,6 +182,12 @@ class MainWindow(QtGui.QMainWindow):
             self.geo = embedDialog.linkedGeo
             self.resetForGeoChanged("SLAlinked.fmg")
             
+    
+    def handleBCTCLink(self):
+        embedDialog=BCTCLinkDialog(self.geo, self)
+        if embedDialog.exec_():
+            self.geo = embedDialog.linkedGeo
+            self.resetForGeoChanged("BCTClinked.fmg")
         
     
     def handleOpen(self):
@@ -219,9 +244,11 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.actionCoordinations.setEnabled(True)
         self.ui.menuGraphs.setEnabled(True)
         self.ui.actionRadial_Distribution_Functions.setEnabled(True)
-        #self.ui.actionWrite_BCTC_Coefficients.setEnabled(True)
+        self.ui.actionWrite_BCTC_Coefficients.setEnabled(True)
         self.ui.actionSimple_link_Layers.setEnabled(True)
+        self.ui.actionBCTC_link_Layers.setEnabled(True)
         self.ui.actionDFTB_Charge_Constraints.setEnabled(True)
+        self.ui.actionEdit_Atoms.setEnabled(True)
         if self.geo.Mode=="S":
             self.ui.actionPeriodic_Expand.setEnabled(True)
         self.ui.textBrowser.insertHtml("<H1>Geometry Statistics</H1>\n<p>statistics for file &lsquo;{0:s}&rsquo;</p>\n<br>\n".format(geoFileName))
@@ -262,6 +289,14 @@ class MainWindow(QtGui.QMainWindow):
             bRepeat=expandDialog.ui.bSpinBox.value()
             cRepeat=expandDialog.ui.cSpinBox.value()
             self.geo.periodicexpand((aRepeat,bRepeat,cRepeat))
+            self.resetForGeoChanged(self.geoFileName)
+            
+            
+    def handleEditAtoms(self):
+        editDialog=EditAtomsDialog(self.geo,parent=self)
+        result=editDialog.exec_()
+        if result:
+            self.geo=editDialog.geo
             self.resetForGeoChanged(self.geoFileName)
             
     
@@ -724,6 +759,12 @@ class SimpleLinkDialog(QtGui.QDialog):
         
         self.geo=geo
         
+        if len(self.geo.LayerDict.keys())<2:
+            errorDialog=QtGui.QErrorMessage(parent=self)
+            errorDialog.setModal(True)
+            errorDialog.showMessage("Cannot link a Geometry with less than two layers!")
+            self.reject()
+        
         layerNames=QtCore.QStringList()
         for lIndex in geo.LayerDict.keys():
             layerNames.append(geo.LayerDict[lIndex].Name)
@@ -750,6 +791,413 @@ class SimpleLinkDialog(QtGui.QDialog):
         self.handleApply()
         self.accept()
         
+
+class BCTCLinkDialog(QtGui.QDialog):
+    def __init__(self, geo, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.embedDialogBase.Ui_Dialog()
+        self.ui.setupUi(self)
+        
+        QtCore.QObject.connect(self.ui.buttonBox.button(QtGui.QDialogButtonBox.Apply), QtCore.SIGNAL("released()"),self.handleApply)
+        QtCore.QObject.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.handleAccept)
+        
+        
+        self.ui.neutralizeClusterCheckBox.setEnabled(True)
+        
+        self.ui.bctcCoeffLayoutWidget=QtGui.QWidget(self)
+        self.ui.bctcCoeffLayout = QtGui.QHBoxLayout(self.ui.bctcCoeffLayoutWidget)
+        self.ui.bctcCoeffLayout.setObjectName("bctcCoeffLayout")
+        
+        self.ui.bctcCoeffLabel=QtGui.QLabel("BCTC cond charge transfer coefficients",self.ui.verticalLayoutWidget)
+        self.ui.verticalLayout.insertWidget(1,self.ui.bctcCoeffLabel)
+        
+        
+        
+        self.ui.bctcCoeffButtonLayoutWidget = QtGui.QWidget(self)
+        self.ui.bctcCoeffButtonLayout = QtGui.QVBoxLayout(self.ui.bctcCoeffButtonLayoutWidget)
+        self.ui.bctcCoeffButtonLayout.setObjectName("bctcCoeffButtonLayout")
+        
+        self.ui.bctcCoeffFileButton=QtGui.QPushButton("read file",self.ui.bctcCoeffButtonLayoutWidget)
+        self.ui.bctcCoeffCalcButton=QtGui.QPushButton("calculate",self.ui.bctcCoeffButtonLayoutWidget)
+        self.ui.bctcCoeffButtonLayout.addWidget(self.ui.bctcCoeffFileButton)
+        self.ui.bctcCoeffButtonLayout.addWidget(self.ui.bctcCoeffCalcButton)
+        
+        QtCore.QObject.connect(self.ui.bctcCoeffCalcButton, QtCore.SIGNAL("released()"), self.handleCalculate)
+        QtCore.QObject.connect(self.ui.bctcCoeffFileButton, QtCore.SIGNAL("released()"), self.handleReadFile)
+        
+        self.ui.bctcCoeffTable=QtGui.QTableWidget(self)
+        
+        self.ui.bctcCoeffLayout.insertWidget(-1,self.ui.bctcCoeffButtonLayoutWidget)
+        self.ui.bctcCoeffLayout.addWidget(self.ui.bctcCoeffTable)
+        
+        
+        self.ui.verticalLayout.insertWidget(2,self.ui.bctcCoeffLayoutWidget)
+        self.ui.verticalLayout.removeItem(self.ui.verticalLayout.findChild(QtGui.QSpacerItem, QtCore.QString("spacerItem")))
+        
+        self.geo=geo
+        self.chargeTransfers=None
+        
+        symlist,symdict=self.geo.getatomsymlistdict()
+        symlist.sort()
+        
+        self.ui.bctcCoeffTable.setColumnCount(2)
+        self.ui.bctcCoeffTable.setHorizontalHeaderLabels(QtCore.QStringList(["elements","coefficient"]))
+        
+        del symdict
+        # now construct list of _unique_ combinations and a dictionary mapping element-element pairs to combination list indices
+        elementCombinations=[]
+        self.NameElementCombinations={}
+        for i in range(len(symlist)):
+            for j in range (i,len(symlist)):
+                elementCombinations.append((symlist[i],symlist[j]))
+                self.NameElementCombinations["{0:s}-{1:s}".format(self.geo.PTE[symlist[i]],self.geo.PTE[symlist[j]])]=(symlist[i],symlist[j])
+        
+        self.ui.bctcCoeffTable.setRowCount(len(self.NameElementCombinations.keys()))
+        
+        for i in range(len(self.NameElementCombinations.keys())):
+            nameItem=QtGui.QTableWidgetItem()
+            nameItem.setText(self.NameElementCombinations.keys()[i])
+            valueItem=QtGui.QTableWidgetItem()
+            valueItem.setText("0.0")
+            self.ui.bctcCoeffTable.setItem(i,0,nameItem)
+            self.ui.bctcCoeffTable.setItem(i,1,valueItem)
+            nameItem.setFlags(nameItem.flags() & ~QtCore.Qt.ItemIsEditable)
+            
+        
+        QtCore.QObject.connect(self.ui.bctcCoeffTable, QtCore.SIGNAL("cellChanged(int,int)"), self.tableToChargeTransfers)
+        
+        
+        if len(self.geo.LayerDict.keys())<2:
+            errorDialog=QtGui.QErrorMessage(parent=self)
+            errorDialog.setModal(True)
+            errorDialog.showMessage("Cannot link a Geometry with less than two layers!")
+            self.reject()
+        
+        layerNames=QtCore.QStringList()
+        for lIndex in geo.LayerDict.keys():
+            layerNames.append(geo.LayerDict[lIndex].Name)
+        
+        self.ui.pchrComboBox.addItems(layerNames)
+        pchrIndex=self.ui.pchrComboBox.findText("PCHR")
+        if pchrIndex!=-1:
+            self.ui.pchrComboBox.setCurrentIndex(pchrIndex)
+        
+        self.ui.qmzComboBox.addItems(layerNames)
+        qmzIndex=self.ui.qmzComboBox.findText("QMZ")
+        if qmzIndex!=-1:
+            self.ui.qmzComboBox.setCurrentIndex(qmzIndex)
+    
+    
+    def handleApply(self):
+        QMZ=self.geo.layersubgeometry(self.geo.layerbyname(str(self.ui.qmzComboBox.currentText())))
+        PCHR=self.geo.layersubgeometry(self.geo.layerbyname(str(self.ui.pchrComboBox.currentText())))
+        self.linkedGeo,resultInfo=QMZ.BCTCLinkedGeometry(PCHR,distscale=self.ui.ladfSpinBox.value(),chargeTransfers=self.chargeTransfers,neutralize=self.ui.neutralizeClusterCheckBox.isChecked())
+        self.ui.resultsTextBrowser.setPlainText(comatsci.utils.dictionaryPrettyPrint(resultInfo))
+    
+    
+
+    def chargeTransfersToTable(self, tempCTC):
+        for row in range(self.ui.bctcCoeffTable.rowCount()):
+            rowName = str(self.ui.bctcCoeffTable.item(row, 0).text())
+            self.ui.bctcCoeffTable.item(row, 1).setText("{0:10.6f}".format(tempCTC[self.NameElementCombinations[rowName]]))
+            
+
+    def handleReadFile(self):
+        bctcFileName=str(QtGui.QFileDialog.getOpenFileName(parent=self, caption=QtCore.QString("Open BCTC Coefficients"),
+                                                      filter=QtCore.QString("BCTC coefficient files (*.bctc);;all supported files (*.*)")))
+        if bctcFileName!="":
+            tempCoefficients={}
+            bctcFile=open(str(bctcFileName),"r")
+            for line in list(bctcFile):
+                if not line.strip()[0] in (";","#"):
+                    tokens=line.split()
+                    try:
+                        elementA=int(tokens[0])
+                        elementB=int(tokens[1])
+                        coefficient=float(tokens[2])
+                    except ValueError as error:
+                        errorDialog=QtGui.QErrorMessage(parent=self)
+                        errorDialog.setModal(True)
+                        errorDialog.showMessage("Error parsing file {0:s}: {1:s}".format(str(bctcFileName),error.args[0]))
+                        raise
+                    except:
+                        errorDialog=QtGui.QErrorMessage(parent=self)
+                        errorDialog.setModal(True)
+                        errorDialog.showMessage("Error parsing file {0:s}".format(str(bctcFileName)))
+                        raise
+                    tempCoefficients[(elementA,elementB)]=coefficient
+            bctcFile.close()
+            self.chargeTransfersToTable(tempCoefficients)
+            self.chargeTransfers=tempCoefficients
+
+
+    def handleCalculate(self):
+        tempCTC=self.geo.getElementElementChargeTransfers()[0]
+        self.chargeTransfersToTable(tempCTC)
+        self.chargeTransfers=tempCTC
+        
+    
+    
+    def handleAccept(self):
+        self.tableToChargeTransfers()
+        self.handleApply()
+        self.accept()
+        
+    
+    def tableToChargeTransfers(self):
+        oldChargeTransfers=self.chargeTransfers
+        self.chargeTransfers={}
+        for row in range(self.ui.bctcCoeffTable.rowCount()):
+            rowName=str(self.ui.bctcCoeffTable.item(row, 0).text())
+            try:
+                rowValue=float(str(self.ui.bctcCoeffTable.item(row, 1).text()))
+            except ValueError as error:
+                errorDialog=QtGui.QErrorMessage(parent=self)
+                errorDialog.setModal(True)
+                errorDialog.showMessage(error.args[0])
+                self.chargeTransfersToTable(oldChargeTransfers)
+                raise
+            except:
+                errorDialog=QtGui.QErrorMessage(parent=self)
+                errorDialog.setModal(True)
+                errorDialog.showMessage("Error parsing Charge Coefficient Row")
+                raise
+            self.chargeTransfers[self.NameElementCombinations[rowName]]=rowValue
+        
+        
+class EditAtomsDialog(QtGui.QDialog):
+    def __init__(self, geo, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.ui = geostatspack4.editAtoms.Ui_Dialog()
+        self.ui.setupUi(self)
+        
+        self.geo=copy.deepcopy(geo)
+        self.originalGeo=geo
+        
+        self.gTM=GeometryTableModel(self.geo)
+        
+        
+        self.ui.atomsTableView.setModel(self.gTM)
+        self.ui.atomsTableView.setItemDelegate(GeometryAtomDelegate(self))
+        
+        QtCore.QObject.connect(self.ui.addAtomButton, QtCore.SIGNAL("released()"),self.handleAddAtom)
+        QtCore.QObject.connect(self.ui.delAtomButton, QtCore.SIGNAL("released()"),self.handleDeleteAtom)
+        QtCore.QObject.connect(self.ui.buttonBox.button(QtGui.QDialogButtonBox.Reset), QtCore.SIGNAL("released()"),self.handleReset)
+        
+        self.ui.atomsTableView.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
+        
+    
+    
+    def handleReset(self):
+        self.geo=copy.deepcopy(self.originalGeo)
+        self.gTM.geo=self.geo
+        self.gTM.reset()
+        
+    
+    def handleAddAtom(self):
+        self.geo.addatom(0,(0.0,0.0,0.0))
+        self.gTM.reset()
+        self.ui.atomsTableView.scrollToBottom()
+    
+    
+    def handleDeleteAtom(self):
+        atomIndex=self.ui.atomsTableView.currentIndex().row()
+        if atomIndex >= 0 and atomIndex < self.geo.Atomcount:
+            self.geo.delatom(atomIndex)
+        self.gTM.reset()
+    
+        
+    
+class GeometryTableModel(QtCore.QAbstractTableModel):
+    """
+    Qt Model of Molecular Geometries
+    """
+    
+    ELEMENT=0
+    SUBTYPE=1
+    X=2
+    Y=3
+    Z=4
+    LAYER=5
+    CHARGE=6
+    
+    
+    def __init__(self,geo):
+        """Construct Model for Geometry
+        @type geo: comatsci.Geometry
+        @param geo: the molecular geometry object to represent
+        """
+        super(GeometryTableModel,self).__init__()
+        self.geo=geo
+        self.dirty=False
+        
+    
+    def rowCount(self, index=QtCore.QModelIndex()):
+        return self.geo.Atomcount
+    
+    
+    def columnCount(self, index=QtCore.QModelIndex()):
+        return 7
+    
+    
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if not index.isValid() or not (0 <= index.row() < self.geo.Atomcount):
+            return QtCore.QVariant()
+        row=index.row()
+        column=index.column()
+        if role==QtCore.Qt.DisplayRole:
+            if column==self.ELEMENT:
+                return QtCore.QVariant(comatsci.Geometry.Geometry.PTE[self.geo.AtomTypes[row]])
+            elif column==self.SUBTYPE:
+                return QtCore.QVariant(self.geo.AtomSubTypes[row])
+            elif column==self.X:
+                return QtCore.QVariant(float(self.geo.Geometry[row][0]*comatsci.constants.ANGSTROM))
+            elif column==self.Y:
+                return QtCore.QVariant(float(self.geo.Geometry[row][1]*comatsci.constants.ANGSTROM))
+            elif column==self.Z:
+                return QtCore.QVariant(float(self.geo.Geometry[row][2]*comatsci.constants.ANGSTROM))
+            elif column==self.LAYER:
+                return QtCore.QVariant(self.geo.LayerDict[self.geo.AtomLayers[row]].Name)
+            elif column==self.CHARGE:
+                return QtCore.QVariant(self.geo.AtomCharges[row])
+        elif role==QtCore.Qt.TextAlignmentRole:
+            return QtCore.QVariant(int(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter))
+        elif role==QtCore.Qt.TextColorRole:
+            if column==self.CHARGE:
+                if self.geo.AtomCharges[row]==0:
+                    return QtCore.QVariant(QtGui.QColor(QtCore.Qt.black))
+                if self.geo.AtomCharges[row]<0:
+                    return QtCore.QVariant(QtGui.QColor(QtCore.Qt.red))
+                if self.geo.AtomCharges[row]>0:
+                    return QtCore.QVariant(QtGui.QColor(QtCore.Qt.blue))
+        # chatch-all default return
+        return QtCore.QVariant()
+    
+    
+    def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
+        if role==QtCore.Qt.TextAlignmentRole:
+            if orientation==QtCore.Qt.Horizontal:
+                return QtCore.QVariant(int(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter))
+            else:
+                return QtCore.QVariant(int(QtCore.Qt.AlignRight|QtCore.Qt.AlignVCenter))
+        elif role!= QtCore.Qt.DisplayRole:
+            return QtCore.QVariant()
+        if orientation==QtCore.Qt.Horizontal:
+            if section==self.ELEMENT:
+                return QtCore.QVariant("Element")
+            elif section==self.SUBTYPE:
+                return QtCore.QVariant("Type")
+            elif section==self.X:
+                return QtCore.QVariant("X [A]")
+            elif section==self.Y:
+                return QtCore.QVariant("Y [A]")
+            elif section==self.Z:
+                return QtCore.QVariant("Z [A]")
+            elif section==self.LAYER:
+                return QtCore.QVariant("Layer")
+            elif section==self.CHARGE:
+                return QtCore.QVariant("Charge [e]")
+            else:
+                return QtCore.QVariant(int(section+1))
+                
+                
+                
+    def flags(self,index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsEnabled
+        elif index.column() in (self.ELEMENT,self.SUBTYPE,self.X,self.Y,self.Z,self.CHARGE,self.LAYER):
+            return QtCore.Qt.ItemFlags(QtCore.QAbstractTableModel.flags(self,index)|QtCore.Qt.ItemIsEditable)
+        else:
+            return QtCore.Qt.ItemFlags(QtCore.QAbstractTableModel.flags(self,index))
+        
+        
+        
+        
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        if index.isValid() and 0 < index.row() < self.geo.Atomcount:
+            atom=index.row()
+            column=index.column()
+            if column==self.ELEMENT:
+                self.geo.AtomTypes[atom]=self.geo.RPTE[str(value.toString()).lower()]
+            if column==self.SUBTYPE:
+                self.geo.AtomSubTypes[atom]=value.toString()
+            if column==self.X:
+                self.geo.Geometry[atom][0]=float(value.toString())/comatsci.constants.ANGSTROM
+            if column==self.Y:
+                self.geo.Geometry[atom][1]=float(value.toString())/comatsci.constants.ANGSTROM
+            if column==self.Z:
+                self.geo.Geometry[atom][2]=float(value.toString())/comatsci.constants.ANGSTROM
+            if column==self.CHARGE:
+                self.geo.AtomCharges[atom]=float(value.toString())
+            if column==self.LAYER:
+                layerName=str(value.toString())
+                if layerName in self.geo.layerNames():
+                    self.geo.AtomLayers[atom]=self.geo.layerbyname(layerName)
+                else:
+                    newlayer=self.geo.addlayer(layerName)
+                    self.geo.AtomLayers[atom]=newlayer
+            self.dirty=True
+            self.emit(QtCore.SIGNAL("dataChanged(QModelIndex.QModelIndex)"),index,index)
+            return True
+        return False
+    
+    
+class GeometryAtomDelegate(QtGui.QItemDelegate):
+    
+    def createEditor(self, parent, option, index):
+        if index.column()==GeometryTableModel.ELEMENT:
+            combobox=QtGui.QComboBox(parent)
+            combobox.addItems(comatsci.Geometry.Geometry.PTE)
+            return combobox
+        elif index.column()==GeometryTableModel.SUBTYPE:
+            combobox=QtGui.QComboBox(parent)
+            combobox.addItems(QtCore.QStringList(dict.fromkeys(index.model().geo.AtomSubTypes).keys()))
+            combobox.setEditable(True)
+            return combobox
+        elif index.column()==GeometryTableModel.LAYER:
+            combobox=QtGui.QComboBox(parent)
+            combobox.addItems(index.model().geo.layerNames())
+            print(index.model().geo.layerNames())
+            combobox.setEditable(True)
+            return combobox
+        if index.column() in (GeometryTableModel.X,GeometryTableModel.Y,GeometryTableModel.Z):
+            spinbox=QtGui.QDoubleSpinBox(parent)
+            spinbox.setSingleStep(0.1)
+            spinbox.setMinimum(-100000.0)
+            spinbox.setMaximum(+100000.0)
+            spinbox.setDecimals(6)
+            return spinbox
+        if index.column()==GeometryTableModel.CHARGE:
+            spinbox=QtGui.QDoubleSpinBox(parent)
+            spinbox.setSingleStep(0.01)
+            spinbox.setMinimum(-100.0)
+            spinbox.setMaximum(+100.0)
+            spinbox.setDecimals(6)
+            return spinbox
+        else:
+            return QtGui.QItemDelegate.createEditor(self, parent, option, index)
+        
+        
+    def setEditorData(self, editor, index):
+        text=index.model().data(index, QtCore.Qt.DisplayRole).toString()
+        if index.column()==GeometryTableModel.ELEMENT:
+            editor.setCurrentIndex(editor.findText(text))
+        elif index.column==GeometryTableModel.SUBTYPE:
+            editor.setCurrentIndex(editor.findText(text))
+        if index.column() in (GeometryTableModel.X,GeometryTableModel.Y,GeometryTableModel.Z,GeometryTableModel.CHARGE):
+            editor.setValue(float(text))
+        else:
+            return QtGui.QItemDelegate.setEditorData(self, editor, index)
+        
+        
+    
+    def setModelData(self, editor, model, index):
+        if index.column() in (GeometryTableModel.X,GeometryTableModel.Y,GeometryTableModel.Z,GeometryTableModel.CHARGE):
+            model.setData(index,QtCore.QVariant(editor.value()))
+        elif index.column() in (GeometryTableModel.ELEMENT, GeometryTableModel.SUBTYPE, GeometryTableModel.LAYER):
+            model.setData(index,QtCore.QVariant(editor.currentText()))
+    
+          
 
 if __name__=="__main__":
     app = QtGui.QApplication(sys.argv)
