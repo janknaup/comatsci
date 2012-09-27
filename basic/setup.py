@@ -8,8 +8,9 @@ sys.path.append("src/comatsci")
 from constants import VERSIONPREFIX as COMATSCI_VERSIONPREFIX
 from constants import VERSION as COMATSCI_VERSION
 
-from bzrlib.branch import BzrBranch
+
 try:
+	from bzrlib.branch import BzrBranch
 	branch = BzrBranch.open_containing('.')[0]
 	if branch.nick!="trunk":
 		VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{1:s}-{0:d}".format(branch.last_revision_info()[0],branch.nick)
