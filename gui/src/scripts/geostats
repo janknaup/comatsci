@@ -751,6 +751,8 @@ class SimpleLinkDialog(QtGui.QDialog):
         self.ui = geostatspack4.embedDialogBase.Ui_Dialog()
         self.ui.setupUi(self)
         
+        self.setWindowTitle("simple link atom generation")
+        
         QtCore.QObject.connect(self.ui.buttonBox.button(QtGui.QDialogButtonBox.Apply), QtCore.SIGNAL("released()"),self.handleApply)
         QtCore.QObject.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.handleAccept)
         
@@ -797,6 +799,8 @@ class BCTCLinkDialog(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         self.ui = geostatspack4.embedDialogBase.Ui_Dialog()
         self.ui.setupUi(self)
+        
+        self.setWindowTitle("BCTC link atom generation")
         
         QtCore.QObject.connect(self.ui.buttonBox.button(QtGui.QDialogButtonBox.Apply), QtCore.SIGNAL("released()"),self.handleApply)
         QtCore.QObject.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.handleAccept)

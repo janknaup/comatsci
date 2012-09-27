@@ -2,8 +2,12 @@
 \lyxformat 413
 \begin_document
 \begin_header
-\textclass article
+\textclass docbook
 \use_default_options false
+\begin_modules
+logicalmkup
+customHeadersFooters
+\end_modules
 \maintain_unincluded_children false
 \language english
 \language_package default
@@ -12,7 +16,7 @@
 \font_roman ae
 \font_sans default
 \font_typewriter default
-\font_default_family default
+\font_default_family sfdefault
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
@@ -24,11 +28,23 @@
 \output_sync 0
 \bibtex_command default
 \index_command default
+\float_placement H
 \paperfontsize default
 \spacing single
-\use_hyperref false
+\use_hyperref true
+\pdf_title "geostats manual"
+\pdf_author "Jan M. Knaup <janknaup@gmail.com>"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks true
+\pdf_pdfborder true
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_amsmath 1
 \use_esint 0
 \use_mhchem 0
@@ -39,10 +55,19 @@
 \paperorientation portrait
 \suppress_date false
 \use_refstyle 0
+\branch Manual
+\selected 0
+\filename_suffix 0
+\color #faf0e6
+\end_branch
 \index Index
 \shortcut idx
 \color #008000
 \end_index
+\leftmargin 3cm
+\topmargin 3cm
+\rightmargin 2cm
+\bottommargin 2cm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -50,7 +75,7 @@
 \quotes_language english
 \papercolumns 1
 \papersides 1
-\paperpagestyle default
+\paperpagestyle fancy
 \tracking_changes false
 \output_changes false
 \html_math_output 0
@@ -105,7 +130,8 @@ geostats is a graphical frontend to the comatsci computational materials
 Geostats allows calculating some basic statistical information on geometries,
  editing atomic data tables and preparing QM/MM coupling geometries based
  on the BCTC embedding scheme.
-\end_layout
+\begin_inset Branch Manual
+status collapsed
 
 \begin_layout Subsection
 invoking geostats
@@ -155,6 +181,11 @@ DFTB documentation or comatsci manual.
  Portable data interchange format based on HDF5.
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Menu structure
 \begin_inset CommandInset label
@@ -164,6 +195,1214 @@ name "sec:Menu-Structure"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+Main window
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Mainwindow_Startup.png
+	width 47text%
+
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Graphics
+	filename Mainwindow_content.png
+	width 47text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:geostats-main-window"
+
+\end_inset
+
+geostats main window
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+The geostats main window 
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+(cf.
+ figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:geostats-main-window"
+
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+
+ is composed of the main menu at the top and the text display area.
+ This area will display all statistical reports and graphs generated.
+ Its contents can be copy-pasted, saved as plain text and html or printed.
+ On most systems, the print dialog also allows saving in PDF format.
+\end_layout
+
+\begin_layout Subsection
+File menu
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+File>Open Opens an operating system standard dialog to select a geometry
+ file to open for reading.
+ When a new geometry file is opened, the Output section is cleared to avoid
+ mixing up of statistics pertaining to different geometries.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+File>Save
+\begin_inset space ~
+\end_inset
+
+Geometry Will save the current geometry under the original file name and
+ in the original format.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+File>Save
+\begin_inset space ~
+\end_inset
+
+Geometry
+\begin_inset space ~
+\end_inset
+
+As Opens an operating system standard dialog to select a geometry file name
+ and format to save the current geometry.
+\begin_inset Newline newline
+\end_inset
+
+Available formats for saving are:
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+.gen DFTB generic file format, Cf.
+\begin_inset space ~
+\end_inset
+
+DFTB documentation or comatsci manual.
+\end_layout
+
+\begin_layout Description
+.xyz Xmol xyz coordinate format, an optional 5th column is interpreted as
+ atomic valence populations following DFTB+ convention.
+ Cf.
+\begin_inset space ~
+\end_inset
+
+DFTB documentation or comatsci manual.
+\end_layout
+
+\begin_layout Description
+.fmg Flexible molecular geometry xml format.
+ Native comatsci format, cf.
+ comatsci manual.
+\end_layout
+
+\begin_layout Description
+.cdh Chemical data hierarchy format.
+ Portable data interchange format based on HDF5.
+\end_layout
+
+\begin_layout Description
+.pdb Protein database format.
+ Periodic boundary conditions are only preserved in case of af an x-y-z
+ aligned orthorhombic unit cell.
+\end_layout
+
+\begin_layout Description
+.fdf Flexible data format.
+ Standard input file format for 
+\begin_inset CommandInset href
+LatexCommand href
+name "SIESTA"
+target "http://icmab.cat/leem/siesta/"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Description
+.xyzq x,y,z coordinates in Bohr and atomic charge in elementary charges per
+ atom.
+ Default format for external point charges in DFTB+
+\end_layout
+
+\begin_layout Description
+turbomole Geometry file format for 
+\begin_inset CommandInset href
+LatexCommand href
+name "turbomole"
+target "http://www.turbomole.com/"
+
+\end_inset
+
+.
+ The file name is fixed to 
+\begin_inset Quotes eld
+\end_inset
+
+coord
+\begin_inset Quotes erd
+\end_inset
+
+, regardless if the user selection in the file name dialog!
+\end_layout
+
+\begin_layout Description
+aims Geometry file format for 
+\begin_inset CommandInset href
+LatexCommand href
+name "FHI-aims"
+target "https://aimsclub.fhi-berlin.mpg.de/"
+
+\end_inset
+
+.
+ The file name is fixed to 
+\begin_inset Quotes eld
+\end_inset
+
+geometry.in
+\begin_inset Quotes erd
+\end_inset
+
+, regardless of the user selection in the file name dialog!
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+File>Print
+\begin_inset space ~
+\end_inset
+
+Output Opens a standard print dialog to select a printing destination and
+ sends the statistics and graphs displayed in the main window to the selected
+ printer.
+ If 
+\begin_inset Quotes eld
+\end_inset
+
+print to file
+\begin_inset Quotes erd
+\end_inset
+
+ is selected, the output is saved in PDF format.
+ The default file name for printing to files is 
+\begin_inset Quotes eld
+\end_inset
+
+print.pdf
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+File>Save
+\begin_inset space ~
+\end_inset
+
+Output Opens a standard dialog to select file name and file type for
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+File>Exit Quits geostats.
+\end_layout
+
+\begin_layout Subsection
+Edit menu
+\end_layout
+
+\begin_layout Standard
+The edit menu entries are only available if a geometry is loaded.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Edit_atoms.png
+	width 47text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:edit-atoms-dialog"
+
+\end_inset
+
+edit atoms dialog
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Edit>Edit
+\begin_inset space ~
+\end_inset
+
+Atoms The Edit Atoms dialog 
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+(cf.
+ figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:edit-atoms-dialog"
+
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+
+ shows the editable information of a geometry in tabular format.
+ The editable colums are:
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+Element The chemical element.
+\end_layout
+
+\begin_layout Description
+Subtype An arbitrary string describing the atom type.
+ Defaults to the element symbol but may be cnaged to anything the user wishes.
+ Autogenerated link-atoms will be labeled 
+\begin_inset Quotes eld
+\end_inset
+
+H_l
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+X,Y,Z The atomic carthesian coordinates in 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+AA
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Description
+Layer Logical subdivision of the geometry.
+ Similar in concept to fragments in the protein database but more flexible.
+ For QM/MM embedding, layers are used to separate QM-zone and MM-zone parts
+ of the geometry.
+ If no layer information in stored in the input file format, atoms are placed
+ in the 
+\begin_inset Quotes eld
+\end_inset
+
+default layer
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Layer information is stored in the fragment columns in .pdf and .cdh formats,
+ it is stored as the 
+\begin_inset Quotes eld
+\end_inset
+
+<layer>
+\begin_inset Quotes erd
+\end_inset
+
+ tag in .fmg.
+ If a new layer name is entered that does not yet exist, the respective
+ layer is created.
+\end_layout
+
+\begin_layout Description
+Charge The atomic net charge in elementary charge units.
+ (I.e.
+ negative charge denotes excess electrons, positive charge denotes electron
+ deficiency.)
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename periodic_expand.png
+	width 20text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:periodic-expand-dialog"
+
+\end_inset
+
+periodic expand dialog
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Edit>Periodic
+\begin_inset space ~
+\end_inset
+
+Expand Shown in figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:periodic-expand-dialog"
+
+\end_inset
+
+.
+ Will enlarge a periodic geometry by repeating the unit cell by the selected
+ number of times in a,b and c direction respectively.
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename simple-link.png
+	width 47text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:simple-link-atoms"
+
+\end_inset
+
+simple link atoms dialog
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename bctc-link.png
+	width 47text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:BCTC-link-atoms"
+
+\end_inset
+
+BCTC link atoms dialog
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+QM/MM embedding dialogs
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Edit>Simple-link
+\begin_inset space ~
+\end_inset
+
+Layers Will add hydrogen atoms between two layers of the geometry (cf.
+ figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:simple-link-atoms"
+
+\end_inset
+
+).
+ The hydrogen bond distance for the link atoms will be multiplied by the
+ specified link-atom distance factor.
+ QM-zone and external charges layers can be selected freely.
+ Default selections are layers named 
+\begin_inset Quotes eld
+\end_inset
+
+QMZ
+\begin_inset Quotes erd
+\end_inset
+
+ for the QM-zone and 
+\begin_inset Quotes eld
+\end_inset
+
+PCHR
+\begin_inset Quotes erd
+\end_inset
+
+ for the external charges respectively, if such layers are present.
+ Atoms from other layers will be removed from the resulting linked geometry!
+\begin_inset Newline newline
+\end_inset
+
+Upon pressing 
+\begin_inset Quotes eld
+\end_inset
+
+Apply
+\begin_inset Quotes erd
+\end_inset
+
+, the linking results panel will display a summary of the linking options
+ and basic statistics on the linking operation result.
+ Repeated use of 
+\begin_inset Quotes eld
+\end_inset
+
+Apply
+\begin_inset Quotes erd
+\end_inset
+
+ is safe and will operate on the original geometry to avoid creating duplicate
+ link-atoms.
+\begin_inset Newline newline
+\end_inset
+
+Upon pressing 
+\begin_inset Quotes eld
+\end_inset
+
+Ok
+\begin_inset Quotes erd
+\end_inset
+
+, the main window geometry will be replaced and the statistics output is
+ cleared.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Edit>BCTC-link
+\begin_inset space ~
+\end_inset
+
+Layers Will add hydrogen atoms between two layers of the geometry (cf.
+ figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BCTC-link-atoms"
+
+\end_inset
+
+).
+ For basic options, cf.
+ the Simple-link Layers dialog.
+ Additionally, Bond Charge Transfer Compensation (BCTC
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+, cf.
+ references
+\begin_inset space ~
+\end_inset
+
+XXXX
+\end_layout
+
+\end_inset
+
+) will be applied to the QM link-atom and MM host-atoms.
+ Charge transfer coefficients can be entered manually in the table, calculated
+ from atomic charges in the present geometry or read from an external file.
+ If no coefficients are given, they will be automatically calculated from
+ the current geometry charges upon pressing 
+\begin_inset Quotes eld
+\end_inset
+
+Apply
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+Ok
+\begin_inset Quotes erd
+\end_inset
+
+.
+ If a single table entry is modified, the listed coefficients are used for
+ all bond types, i.e.
+ 0.0 means no bond charge transfer.
+ If it is desired to manually specify single coefficients and calculate
+ the rest from the geometry charge data, it is necessary to use 
+\begin_inset Quotes eld
+\end_inset
+
+calculate
+\begin_inset Quotes erd
+\end_inset
+
+ first, then edit the desired coefficients.
+\end_layout
+
+\begin_layout Subsection
+Statistics menu
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Statistics>Summaries>Coordinations Produces a basic report on the composition,
+ average atom coordination by element, and more detailed coordination informatio
+n and adds it to the output pane.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Statistics>Summaries>Charges Produces a report on the system total charge,
+ layer charges, charges by elements and bond charge transfer coefficients.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Statistics>Graphs>Radial
+\begin_inset space ~
+\end_inset
+
+Distribution
+\begin_inset space ~
+\end_inset
+
+Functions 
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename rdf-dialog.png
+	width 47text%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:radial-distribution-function"
+
+\end_inset
+
+radial distribution function
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename histogram-dialog.png
+	width 47text%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bond-angle-histograms"
+
+\end_inset
+
+bond angle histograms
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Graph-dialogs"
+
+\end_inset
+
+Graph dialogs
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ Opens the rdf dialog 
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+(cf.
+ figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:radial-distribution-function"
+
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+
+.
+ The total rdf and per element rdfs can be calculated and plotted.
+ If per element rdfs are requested, output of the total rdf can be suppressed.
+ The step width for rdf calculation can be selected.
+\begin_inset Newline newline
+\end_inset
+
+The plot will be refreshed upon pressing 
+\begin_inset Quotes eld
+\end_inset
+
+Plot
+\begin_inset Quotes erd
+\end_inset
+
+.
+\begin_inset Newline newline
+\end_inset
+
+Upon pressing 
+\begin_inset Quotes eld
+\end_inset
+
+Save
+\begin_inset Quotes erd
+\end_inset
+
+, if 
+\begin_inset Quotes eld
+\end_inset
+
+add to output
+\begin_inset Quotes erd
+\end_inset
+
+ is activated, the graph will be added to the output pane and saved as 
+\begin_inset Quotes eld
+\end_inset
+
+rdf.svg
+\begin_inset Quotes erd
+\end_inset
+
+.
+\begin_inset Newline newline
+\end_inset
+
+If 
+\begin_inset Quotes eld
+\end_inset
+
+save data
+\begin_inset Quotes erd
+\end_inset
+
+ is selected, the rdf raw data is saved to files prefixed 
+\begin_inset Quotes eld
+\end_inset
+
+total-
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+{element symbol}-
+\begin_inset Quotes erd
+\end_inset
+
+ and suffixed with the specified data filename suffix.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Statistics>Graphs>Bond
+\begin_inset space ~
+\end_inset
+
+Angle
+\begin_inset space ~
+\end_inset
+
+Histogram Opens the Bond Angle Histogram Dialog shown in figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bond-angle-histograms"
+
+\end_inset
+
+.
+ Histograms of all bond angles in the geometry, separated by the central
+ atom element are calculated.
+\begin_inset Newline newline
+\end_inset
+
+Basic options are the same as for the Radial Distribution Functions dialog.
+ The Number of angle bins can be selected by the user.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Statistics>Graphs>Bond
+\begin_inset space ~
+\end_inset
+
+Length
+\begin_inset space ~
+\end_inset
+
+Histogram Calculates and plots histograms for all {element}-{element} bond
+ types present in the geometry.
+\begin_inset Newline newline
+\end_inset
+
+Basic options are the same as for Bond Angle Histograms, additionally the
+ total histogram can be requested.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Statistics>Graphs>Element
+\begin_inset space ~
+\end_inset
+
+Charge
+\begin_inset space ~
+\end_inset
+
+Histogram Calculates net charge histograms, separated by elements.
+\begin_inset Newline newline
+\end_inset
+
+Options are the same as for Bond Angle Histograms.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Statistics>Write
+\begin_inset space ~
+\end_inset
+
+BCTC
+\begin_inset space ~
+\end_inset
+
+Coefficients Calculates bond charge transfer coefficients from the current
+ geometry atomic net charges and opens a file name selection dialog to write
+ the coefficients for reuse in the BCTC-link layers dialog.
+ The default file name extension is 
+\begin_inset Quotes eld
+\end_inset
+
+.bctc
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The file format is ascii lines of:
+\begin_inset Newline newline
+\end_inset
+
+{element
+\begin_inset space ~
+\end_inset
+
+1} {element 2} {coefficient}
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Statistics>DFTB
+\begin_inset space ~
+\end_inset
+
+Charge
+\begin_inset space ~
+\end_inset
+
+Constraints 
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename charge_constraints.png
+	width 40text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Charge-constraint-string"
+
+\end_inset
+
+Charge constraint string dialog
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ Opens the DFTB+ Charge Constraints dialog 
+\begin_inset Branch Manual
+status collapsed
+
+\begin_layout Standard
+shown in figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Charge-constraint-string"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+.
+ In the upper pane, white space separated atom numbers (counting from 1)
+ can be entered.
+ A suitable atom number list can be generated in vmd by using the 
+\begin_inset Quotes eld
+\end_inset
+
+atomselectX get serial
+\begin_inset Quotes erd
+\end_inset
+
+ command.
+ The charge constraints prefactor specifies the penalty potential strength
+ for the charge constraints during the SCC cycle.
+\begin_inset Newline newline
+\end_inset
+
+Upon pressing 
+\begin_inset Quotes eld
+\end_inset
+
+constraints
+\begin_inset Quotes erd
+\end_inset
+
+, an .hsd string specifying charge constraints for the atoms listed in the
+ upper pane will be printed in the lower pane, suitable for copy-pasting
+ into a DFTB+ dftb_in.hsd file.
+\begin_inset Newline newline
+\end_inset
+
+(Cf.
+ the DFTB+ manual for details.)
+\end_layout
+
+\begin_layout Subsection
+Help menu
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Help>About Shows basic copyright and license information about geostats.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Help>Help Opens the help window.
 \end_layout
 
 \begin_layout Section
