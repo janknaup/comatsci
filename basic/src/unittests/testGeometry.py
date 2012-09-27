@@ -39,7 +39,7 @@ class geometryTest(unittest.TestCase):
     
     def testXYZio(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.xyz")
+        g.readfile("../../test_regr/unittest_data/geotest1.xyz")
         self.assertEqual(g.Mode, "C", "geometry mode differs")
         georef=numpy.array([[ 0.          ,0.      ,    0.        ],
                             [ 0.          ,0.      ,    2.52278443],
@@ -61,7 +61,7 @@ class geometryTest(unittest.TestCase):
     
     def testGENio(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.gen")
+        g.readfile("../../test_regr/unittest_data/geotest1.gen")
         self.assertEqual(g.Mode, "C", "geometry mode differs")
         georef=numpy.array([[ 0.          ,0.      ,    0.        ],
                             [ 0.          ,0.      ,    2.52278443],
@@ -83,7 +83,7 @@ class geometryTest(unittest.TestCase):
     
     def testCDHio(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.gen")
+        g.readfile("../../test_regr/unittest_data/geotest1.gen")
         self.assertEqual(g.Mode, "C", "geometry mode differs")
         georef=numpy.array([[ 0.          ,0.      ,    0.        ],
                             [ 0.          ,0.      ,    2.52278443],
@@ -105,7 +105,7 @@ class geometryTest(unittest.TestCase):
     
     def testFMGio(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.fmg")
+        g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         self.assertEqual(g.Mode, "C", "geometry mode differs")
         georef=numpy.array([[ 0.          ,0.      ,    0.        ],
                             [ 0.          ,0.      ,    2.52278443],
@@ -127,7 +127,7 @@ class geometryTest(unittest.TestCase):
         
     def testAimsOut(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.fmg")
+        g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.writeAIMS("test.aims")
         testfile=open("test.aims")
         testlines=list(testfile)
@@ -152,7 +152,7 @@ class geometryTest(unittest.TestCase):
 
     def testTmOut(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.fmg")
+        g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.writeTurboMole("test.tm")
         testfile=open("test.tm")
         testlines=list(testfile)
@@ -176,13 +176,13 @@ class geometryTest(unittest.TestCase):
     
     def testFdfOut(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.fmg")
+        g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.writefdf("test.fdf")
         testfile=open("test.fdf")
         testlines=list(testfile)
         testfile.close()
         os.unlink("test.fdf")
-        reffile=open("../../../test_regr/unittest_data/geotest1.fdf")
+        reffile=open("../../test_regr/unittest_data/geotest1.fdf")
         reflines=list(reffile)
         for i in range(len(testlines)):
             self.assertEqual(reflines[i],testlines[i],"written fdf file differs from reference")
@@ -190,13 +190,13 @@ class geometryTest(unittest.TestCase):
 
     def testPDBOut(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.fmg")
+        g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.writepdb("test.pdb")
         testfile=open("test.pdb")
         testlines=list(testfile)
         testfile.close()
         os.unlink("test.pdb")
-        reffile=open("../../../test_regr/unittest_data/geotest1.pdb")
+        reffile=open("../../test_regr/unittest_data/geotest1.pdb")
         reflines=list(reffile)
         for i in range(len(testlines)):
             self.assertEqual(reflines[i],testlines[i],"written pdb file differs from reference")
@@ -204,7 +204,7 @@ class geometryTest(unittest.TestCase):
             
     def testXYZQOut(self):
         g=Geometry.Geometry()
-        g.readfile("../../../test_regr/unittest_data/geotest1.fmg")
+        g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.AtomCharges=[0.,1.,3.,7.8220452,5.5174032,-3.14157324839284729457398775532]
         g.writexyzq("test.xyzq")
         testfile=open("test.xyzq")
