@@ -42,7 +42,6 @@ distrib=setup (	name="comatsci-gui",
 		url=URL, 
 		classifiers=[
 			'Development Status :: 5 - Production/Stable',
-			'Environment :: Console',
 			'Environment :: X11 Applications :: Qt',
 			'Intended Audience :: Education',
 			'Intended Audience :: Developers',
