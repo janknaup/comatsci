@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'editAtoms.ui'
 #
-# Created: Mon Sep  3 15:55:17 2012
+# Created: Thu Sep 27 11:28:59 2012
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
