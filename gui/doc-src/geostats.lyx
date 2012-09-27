@@ -2,7 +2,7 @@
 \lyxformat 413
 \begin_document
 \begin_header
-\textclass docbook
+\textclass article
 \use_default_options false
 \begin_modules
 logicalmkup
@@ -56,7 +56,7 @@ customHeadersFooters
 \suppress_date false
 \use_refstyle 0
 \branch Manual
-\selected 0
+\selected 1
 \filename_suffix 0
 \color #faf0e6
 \end_branch
@@ -131,7 +131,7 @@ Geostats allows calculating some basic statistical information on geometries,
  editing atomic data tables and preparing QM/MM coupling geometries based
  on the BCTC embedding scheme.
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Subsection
 invoking geostats
@@ -203,7 +203,7 @@ Main window
 
 \begin_layout Standard
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 \begin_inset Float figure
@@ -259,7 +259,7 @@ geostats main window
 
 The geostats main window 
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 (cf.
@@ -476,7 +476,7 @@ The edit menu entries are only available if a geometry is loaded.
 
 \begin_layout Standard
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 \begin_inset Float figure
@@ -530,7 +530,7 @@ Edit>Edit
 
 Atoms The Edit Atoms dialog 
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 (cf.
@@ -625,7 +625,7 @@ Charge The atomic net charge in elementary charge units.
  negative charge denotes excess electrons, positive charge denotes electron
  deficiency.)
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 \begin_inset Float figure
@@ -693,7 +693,7 @@ reference "fig:periodic-expand-dialog"
  Will enlarge a periodic geometry by repeating the unit cell by the selected
  number of times in a,b and c direction respectively.
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 \begin_inset Float figure
@@ -981,13 +981,13 @@ Distribution
 
 Functions 
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Float figure
@@ -1086,7 +1086,7 @@ Graph dialogs
 
  Opens the rdf dialog 
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 (cf.
@@ -1292,7 +1292,7 @@ Charge
 
 Constraints 
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 \begin_inset Float figure
@@ -1337,7 +1337,7 @@ Charge constraint string dialog
 
  Opens the DFTB+ Charge Constraints dialog 
 \begin_inset Branch Manual
-status collapsed
+status open
 
 \begin_layout Standard
 shown in figure
