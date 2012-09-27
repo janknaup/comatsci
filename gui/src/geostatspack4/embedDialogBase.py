@@ -1,0 +1,95 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'embedDialogBase.ui'
+#
+# Created: Thu Sep 27 11:28:59 2012
+#      by: PyQt4 UI code generator 4.7.2
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt4 import QtCore, QtGui
+
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(645, 547)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/images/GSLogo.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        Dialog.setWindowIcon(icon)
+        self.buttonBox = QtGui.QDialogButtonBox(Dialog)
+        self.buttonBox.setGeometry(QtCore.QRect(10, 510, 621, 32))
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Apply|QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.setObjectName("buttonBox")
+        self.groupBox = QtGui.QGroupBox(Dialog)
+        self.groupBox.setGeometry(QtCore.QRect(0, 0, 641, 291))
+        self.groupBox.setStyleSheet("border-color: rgb(0, 0, 0);")
+        self.groupBox.setFlat(False)
+        self.groupBox.setObjectName("groupBox")
+        self.verticalLayoutWidget = QtGui.QWidget(self.groupBox)
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 20, 641, 271))
+        self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
+        self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.formLayout = QtGui.QFormLayout()
+        self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout.setObjectName("formLayout")
+        self.label_3 = QtGui.QLabel(self.verticalLayoutWidget)
+        self.label_3.setObjectName("label_3")
+        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.label_3)
+        self.ladfSpinBox = QtGui.QDoubleSpinBox(self.verticalLayoutWidget)
+        self.ladfSpinBox.setDecimals(3)
+        self.ladfSpinBox.setMinimum(0.01)
+        self.ladfSpinBox.setMaximum(10.0)
+        self.ladfSpinBox.setSingleStep(0.02)
+        self.ladfSpinBox.setProperty("value", 1.0)
+        self.ladfSpinBox.setObjectName("ladfSpinBox")
+        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.ladfSpinBox)
+        self.label = QtGui.QLabel(self.verticalLayoutWidget)
+        self.label.setObjectName("label")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label)
+        self.qmzComboBox = QtGui.QComboBox(self.verticalLayoutWidget)
+        self.qmzComboBox.setObjectName("qmzComboBox")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.qmzComboBox)
+        self.label_2 = QtGui.QLabel(self.verticalLayoutWidget)
+        self.label_2.setObjectName("label_2")
+        self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_2)
+        self.pchrComboBox = QtGui.QComboBox(self.verticalLayoutWidget)
+        self.pchrComboBox.setObjectName("pchrComboBox")
+        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.pchrComboBox)
+        self.neutralizeClusterLabel = QtGui.QLabel(self.verticalLayoutWidget)
+        self.neutralizeClusterLabel.setObjectName("neutralizeClusterLabel")
+        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.neutralizeClusterLabel)
+        self.neutralizeClusterCheckBox = QtGui.QCheckBox(self.verticalLayoutWidget)
+        self.neutralizeClusterCheckBox.setObjectName("neutralizeClusterCheckBox")
+        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.neutralizeClusterCheckBox)
+        self.verticalLayout.addLayout(self.formLayout)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem)
+        self.groupBox_2 = QtGui.QGroupBox(Dialog)
+        self.groupBox_2.setGeometry(QtCore.QRect(0, 290, 641, 211))
+        self.groupBox_2.setObjectName("groupBox_2")
+        self.gridLayoutWidget = QtGui.QWidget(self.groupBox_2)
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(9, 19, 631, 191))
+        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+        self.gridLayout = QtGui.QGridLayout(self.gridLayoutWidget)
+        self.gridLayout.setObjectName("gridLayout")
+        self.resultsTextBrowser = QtGui.QTextBrowser(self.gridLayoutWidget)
+        self.resultsTextBrowser.setObjectName("resultsTextBrowser")
+        self.gridLayout.addWidget(self.resultsTextBrowser, 0, 0, 1, 1)
+
+        self.retranslateUi(Dialog)
+        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), Dialog.accept)
+        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), Dialog.reject)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox.setTitle(QtGui.QApplication.translate("Dialog", "Linking Parameters", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("Dialog", "link-atom distance factor", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Dialog", "QM-zone layer", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("Dialog", "external charges layer", None, QtGui.QApplication.UnicodeUTF8))
+        self.neutralizeClusterLabel.setText(QtGui.QApplication.translate("Dialog", "neutralize cluster", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_2.setTitle(QtGui.QApplication.translate("Dialog", "linking results", None, QtGui.QApplication.UnicodeUTF8))
+
+import gsresources_rc

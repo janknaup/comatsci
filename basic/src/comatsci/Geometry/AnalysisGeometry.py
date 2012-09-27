@@ -139,7 +139,7 @@ class AnalysisGeometry(Geometry):
 		elcoco=self.elem_coordination_counts()
 		blstats=self.bondLengthStatistics()
 		lines=[]
-		lines.append("<H2>Composition</H2>")
+		lines.append("\n<H2>Composition</H2>")
 		lines.append("<table border=2 rules=all>\n<tr><th>Element</th><th># of atoms</th><th>%</th></tr>")
 		for i in elemcounts.keys():
 			workstring="<tr><td>{0:4s}</td><td>{1:6d}</td><td>{2:5.1f}%</td></tr>".format(self.PTE[i],elemcounts[i],float(elemcounts[i])*100./float(self.Atomcount))
@@ -405,7 +405,7 @@ class AnalysisGeometry(Geometry):
 		lines.append("<table><tr><th>S</th><td>: {0:12f}</td><tr><tr><th>&sigma;<sup>2</sup></th><td>: {1:12f}</td></tr></table>".format(S,sigma))
 		lines.append("""<table border="2" rules="all"><tr><th>Elements</th><th>dq<sub>a,b</sub></th></tr>""")
 		for i in dqKeys:
-			lines.append("<tr><td>{0:03s}-{1:3s}</td><td>{2:11.8f}</td>".format(self.PTE[i[0]],self.PTE[i[1]],dq[i]))
+			lines.append("<tr><td>{0:3s}-{1:3s}</td><td>{2:11.8f}</td>".format(self.PTE[i[0]],self.PTE[i[1]],dq[i]))
 		lines.append("</table>")
 		return"\n".join(lines)
 
