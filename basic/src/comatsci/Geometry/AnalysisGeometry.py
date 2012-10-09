@@ -1184,11 +1184,15 @@ class AnalysisGeometry(Geometry):
 			# get minimum distances
 			refdists=gx.crossSupercellDistanceMatrix(subRef.Geometry,subGeo.Geometry,subRef.Lattice)
 			minDistances=numpy.min(refdists, 1)
+			if kwargs.get("mindistfile",None):
+				print(*minDistances,sep='\t',end='\n',file=kwargs["mindistfile"])
 			# convert minimum distances to reference position weights using Fermi function
 			minDistances-=delta
 			minDistances/=tau
 			expMD=numpy.exp(minDistances)+1.0
 			weights=1.0-(1.0/expMD)
+			if kwargs.get("weightfile",None):
+				print(*weights,sep='\t',end='\n',file=kwargs["weightfile"])
 			# calculate and store weight sum
 			weightsum=numpy.sum(weights)
 			# calculate weighted average of reference positions
@@ -1219,6 +1223,8 @@ class AnalysisGeometry(Geometry):
 					else:
 						raise ValueError("Unknown weight function '{0}' for self-consistent distance weighting".format(scwf))
 					modWeights=numpy.multiply(weights,weightmod)
+					if kwargs.get("wmfile",None):
+						print(*weightmod,sep='\t',end='\n',file=kwargs["wmfile"])
 #					print "weights        :", weights
 #					print "modifiers      :", weightmod
 #					print "modif. weights :", modWeights
@@ -1231,8 +1237,12 @@ class AnalysisGeometry(Geometry):
 #					print "change         :", vacposdiff,"  abschange :",vacposdist
 					if vacposdist<kwargs.get("scdc",1e-8):
 						scdwConverged=True
+						if kwargs.get("wmfile",None):
+							print("",file=kwargs["wmfile"])
 #						print "scdw converged"
 			# add vacancy atom to output geometry
+			if kwargs.get("scweightfile",None):
+				print(*modWeights,sep='\t',end='\n',file=kwargs["scweightfile"])
 			vacancies.addatom(element,vacancyPosition)
 		# finished building defect geometries, return:
 		return vacancies
@@ -1278,7 +1288,7 @@ class AnalysisGeometry(Geometry):
 			print("RADIUSFACTOR {0:f}".format(kwargs.get("radiusfactor",1.1)),file=cfile)
 			print("{0:d}  0.000 0.000 0.000".format(self.Atomcount),file=cfile)
 			for i in (0,1,2):
-				print("{0:d} {1[0]:f}  {1[1]:f}  {1[2]:f}".format(voxShape[i],self.Lattice[i]/voxShape[i]) ,file=cfile)
+				print("{0:d} {1[0]:f}  {1[1]:f}  {1[2]:f}".format(voxShape[i],(self.Lattice[i]/voxShape[i])) ,file=cfile)
 			for i in range(self.Atomcount):
 				print("{0:3d} {1:f} {2[0]:f} {2[1]:f} {2[2]:f}".format(self.AtomTypes[i],self.AtomCharges[i],coordinates[i]),file=cfile)
 			colcount=0
