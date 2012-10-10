@@ -16,7 +16,7 @@ geoext_dmatrix(PyObject *self, PyObject *args)
 	int natoms;
 	int i,j;
 	double dx,dy,dz,distance;
-	int dimensions[2];
+	npy_intp dimensions[NPY_MAXDIMS];
 	
 	
 	if(!PyArg_ParseTuple(args, "O!", &PyArray_Type, &pos))
@@ -29,7 +29,7 @@ geoext_dmatrix(PyObject *self, PyObject *args)
 	natoms=pos->dimensions[0];
 	dimensions[0]=natoms;
 	dimensions[1]=natoms;
-	dmatrix = (PyArrayObject *)PyArray_FromDims(2,dimensions,PyArray_DOUBLE);
+	dmatrix = (PyArrayObject *)PyArray_SimpleNew(2,dimensions,PyArray_DOUBLE);
 #pragma omp parallel
 	{
 #pragma omp for private(i,j,dx,dy,dz,distance)
@@ -69,7 +69,7 @@ static PyObject
 	double dx,dy,dz,distance;
 	double pdx,pdy,pdz;
 	double ax,ay,az,bx,by,bz,cx,cy,cz;
-	int dimensions[2];
+	npy_intp dimensions[NPY_MAXDIMS];
 	
 	
 	if(!PyArg_ParseTuple(args, "O!O!", &PyArray_Type, &pos, &PyArray_Type,&lattice))
@@ -88,7 +88,7 @@ static PyObject
 	natoms=pos->dimensions[0];
 	dimensions[0]=natoms;
 	dimensions[1]=natoms;
-	dmatrix = (PyArrayObject *)PyArray_FromDims(2,dimensions,PyArray_DOUBLE);
+	dmatrix = (PyArrayObject *)PyArray_SimpleNew(2,dimensions,PyArray_DOUBLE);
 	ax= *(double *)(lattice->data);
 	ay= *(double *)(lattice->data+lattice->strides[1]);
 	az= *(double *)(lattice->data+2*lattice->strides[1]);
