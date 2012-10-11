@@ -180,29 +180,6 @@ def lindemannindex(path, subelem=0):
 	lindemannarray = numpy.sum(sqrt(sqrsummatrix-(summatrix**2))/nozero,1)/(dim-1)
 	return (numpy.average(lindemannarray), lindemannarray)
 
-
-#def runningLindemannIndex(path, rframes=50, subelem=0):
-#	"""calulate running average lindemann index
-#	@type path: ReactionPath
-#	@param path: the reaction path to calculate the Lindemann Index on
-#	@type window: integer
-#	@param window: the running average window size
-#	@type subelem: integer
-#	@param subelem: regard only atoms of element subelem if subelem!=0
-#	"""
-#	if rframes+2 >= path.numimages():
-#		raise ValueError("path must have more images than running average window size")
-#	tempDM=returndistancematrix(path, 0, subelem)
-#	distanceMatrixRing=numpy.zeros([rframes,tempDM.shape[0],tempDM.shape[1]],dtype=float)
-#	distanceMatrixRing[0]=tempDM
-#	runningLinde=[]
-#	for i in range(1,path.numimages()):
-#		distanceMatrixRing[i%rframes]=returndistancematrix(path, i, subelem)
-#		if i >=rframes:
-#			summatrix=numpy.average(distanceMatrixRing,axis=0)
-#			sqrsummatrix=numpy.average((distanceMatrixRing**2),axis=0)
-#			runningLinde.append(numpy.average((numpy.sqrt(sqrsummatrix-(summatrix**2))/(summatrix+numpy.identity(tempDM.shape[0], dtype=float)))))
-#	return numpy.array(runningLinde)
 	
 
 def runninglindemannindex(path, rframes=50, subelem=0):
