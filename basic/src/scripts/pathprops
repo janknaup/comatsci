@@ -157,6 +157,89 @@ def bondlengthhists(path, bincount):
 		return pathLengthHistograms 
 		
 
+def lindemannindex(path, subelem=0):
+	"""calculate Lindemann index for the entire path
+	@type subelem: Integer
+	@param subelem: The element lindemann index should be calculated for
+	@type path: ReactionPath instance
+	@param path: The path to calculate bond angle distributions from
+	@return: array of Lindemann index of each Atom
+	"""
+	frames=path.numimages()
+	matrix = returndistancematrix(path, 0, subelem)
+	dim = len(matrix)
+	summatrix = numpy.array(matrix)
+	sqrsummatrix = numpy.array(matrix**2)
+	for i in range(1,frames):
+		matrix = returndistancematrix(path, i, subelem)
+		summatrix += matrix
+		sqrsummatrix += matrix**2
+	summatrix/=frames
+	sqrsummatrix/=frames
+	nozero=summatrix+identity(dim)
+	lindemannarray = numpy.sum(sqrt(sqrsummatrix-(summatrix**2))/nozero,1)/(dim-1)
+	return (numpy.average(lindemannarray), lindemannarray)
+
+
+#def runningLindemannIndex(path, rframes=50, subelem=0):
+#	"""calulate running average lindemann index
+#	@type path: ReactionPath
+#	@param path: the reaction path to calculate the Lindemann Index on
+#	@type window: integer
+#	@param window: the running average window size
+#	@type subelem: integer
+#	@param subelem: regard only atoms of element subelem if subelem!=0
+#	"""
+#	if rframes+2 >= path.numimages():
+#		raise ValueError("path must have more images than running average window size")
+#	tempDM=returndistancematrix(path, 0, subelem)
+#	distanceMatrixRing=numpy.zeros([rframes,tempDM.shape[0],tempDM.shape[1]],dtype=float)
+#	distanceMatrixRing[0]=tempDM
+#	runningLinde=[]
+#	for i in range(1,path.numimages()):
+#		distanceMatrixRing[i%rframes]=returndistancematrix(path, i, subelem)
+#		if i >=rframes:
+#			summatrix=numpy.average(distanceMatrixRing,axis=0)
+#			sqrsummatrix=numpy.average((distanceMatrixRing**2),axis=0)
+#			runningLinde.append(numpy.average((numpy.sqrt(sqrsummatrix-(summatrix**2))/(summatrix+numpy.identity(tempDM.shape[0], dtype=float)))))
+#	return numpy.array(runningLinde)
+	
+
+def runninglindemannindex(path, rframes=50, subelem=0):
+	"""calculate Lindemann index for the entire path
+	@type rframes: Integer
+	@param subelem: Number of Frames lindemann index will be calculated of
+	@type subelem: Integer
+	@param subelem: The element lindemann index should be calculated for
+	@type path: ReactionPath instance
+	@param path: The path to calculate bond angle distributions from
+	@return: array of running average lindemann index
+	"""
+	frames=path.numimages()
+	matrix=returndistancematrix(path, 0, subelem)
+	dim = len(matrix)
+	summatrix = numpy.array(matrix/rframes)
+	sqrsummatrix = numpy.array((matrix**2)/rframes)
+	runninglinde=numpy.zeros([frames+1-rframes, 1], dtype=float)
+	for i in range(1,frames):
+		matrix = returndistancematrix(path, i, subelem)
+		summatrix += matrix/rframes
+		sqrsummatrix += (matrix**2)/rframes
+		if i >= rframes-1:
+			nozero=summatrix+identity(dim)
+			runninglinde[i+1-rframes] = numpy.average(numpy.sum(sqrt(sqrsummatrix-(summatrix**2))/nozero,1)/(dim-1))
+			matrix = returndistancematrix(path, i+1-rframes, subelem)
+			summatrix -= matrix/rframes
+			sqrsummatrix -= (matrix**2)/rframes
+	return runninglinde
+
+
+def returndistancematrix(path, frame, subelem):
+	if subelem != 0:
+		return path.geos[frame].elementsubgeometry(subelem).distancematrix()
+	else:                                                              
+		return path.geos[frame].distancematrix()
+
 
 #******************************************************************************
 # End function definitions
@@ -177,6 +260,11 @@ parser.add_option("-p","--polyint",
 parser.add_option("-u","--polypath",
 		action="store", metavar="N", dest="polypath", type="int", default=0,
 		help="Write a cubic polynomial interpolation of N path images to cubic.fmg and cubic.xyz files")
+
+parser.add_option("-f","--foldback",
+		action="store_true",  dest="foldback", default=False,
+		help="Fold coordinates back to unit cell")
+
 
 ##parser.add_option("-t","--trajectories",
 ##		action="store_true", dest="trajectories", default=False,
@@ -298,6 +386,18 @@ parser.add_option("--voids-nocubes",
 				  action="store_false", dest="voids_cubes", default=True,
 				  help="if selected, no cube files of the void analysis will be written")
 
+parser.add_option("-l","--lindemann",
+				action="store_true", dest="linde",
+				help="Write Lindemann-Index individual atoms and their arithmetic average to lindemann.dat")
+parser.add_option("--rl", "--runninglindemann",
+				action="store_true", dest="rlinde",
+				help="Write arithmetic running average Lindemann-Index rlindemann.dat")
+parser.add_option("--lindemann-element",
+				action="store", dest="subelem", type="int", default=0,
+				help="only regard atoms of  e.g. for Lindemann-Index")
+parser.add_option("--lindemann-window",
+				action="store", dest="frames", type="int", default=50,
+				help="window size for running Lindemann-Index in frames")
 
 
 (options,args) = parser.parse_args()
@@ -345,6 +445,12 @@ if options.lattice!=None:
 		path.geos[i].Mode="S"
 		path.geos[i].Lattice=array(lattice)
 
+
+if options.foldback:
+	print "Folding geometries back to unit cell ...",
+	for i in range(path.numimages()):
+		path.geos[i].foldToCell()
+	print "done."
 
 if options.externalcalcs!=None:
 	#check if valid calculator type was specified
@@ -826,6 +932,27 @@ if options.voids:
 	print "writing void COG path"
 	vpath.writexyzpath("voids-cog.xyz")
 	print "done."
+
+if options.linde:
+	print "Starting calculation of Lindemann-Index..."
+	data=lindemannindex(path, options.subelem)
+	print "... finished."
+	outfile=open('lindemann.dat', 'w')
+	print >> outfile, "Average Index: "+str(data[0])
+	for i in data[1]:
+		print >> outfile, str(i)
+	outfile.close()
+
+if options.rlinde:
+	print "Starting calculation of running Lindemann-Index..."
+	#data=runningLindemannIndex(path, options.frames, options.subelem)
+	data=runninglindemannindex(path, options.frames, options.subelem)
+	print "... finished."
+	outfile=open('rlindemann.dat', 'w')
+	for i in data:
+		#print >> outfile, str(i)
+		print >> outfile, str(i[0])
+	outfile.close()
 
 
 if options.counthops:
