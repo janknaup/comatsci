@@ -399,7 +399,6 @@ class Geometry:
 			subIndices=(typesArray==element).nonzero()[0]
 			chargesArray=numpy.array(self.AtomCharges)
 			stArray=numpy.array(self.AtomSubTypes)
-			print(self.__class__,self.getFeatures())
 			esubgeo=self.__class__(iMode=mode,iLattice=self.Lattice,iOrigin=self.Origin,
 								iAtomcount=len(subIndices), iAtomTypes=list(typesArray[subIndices]),
 								iGeometry=self.Geometry[subIndices],
