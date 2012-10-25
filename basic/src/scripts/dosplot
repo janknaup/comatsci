@@ -14,7 +14,7 @@ Created on Jun 8, 2011
 @author: Jan M. Knaup <janknaup@gmail.com>
 '''
 
-from comatsci import DOS
+from comatsci import dos
 #from comatsci import utils
 import numpy.oldnumeric as num
 import sys
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     # initialize DOS object and read reference data
     print >> sys.stderr, "reading Eigenstates",
     sys.stdout.flush()
-    refdos=DOS.DOS()
+    refdos=dos.DOS()
     if "aims" in args[0].lower():
         refdos.readAimsOutput(args[0])
     elif ".out" in args[0].lower():
@@ -182,7 +182,7 @@ if __name__ == '__main__':
         if options.correlate!=None:
             print >> sys.stderr, "reading correlation Eigenstates and calculating DOS",
             sys.stdout.flush()
-            correldos=DOS.DOS()
+            correldos=dos.DOS()
             correldos.readBandOut(options.correlate)
             if options.slow:
                 correldata=correldos.spreadDOS(options.peakFunction,options.stepWidth,options.peakWidth)

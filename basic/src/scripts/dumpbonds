@@ -16,13 +16,13 @@ versionname="python%d.%d" % sys.version_info[0:2]
 #sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
 #		"../lib/",versionname,"site-packages"))
 
-from comatsci import Geometry,constants
+from comatsci import geometry,constants
 from optparse import OptionParser
 
 programname=os.path.basename(sys.argv[0]).lower()
 
 # initialize working geometry instantce
-geo=Geometry.AnalysisGeometry()
+geo=geometry.AnalysisGeometry()
 
 # parse options
 

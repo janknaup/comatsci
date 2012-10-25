@@ -32,7 +32,7 @@ if len(args)!=1:
 # initialize Geometry object and read reference data
 print "reading reference geometry...",
 sys.stdout.flush()
-fullgeo=comatsci.Geometry.AnalysisGeometry()
+fullgeo=comatsci.geometry.AnalysisGeometry()
 fullgeo.readfile(args[0])
 geo=fullgeo.layersubgeometry(0)
 print "done."

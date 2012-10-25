@@ -9,7 +9,7 @@
 # see file LICENSE for details.
 #############################################################################
 
-from comatsci import DOS
+from comatsci import dos
 from comatsci import utils
 
 #for now, try importing Numeric, if numpy is not available. To be removed
@@ -33,8 +33,8 @@ import bisect
 #values are tuples of (help string, DOS parsing function, filenames regular expression)
 
 READFUNCTIONS={
-	"band":	   ("DFTB+ band.out file(s).", DOS.DOS.readBandOut,"^band-([0-9]*\.[0-9]*)-([0-9]*\.[0-9]*)\.out"),
-	"tagged":  ("DFTB+ results.tag file(s).", DOS.DOS.readTaggedOut,"^results-([0-9]*\.[0-9]*)-([0-9]*\.[0-9]*)\.tag"),
+	"band":	   ("DFTB+ band.out file(s).", dos.DOS.readBandOut,"^band-([0-9]*\.[0-9]*)-([0-9]*\.[0-9]*)\.out"),
+	"tagged":  ("DFTB+ results.tag file(s).", dos.DOS.readTaggedOut,"^results-([0-9]*\.[0-9]*)-([0-9]*\.[0-9]*)\.tag"),
 }
 
 
@@ -142,9 +142,9 @@ if len(args) !=0:
 
 # evaluate peak function option
 if options.peakFunction=="gauss":
-	peakFunction=DOS.DOS.gaussianDOS
+	peakFunction=dos.DOS.gaussianDOS
 elif options.peakFunction=="lorentz":
-	peakFunction=DOS.DOS.lorentzDOS
+	peakFunction=dos.DOS.lorentzDOS
 else:
 	raise ValueError("Unknown Peakfunction specified")
 
@@ -178,7 +178,7 @@ print >> outfile, "# vtk DataFile Version 2.0\nDOS over 2 Parameters\nASCII"
 
 # calculate dummy workdata to determine output size.
 # FIXME: this is a stupid way to determine the output array size
-workdos=DOS.DOS()
+workdos=dos.DOS()
 READFUNCTIONS[options.format][1](workdos,"band-"+xlist[0]+"-"+ylist[0]+".out")
 workdata=peakFunction(workdos,options.stepWidth,options.peakWidth,options.emin,options.emax)
 # print point coordinates into output file
@@ -205,7 +205,7 @@ for i in range(xdim):
 	for j in range(ydim):
 ##		print(xlist[i],ylist[j]),
 		# initialize working DOS object
-		workdos=DOS.DOS()
+		workdos=dos.DOS()
 		# read spectrum for x,y point from file
 		READFUNCTIONS[options.format][1](workdos,"band-"+xlist[i]+"-"+ylist[j]+".out")
 		# calculate DOS from that
