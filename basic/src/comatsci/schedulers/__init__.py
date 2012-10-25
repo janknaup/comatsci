@@ -1,5 +1,5 @@
 ##############################################################################
-# comatsci/__init__.py
+# Path/__init__.py
 # Part of COmputational MAterials SCIence toolkit - comatsci
 # (c) 2005-2008 by Jan M. Knaup <janknaup@gmail.com>
 # all rights reserved
@@ -8,25 +8,9 @@
 # see file LICENSE for details.
 ##############################################################################
 
-"""COmputational MAterials SCIence toolkit
+# define the list of minimum functionality modules here
+__all__=[ "schedulers"]
 
-.. moduleauthor:: Jan M. Knaup <janknaup@gmail.com>
+# to maintain api compatibility with previous versions, import all Scheduler classes into Schedulers namespace
+from schedulers import *
 
-"""
-
-#import constants definitions first
-from constants import *
-
-#import helper modules
-import utils
-from spline import Spline
-
-#import basic functionality
-import geometry
-import dos
-import path
-import calculators
-import schedulers
-import optimizers
-
-__all__=["geometry","spline","constants","utils","dos","path","calculators","schedulers","optimizers"]
