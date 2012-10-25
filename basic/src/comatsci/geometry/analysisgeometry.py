@@ -12,8 +12,8 @@
 
 from __future__ import print_function
 
-from Geometry import Geometry
-from comatsci import constants #,  utils
+from . import Geometry
+from .. import constants #,  utils
 
 import geoext as gx #@UnresolvedImport
 

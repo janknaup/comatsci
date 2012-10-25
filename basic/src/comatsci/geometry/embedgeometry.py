@@ -10,8 +10,8 @@
 
 import numpy
 
-from AnalysisGeometry import AnalysisGeometry
-from comatsci import constants #,  utils
+from . import AnalysisGeometry
+from .. import constants #,  utils
 
 #import os
 #import sys
@@ -26,10 +26,10 @@ class qmmmGeometry(AnalysisGeometry):
 	__geoFeatures__=("embed", )
 	
 	def  __init__(self, iMode="C", iAtomcount=0, iAtomTypes=None, iOrigin=None, 
-		iLattice=None, iGeometry=None):
+		iLattice=None, iGeometry=None,**kwargs):
 		"""construct QM/MM Geometry object. See Geometry.__init__ documentation!"""
 		AnalysisGeometry.__init__(self, iMode, iAtomcount, iAtomTypes, iOrigin, 
-		iLattice, iGeometry)
+		iLattice, iGeometry,**kwargs)
 	
 	
 	
