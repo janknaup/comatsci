@@ -2,7 +2,7 @@
 
 import comatsci
 
-g=comatsci.Geometry.Geometry()
+g=comatsci.geometry.Geometry()
 g.readfile("h2odimer.xyz")
 
 g.centerOnAtom(4)
