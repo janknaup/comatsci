@@ -24,7 +24,7 @@ outfilename=str(sys.argv[2])
 coreatoms=int(sys.argv[3])
 distscale=float(sys.argv[4])
 
-g=comatsci.Geometry.Geometry()
+g=comatsci.geometry.Geometry()
 g.readfile(infilename)
 
 linkeds=g.bondlist()[coreatoms:]

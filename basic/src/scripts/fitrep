@@ -40,10 +40,10 @@ import time
 # Target Functions
 # API convention: target functions must provide named option "opt" to pass additional options dictionary
 TARGETFUNCTIONS={
-	"forcesquares":			(comatsci.Path.AnalysisPath.forceSquares,),
-	"forcerms" :				(comatsci.Path.AnalysisPath.forceRms,),
-	"reactionsquares": 	(comatsci.Path.AnalysisPath.allDeltaESquares,),
-	"sqreaction":				(comatsci.Path.AnalysisPath.sqreaction,),
+	"forcesquares":			(comatsci.path.AnalysisPath.forceSquares,),
+	"forcerms" :				(comatsci.path.AnalysisPath.forceRms,),
+	"reactionsquares": 	(comatsci.path.AnalysisPath.allDeltaESquares,),
+	"sqreaction":				(comatsci.path.AnalysisPath.sqreaction,),
 }
 # Options allowed for target functions
 T_VALIDOPTIONS={
@@ -63,8 +63,8 @@ T_REQUIREDOPTIONS={
 
 # Optimizers
 OPTIMIZERS={
-	"genetic":		comatsci.Optimizers.singleObjectiveGeneticOptimizer,
-	"mc":			comatsci.Optimizers.singleObjectiveMonteCarloOptimizer
+	"genetic":		comatsci.optimizers.singleObjectiveGeneticOptimizer,
+	"mc":			comatsci.optimizers.singleObjectiveMonteCarloOptimizer
 }
 
 
@@ -309,7 +309,7 @@ def readPairPotentials(potentialsFileName="repulsives",verbosity=comatsci.consta
 			if not os.path.exists(potentialFileName):
 				raise ValueError("Invalid E_rep specification in line %d of repulsives: E_rep file '%s' not found." % (i+1,potentialFileName))
 			else:
-				potential=comatsci.Calculators.Potentials.getPotentialFromFile(potentialFileName)
+				potential=comatsci.calculators.potentials.getPotentialFromFile(potentialFileName)
 			# Elemtents and potential specification have been read
 			# now store them for the pair potential calculator
 			# (warn if overwriting previously specified E_rep)
@@ -387,8 +387,8 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 						if verbosity >= comatsci.constants.VBL_QUIET:
 							print " *** WARNING *** No target functions defined for last target path!"
 					#initialize new path Objects in mode "external scheduler"
-					tempPath=comatsci.Path.AnalysisPath("d")
-					tempObjectivePath=comatsci.Path.AnalysisPath("d")
+					tempPath=comatsci.path.AnalysisPath("d")
+					tempObjectivePath=comatsci.path.AnalysisPath("d")
 					#read target path file
 					tempPath.readfmgpath(targetFileName,checkCompat=False)
 					tempObjectivePath.readfmgpath(targetFileName,checkCompat=False)
@@ -695,8 +695,8 @@ type '%prog --help' for more information"""
 
 	# *** initialize calculator and scheduler ***
 	#calc=comatsci.Calculators.erepcalc(ereps,verbosity=options.verbosity-3)
-	calc=comatsci.Calculators.pairPotentialCalc(initPotentials,verbosity=options.verbosity-3)
-	sched=comatsci.Schedulers.serialScheduler(calc,verbosity=options.verbosity-2)
+	calc=comatsci.calculators.pairPotentialCalc(initPotentials,verbosity=options.verbosity-3)
+	sched=comatsci.schedulers.serialScheduler(calc,verbosity=options.verbosity-2)
 	#sched=comatsci.Schedulers.threadScheduler(comatsci.Calculators.erepcalc,((ereps),{"verbosity":options.verbosity-3}),2,options.verbosity-2,)
 
 
@@ -799,7 +799,7 @@ type '%prog --help' for more information"""
 	for (index,length) in paramap:
 		if length >0:
 #		print "\b.",
-			repfilename="final-%s-%s.rep"%(comatsci.Geometry.Geometry.PTE[index[0]],comatsci.Geometry.Geometry.PTE[index[1]])
+			repfilename="final-%s-%s.rep"%(comatsci.geometry.Geometry.PTE[index[0]],comatsci.geometry.Geometry.PTE[index[1]])
 			pass
 			try:
 				finalPotentials[index].writeFile(repfilename)
@@ -817,7 +817,7 @@ type '%prog --help' for more information"""
 			offset=0
 			for (index,length) in paramap:
 				if length > 0:
-					popfilename="population-%s-%s.rep" %(comatsci.Geometry.Geometry.PTE[index[0]],comatsci.Geometry.Geometry.PTE[index[1]])
+					popfilename="population-%s-%s.rep" %(comatsci.geometry.Geometry.PTE[index[0]],comatsci.geometry.Geometry.PTE[index[1]])
 					if j==0:
 						popfile=open(popfilename,"w")
 					else:

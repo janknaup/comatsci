@@ -9,7 +9,7 @@
 # see file LICENSE for details.
 #############################################################################
 
-from comatsci import DOS
+from comatsci import dos
 from comatsci import utils
 
 #for now, try importing Numeric, if numpy is not available. To be removed
@@ -146,9 +146,9 @@ if len(args)!=1:
 
 # evaluate peak function option
 if options.peakFunction=="gauss":
-	peakFunction=DOS.DOS.gaussianDOS
+	peakFunction=dos.DOS.gaussianDOS
 elif options.peakFunction=="lorentz":
-	peakFunction=DOS.DOS.lorentzDOS
+	peakFunction=dos.DOS.lorentzDOS
 else:
 	raise ValueError("Unknown Peakfunction specified")
 
@@ -156,7 +156,7 @@ else:
 # initialize Geometry object and read reference data
 print "reading reference DOS...",
 sys.stdout.flush()
-refdos=DOS.DOS()
+refdos=dos.DOS()
 READFUNCTIONS[options.format][1](refdos,args[0])
 refdata=peakFunction(refdos,options.stepWidth,options.peakWidth)
 print "done."
@@ -199,7 +199,7 @@ progress=utils.ProgressMeter(total=len(xlist)*len(ylist))
 for i in range(len(xlist)):
 	for j in range(len(ylist)):
 		# initialize working DOS object
-		workdos=DOS.DOS()
+		workdos=dos.DOS()
 		READFUNCTIONS[options.format][1](workdos,"band-"+xlist[i]+"-"+ylist[j]+".out")
 		workdata=peakFunction(workdos,options.stepWidth,options.peakWidth,options.emin,options.emax)
 		cc=dosCorrelate(refdata,workdata)
