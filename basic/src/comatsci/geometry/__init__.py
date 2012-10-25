@@ -9,6 +9,7 @@
 ##############################################################################
 
 # import the basic functionality
-from Geometry import *
-from AnalysisGeometry import  *
-from EmbedGeometry import *
+from geometry import *
+from analysisgeometry import  *
+from embedgeometry import *
+
