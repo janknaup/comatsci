@@ -50,3 +50,7 @@ test.cdh
 testpath2.cdh
 testpath.cdh
 testpath-savespace.cdh
+epydoc.log
+epydoc.log.*
+*/epydoc/html
+*/epydoc/pdf

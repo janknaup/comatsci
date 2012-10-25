@@ -5,7 +5,7 @@ Created on Mar 8, 2012
 '''
 from __future__ import print_function
 import unittest,numpy
-from comatsci import Spline
+from comatsci import spline
 
 
 class splineTest(unittest.TestCase):
@@ -18,7 +18,7 @@ class splineTest(unittest.TestCase):
         YY=numpy.sin(XX)                         # nodes
         Y2=numpy.sin(X2)                         # intermediates
         C2=numpy.cos(X2)                         # analytic derivates at intermediates
-        SS=Spline.spline(XX,YY)
+        SS=spline.Spline(XX,YY)
         II=numpy.array([ SS.splint(x) for x in XX ],dtype=float)
         I2=numpy.array([ SS.splint(x) for x in X2 ],dtype=float)
         ID2=numpy.array([ SS.splder(x) for x in X2 ],dtype=float)
@@ -36,7 +36,7 @@ class splineTest(unittest.TestCase):
         SYY=numpy.sin(XX)
         CYY=numpy.cos(XX)
         VEC=numpy.transpose(numpy.array([XX,SYY,CYY]),)
-        RR=Spline.RennerSpline(VEC)
+        RR=spline.RennerSpline(VEC)
         II=numpy.array([RR.splint(t) for t in numpy.arange(0,RR.totalLength,0.2)])
         IX=numpy.transpose(II)[0]
         IYS=numpy.transpose(II)[1]

@@ -1,0 +1,10 @@
+HEADER    comatsci STRUCTURE                        
+TITLE     comatsci STRUCTURE
+HET   DEF    1
+HETATM    1 C    DEFA    1       0.000   0.000   0.000  6.00  0.00      DEFA C  
+HETATM    2 C    DEFA    1       0.000   0.000   1.335  6.00  0.00      DEFA C  
+HETATM    3 H    DEFA    1       0.943   0.000  -0.544  1.00  0.00      DEFA H  
+HETATM    4 H    DEFA    1      -0.943   0.000   1.879  1.00  0.00      DEFA H  
+HETATM    5 H    DEFA    1       0.943   0.000   1.879  1.00  0.00      DEFA H  
+HETATM    6 H    DEFA    1      -0.943   0.000  -0.544  1.00  0.00      DEFA H  
+END
