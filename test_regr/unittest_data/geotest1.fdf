@@ -1,0 +1,18 @@
+NumberOfSpecies 2
+%block ChemicalSpeciesLabel
+    1	  6	C
+    2	  1	H
+%endblock ChemicalSpeciesLabel
+
+NumberOfAtoms 6
+
+AtomicCoordinatesFormat Ang
+%block AtomicCoordinatesAndAtomicSpecies
+            0.000000E+00             0.000000E+00             0.000000E+00 1
+            0.000000E+00             0.000000E+00             1.335000E+00 1
+            9.431020E-01             0.000000E+00            -5.445000E-01 2
+           -9.431020E-01             0.000000E+00             1.879500E+00 2
+            9.431020E-01             0.000000E+00             1.879500E+00 2
+           -9.431020E-01             0.000000E+00            -5.445000E-01 2
+%endblock AtomicCoordinatesAndAtomicSpecies
+
