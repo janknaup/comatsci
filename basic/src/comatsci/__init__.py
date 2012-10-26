@@ -8,20 +8,25 @@
 # see file LICENSE for details.
 ##############################################################################
 
+"""COmputational MAterials SCIence toolkit
+
+.. moduleauthor:: Jan M. Knaup <janknaup@gmail.com>
+
+"""
+
 #import constants definitions first
 from constants import *
 
 #import helper modules
 import utils
-import Spline
+from spline import Spline
 
 #import basic functionality
-import Geometry
-import DOS
-from Path import *
-import Calculators
-import Schedulers
-#import Dimer
-import Optimizers
+import geometry
+import dos
+import path
+import calculators
+import schedulers
+import optimizers
 
-__all__=["Geometry","Spline","constants","utils","DOS","Path","Calculators","Schedulers","Optimizers"]
+__all__=["geometry","spline","constants","utils","dos","path","calculators","schedulers","optimizers"]

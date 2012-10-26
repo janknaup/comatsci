@@ -57,13 +57,13 @@ if len(args)<2 and len(args)!=1:
 	print("You must specify at least one start and one end structure. Abort.")
 	sys.exit()
 
-if options.interpolate!=0 and (options.splineresample!=0 or options.rennerresample!=0):
+if options.interpolate!=0 and (options.splineresample!=0):# or options.rennerresample!=0):
 	print("Cannot combine linear interpolation and spline resampling in one call. Abort.")
 	sys.exit()
-if options.interpolate!=0 and (options.equisplineresample!=0  or options.rennerresample!=0):
+if options.interpolate!=0 and (options.equisplineresample!=0):#  or options.rennerresample!=0):
 	print("Cannot combine linear interpolation and equidistant spline resampling in one call. Abort.")
 	sys.exit()
-if options.equisplineresample!=0 and (options.splineresample!=0 or options.rennerresample!=0):
+if options.equisplineresample!=0 and (options.splineresample!=0):# or options.rennerresample!=0):
 	print("Cannot combine normal and equidistant spline resampling in one call. Abort.")
 	sys.exit()
 
@@ -79,7 +79,7 @@ if options.fileType!=None:
 
 
 #inititalize path and read geometry files
-path=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+path=comatsci.path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
 print("reading input geometries")
 if len(args)==1:
 	if ".xyz" in args[0][-8:].lower():
@@ -156,13 +156,13 @@ if options.calcinputs!=None:
 	os.chdir("./calcinputs")
 	#prepare calculator to generate inputs
 	if options.calcinputs=="siesta":
-		dummycalc=comatsci.Calculators.siestacalc(optionfname="../pypath.ini")
+		dummycalc=comatsci.calculators.siestacalc(optionfname="../pypath.ini")
 #	elif options.calcinputs=="dftb":
 #		dummycalc=comatsci.Calculators.dftbcalc(optionfname="../pypath.ini")
 	elif options.calcinputs=="noodle":
-		dummycalc=comatsci.Calculators.noodlecalc(optionfname="../pypath.ini")
+		dummycalc=comatsci.calculators.noodlecalc(optionfname="../pypath.ini")
 	elif options.calcinputs=="gaussian":
-		dummycalc=comatsci.Calculators.gaussiancalc(optionfname="../pypath.ini")
+		dummycalc=comatsci.calculators.gaussiancalc(optionfname="../pypath.ini")
 	else:
 		raise ValueError,"cannot handle calculator name"
 	#now prepare the calculation inputs

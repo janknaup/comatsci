@@ -52,15 +52,15 @@ class MyMplCanvas(FigureCanvas):
 
 class MainWindow(QtGui.QMainWindow):
     
-    saveModes={"xyz" : ("xyz",comatsci.Geometry.Geometry.writexyz),
-               "pdb" : ("pdb",comatsci.Geometry.Geometry.writepdb),
-               "fdf" : ("fdf",comatsci.Geometry.Geometry.writefdf),
-               "gen" : ("gen",comatsci.Geometry.Geometry.writegen),
-               "fmg" : ("fmg",comatsci.Geometry.Geometry.writefmg),
-               "xyzq": ("xyzq",comatsci.Geometry.Geometry.writexyzq),
-               "tm"  : ("coord",comatsci.Geometry.Geometry.writeTurboMole),
-               "aims": ("geometry.in",comatsci.Geometry.Geometry.writeAIMS),
-               "cdh" : ("cdh",comatsci.Geometry.Geometry.writeCDH)
+    saveModes={"xyz" : ("xyz",comatsci.geometry.Geometry.writexyz),
+               "pdb" : ("pdb",comatsci.geometry.Geometry.writepdb),
+               "fdf" : ("fdf",comatsci.geometry.Geometry.writefdf),
+               "gen" : ("gen",comatsci.geometry.Geometry.writegen),
+               "fmg" : ("fmg",comatsci.geometry.Geometry.writefmg),
+               "xyzq": ("xyzq",comatsci.geometry.Geometry.writexyzq),
+               "tm"  : ("coord",comatsci.geometry.Geometry.writeTurboMole),
+               "aims": ("geometry.in",comatsci.geometry.Geometry.writeAIMS),
+               "cdh" : ("cdh",comatsci.geometry.Geometry.writeCDH)
                }
     
     fixedFileNameTypes=("aims","tm")
@@ -227,7 +227,7 @@ class MainWindow(QtGui.QMainWindow):
                     savefile=savefile+"."+filenamesuffix
             try:
                 self.saveModes[self.filterFileTypes[savefilter]][1](self.geo,savefile)
-            except comatsci.Geometry.GeometryError as error:
+            except comatsci.geometry.GeometryError as error:
                 errorDialog=QtGui.QErrorMessage(parent=self)
                 errorDialog.setModal(True)
                 errorDialog.showMessage(error.args[0])
@@ -263,7 +263,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def readGeometry(self,geoFileName):
         self.geoFileName=str(geoFileName)
-        self.geo=comatsci.Geometry.qmmmGeometry()
+        self.geo=comatsci.geometry.qmmmGeometry()
         self.geo.readfile(str(geoFileName))
         self.resetForGeoChanged(geoFileName)
         
@@ -735,7 +735,7 @@ class chargeConstraintsDialog(QtGui.QDialog):
         try:
             self.ui.constraintOutputTextBrowser.setPlainText(
                 self.geo.getHSDChargeConstraintString(serials,self.ui.prefactorSpinBox.value()) )
-        except comatsci.Geometry.GeometryError as error:
+        except comatsci.geometry.GeometryError as error:
             errorDialog=QtGui.QErrorMessage(parent=self)
             errorDialog.setModal(True)
             errorDialog.showMessage(error.args[0])
@@ -1051,7 +1051,7 @@ class GeometryTableModel(QtCore.QAbstractTableModel):
         column=index.column()
         if role==QtCore.Qt.DisplayRole:
             if column==self.ELEMENT:
-                return QtCore.QVariant(comatsci.Geometry.Geometry.PTE[self.geo.AtomTypes[row]])
+                return QtCore.QVariant(comatsci.geometry.Geometry.PTE[self.geo.AtomTypes[row]])
             elif column==self.SUBTYPE:
                 return QtCore.QVariant(self.geo.AtomSubTypes[row])
             elif column==self.X:
@@ -1151,7 +1151,7 @@ class GeometryAtomDelegate(QtGui.QItemDelegate):
     def createEditor(self, parent, option, index):
         if index.column()==GeometryTableModel.ELEMENT:
             combobox=QtGui.QComboBox(parent)
-            combobox.addItems(comatsci.Geometry.Geometry.PTE)
+            combobox.addItems(comatsci.geometry.Geometry.PTE)
             return combobox
         elif index.column()==GeometryTableModel.SUBTYPE:
             combobox=QtGui.QComboBox(parent)
