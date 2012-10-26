@@ -26,9 +26,7 @@ class muellerBrownCalc(Calculator):
 	def __init__(self, verbosity=0):
 		"""Initialize Mueller Brown potential calculator
 		@param verbosity: c.f. base class (default 1)
-		@type laplace: boolean
-		@param laplace: calculate laplacian of the potential (delfault False)
-"""
+		"""
 		Calculator.__init__(self,verbosity=verbosity)
 		if self.verbosity>=constants.VBL_DEBUG1:
 			print("initializing Mueller-Brown calculator")

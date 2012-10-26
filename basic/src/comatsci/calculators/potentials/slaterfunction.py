@@ -105,7 +105,7 @@ class slaterFunction(potentialFunction):
 
 
 	def getString(self):
-		"""@return string representation of the potential that can be read back in from a file"""
+		"""@return: string representation of the potential that can be read back in from a file"""
 		lines = []
 		lines.append(' &slater&')
 		if (self._boundaries['cutoff'] != None):
@@ -133,7 +133,7 @@ class slaterFunction(potentialFunction):
 		""" calculates the value of the slater expansion
 		at a given distance r 
 		@parameter r: float containing distance 
-		@return float containing function value """
+		@return: float containing function value """
 		dummy = 0.0
 		if (r <= self._parameters['cutoff']):
 			for i in range(1, self._parameters['noslaters'] + 1):
@@ -149,7 +149,7 @@ class slaterFunction(potentialFunction):
 	# there is no built-in factorial in python 2.4
 	def _factorial(self, x):
 		""" @parameter x: integer fo calculate factorial from
-		@return float with factorial """
+		@return: float with factorial """
 		res = 1
 		for i in xrange(2, x + 1):
 			res *= i
@@ -160,7 +160,7 @@ class slaterFunction(potentialFunction):
 		""" returns derivative of the slater expansion
 		at a given distance r
 		@parameter r: float containing distance 
-		@return float containing function derivative value """
+		@return: float containing function derivative value """
 	
 		dummy = 0.0
 		if (r <= self._parameters['cutoff']):
@@ -178,13 +178,13 @@ class slaterFunction(potentialFunction):
 		
 		
 	def getCutoffs(self):
-		""" @return tuple with inner and outer cutoff """			
+		""" @return: tuple with inner and outer cutoff """			
 		return (0.0, self._parameters['cutoff'])
 		
 
 
 	def getMutables(self):
-		""" @return list with all parameters allowed to change """
+		""" @return: list with all parameters allowed to change """
 		dummy = []
 		if (self._boundaries['cutoff'] != None):
 			dummy.append(self._parameters['cutoff'])

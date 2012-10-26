@@ -77,7 +77,7 @@ class polynomFunction(potentialFunction):
 
 
 	def getString(self):
-		"""@return string representation of the potential that can be read back in from a file"""
+		"""@return: string representation of the potential that can be read back in from a file"""
 		lines=[]
 		lines.append(' &polynom&')
 		if (self._boundaries['cutoff'] != None):
@@ -98,7 +98,7 @@ class polynomFunction(potentialFunction):
 		""" calculates the value of the polynom
 		at a given distance r 
 		@parameter r: float containing distance 
-		@return float containing function value """
+		@return: float containing function value """
 		dummy=0.0
 		if (r <= self._parameters['cutoff']):
 			for i in range(self._parameters['order']+1):
@@ -110,7 +110,7 @@ class polynomFunction(potentialFunction):
 		""" returns derivative of the polynom
 		at a given distance r
 		@parameter r: float containing distance 
-		@return float containing function derivative value """
+		@return: float containing function derivative value """
 	
 		dummy=0.0
 		if (r <= self._parameters['cutoff']):
@@ -121,13 +121,13 @@ class polynomFunction(potentialFunction):
 		
 		
 	def getCutoffs(self):
-		""" @return tuple with inner and outer cutoff """			
+		""" @return: tuple with inner and outer cutoff """			
 		return (1E-10,self._parameters['cutoff']-1E-10)
 		
 
 
 	def getMutables(self):
-		""" @return list with all parameters allowed to change """
+		""" @return: list with all parameters allowed to change """
 		dummy=[]
 		if (self._boundaries['cutoff'] != None):
 			dummy.append(self._parameters['cutoff'])

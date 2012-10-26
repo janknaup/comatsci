@@ -105,7 +105,7 @@ class xySplineFunction(potentialFunction):
 				""" calculates the value of the spline
 				at a given distance r 
 				@parameter r: float containing distance 
-				@return float containing function value """
+				@return: float containing function value """
 				value=None
 				if (r < self._innercut) or (r > self._outercut):
 					raise ValueError("Interpolation requested for out-of-range x value")
@@ -118,7 +118,7 @@ class xySplineFunction(potentialFunction):
 				""" returns derivative of the polynom
 				at a given distance r
 				@parameter r: float containing distance 
-				@return float containing function derivative value """
+				@return: float containing function derivative value """
 				
 				derivative=None
 				if (r < self._innercut) or (r > self._outercut):
@@ -129,14 +129,14 @@ class xySplineFunction(potentialFunction):
 
 
 		def getCutoffs(self):
-				""" @return tuple with inner and outer cutoff """
+				""" @return: tuple with inner and outer cutoff """
 				return (self._innercut,self._outercut)
 		
 		
 		
 		
 		def getMutables(self):
-				""" @return list with all parameters allowed to change """
+				""" @return: list with all parameters allowed to change """
 				mutlist=[]
 				for i in self._mutables:
 					mutlist.append(self._parameters["y"][i])
@@ -162,7 +162,7 @@ class xySplineFunction(potentialFunction):
 
 
 		def getString(self):
-			"""@return string containing potential function file representation of the current instance"""
+			"""@return: string containing potential function file representation of the current instance"""
 			potLines=["&xyspline&"]
 			for i in range(len(self._parameters["x"])):
 				line="{0:12f}\t{1:12f}".format(self._parameters["x"][i],self._parameters["y"][i])

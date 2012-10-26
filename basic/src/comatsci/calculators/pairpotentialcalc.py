@@ -28,7 +28,7 @@ class pairPotentialCalc(Calculator):
 		Potential must be specified in the form of a dictionary mapping interger tuples(i,j)
 		to of arrays[2][N] values, where i,j are element numbers with i<=j
 		and the arrays contain total energies in Hartree over radii in Bohr.
-		@param Potential: dictionary of Repulsive potentials
+		@param Potentials: dictionary of Repulsive potentials
 		@param verbosity: c.f. base class (default 1)"""
 		if not isinstance(Potentials,dict):
 			raise CalcError("Potential is not of type dictionary")

@@ -216,7 +216,7 @@ class AnalysisGeometry(Geometry):
 	def atom_bondcounts(self,tolerance=1.2):
 		"""
 		@type tolerance: float
-		@param toleracne: tolerance threshold by which to multiply canonical bond lengths when detecting bonds
+		@param tolerance: tolerance threshold by which to multiply canonical bond lengths when detecting bonds
 		@return: a list of bond coutns per atom"""
 		bl=self.bondlist(tolerance)
 		bc=[]
@@ -229,7 +229,7 @@ class AnalysisGeometry(Geometry):
 	def get_atom_coordination_differences(self, bondtolerance=1.2):
 		"""return a list of the differences between atomic coorninations and their standard number of valences (does not account for double bonds)
 		@type bondtolerance: float
-		@param bondtolerace: factor applied to canonical bond lengths when counting neighbors as bonded
+		@param bondtolerance: factor applied to canonical bond lengths when counting neighbors as bonded
 		@return: per atom array of coordination difference from standard"""
 		# first get the atom bond counts and construct an array of standard valence counts
 		bondcounts=numpy.array(self.atom_bondcounts(bondtolerance))
@@ -656,7 +656,7 @@ class AnalysisGeometry(Geometry):
 
 	def getBondAngleStats(self):
 		"""compile per central atom element bond angle statistics
-		@return dictionary with keys Z and values dictionaries of statistical data
+		@return: dictionary with keys Z and values dictionaries of statistical data
 		"""
 		# get bond angles
 		bondAngles=self.getBondAngles()
@@ -754,12 +754,11 @@ class AnalysisGeometry(Geometry):
 
 	def bondLengthStatistics(self):
 		"""calculate statistics on Element-Element bond length distributions
-		@return: dictionary with keys (Z1,Z2) element-element combinations and values dictionaries with sting keys and bond length statistical data.
-	
 		Currently implemented statistics are:
 			* B{"mean"} mean bond length
 			* B{"sigma"} standard deviation
 			* B{"delta"} two standard deviations confidence range
+		@return: dictionary with keys (Z1,Z2) element-element combinations and values dictionaries with sting keys and bond length statistical data.
 		"""
 		# get the elemental bond length lists
 		elemBondLengths=self.getElementElementBondlengths()
@@ -777,7 +776,6 @@ class AnalysisGeometry(Geometry):
 			blstats[i]["delta"]=sigma/numpy.sqrt(float(len(temparray)))*2.0
 		# finished. return
 		return blstats
-	
 
 
 
@@ -788,7 +786,7 @@ class AnalysisGeometry(Geometry):
 		
 		@type othergeo: Geometry
 		@param othergeo: Geometry object to calculate RMSD od self against
-		@param atomlist: sequence of atom indices (counting from 0) to include in RMSD calculation
+		@keyword atomlist: sequence of atom indices (counting from 0) to include in RMSD calculation
 		@type atomlist: sequence of integers
 		"""
 		# check both geometries for compatibility
@@ -841,7 +839,7 @@ class AnalysisGeometry(Geometry):
 		"""locate vacancies by analyzing each atom's nearest neighbors. If an atom's neghbor elements deviate from canon, it
 		is regarded as a vacancy neighbor. (only works for at least binary compounds and in the absence of interstitials)
 		@type canonicalNeighbors: dictionary with integer keys
-		@parameter canonical: canonicalNeighbors: maps ordinal numbers to neighbor element count maps
+		@parameter canonicalNeighbors: canonicalNeighbors: maps ordinal numbers to neighbor element count maps
 		@return AnalysisGeometry containing all atoms that are neighbors of a vacancy
 		"""
 		# initialite Geometry object to return

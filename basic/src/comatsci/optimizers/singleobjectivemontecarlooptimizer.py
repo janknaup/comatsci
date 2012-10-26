@@ -27,22 +27,26 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 	
 	def __init__(self, options):
 		"""SOMC optimizer, minimize F(X) by randomly modifying X. F(X) is to be understood 
-		as a single objective fitness function of X, where X is fitter than X' if F(X)<F(X').<br>
+		as a single objective fitness function of X, where X is fitter than X' if F(X)<F(X').
+		
 		F(X) must be passed to the optimizer as a callable object, with the actual interface:
-		F(options,X), where options is a dictionary of options to the fitness function.<br>
-		<em>All parameters F, dF, d2F passed to public methods of SOMC are dummies</em><br>
-		<em>All parameters inside options dictionary.</em>
-		@param options dictionary of optimizer options <b>contains all further 
-		parameters</b>, also see base class for global options!
-		@param maxF report convergence if abs of largest dF/dX component <=maxF,
+		F(options,X), where options is a dictionary of options to the fitness function.
+		
+		I{All parameters F, dF, d2F passed to public methods of SOMC are dummies}
+		
+		I{All parameters inside options dictionary.}
+		@param options: dictionary of optimizer options B{contains all further 
+		parameters}, also see base class for global options!
+		
+		@keyword maxF: report convergence if abs of largest dF/dX component <=maxF,
 		for Dynamics simulation, set maxF and/or maxFRMS negative and set hardConvergence
 		True
-		@param mutator fuction with parameters mutator(options,X) returning 
+		@keyword mutator: fuction with parameters mutator(options,X) returning 
 		vector X suitable as argument of F(X)
-		@param mutatorOptions dictionary of options to pass to the mutator function
-		@param fitness fitness function F(X) with parameters F(options,X) returning 
+		@keyword mutatorOptions: dictionary of options to pass to the mutator function
+		@keyword fitness: fitness function F(X) with parameters F(options,X) returning 
 		scalar fitness value
-		@param fitnessOptions dictionary of options to pass to the fitness function
+		@keyword fitnessOptions: dictionary of options to pass to the fitness function
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
 			print("SOMC Optimizer: initializing.")
@@ -96,10 +100,10 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 		For internal use only, called in optStep method, convergence state is stored internally.
 		External interface for convergence is the Optimizer.converged property
 		Returns boolean, true if converged
-		@param X parameter vector to minimize <b>ignored</b>
-		@param F function to minimize, F can be vector for multi-objective optimization
-		@param dF first derivative of function: dF/dX <b> ignored</b>
-		@param d2F second derivative of function d2F/dX2 <b>ignored</b>"""
+		@param X: parameter vector to minimize B{ignored}
+		@param F: function to minimize, F can be vector for multi-objective optimization
+		@param dF: first derivative of function: dF/dX B{ignored}
+		@param d2F: second derivative of function d2F/dX2 B{ignored}"""
 		#never report convergence in the first iteration, since no previous
 		#fitness is stored when _checkConvergence is called...
 		if self._iterations==0:
@@ -126,10 +130,10 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 	def _step(self,X,F,dF,d2F):
 		"""perform one Monte-Carlo step, calculating fitness on the way
 		c.f. base class documentation
-		@param X parameter vector to minimize
-		@param F function to minimize, F can be vector for multi-objective optimization<b>always ignored</b>
-		@param dF first derivative of function: dF/dX <b>always ignored</b>
-		@param d2F second derivative of function d2F/dX2 <b>always ignored</b>"""
+		@param X: parameter vector to minimize
+		@param F: function to minimize, F can be vector for multi-objective optimization B{always ignored}
+		@param dF: first derivative of function: dF/dX B{always ignored}
+		@param d2F: second derivative of function d2F/dX2 B{always ignored}"""
 		#at first iteration, calculate fitness for input vector and return
 		if self.iterations==0:
 			if self._verbosity >= constants.VBL_DEBUG2:
@@ -165,8 +169,9 @@ class singleObjectiveMonteCarloOptimizer(Optimizer):
 
 	
 	def getAcceptanceRate(self):
-		"""return total acceptance rate of trial soluations"""
+		"""@return: total acceptance rate of trial soluations"""
 		return float(self._accepted/float(self._mutations+0.000000000000000001))
+	
 	acceptanceRate=property(getAcceptanceRate)
 
 

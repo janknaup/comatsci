@@ -27,9 +27,9 @@ class AnalysisPath(Reactionpath):
 
 	def __init__(self, icmode,charge=0.0,verbosity=constants.VBL_NORMAL):
 		"""Initialize AnalysisPath object
-		@param: icmode	calculation mode, c.f. Rectionpath doc
-		@param: charge=0.0	system total charge to pass to the claculator
-		@param: verbosity=constants.VBL_NORMAL	Verbosity level, c.f. constants doc"""
+		@param icmode: calculation mode, c.f. Rectionpath doc
+		@param charge: system total charge to pass to the claculator
+		@param verbosity: Verbosity level, c.f. constants doc"""
 		# call base class init setting dummy values for useless properties (c.f. Reactionpath doc)
 		# keep the base class init quiet, we don't want to print our dummy numbers to the user
 		Reactionpath.__init__(self, "", "", icmode, 0.00001, 0.00001, 1, charge,constants.VBL_SILENCE)
@@ -41,9 +41,8 @@ class AnalysisPath(Reactionpath):
 
 	def forceSquares(self, targetpath,opt=None):
 		"""return sum of squares of force difference btw self and targetpath
-		@param: targetpath:	second path to compare self against
-		@param opt: dummy parameter required by API (default None)		
-"""
+		@param targetpath:	second path to compare self against
+		@param opt: dummy parameter required by API (default None)"""
 		if self._verbosity>=constants.VBL_DEBUG2:
 			print("Analysispath: calculating forceSquares")
 		Ff=numpy.array(self.realforces).ravel()
@@ -58,9 +57,8 @@ class AnalysisPath(Reactionpath):
 
 	def forceRms(self, targetpath,opt=None):
 		"""return rms of force deifference btw. self and targetpath
-		@param: targetpath:	second path to compare self against
-		@param opt: dummy parameter required by API (default None)		
-"""
+		@param targetpath:	second path to compare self against
+		@param opt: dummy parameter required by API (default None)"""
 		if self._verbosity>=constants.VBL_DEBUG2:
 			print("Analysispath: calculating forceRms")
 		if not targetpath.has_forces():
@@ -73,7 +71,7 @@ class AnalysisPath(Reactionpath):
 
 	def energySquares(self, targetpath):
 		"""return squared energy difference btw. self and targetpath
-		@param: targetpath:	second path to compare self against"""
+		@param targetpath:	second path to compare self against"""
 		if self._verbosity>=constants.VBL_DEBUG2:
 			print("Analysispath: calculating energySquares")
 		Ef=numpy.array(self.energies).ravel()
@@ -85,26 +83,25 @@ class AnalysisPath(Reactionpath):
 
 
 	def energyRms(self, targetpath):
+		"""return rms energy difference btw. self and targetpath
+		@param targetpath:	second path to compare self against"""
 		if self._verbosity>=constants.VBL_DEBUG2:
 			print("Analysispath: calculating energyRms")
 		if not targetpath.has_energies():
 			raise("AnalysisPath: target path has no energies!")
 		if not self.has_energies():
 			raise("AnalysisPath: AnalysisPath has no energies!")
-		"""return rms energy difference btw. self and targetpath
-		@param: targetpath:	second path to compare self against"""
 		return math.sqrt(self.energySquares(targetpath)/(self.numImages))
 
 
 
 	def deltaE(self, educt=0, product=-1,targetpath=None):
 		"""return energy difference between educt and product image:
-		deltaE=(E_product - E_educt)-reference
+		M{deltaE=(E_product - E_educt)-reference}
 		default behavior is to use the first image as educt and the last image as product
 		@param educt: educt image index (default 0)
-		@param: product=-1 product image index
-		@param: targetpath=None	if ! None, compare deltaE to targetpath and subtract targetpath.deltaE(educt, product) (default )		
-"""
+		@param product: product image index
+		@param targetpath:	if != None, compare deltaE to targetpath and subtract targetpath.deltaE(educt, product) (default )"""
 		if targetpath!=None:
 			if not targetpath.has_energies():
 				raise "AnalysisPath: target path has no energies!"
@@ -124,8 +121,8 @@ class AnalysisPath(Reactionpath):
 		deltaESquare=(E_product - E_educt)**2
 		default behavior is to use the first image as educt and the last image as product
 		@param educt: educt image index (default 0)
-		@param: product=-1 product image index
-		@param: targetpath=None	if ! None, compare deltaE to targetpath and subtract targetpath.deltaE(educt, product) (default )		
+		@param product: product image index
+		@param targetpath:	if ! None, compare deltaE to targetpath and subtract targetpath.deltaE(educt, product) (default )		
 """
 		if targetpath!=None:
 			if not targetpath.has_energies():
@@ -143,11 +140,10 @@ class AnalysisPath(Reactionpath):
 
 
 	def allDeltaESquares(self,targetpath=None,opt=None):
-		"""return sum of all squared energy differences in AnalysisPath (without doube counting):
+		"""return sum of all squared energy differences in AnalysisPath (without double counting):
 		allSeltaESquares= sum<sub>i=1..N,j=i+1..N</sub>(E_i - E_j)**2
-		@param: targetpath=None	if ! None, compare each deltaE to targetpath and subtract targetpath.deltaE(educt, product) (default )
-		@param opt: dummy parameter required by API (default None)		
-"""
+		@param targetpath:	if ! None, compare each deltaE to targetpath and subtract targetpath.deltaE(educt, product) (default )
+		@param opt: dummy parameter required by API (default None)"""
 		squares=0.0
 		if self._verbosity>=constants.VBL_DEBUG2:
 			print("Analysispath: calculating all squared Energy differences")
@@ -161,10 +157,10 @@ class AnalysisPath(Reactionpath):
 	def sqreaction(self, targetpath=None, opt=None):
 		"""return the square of one reaction energy (or reaction energy difference) calculated from current path
 		@param targetpath: target path to calculate reaction energy difference (default None)
-		@param opt: options dictionary, must contain: <ul>
-		<li>educts: list of images on edict side</li>
-		<li>producs: list of images on product side<li>
-		</ul>
+		@param opt: options dictionary, must contain:
+		@keyword educts: list of images on edict side
+		@keyword products: list of images on product side
+			
 		Each image can occur multiple times on each side of the equation"""
 		if opt==None:
 			raise "options required for sqReactions!"

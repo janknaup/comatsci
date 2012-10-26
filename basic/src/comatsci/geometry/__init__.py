@@ -8,6 +8,12 @@
 # see file LICENSE for details.
 ##############################################################################
 
+"""
+Package of classes to represent geometries.
+G{packagetree}
+G{classtree geometry.Geometry}
+"""
+
 # import the basic functionality
 from geometry import *
 from analysisgeometry import  *

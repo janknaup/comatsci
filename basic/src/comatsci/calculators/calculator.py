@@ -76,8 +76,8 @@ class Calculator:
 
 
 	def status(self):
-		"""return status of calculator. check the 
-		calculator thread's vitality and exit code"""
+		"""@return: status of calculator
+		check the calculator thread's vitality and exit code"""
 		if self._status != CALCSTATUS_RUNNING:
 			return self._status
 #		elif self.WORKTHREAD.isAlive():
@@ -92,7 +92,7 @@ class Calculator:
 
 
 	def getforces(self):
-		"""return an N*3 array of the forces"""
+		"""@return: an N*3 array of the forces"""
 		if self.status()==CALCSTATUS_FINISHED:
 			return self.gradients
 		else:
@@ -101,7 +101,7 @@ class Calculator:
 
 
 	def getenergy(self):
-		"""return the total energy"""
+		"""@return: the total energy"""
 		if self.status()==CALCSTATUS_FINISHED:
 			return self.etot
 		else:
@@ -110,9 +110,9 @@ class Calculator:
 
 
 	def _worker(self):
-		"""DUMMY! - This is the worker function of the WORKTHREAD
+		"""B{DUMMY!} - This is the worker function of the WORKTHREAD
 		it should contain the system call (or whatever) to run the actual binary"""
-		pass
+		raise NotImplementedError()
 
 
 
@@ -122,9 +122,9 @@ class Calculator:
 		best implement this to be independent of the current path...
 		@param steplabel: name to use for current calculation
 		@param Geometry: Geometry object to calculate for
-		@param Charge: total charge to pass to calcultion
+		@param Charge: total charge to raise NotImplementedError to calcultion
 		"""
-		pass
+		raise NotImplementedError()
 
 
 	def _readresults(self):
@@ -269,7 +269,7 @@ class Calculator:
 
 
 	def getiterations(self):
-		"""return number of iterations until convergence"""
+		"""@return: number of iterations until convergence"""
 		return self.scfit
 	iterations=property(getiterations,doc="the number of iteratons performed in the last run")
 	
@@ -281,9 +281,10 @@ class Calculator:
 		rereadies the calculator in if it's status is FINISHED, to hide status
 		tracking from schedulers.
 		For use with generic schedulers.
-		@param : options Dictionary containing (at least) a string "steplabel", a geometry 
-		object "Geometry" and a float "Charge" corresponding to the arguments
-		of runfg()
+		@param options: Dictionary containing the following fields corresponding to the arguments of runfg():
+			* string "steplabel"
+			* Geometry instance "Geometry" 
+			* float "Charge" 
 		"""
 		if self._status==CALCSTATUS_FINISHED:
 			self.finreready()
@@ -292,7 +293,7 @@ class Calculator:
 		
 	
 	def getresults(self):
-		"""return the results of the last calculation as a dictionary.
+		"""@return: the results of the last calculation as a dictionary.
 		for use with generic schedulers.
 		"""
 		#deepcopy the results, to make sure no implementation of

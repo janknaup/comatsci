@@ -36,7 +36,8 @@ except ImportError:
 
 def populationKey(element):
 	"""helper function to sort (fitness,X) tuples by fitness
-	@param element (fitness value, X) tuple"""
+	@type element: tuple of (float,X)
+	@param element: (fitness value, X) tuple"""
 	return element[0]
 	
 	
@@ -52,9 +53,9 @@ class Optimizer:
 	def __init__(self, options):
 		"""optimizer base constructor
 		always call in derived classes! <em>All parameters inside options dictionary.</em>
-		@param options dictionary of optimizer options <b>contains all further parameters</b>
-		@param verbosity=constants.VBL_QUIET output verbosity level, only warnings and fatal errors by default
-		@param maxIterations Maximum number of interations until convergence due to iteration count is reported"""
+		@param options: dictionary of optimizer options <b>contains all further parameters</b>
+		@keyword verbosity: output verbosity level, only warnings and fatal errors by default
+		@keyword maxIterations: Maximum number of interations until convergence due to iteration count is reported"""
 		self._converged = False
 		self._verbosity=options.get("verbosity",constants.VBL_QUIET)
 		self._iterations=0
@@ -70,10 +71,10 @@ class Optimizer:
 		For internal use only, called in optStep method, convergence state is stored internally.
 		External interface for convergence is the Optimizer.converged property
 		Returns boolean, true if converged
-		@param X parameter vector to minimize
-		@param F function to minimize, F can be vector for multi-objective optimization
-		@param dF first derivative of function: dF/dX, can be optional in implementation
-		@param d2F second derivative of function d2F/dX2"""
+		@param X: parameter vector to minimize
+		@param F: function to minimize, F can be vector for multi-objective optimization
+		@param dF: first derivative of function: M{dF/dX}, can be optional in implementation
+		@param d2F: second derivative of function M{d2F/dX2}"""
 		raise NotImplementedError
 	
 	
@@ -84,10 +85,10 @@ class Optimizer:
 		Implementations may make parameters dF,d2F optional.
 		Do not reimplement, implement Optimizer._step() !
 		Returns new vector X if not converged before optimization step, input vector X otherwise.
-		@param X parameter vector to minimize
-		@param F function value to minimize, F can be vector for multi-objective optimization
-		@param dF first derivative of function: dF/dX, can be optional in implementation
-		@param d2F second derivative of function d2F/dX2"""
+		@param X: parameter vector to minimize
+		@param F: function value to minimize, F can be vector for multi-objective optimization
+		@param dF: first derivative of function M{dF/dX}, can be optional in implementation
+		@param d2F: second derivative of function M{d2F/dX2}"""
 		self._converged=self._checkConvergence(X,F,dF,d2F)
 		if not self._converged:
 			if self._verbosity >= constants.VBL_DEBUG1:
@@ -141,12 +142,12 @@ class Optimizer:
 		"""really perform one single optimization step of F(X)
 		Optimizer may provide multiple solutions. In that case, optStep returns one solution, all others are accessid via Optimizer.solutions property
 		Implementations may make parameters dF,d2F optional.
-		<b>always reimplement this!</b>
+		B{always reimplement this!}
 		Returns new vector X.
-		@param X parameter vector to minimize
-		@param F function value to minimize, F can be vector for multi-objective optimization
-		@param dF first derivative of function: dF/dX, can be optional in implementation
-		@param d2F second derivative of function d2F/dX2"""
+		@param X: parameter vector to minimize
+		@param F: function value to minimize, F can be vector for multi-objective optimization
+		@param dF: first derivative of function: M{dF/dX}, can be optional in implementation
+		@param d2F: second derivative of function M{d2F/dX2}"""
 		raise NotImplementedError
 
 

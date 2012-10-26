@@ -31,27 +31,21 @@ class NEBPath(Reactionpath):
 		@param ifixedatoms: c.f. Reactionpath documentation
 		@param istepwidth: initial stepwidth for velocity verlet
 		@param iforcemode: NEB force calculation mode
-			<ul>
-				<li>s standard NEB</li>
-				<li>c climbing image NEB</li>
-			</ul>
+			* B{s} standard NEB
+			* B{c} climbing image NEB
 		@param itangmode: NEB tangent calculation mode
-			<ul>
-				<li>s standard tangents</li>
-				<li>w weighted tangents after JPC 113,9978(2000)</li>
-				<li>p spline tangents</li>
-			</ul>
+			* B{s} standard tangents
+			* B{w} weighted tangents after JPC 113,9978(2000)
+			* B{p} spline tangents
 		@param iclimber: climbing image for climbing image NEB
 		@param ispringk: NEB spring constant
-		@param icmode: c.f. Reactionpath documentation
-		@param ifmax: c.f. Reactionpath documentation
-		@param ifrms: c.f. Reactionpath documentation
-		@param imaxit: c.f. Reactionpath documentation
-		@param irelmode: relaxation mode (ignored for now)
-			<ul>
-				<li>v projected velocity verlet</li>
-				<li>s adaptive displacement steepest descent</li>
-			</ul>
+		@param icmode: c.f. L{Reactionpath} documentation
+		@param ifmax: c.f. L{Reactionpath} documentation
+		@param ifrms: c.f. L{Reactionpath} documentation
+		@param imaxit: c.f. L{Reactionpath} documentation
+		@param irelmode: relaxation mode (ignored for now)<ul>
+			* B{v} projected velocity verlet
+			* B{s} adaptive displacement steepest descent
 		@param charge: system charge
 		@param verbosity: Verbosity level. Choose NORMAL as default. (default None)
 		"""
@@ -217,14 +211,14 @@ class NEBPath(Reactionpath):
 
 
 	def realnormalforces(self):
-		"""return the real forces normal to the path direction"""
+		"""@return: the real forces normal to the path direction"""
 		rnf = self._remtangentforces(self.realforces,self.tangents)
 		return rnf
 
 
 
 	def realtangentforces(self):
-		"""return the real forces parallel to the path direction"""
+		"""@return: the real forces parallel to the path direction"""
 		returnfrc=[]
 		for i in range(self.numimages()):
 			absforce=numpy.sqrt(numpy.dot(self.realforces[i].ravel(),self.realforces[i].ravel()))
@@ -362,7 +356,6 @@ class NEBPath(Reactionpath):
 
 	def adsdadapt(self,forces):
 		"""stepsize adaption procedure for standalone adsd
-		
 		@param forces: forces array
 		"""
 		# can only work, if we have an old force vector to compare with
@@ -395,7 +388,6 @@ class NEBPath(Reactionpath):
 
 	def adsd(self,forces):
 		"""standalone Adaptive Displacement Steepest Descent relaxation
-		
 		@param forces: forces array
 		"""
 		self.adsdstep(forces)
@@ -687,7 +679,7 @@ class NEBPath(Reactionpath):
 		containing steps elements into filename
 		@param cubicparms: cubic fit parameters as calculated by cubicfit()
 		@param steps: total cound of energy values to calculate (default 100)
-		@param: filename="cubic.nrg" output filename
+		@param filename: output filename, default "cubic.nrg"
 		"""
 		segsteps=int(steps/self.numimages()-1)+1
 		CEfile=open(filename,"w")
