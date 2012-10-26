@@ -24,26 +24,29 @@ class steepestDescentOptimizer(Optimizer):
 	def __init__(self, options):
 		"""construt steepest descent optimizer, minimize F(X) by iterating:
 		X'=X-stepSize*(dF/dX)
-		<em>All parameters inside options dictionary.</em>
-		@param options dictionary of optimizer options <b>contains all further 
-		parameters</b>, also see base class for global options!
-		@param maxF report convergence if abs of largest dF/dX component <=maxF
-		@param maxFRMS=-1 report convergence if RMS(dF/dX ) <= maxFRMS
+		
+		I{All parameters inside options dictionary.}
+		@param options: dictionary of optimizer options B{contains all further 
+		parameters}, also see base class for global options!
+		
+		@keyword maxF: report convergence if abs of largest dF/dX component <=maxF
+		@keyword maxFRMS: report convergence if RMS(dF/dX ) <= maxFRMS
 		negative value means, never converge due to RMS derivative
-		@param hardConverge=False only report convergence, if all convergence 
+		@keyword hardConverge: only report convergence, if all convergence 
 		criteria are met. Must never be combined with negative force convergence criteria.
 		Default: report convergence, if any convergence criterion is met.
-		@param stepSize (initial) step size for optimization
-		@param adaptive=False if true, dynamically adapt stepsize depending 
+		
+		@keyword stepSize: (initial) step size for optimization
+		@keyword adaptive: if true, dynamically adapt stepsize depending 
 		on curvature
-		@param constantDisplacement=False if true, normalize dF/dX to unity 
+		@keyword constantDisplacement: if true, normalize dF/dX to unity 
 		in each iteration. Strongly recommended in conjunction with constantDisplacement
-		@param stepAdaptFactor=1.618033988 factor to multiply or divide stepsize 
-		by, when adapting. Must be >1.
-		@param minStepSize=initial_stepSize/1000 do not reduce stepsize below this value
-		@param maxStepSize=initial_stepSize*10 do not grow stepsive beyond this value
-		@param growThreshold=0.9 if (dF' dot dF) > growThreshold, enlarge adaptive stepsize
-		@param shrinkThreshold=0.5 if (dF' dot dF) < shrinkThreshold, shrink adaptive stepsize
+		@keyword stepAdaptFactor: factor to multiply or divide stepsize 
+		by, when adapting. Must be >1, default=1.618033988 (golden section)
+		@keyword minStepSize: do not reduce stepsize below this value, default L{stepSize}/1000
+		@keyword maxStepSize:do not grow stepsive beyond this value, default L{stepSize}*10
+		@keyword growThreshold: if (dF' dot dF) > growThreshold, enlarge adaptive stepsize
+		@keyword shrinkThreshold: if (dF' dot dF) < shrinkThreshold, shrink adaptive stepsize
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
 			print("Steepest Descent Optimizer: initializing.")
@@ -150,10 +153,10 @@ class steepestDescentOptimizer(Optimizer):
 	def _step(self,X,F,dF,d2F):
 		"""perform one steepest descent step, adapting stepsize if required
 		c.f. base class documentation
-		@param X parameter vector to minimize
-		@param F function to minimize, F can be vector for multi-objective optimization
-		@param dF first derivative of function: dF/dX <b>mandatory</b>
-		@param d2F second derivative of function d2F/dX2 <b>always ignored</b>"""
+		@param X: parameter vector to minimize
+		@param F: function to minimize, F can be vector for multi-objective optimization
+		@param dF: first derivative of function: dF/dX B{mandatory}
+		@param d2F: second derivative of function d2F/dX2 B{always ignored}"""
 		#check if we have forces
 		if dF==None:
 			raise "derivative required for steepest descent optimization"
@@ -177,10 +180,10 @@ class steepestDescentOptimizer(Optimizer):
 		For internal use only, called in optStep method, convergence state is stored internally.
 		External interface for convergence is the Optimizer.converged property
 		Returns boolean, true if converged
-		@param X parameter vector to minimize <b>ignored</b>
-		@param F function to minimize, F can be vector for multi-objective optimization <b>ignored</b>
-		@param dF first derivative of function: dF/dX
-		@param d2F second derivative of function d2F/dX2 <b>ignored</b>"""
+		@param X: parameter vector to minimize B{ignored}
+		@param F: function to minimize, F can be vector for multi-objective optimization B{ignored}
+		@param dF: first derivative of function: dF/dX
+		@param d2F: second derivative of function d2F/dX2 B{ignored}"""
 		RMS=numpy.sqrt(numpy.add.reduce(dF*dF)/dF.shape[0])
 		maxF=max((-min(dF),max(dF)))
 		if RMS < self._maxFRMS and maxF < self._maxF:

@@ -28,18 +28,18 @@ class newtonRaphsonOptimizer(Optimizer):
 	
 	def __init__(self, options):
 		"""construt Newton-Raphson optimizer, minimize F(X) by iterating:
-		X'=X-F(X)*(dF/|dF|**2) where F(X) must be scalar function of vector X
-		and dF must be vector of partial derivatives dF/dX_i.
-		<em>All parameters inside options dictionary.</em>
-		@param options dictionary of optimizer options <b>contains all further 
-		parameters</b>, also see base class for global options!
-		@param maxF report convergence if abs of largest dF/dX component <=maxF,
-		@param maxFRMS=-1 report convergence if RMS(dF/dX ) <= maxFRMS
+		M{X'=X-F(X)*(dF/|dF|**2)} where M{F(X)} must be scalar function of vector X
+		and dF must be vector of partial derivatives M{dF/dX_i}.
+		I{All parameters inside options dictionary.}
+		@param options: dictionary of optimizer options B{contains all further 
+		parameters}, also see base class for global options!
+		@keyword maxF: report convergence if abs of largest dF/dX component <=maxF,
+		@keyword maxFRMS: default -1 report convergence if RMS(dF/dX ) <= maxFRMS
 		negative value means, never converge due to RMS derivative
-		@param hardConverge=False only report convergence, if all convergence 
-		criteria are met. This means, that convergence due to forces will never be met,
-		if any criterion has a negative value.
-		Default: False := report convergence, if any convergence criterion is met.
+		@keyword hardConverge: only report convergence, if all convergence 
+			criteria are met. This means, that convergence due to forces will never be met,
+			if any criterion has a negative value.
+			Default: False := report convergence, if any convergence criterion is met.
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
 			print("Newton-Raphson Optimizer: initializing.")
@@ -68,11 +68,12 @@ class newtonRaphsonOptimizer(Optimizer):
 		"""check convergence of Newton-Raphson optimization
 		For internal use only, called in optStep method, convergence state is stored internally.
 		External interface for convergence is the Optimizer.converged property
-		Returns boolean, true if converged
-		@param X parameter vector to minimize <b>ignored</b>
-		@param F function to minimize, F can be vector for multi-objective optimization <b>ignored</b>
-		@param dF first derivative of function: dF/dX
-		@param d2F second derivative of function d2F/dX2 <b>ignored</b>"""
+		@rtype: boolean
+		@return: true if converged
+		@param X: parameter vector to minimize B{ignored}
+		@param F: function to minimize, F can be vector for multi-objective optimization <b>ignored</b>
+		@param dF: first derivative of function: M{dF/dX}
+		@param d2F: second derivative of function M{d2F/dX2} B{ignored}"""
 		RMS=numpy.sqrt(numpy.add.reduce(dF*dF)/dF.shape[0])
 		maxF=max((-min(dF),max(dF)))
 		if RMS < self._maxFRMS and maxF < self._maxF:
@@ -106,10 +107,10 @@ class newtonRaphsonOptimizer(Optimizer):
 	def _step(self, X, F, dF, d2F):
 		"""perform one Newton-Raphson step
 		c.f. base class documentation
-		@param X parameter vector to minimize
-		@param F function to minimize, F can be vector for multi-objective optimization
-		@param dF first derivative of function: dF/dX <b>mandatory</b>
-		@param d2F second derivative of function d2F/dX2 <b>always ignored</b>"""
+		@param X: parameter vector to minimize
+		@param F: function to minimize, F can be vector for multi-objective optimization
+		@param dF: first derivative of function: dF/dX B{mandatory}
+		@param d2F: second derivative of function d2F/dX2 B{always ignored}"""
 		delta=dF/numpy.dot(dF,dF)
 		delta*=F
 		return X-delta

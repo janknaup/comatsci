@@ -40,7 +40,7 @@ class potentialFunction:
                 """ calculates the value of the respective pairpotential
                 at a given distance r 
                 @parameter r: float containing distance 
-                @return float containing function value """
+                @return: float containing function value """
 
                 raise NotImplementedError()
 
@@ -50,14 +50,14 @@ class potentialFunction:
                 """ returns derivative of the respective pairpotential
                 at a given distance r
                 @parameter r: float containing distance 
-                @return float containing function derivative value """
+                @return: float containing function derivative value """
 
                 raise NotImplementedError()
 
 
 
         def getParameters(self):
-                """ @return dictionary of function parameters """
+                """ @return: dictionary of function parameters """
                 
                 return dict(self._parameters)
 
@@ -79,7 +79,7 @@ class potentialFunction:
 
         def parseString(self,instring):
                 """ parse string containing function parameters
-                @parameter inString: string containing function parameters """
+                @parameter instring: string containing function parameters """
 
                 raise  NotImplementedError()
 
@@ -87,7 +87,7 @@ class potentialFunction:
 
 
         def getCutoffs(self):
-                """ @return cutoffs as a tuple """
+                """ @return: cutoffs as a tuple """
 
                 raise NotImplementedError()
             
@@ -102,7 +102,7 @@ class potentialFunction:
 
 
         def getString(self):
-                """@return string representation of the potential that can be read back in from a file"""
+                """@return: string representation of the potential that can be read back in from a file"""
                 raise NotImplementedError()
 
 

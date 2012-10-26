@@ -73,7 +73,7 @@ class Scheduler:
 	def perform(self, schedule,progressfunction=None):
 		"""Perform calculations for the given list of input data, return a list of result dictionaries.
 		@param schedule:  list of input data to pass to single workers 
-		@param: progressfunction=None  lFor progress reporting purposes. If ! progressfunction is called after each job on schedule is finished with an argument indicating the percentage of jobs finished.  (default None)		
+		@param progressfunction:  lFor progress reporting purposes. If ! progressfunction is called after each job on schedule is finished with an argument indicating the percentage of jobs finished.  (default None)		
 """
 		#check if scheduler is iterationCountready
 		if self._status!=SCHEDSTATUS_READY:
@@ -94,7 +94,7 @@ class Scheduler:
 	def _realperform(self, schedule, progressfunction):
 		"""Really perform calculations for the given list of input data, return a list of result dictionaries. Must be reimplemented by subclass
 		@param schedule:  list of input data to pass to single workers 
-		@param: progressfunction=None  lFor progress reporting purposes. If ! progressfunction is called after each job on schedule is finished with an argument indicating the percentage of jobs finished.  (default None)		
+		@param progressfunction:  lFor progress reporting purposes. If ! progressfunction is called after each job on schedule is finished with an argument indicating the percentage of jobs finished.  (default None)		
 """
 		pass
 	
@@ -108,28 +108,28 @@ class Scheduler:
 	
 	
 	def getIterationCount(self):
-		"Retrun total number of iterations performed under control of scheduler"
+		"@return: total number of iterations performed under control of scheduler"
 		return self._iterationcounter
 	iterationCount=property(getIterationCount,doc="Total number of iterations performed under control of scheduler")
 	
 	
 	
 	def getWallTime(self):
-		"Retrun total wall time spent under control of scheduler"
+		"@return: total wall time spent under control of scheduler"
 		return self._walltimer
 	wallTime=property(getWallTime,doc="Total wall time spent under control of scheduler")
 	
 	
 	
 	def getCPUTime(self):
-		"Retrun total CPU time spent under control of scheduler"
+		"@return: total CPU time spent under control of scheduler"
 		return self._cputimer
 	cpuTime=property(getCPUTime, doc="Total CPU time spent under control of scheduler")
 	
 	
 	
 	def getStatus(self):
-		"Retrun status of scheduler"
+		"@return: status of scheduler"
 		return self._status
 	status=property(getStatus,doc="status of scheduler")
 	
@@ -163,8 +163,7 @@ class serialScheduler(Scheduler):
 		should have an iterations property for iterations statistics to work.
 		A shutdown method of the worker is called upon scheduler shutdown, 
 		if present. 
-		@param verbosity:  Verbosity level, if none choose  (default None)
-		VBL_NORMAL"""
+		@param verbosity:  Verbosity level, if none choose VBL_NORMAL"""
 		Scheduler.__init__(self,verbosity)
 		self._worker=worker
 		self._status=SCHEDSTATUS_READY
@@ -174,7 +173,7 @@ class serialScheduler(Scheduler):
 	def _realperform(self, schedule, progressfunction):
 		"""perform one job from schedule after another
 		@param schedule:  list of input data to pass to single workers 
-		@param: progressfunction=None  lFor progress reporting purposes. If ! progressfunction is called after each job on schedule is finished with an argument indicating the percentage of jobs finished.  (default None)		
+		@param progressfunction:  lFor progress reporting purposes. If ! progressfunction is called after each job on schedule is finished with an argument indicating the percentage of jobs finished.  (default None)		
 """
 		#initialize results container
 		results=[]
@@ -225,7 +224,7 @@ class mpiScheduler(Scheduler):
 	def __init__(self, initializer, initargument, Verbosity=None):
 		"""Initialize MPI scheduler
 		@param initializer:  A function that returns an instance to perform the work and returns the results. Worker must have a run method that accepts input data sets and a getresults method that returns a dictionary of results. Worker should have an iterations property for iterations statistics to work. 
-		@param initoption:  argument that is passed to initializer when initializing the worker. Must be deep-copyable. 
+		@param initargument:  argument that is passed to initializer when initializing the worker. Must be deep-copyable. 
 		@param Verbosity:  Verbosity level, if none choose VBL_NORMAL  (default None)		
 """
 		#Base class constructor
@@ -339,6 +338,7 @@ class mpiScheduler(Scheduler):
 
 
 	def getNumProc(self):
+		"""@return: number of MPI processors available"""
 		return self.__MPI_numproc
 	numProc=property(getNumProc,doc="Number of MPI processors available to scheduler")
 	
@@ -348,7 +348,7 @@ class mpiScheduler(Scheduler):
 		"""distribute jobs to the slaves. Slaves and their workers
 		must have been initialized before.
 		@param schedule:  list of input data to pass to single workers 
-		@param: progressfunction=None  lFor progress reporting purposes. If ! progressfunction is called after each job on schedule is finished with an argument indicating the percentage of jobs finished.  (default None)		
+		@param progressfunction:  lFor progress reporting purposes. If ! progressfunction is called after each job on schedule is finished with an argument indicating the percentage of jobs finished.  (default None)		
 """
 		# make a copy of the schedule, as we work destructively on itemgetter
 		myschedule=copy.deepcopy(schedule)
@@ -455,7 +455,7 @@ class threadScheduler(Scheduler):
 	def __init__(self, initializer, initargument, maxworkthreads=0, Verbosity=None):
 		"""Initialize MPI scheduler
 		@param initializer:  A function that returns an instance to perform the work and returns the results. Worker must have a run method that accepts input data sets and a getresults method that returns a dictionary of results. Worker should have an iterations property for iterations statistics to work. 
-		@param initoption:  argument that is passed to initializer when initializing the worker. Must be deep-copyable. 
+		@param initargument:  argument that is passed to initializer when initializing the worker. Must be deep-copyable. 
 		@param maxworkthreads:  Maximum number of concurrent worker threads to start. No limit of 0.  (default 0)
 		@param Verbosity:  Verbosity level, if none choose VBL_NORMAL  (default None)		
 """
@@ -487,7 +487,7 @@ class threadScheduler(Scheduler):
 
 	def _realperform(self, schedule, progressfunction=None):
 		"""really perform the schedule in multithreading mode
-		arguments: c.f. base class"""
+		@see: L{Scheduler}"""
 		#first determine the number of threads to initially invoke
 		if self.__maxworkthreads==0 or len(schedule)<self.__maxworkthreads:
 			maxworkers=len(schedule)

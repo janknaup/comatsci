@@ -56,33 +56,33 @@ class Dimer(Geometry):
 
 	def __init__(self, options=None):
 		"""Inititalize Geometry object
-		@param options: dictionary containing the options, use all defaults if None. <b>parameters below are passed in options dictionary!</b><br /> (default None)
-		@param Mode:	Geometry mode, known modes are:
+		@keyword options: dictionary containing the options, use all defaults if None. <b>parameters below are passed in options dictionary!</b><br /> (default None)
+		@keyword Mode:	Geometry mode, known modes are:
 		
 					c	cluster or molecule
 					s	supercell
 		
-		@param Atomcount:  atom count (default 0)
-		@param AtomTypes:  atom types list, orogin, lattice vctors and Geometry array (default None)
-		@param Origin: 	supercell origin, always ignored but part of .gen file format (default None)
-		@param Lattice:  lattice vectors array (default None)
-		@param Geometry: 	atomic positions array (carthesian bohr), for R_0 (default None)
-		@param AtomLayers: 	list of atom layer index assigments per atom (default None)
-		@param LayerDict: 	dictionary of (atom layer index: atom layer)-s (default None)
-		@param AtomCharges: 	list of single atom charges. Autoinitialized to zero if None. (default None)
-		@param AtomSubTypes:  list of atom subtype strings. Autoinitialized to element symbols if None (default None)
-		@param LPops:  list of atomic l-shell populations, can be list of lists or None (default None)
-		@param Axis: inital Dimer axis (default None)
-		@param noGradInRot: do not perform gradient calculations in rotation step (default False)
-		@param verbosity: verbosity level, c.f. Verbosity level descriptions in comatsci.constants (default VBL_NORMAL)
-		@param maxFt: =1e-6 maximum total force for convergence (default 1e-6)
-		@param maxFp: =1e-6 maximum force in dimer direction for convergence (default 1e-6)
-		@param maxFtRMS: =1e-8 maximum RMS total force for convergence (default 1e-8)
-		@param maxFpRMS: =1e-8 maximum RMS force in dimer direction for convergence (default 1e-8)
-		@param rotskipangle: calculated test angle in radians below which rotation step is skipped (default 0.01)
-		@param hardTranslation: If!=None, use specified length in Bohr for line search in translation step (default None)
-		@param maxIt: maximum number of iterations in this run (default 100)
-		@param fixedAtoms: list of atom indices which are not to be moved (base 0) (default empty list)
+		@keyword Atomcount:  atom count (default 0)
+		@keyword AtomTypes:  atom types list, orogin, lattice vctors and Geometry array (default None)
+		@keyword Origin: 	supercell origin, always ignored but part of .gen file format (default None)
+		@keyword Lattice:  lattice vectors array (default None)
+		@keyword Geometry: 	atomic positions array (carthesian bohr), for R_0 (default None)
+		@keyword AtomLayers: 	list of atom layer index assigments per atom (default None)
+		@keyword LayerDict: 	dictionary of (atom layer index: atom layer)-s (default None)
+		@keyword AtomCharges: 	list of single atom charges. Autoinitialized to zero if None. (default None)
+		@keyword AtomSubTypes:  list of atom subtype strings. Autoinitialized to element symbols if None (default None)
+		@keyword LPops:  list of atomic l-shell populations, can be list of lists or None (default None)
+		@keyword Axis: inital Dimer axis (default None)
+		@keyword noGradInRot: do not perform gradient calculations in rotation step (default False)
+		@keyword verbosity: verbosity level, c.f. Verbosity level descriptions in comatsci.constants (default VBL_NORMAL)
+		@keyword maxFt: =1e-6 maximum total force for convergence (default 1e-6)
+		@keyword maxFp: =1e-6 maximum force in dimer direction for convergence (default 1e-6)
+		@keyword maxFtRMS: =1e-8 maximum RMS total force for convergence (default 1e-8)
+		@keyword maxFpRMS: =1e-8 maximum RMS force in dimer direction for convergence (default 1e-8)
+		@keyword rotskipangle: calculated test angle in radians below which rotation step is skipped (default 0.01)
+		@keyword hardTranslation: If!=None, use specified length in Bohr for line search in translation step (default None)
+		@keyword maxIt: maximum number of iterations in this run (default 100)
+		@keyword fixedAtoms: list of atom indices which are not to be moved (base 0) (default empty list)
 		"""
 		# check for presence of options dictionary, provide empty one if necessary
 		if options==None:
@@ -498,7 +498,7 @@ class Dimer(Geometry):
 		"""Calculate energies and forces at R0 and R1 using primed scheduler, extrapolate f2 and E2 after J. Phys. Chem. 123 224101
 		This implementation will do one unneccesary E1/f1 calculation after convergence , as is is checked only after E0/f0 and E1/f1 have been calculated
 		@param scheduler: scheduler used to distribute the two jobs
-		@patam charge: total charge of the system in electrons (default=0)
+		@param charge: total charge of the system in electrons (default=0)
 		"""
 		if not self.isInitialized:
 			raise GeometryError("Trying to calculate Energy and force on uninitialized Dimer")

@@ -26,32 +26,36 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 	def __init__(self, options):
 		"""SOGA optimizer: minimize F(X) by randomly modifying and interbreeding X within a 
 		population of solution candidates. F(X) is to be understood 
-		as a single objective fitness function of X, where X is fitter than X' if F(X)<F(X').<br>
-		F(X) must be passed to the optimizer as a callable object, with the actual interface:
-		F(options,X), where options is a dictionary of options to the fitness function.<br>
-		<em>All parameters F, dF, d2F passed to public methods of SOMC are dummies</em><br>
-		<em>All parameters inside options dictionary.</em>
-		@param options dictionary of optimizer options <b>contains all further 
-		parameters</b>, also see base class for global options!
-		@param maxF report convergence if fittest specimen has fitness <=maxF,
-		@param mutator fuction with parameters mutator(options,X) returning 
+		as a single objective fitness function of X, where X is fitter than X' if F(X)<F(X').
+		
+		M{F(X)} must be passed to the optimizer as a callable object, with the actual interface:
+		F(options,X), where options is a dictionary of options to the fitness function.
+		
+		I{All parameters F, dF, d2F passed to public methods of SOMC are dummies}
+		
+		I{All parameters inside options dictionary.}
+		@param options: dictionary of optimizer options B{contains all further 
+		parameters}, also see base class for global options!
+		
+		@keyword maxF: report convergence if fittest specimen has fitness <=maxF,
+		@keyword mutator: fuction with parameters mutator(options,X) returning 
 		vector X suitable as argument of F(X)
-		@param mutatorOptions dictionary of options to pass to the mutator function
-		@param fitness fitness function F(X) with parameters F(options,X) returning 
+		@keyword mutatorOptions: dictionary of options to pass to the mutator function
+		@keyword fitness: fitness function F(X) with parameters F(options,X) returning 
 		scalar fitness value
-		@param fitnessOptions dictionary of options to pass to the fitness function
-		@param combiner function that combines two X vectors, returning the child,
+		@keyword fitnessOptions: dictionary of options to pass to the fitness function
+		@keyword combiner: function that combines two X vectors, returning the child,
 		must have interface combiner(options, X1, X2)
-		@param combinerOptions dictionary of options to pass to the combiner
+		@keyword combinerOptions: dictionary of options to pass to the combiner
 		function
-		@param populationSize=20 number of solution candidates in population
-		@param breederCount=5 number of breeders to select from population
-		@param keepFitterElders=False if true, keep all members of the parent generation
+		@keyword populationSize: number of solution candidates in population
+		@keyword breederCount: number of breeders to select from population
+		@keyword keepFitterElders: if true, keep all members of the parent generation
 		that are fitter than the children, otherwise keep exactly the breeders, replace
 		all other specimens
-		@param initialMutator: mutator function used to generate initial population,
+		@keyword initialMutator: mutator function used to generate initial population,
 		default use same as evolution mutator
-		@param initalMutatorOptions: dictionary of options to pass to the mutator function,
+		@keyword initalMutatorOptions: dictionary of options to pass to the mutator function,
 		default use same options as for evolution mutator
 		"""
 		if options["verbosity"] >= constants.VBL_DEBUG2:
@@ -126,10 +130,10 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 		For internal use only, called in optStep method, convergence state is stored internally.
 		External interface for convergence is the Optimizer.converged property
 		Returns boolean, true if converged
-		@param X parameter vector to minimize <b>ignored</b>
-		@param F function to minimize, F can be vector for multi-objective optimization
-		@param dF first derivative of function: dF/dX <b> ignored</b>
-		@param d2F second derivative of function d2F/dX2 <b>ignored</b>"""
+		@param X: parameter vector to minimize B{ignored}
+		@param F: function to minimize, F can be vector for multi-objective optimization
+		@param dF: first derivative of function: dF/dX B{ignored}
+		@param d2F: second derivative of function d2F/dX2 B{ignored}"""
 		#never report convergence in the first iteration, since no previous
 		#fitness is stored when _checkConvergence is called...
 		if self._iterations==0:
@@ -156,10 +160,10 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 	def _step(self,X,F,dF,d2F):
 		"""perform one Monte-Carlo step, calculating fitness on the way
 		c.f. base class documentation
-		@param X parameter vector to minimize
-		@param F function to minimize, F can be vector for multi-objective optimization<b>always ignored</b>
-		@param dF first derivative of function: dF/dX <b>always ignored</b>
-		@param d2F second derivative of function d2F/dX2 <b>always ignored</b>"""
+		@param X: parameter vector to minimize
+		@param F: function to minimize, F can be vector for multi-objective optimization B{always ignored}
+		@param dF: first derivative of function: dF/dX B{always ignored}
+		@param d2F: second derivative of function d2F/dX2 B{always ignored}"""
 		#at first iteration, generate initial population and return
 		if self.iterations==0:
 			if self._verbosity >= constants.VBL_DEBUG2:
@@ -209,7 +213,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 
 	
 	def getAcceptanceRate(self):
-		"""return total acceptance rate of trial soluations"""
+		"""return: total acceptance rate of trial soluations"""
 		return float(self._accepted/float(self._mutations+0.000000000000000001))
 	acceptanceRate=property(getAcceptanceRate)
 
@@ -217,7 +221,7 @@ class singleObjectiveGeneticOptimizer(Optimizer):
 	
 	def __initialPopulate(self, X):
 		"""generate initial population for genetic optimization
-		@param X initial input vector to generate population from"""
+		@param X: initial input vector to generate population from"""
 		if self._verbosity >= constants.VBL_DEBUG1:
 			print("SOGA Optimizer: generating initial population and fitnesses")
 		#We store the population as a list of (F(X),X) tuples

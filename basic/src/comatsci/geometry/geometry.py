@@ -129,7 +129,9 @@ class GeoLayer:
 
 
 class Geometry:
-	"""Class to store Molecular Geometries and perform various i/o operations"""
+	"""Class to store Molecular Geometries and perform various i/o operations
+	G{classtree Geometry}
+	"""
 
 
 	#Periodic Table of Elements
@@ -2314,7 +2316,7 @@ class Geometry:
 		can only be used for Mode=="S" geometries
 		"""
 		# check if Geometry is in supercell mode
-		#: GeometryError may be caught and ignored, as unity matrix is used as default Lattice for cluster geometries
+		# GeometryError may be caught and ignored, as unity matrix is used as default Lattice for cluster geometries
 		if not self.Mode=="S":
 			raise GeometryError("Attempt to calculate fractional coordinates on cluster geometry")
 		# calculate inverse of lattice vectors

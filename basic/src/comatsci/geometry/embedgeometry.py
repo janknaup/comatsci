@@ -83,8 +83,8 @@ class qmmmGeometry(AnalysisGeometry):
 		@param othergeo: point charge distribution to modify and link to
 		@param stepsfunction: function to report maximum progress value to (default None)
 		@param progressfunction: function to report current progress value to (default None)
-		@param ChargeTransfers: Dictionary of element-element charge transfers. Automatically determined by linear-least-squares fit by default (default None)
-		@param Neutralize: Boolean specifiying, whether the linked geometry should be neuralized by an additional homogeneous compensating charge transfer per bond (default True)
+		@param chargeTransfers: Dictionary of element-element charge transfers. Automatically determined by linear-least-squares fit by default (default None)
+		@param neutralize: Boolean specifiying, whether the linked geometry should be neuralized by an additional homogeneous compensating charge transfer per bond (default True)
 		@param distscale: scale the linker-hostatom distances by this value (default 1.0)
 		@return: tuple of (Joint Geometry containing self and link atoms in layer DEFAULT and the modified othergeo in layer PCHR) and (dictionary containing additional info)"""
 		#first create a deep copy of othergeo to make sure othergeo itself is not modified
@@ -148,7 +148,8 @@ class qmmmGeometry(AnalysisGeometry):
 		"""return a geometry containing link hydrogens between self and othergeo on the self side.
 		<em>self must not contain any atoms from othergeo</em> If you want linkatoms between two layes
 		of geometry do something like geometry.layersubgeometry(layer1).simple_linkatoms(geometr.layersubgeometry(layer2))
-		@param center: the geometry to which the returned link atoms should connect self
+		@type othergeo: Geometry
+		@param othergeo: the geometry to which the returned link atoms should connect self
 		@param stepsfunction: callback function to report the total number of progress steps to. For progress display purposes (default None)
 		@param progressfunction: callback function to report actual progress to. For progress display purposes. (default None)
 		@param distscale: scale the linker-hostatom distances by this value (default 1.0)
@@ -194,8 +195,6 @@ class qmmmGeometry(AnalysisGeometry):
 		@param othergeo: point charge distribution to modify and link to
 		@param stepsfunction: function to report maximum progress value to (default None)
 		@param progressfunction: function to report current progress value to (default None)
-		@param ChargeTransfers: Dictionary of element-element charge transfers. Automatically determined by linear-least-squares fit by default (default None)
-		@param Neutralize: Boolean specifiying, whether the linked geometry should be neuralized by an additional homogeneous compensating charge transfer per bond (default True)
 		@param distscale: scale the linker-hostatom distances by this value (default 1.0)
 		@return: tuple of (Joint Geometry containing self and link atoms in layer DEFAULT and the modified othergeo in layer PCHR) and (dictionary containing additional info)"""
 		#build unified geometry object and return

@@ -511,7 +511,7 @@ class noodlecalc(Calculator):
 
 	def _readresults(self,atomcount):
 		"""Read total energy and gradients from result files in current directory
-		@param : atomcount number of atoms in system (ignored!)"""
+		@param atomcount: number of atoms in system (ignored!)"""
 		if self.verbosity>=constants.VBL_DEBUG2:
 			print("parsing noodle output")
 		#overwrite atomcount, if we were working on a subgeometry

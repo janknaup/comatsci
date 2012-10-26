@@ -28,7 +28,8 @@ class linearInterpolator():
 	
 	
 	def setNodes(self,vectors):
-		"""store Vector nodes and prepare interpolation"""
+		"""store Vector nodes and prepare interpolation
+		@param vectors: vectors to store"""
 		# initizalize internal data storage
 		self._dimension=num.shape(vectors[0])
 		# linear equation is y_i=a_i*x+b_i
@@ -122,28 +123,24 @@ class growingString(path.Reactionpath):
 	def __init__(self, checkpointdir='checkpoint', fixedatoms=None,cmode='d',fmax=0.01,ifrms=0.01,imaxit=0,
 				charge=0.0,verbosity=constants.VBL_SILENCE,interpolationMode='a',targetDistance=1.0,growForce=0.1,symmetricGrowth=True,continuityTolerance=1.1):
 		"""construct a growing string representation object
-		@param: checkpointdir='checkpoint' directory name for checkpoint storage
+		@param checkpointdir: default 'checkpoint' directory name for checkpoint storage
 		@param fixedatoms: list of atom indices to keep fixed (default None)
 		@param cmode: energies and forces calculation mode
-			<ul>
-			<li>s serial</li>
-			<li>p parallel</li>
-			<li>d external scheduler</li>
-			</ul>
+			* B{s} serial
+			* B{p} parallel
+			* B{d} external scheduler
 		@param fmax: max normal force convergence criterion (default 0.01)
-		@param frms: rms normal force convergence criterion (default 0.01)
-		@param maxit: maximum number of iterations to perform (default 0)
+		@param ifrms: rms normal force convergence criterion (default 0.01)
+		@param imaxit: maximum number of iterations to perform (default 0)
 		@param charge: system charge in electrons (default 0.0)
-		@param: verbosity=VBL_SILENCE Verbosity level. Absolute silence by default
-		@param: interpolationMode='a' interpolation mode for path parametrization and growth, can be
-			<ul>
-			<li>a automatic - start with linear interpolation, switch to Renner Subspline as soon as minimum number of Nodes is reached</li>
-			<li>l linear - always linarly interpolate between nodes </li>
-			<li>r Renner Subspline - use Renner Subspline to interpolate. Requires at least 5 geometries</li>
-			</ul>
+		@param verbosity: default VBL_SILENCE Verbosity level. Absolute silence by default
+		@param interpolationMode: default 'a' interpolation mode for path parametrization and growth, can be
+			* B{a} automatic - start with linear interpolation, switch to Renner Subspline as soon as minimum number of Nodes is reached
+			* B{l} linear - always linarly interpolate between nodes
+			* B{r} Renner Subspline - use Renner Subspline to interpolate. Requires at least 5 geometries
 		@param targetDistance: (maximum) length of string between nodes until which to grow string (default 1.0)
 		@param growForce: maximum normal fore on the end geometries of discontinuous string, before growth (default 0.1)
-		@param symmetricGrowth: Ff true, grow new intermediate configuration at both discontinuous ends after both meed growForce. If False, grow new image immediately, when open any end meets growForce (default True)
+		@param symmetricGrowth: If true, grow new intermediate configuration at both discontinuous ends after both meed growForce. If False, grow new image immediately, when open any end meets growForce (default True)
 		@param continuityTolerance: maximum length of a single string segment length to accept for continuous string with low parametrization density. Generate error if any segment length is > (average length)*continuityTolerance. (default 1.1)
 		"""
 		# Reactionpath demands an interable of fixed atom indices
