@@ -57,15 +57,15 @@ def calcinitializer(options):
 	"""initialize calculator"""
 	#initialize calculator
 	if options.calculator=="dftb":
-		calc=comatsci.Calculators.dftbcalc(optionfname="pypath.ini",verbosity=options.verbosity)
+		calc=comatsci.calculators.dftbcalc(optionfname="pypath.ini",verbosity=options.verbosity)
 	elif options.calculator=="siesta":
-		calc=comatsci.Calculators.siestacalc(optionfname="pypath.ini",verbosity=options.verbosity)
+		calc=comatsci.calculators.siestacalc(optionfname="pypath.ini",verbosity=options.verbosity)
 	elif options.calculator=="noodle":
-		calc=comatsci.Calculators.noodlecalc(optionfname="pypath.ini",verbosity=options.verbosity)
+		calc=comatsci.calculators.noodlecalc(optionfname="pypath.ini",verbosity=options.verbosity)
 	elif options.calculator=="gaussian":
-		calc=comatsci.Calculators.gaussiancalc(optionfname="pypath.ini",verbosity=options.verbosity)
+		calc=comatsci.calculators.gaussiancalc(optionfname="pypath.ini",verbosity=options.verbosity)
 	elif options.calculator=="muellerbrown":
-		calc=comatsci.Calculators.muellerBrownCalc(verbosity=options.verbosity)
+		calc=comatsci.calculators.muellerBrownCalc(verbosity=options.verbosity)
 	else:
 		raise Exception("unknown calculator")
 	return calc
@@ -130,15 +130,15 @@ using the following options:
 	
 	#initialize the scheduler
 	if options.scheduler.lower()=="s":
-		scheduler=comatsci.Schedulers.serialScheduler(calcinitializer(options), options.verbosity)
+		scheduler=comatsci.schedulers.serialScheduler(calcinitializer(options), options.verbosity)
 		if options.verbosity >= comatsci.constants.VBL_NORMAL:
 			print "initialized serial scheduler"
 	elif options.scheduler.lower()=="p":
-		scheduler=comatsci.Schedulers.mpiScheduler(calcinitializer,options, options.verbosity)
+		scheduler=comatsci.schedulers.mpiScheduler(calcinitializer,options, options.verbosity)
 		if options.verbosity >= comatsci.constants.VBL_NORMAL:
 			print "initialized parallel scheduler."
 	elif options.scheduler.lower()=="t":
-		scheduler=comatsci.Schedulers.threadScheduler(calcinitializer, options, options.maxthreads, options.verbosity)
+		scheduler=comatsci.schedulers.threadScheduler(calcinitializer, options, options.maxthreads, options.verbosity)
 		if options.verbosity >= comatsci.constants.VBL_NORMAL:
 			print "inialized threading schduler with maximum %d concurrent threads" % scheduler.maxWorkThreads
 	else:
@@ -151,7 +151,7 @@ using the following options:
 
 	if options.verbosity >= comatsci.constants.VBL_TALKY:
 		print "initializing NEB path"
-	path=comatsci.Path.NEBPath("checkpoint",fixatms,options.stepwidth,fmode,tangmode,
+	path=comatsci.path.NEBPath("checkpoint",fixatms,options.stepwidth,fmode,tangmode,
 	climber,springk,'d',options.forcetol,options.rmstol,options.maxit,relmode,options.charge,options.verbosity)
 
 	if options.verbosity >= comatsci.constants.VBL_NORMAL:
@@ -415,4 +415,4 @@ if __name__ == '__main__':
 		# Parse config file
 		nebrun(mode="s")
 	elif mpi:
-		mpisched=comatsci.Schedulers.mpiScheduler(calcinitializer,None,comatsci.constants.VBL_NORMAL)
+		mpisched=comatsci.schedulers.mpiScheduler(calcinitializer,None,comatsci.constants.VBL_NORMAL)

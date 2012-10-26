@@ -5,14 +5,14 @@ Created on Mar 13, 2012
 '''
 from __future__ import print_function
 import unittest,numpy,os
-from comatsci import Geometry
+from comatsci import geometry
 
 class geometryTest(unittest.TestCase):
 
 
     def testGeometryBasics(self):
-        g=Geometry.Geometry()
-        self.assertTrue(isinstance(g, Geometry.Geometry), "Geometry Constructor does not return Geometry instance")
+        g=geometry.Geometry()
+        self.assertTrue(isinstance(g, geometry.Geometry), "Geometry Constructor does not return Geometry instance")
         g.addatom(1,(0.,0.,0.))
         g.addatom(8,(2,0.,0.))
         self.assertEqual(g.AtomTypes, [1,8], "Atom Types differ")
@@ -26,7 +26,7 @@ class geometryTest(unittest.TestCase):
         self.assertTrue(numpy.array_equal(g.Geometry, georef), "After delatom: coordinates differ")
         g.delatom(0)
         ## TODO: ADD GeometryError when trying to delete nonexistent atom
-        ## self.assertRaises(Geometry.GeometryError, g.delatom(0))
+        ## self.assertRaises(geometry.GeometryError, g.delatom(0))
         waterlayer=g.addlayer("water")
         self.assertEqual("water", g.LayerDict[waterlayer].Name, "added layer name differs")
         g.addatom(1,(0.,0.,0.),waterlayer)
@@ -38,7 +38,7 @@ class geometryTest(unittest.TestCase):
         
     
     def testXYZio(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.xyz")
         self.assertEqual(g.Mode, "C", "geometry mode differs")
         georef=numpy.array([[ 0.          ,0.      ,    0.        ],
@@ -51,7 +51,7 @@ class geometryTest(unittest.TestCase):
         self.assertEqual([6,6,1,1,1,1], g.AtomTypes, "geometry types differ")
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
         g.writexyz("test.xyz")
-        g2=Geometry.Geometry()
+        g2=geometry.Geometry()
         g2.readfile("test.xyz")
         os.unlink("test.xyz")
         self.assertTrue(numpy.allclose(g.Geometry, g2.Geometry), "written geometry coordinates differ")
@@ -60,7 +60,7 @@ class geometryTest(unittest.TestCase):
     
     
     def testGENio(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.gen")
         self.assertEqual(g.Mode, "C", "geometry mode differs")
         georef=numpy.array([[ 0.          ,0.      ,    0.        ],
@@ -73,7 +73,7 @@ class geometryTest(unittest.TestCase):
         self.assertEqual([6,6,1,1,1,1], g.AtomTypes, "geometry types differ")
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
         g.writegen("test.gen")
-        g2=Geometry.Geometry()
+        g2=geometry.Geometry()
         g2.readfile("test.gen")
         os.unlink("test.gen")
         self.assertTrue(numpy.allclose(g.Geometry, g2.Geometry), "written geometry coordinates differ")
@@ -82,7 +82,7 @@ class geometryTest(unittest.TestCase):
         
     
     def testCDHio(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.gen")
         self.assertEqual(g.Mode, "C", "geometry mode differs")
         georef=numpy.array([[ 0.          ,0.      ,    0.        ],
@@ -95,7 +95,7 @@ class geometryTest(unittest.TestCase):
         self.assertEqual([6,6,1,1,1,1], g.AtomTypes, "geometry types differ")
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
         g.writeCDH("test.cdh")
-        g2=Geometry.Geometry()
+        g2=geometry.Geometry()
         g2.readCDHFile("test.cdh")
         os.unlink("test.cdh")
         self.assertTrue(numpy.allclose(g.Geometry, g2.Geometry), "written geometry coordinates differ")
@@ -104,7 +104,7 @@ class geometryTest(unittest.TestCase):
         
     
     def testFMGio(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         self.assertEqual(g.Mode, "C", "geometry mode differs")
         georef=numpy.array([[ 0.          ,0.      ,    0.        ],
@@ -117,7 +117,7 @@ class geometryTest(unittest.TestCase):
         self.assertEqual([6,6,1,1,1,1], g.AtomTypes, "geometry types differ")
         self.assertEqual(["C","C","H","H","H","H"], g.AtomSubTypes, "geometry subtypes differ")
         g.writefmg("test.fmg")
-        g2=Geometry.Geometry()
+        g2=geometry.Geometry()
         g2.readfile("test.fmg")
         os.unlink("test.fmg")
         self.assertTrue(numpy.allclose(g.Geometry, g2.Geometry), "written geometry coordinates differ")
@@ -126,7 +126,7 @@ class geometryTest(unittest.TestCase):
         
         
     def testAimsOut(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.writeAIMS("test.aims")
         testfile=open("test.aims")
@@ -141,7 +141,7 @@ class geometryTest(unittest.TestCase):
                             [-1.78220452  ,0.      ,    3.55174032],
                             [ 1.78220452  ,0.      ,    3.55174032],
                             [-1.78220452  ,0.      ,   -1.0289559 ]],dtype=float)
-        georef*=Geometry.Angstrom
+        georef*=geometry.Angstrom
         for ii in range(g.Atomcount):
             tokens=testlines[ii+1].split()
             self.assertEqual(AtomTypes[ii],tokens[4],"Element type differs")
@@ -151,7 +151,7 @@ class geometryTest(unittest.TestCase):
 
 
     def testTmOut(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.writeTurboMole("test.tm")
         testfile=open("test.tm")
@@ -175,7 +175,7 @@ class geometryTest(unittest.TestCase):
     
     
     def testFdfOut(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.writefdf("test.fdf")
         testfile=open("test.fdf")
@@ -189,7 +189,7 @@ class geometryTest(unittest.TestCase):
 
 
     def testPDBOut(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.writepdb("test.pdb")
         testfile=open("test.pdb")
@@ -203,7 +203,7 @@ class geometryTest(unittest.TestCase):
             
             
     def testXYZQOut(self):
-        g=Geometry.Geometry()
+        g=geometry.Geometry()
         g.readfile("../../test_regr/unittest_data/geotest1.fmg")
         g.AtomCharges=[0.,1.,3.,7.8220452,5.5174032,-3.14157324839284729457398775532]
         g.writexyzq("test.xyzq")

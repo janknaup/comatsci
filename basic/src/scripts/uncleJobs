@@ -113,7 +113,7 @@ if __name__ == '__main__':
     
     print("READING UNIT CELL OF IGNORED ATOMS FROM {0:s}".format(args[0]))
     # read the unit cell of ignored atoms
-    ignoredUnitCell=comatsci.Geometry.Geometry()
+    ignoredUnitCell=comatsci.geometry.Geometry()
     ignoredUnitCell.readfile(args[0])
     
     print("GENERATING DFTB INPUT FILES:")
@@ -125,7 +125,7 @@ if __name__ == '__main__':
             endline=i+1
             while not "#============" in uncleLines[endline]: 
                 endline+=1
-            tempGeo=comatsci.Geometry.Geometry()
+            tempGeo=comatsci.geometry.Geometry()
             tempGeo.parseGenString("".join(uncleLines[i+1:endline]))
             fullGeo=completeSupercell(tempGeo,ignoredUnitCell,config)
             dirname="{0:04d}".format(predictionIndex)

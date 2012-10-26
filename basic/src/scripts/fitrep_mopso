@@ -41,10 +41,10 @@ import popen2
 # Target Functions
 # API convention: target functions must provide named option "opt" to pass additional options dictionary
 TARGETFUNCTIONS={
-	"forcesquares":			(comatsci.AnalysisPath.AnalysisPath.forceSquares,),
-	"forcerms" :				(comatsci.AnalysisPath.AnalysisPath.forceRms,),
-	"reactionsquares": 	(comatsci.AnalysisPath.AnalysisPath.allDeltaESquares,),
-	"sqreaction":				(comatsci.AnalysisPath.AnalysisPath.sqreaction,),
+	"forcesquares":			(comatsci.path.AnalysisPath.forceSquares,),
+	"forcerms" :				(comatsci.path.AnalysisPath.forceRms,),
+	"reactionsquares": 	(comatsci.path.AnalysisPath.allDeltaESquares,),
+	"sqreaction":				(comatsci.path.AnalysisPath.sqreaction,),
 }
 # Options allowed for target functions
 T_VALIDOPTIONS={
@@ -277,8 +277,8 @@ def read_targets(targetsFileName="targets",verbosity=comatsci.constants.VBL_QUIE
 						if verbosity >= comatsci.constants.VBL_QUIET:
 							print " *** WARNING *** No target functions defined for last target path!"
 					#initialize new path Objects in mode "external scheduler"
-					tempPath=comatsci.AnalysisPath.AnalysisPath("d")
-					tempObjectivePath=comatsci.AnalysisPath.AnalysisPath("d")
+					tempPath=comatsci.path.AnalysisPath("d")
+					tempObjectivePath=comatsci.path.AnalysisPath("d")
 					#read target path file
 					tempPath.readfmgpath(targetFileName,checkCompat=False)
 					tempObjectivePath.readfmgpath(targetFileName,checkCompat=False)
@@ -489,8 +489,8 @@ type '%prog --help' for more information"""
 	# ************************************************************************************
 
 	# *** initialize calculator and scheduler ***
-	calc=comatsci.Calculators.erepcalc(ereps)
-	sched=comatsci.Schedulers.serialScheduler(calc)
+	calc=comatsci.calculators.erepcalc(ereps)
+	sched=comatsci.schedulers.serialScheduler(calc)
 	
 	# *** initialize MOPSO ***
 	

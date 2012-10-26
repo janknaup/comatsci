@@ -385,17 +385,17 @@ if len(args) != 1 and options.externalcalcs==None:
 	
 
 
-path=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v',0,options.verbosity)
+path=comatsci.path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v',0,options.verbosity)
 
 
 if os.path.isdir(args[0]):
 	path.readcheckpoint(args[0],options.checkCompat)
 elif os.path.exists(args[0]):
 	if args[0][-3:].lower()=="fmg" or args[0][-6:].lower()=="fmg.gz" or args[0][-6:].lower()=="fmg.bz2":
-		path.readfmgpath(args[0],checkCompat=(not options.checkCompat),GeoConstructor=comatsci.Geometry.AnalysisGeometry)
+		path.readfmgpath(args[0],checkCompat=(not options.checkCompat),GeoConstructor=comatsci.geometry.AnalysisGeometry)
 	elif args[0][-3:].lower()=="xyz" or args[0][-6:].lower()=="xyz.gz" or args[0][-6:].lower()=="xyz.bz2":
 		print "reading .xyz path:"
-		path.readXyzPath(args[0],progressFunction=comatsci.utils.ProgressMeter,stepsFunction=comatsci.utils.ProgressMeter.update,geoconstructor=comatsci.Geometry.AnalysisGeometry)
+		path.readXyzPath(args[0],progressFunction=comatsci.utils.ProgressMeter,stepsFunction=comatsci.utils.ProgressMeter.update,geoconstructor=comatsci.geometry.AnalysisGeometry)
 		print "done."
 	else:
 		print 'Unknown file format of path file "%s". abort.' % (args[0])
@@ -440,13 +440,13 @@ if options.externalcalcs!=None:
 	oldpath=os.path.realpath(".")
 	#prepare calculator to parse outputs
 	if options.externalcalcs=="siesta":
-		dummycalc=comatsci.Calculators.siestacalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+		dummycalc=comatsci.calculators.siestacalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
 	elif options.externalcalcs=="dftb":
-		dummycalc=comatsci.Calculators.dftbcalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+		dummycalc=comatsci.calculators.dftbcalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
 	elif options.externalcalcs=="noodle":
-		dummycalc=comatsci.Calculators.noodlecalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+		dummycalc=comatsci.calculators.noodlecalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
 	elif options.externalcalcs=="gaussian":
-		dummycalc=comatsci.Calculators.gaussiancalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
+		dummycalc=comatsci.calculators.gaussiancalc(optionfname="pypath.ini",verbosity=comatsci.constants.VBL_TALKY)
 	else:
 		raise ValueError,"cannot handle calculator name"
 	#now parse the outputs
@@ -523,8 +523,8 @@ if options.target!="":
 		raise "null spline DFTB checkpoint directory does not exist"
 	else:
 		print "Reading null-spline dftb path."
-		cmppath=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v')
-		outpath=comatsci.Path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v')
+		cmppath=comatsci.path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v')
+		outpath=comatsci.path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v')
 		if os.path.isdir(options.target):
 			cmppath.readcheckpoint(options.target,options.checkCompat)
 			outpath.readcheckpoint(options.target,options.checkCompat)
@@ -786,11 +786,11 @@ if options.trackvacancy!=None:
 
 	progress=comatsci.utils.ProgressMeter(total=path.numimages())
 	
-	refgeo=comatsci.Geometry.Geometry()
+	refgeo=comatsci.geometry.Geometry()
 	refgeo.readfile(options.trackvacancy)
 	
 	#initialize vacancy position path object
-	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+	vpath=comatsci.path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
 	vac=path.geos[0].locateVacancies(neighborMethod="none",groupMethod="reference_d",
 			specvalences={22:6,8:3},tolerance=0.9,
 			canonicalNeighbors={22:{8:6},8:{22:3}},refold=True,reference=refgeo)
@@ -837,7 +837,7 @@ if options.pivoter!=None:
 	refgeo.readfile(options.pivoter[0])
 	
 	#initialize vacancy position path object
-	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+	vpath=comatsci.path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
 	
 	#locate vacancies in each frame
 	for i in range(0,path.numimages()):
@@ -879,7 +879,7 @@ if options.vmdbondcounts:
 if options.voids:
 	print "performing voids analysis and writing occupancy cube files."
 	progress=comatsci.utils.ProgressMeter(total=path.numimages()/options.voids_stride)
-	vpath=comatsci.Path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+	vpath=comatsci.path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
 	volfile=open("void-volumes.dat","w")
 	print >> volfile, "#frame  volume[\AA^3]"
 	for i in range(0, path.numimages(), options.voids_stride):
@@ -900,7 +900,7 @@ if options.voids:
 		xmasked=numpy.ma.array(grid[0,:,:,:],mask=voxels)
 		ymasked=numpy.ma.array(grid[1,:,:,:],mask=voxels)
 		zmasked=numpy.ma.array(grid[2,:,:,:],mask=voxels)
-		dummygeo=comatsci.Geometry.AnalysisGeometry()
+		dummygeo=comatsci.geometry.AnalysisGeometry()
 		dummygeo.addatom(8,numpy.array((numpy.ma.average(xmasked),numpy.ma.average(ymasked),numpy.ma.average(zmasked))))
 		vpath.appendGeoObject(dummygeo,checkCompat=False)
 		volume=numpy.ma.count(xmasked)*0.2*0.2*0.2*comatsci.constants.ANGSTROM*comatsci.constants.ANGSTROM*comatsci.constants.ANGSTROM

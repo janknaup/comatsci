@@ -18,14 +18,14 @@ versionname="python%d.%d" % sys.version_info[0:2]
 #sys.path.append(os.path.join(os.path.dirname(sys.argv[0]),
 #		"../lib/",versionname,"site-packages"))
 
-from comatsci import Geometry
+from comatsci import geometry
 
 
 from optparse import OptionParser
 
 programname=os.path.basename(sys.argv[0]).lower()
 
-geo=Geometry.AnalysisGeometry()
+geo=geometry.AnalysisGeometry()
 
 # dirty trick to make optparse display an intelligible error message, if output format is not specified
 
