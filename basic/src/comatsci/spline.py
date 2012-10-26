@@ -89,6 +89,7 @@ class vectorSpline:
 		else:
 			self._nodecount=0
 			self._dimension=0
+			self._nodesx=[]
 
 
 
