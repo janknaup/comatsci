@@ -41,9 +41,9 @@ class Spline:
 		@param y: ordinate values"""
 ##		if not ((type(x) is 'array') and (type(y) is 'array') and len(x)==len(y)):
 		if not len(x)==len(y):
-			raise("Incompatible X and Y initialization data passed")
+			raise ValueError("Incompatible X and Y initialization data passed")
 		elif num.sometrue(x-num.sort(x)):
-			raise("x-array must be sorted")
+			raise ValueError("x-array must be monotonic")
 		else:
 			self.xgrid=x
 			self.ygrid=y
@@ -55,9 +55,9 @@ class Spline:
 		"""interpolate value at x
 		@param x: abscissa value"""
 		if self.xgrid==[]:
-			raise("No data defined")
+			raise ValueError("No data defined")
 		elif x<self.xgrid[0] or x>self.xgrid[len(self.xgrid)-1]:
-			raise("interpolation value out of fitrange")
+			raise ValueError("interpolation value out of fitrange")
 		else:
 			return splext.splint(self.xgrid,self.ygrid,self.x2grid,x)
 	
@@ -67,9 +67,9 @@ class Spline:
 		"""return spline first derivative at x
 		@param x: abscissa value"""
 		if self.xgrid==[]:
-			raise("No data defined")
+			raise ValueError("No data defined")
 		elif x<self.xgrid[0] or x>self.xgrid[len(self.xgrid)-1]:
-			raise("interpolation value out of fitrange")
+			raise ValueError("interpolation value out of fit range")
 		else:
 			return splext.splder(self.xgrid,self.ygrid,self.x2grid,x)
 		
@@ -120,17 +120,17 @@ class vectorSpline:
 		@param nodes: tuple of independent variables sequence and function value vector sequence, dimmensions of nodes[0] and nodes[1] must be identical, all nodes[1][n] sequences must be of same len(). Independents of nodes must be sorted ascending!"""
 		# first check consitency of nodes
 		if len(nodes[0])!=len(nodes[1]):
-			raise ValueError,"numbers of independent variables and vectors differ"
+			raise ValueError("numbers of independent variables and vectors differ")
 		else:
 			self._nodecount=len(nodes[0])
 			self._dimension=len(nodes[1][0])
 			for i in nodes[1]:
 				if len(i)!=self._dimension:
-					raise ValueError,"node vectors not of equal dimension"
+					raise ValueError("node vectors not of equal dimension")
 		# check monotonicity of indepenent values
 		for i in range(1,len(nodes[0])):
 			if nodes[0][i]<=nodes[0][i-1]:
-				raise ValueError,"node indepenent values not strictly monotonous"
+				raise ValueError("node indepenent values not strictly monotonous")
 		# store nodes in internal format (Doubles, one 1D-1D spline per function falue coordinate)
 		self._nodesx=num.array(nodes[0],num.Float)
 		temparray=num.transpose(num.array(nodes[1],num.Float))
@@ -148,9 +148,9 @@ class vectorSpline:
 		@return: interpolated vector"""
 		# sanity checks
 		if not self.hasNodes:
-			raise "no nodes available for interpolation"
+			raise ValueError("no nodes available for interpolation")
 		elif x < self._nodesx[0] or x > self._nodesx[-1]:
-			raise ValueError,"independent value out of node range"
+			raise ValueError("independent value out of node range")
 		# interpolate individual coordinates
 		retArray=num.zeros((self._dimension),num.Float)
 		for i in range(self._dimension):
@@ -165,9 +165,9 @@ class vectorSpline:
 		@return: interpolated gradient"""
 		# sanity checks
 		if not self.hasNodes:
-			raise "no nodes available for interpolation"
+			raise ValueError("no nodes available for interpolation")
 		elif x < self._nodesx[0] or x > self._nodesx[-1]:
-			raise ValueError,"independent value out of node range"
+			raise ValueError("independent value out of node range")
 		# interpolate individual coordinates
 		retArray=num.zeros((self._dimension),num.Float)
 		for i in range(self._dimension):
@@ -183,7 +183,7 @@ class vectorSpline:
 		@return: arc length along vector spline along specified parameter interval"""
 		# sanity checks
 		if not self.hasNodes:
-			raise "no nodes to calculate arc length with"
+			raise ValueError("no nodes to calculate arc length with")
 		if points==None:
 			a=self._nodesx[0]
 			b=self._nodesx[-1]
@@ -191,9 +191,9 @@ class vectorSpline:
 			a=float(min(points))
 			b=float(max(points))
 			if a<self._nodesx[0]:
-				raise ValueError,"Vectorspline: lower arc-length interval out of paramter bounds"
+				raise ValueError("Vectorspline: lower arc-length interval out of paramter bounds")
 			if b>self._nodesx[-1]:
-				raise ValueError,"Vectorspline: upper arc-length interval out of paramter bounds"
+				raise ValueError("Vectorspline: upper arc-length interval out of paramter bounds")
 		# if total arc length is requested, we may have a stored value we can re-use
 		if points==None and self.__arclength!=None:
 			return self.__arclength
@@ -286,7 +286,7 @@ class RennerSpline:
 		self.reset()
 		# sanity-check vectors
 		if len(vectors) <5:
-			raise "Renner subspline needs at least 4 points"
+			raise ValueError("Renner subspline needs at least 4 points")
 		# store intervals count and vector dimension
 		intervals=len(vectors)-1
 		dimension=len(vectors[0])
@@ -382,7 +382,7 @@ class RennerSpline:
 		@param t: parameter value at which to interpolate must be in 0..totalLength"""
 		# check if we are initialized
 		if not self.__initialized:
-			raise "Renner Spline object not initialized before interpolation"
+			raise ValueError("Renner Spline object not initialized before interpolation")
 		# sanity-check t
 		if t < 0.0 or t > self._totalLength:
 			raise ValueError("interpolation point out of parameter Range")
@@ -404,7 +404,7 @@ class RennerSpline:
 		@param t: parameter value at which to derivate must be in 0..totalLength"""
 		# check if we are initialized
 		if not self.__initialized:
-			raise "Renner Spline object not initialized before interpolation"
+			raise ValueError("Renner Spline object not initialized before interpolation")
 		# sanity-check t
 		if t < 0.0 or t > self._totalLength:
 			raise ValueError("interpolation point out of parameter Range")
