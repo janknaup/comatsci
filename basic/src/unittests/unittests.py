@@ -9,7 +9,8 @@ from __future__ import print_function
 import unittest
 
 testNames=("testGeometry",
-          "testSpline")
+          "testSpline",
+          "testutils")
 
 tests=map(__import__, testNames)
 
