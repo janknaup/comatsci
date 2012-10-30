@@ -86,10 +86,10 @@ def uncompresscopy(source, destination):
 	# just check for a known compressed format filename extension and handle accordingly
 	if source[-3:].lower()==".gz":
 		os.system("gzip -d {0:s}".format(source))
-		shutil.copy(source[:-4],destination)
+		shutil.copy(source[:-3],destination)
 	elif source[-4:].lower()==".bz2":
 		os.system("gzip -d {0:s}".format(source))
-		shutil.copy(source[:-5],destination)
+		shutil.copy(source[:-4],destination)
 	# simply copy otherwise
 	else:
 		shutil.copy(source,destination)
@@ -105,7 +105,7 @@ def compresscopy(source,destination,compresslevel=9):
 	"""
 	# sanity check compresslevel
 	if compresslevel <1 or compresslevel > 9:
-		raise "Invalid compression level specified"
+		raise ValueError("Invalid compression level specified")
 	# call gzip to compress
 	os.system("gzip -{0:d} {1:s}".format(compresslevel,source))
 	# copy compressed file
