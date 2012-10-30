@@ -54,3 +54,4 @@ epydoc.log
 epydoc.log.*
 */epydoc/html
 */epydoc/pdf
+basic/src/cover
