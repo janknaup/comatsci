@@ -73,7 +73,7 @@ def compressedopen(filename, mode="r", compresslevel=0, autodetect=True):
 			if compresslevel==0:
 				return open(filename,mode)
 			else:
-				return gzip.open(filename,mode,compresslevel)
+				return gzip.open(filename+".gz",mode,compresslevel)
 
 
 
