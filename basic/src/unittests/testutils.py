@@ -57,12 +57,20 @@ class UtilsTest(unittest.TestCase):
         os.unlink("test.gen.bz2")
         # autodetected files for writing
         gzfile=comatsci.utils.compressedopen("test.dat", mode="w", compresslevel=0)
+        print("test data",file=gzfile)
         gzfile.close()
         self.assertTrue(os.path.exists("test.dat"), "uncompressed file was not created")
+        gzfile=comatsci.utils.compressedopen("test.dat","r")
+        self.assertEqual(gzfile.readline(), "test data\n", "written uncompressed file contents differ")
+        gzfile.close()
         os.unlink("test.dat")
-        gzfile=comatsci.utils.compressedopen("test.dat.gz", mode="w", compresslevel=5)
+        gzfile=comatsci.utils.compressedopen("test.dat", mode="w", compresslevel=5)
+        print("test data",file=gzfile)
         gzfile.close()
         self.assertTrue(os.path.exists("test.dat.gz"), "compressed file was not created")
+        gzfile=comatsci.utils.compressedopen("test.dat","r")
+        self.assertEqual(gzfile.readline(), "test data\n", "written uncompressed file contents differ")
+        gzfile.close()
         os.unlink("test.dat.gz")
         
     
@@ -73,6 +81,17 @@ class UtilsTest(unittest.TestCase):
         print("test text",file=testfile,end="")
         testfile.close()
         comatsci.utils.uncompresscopy("test.txt.gz", "copied.txt")
+        testfile=open("copied.txt")
+        testlines=list(testfile)
+        testfile.close()
+        self.assertEqual("test text", testlines[0], "uncompressed file contents differ")
+        os.unlink("copied.txt")
+        os.unlink("test.txt")
+        # bzip2
+        testfile=comatsci.utils.compressedopen("test.txt.bz2", mode="w", compresslevel=9)
+        print("test text",file=testfile,end="")
+        testfile.close()
+        comatsci.utils.uncompresscopy("test.txt.bz2", "copied.txt")
         testfile=open("copied.txt")
         testlines=list(testfile)
         testfile.close()
@@ -109,7 +128,6 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual("test text", testlines[0], "copied compressed file contents differ")
         self.assertRaises(ValueError, comatsci.utils.compresscopy, "test.txt", "copied.txt.gz", compresslevel=0)
         self.assertRaises(ValueError, comatsci.utils.compresscopy, "test.txt", "copied.txt.gz", compresslevel=10)
-        os.unlink("test.txt")
         os.unlink("copied.txt.gz")
     
     
