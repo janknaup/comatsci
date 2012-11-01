@@ -88,7 +88,7 @@ def uncompresscopy(source, destination):
 		os.system("gzip -d {0:s}".format(source))
 		shutil.copy(source[:-3],destination)
 	elif source[-4:].lower()==".bz2":
-		os.system("gzip -d {0:s}".format(source))
+		os.system("bzip2 -d {0:s}".format(source))
 		shutil.copy(source[:-4],destination)
 	# simply copy otherwise
 	else:
