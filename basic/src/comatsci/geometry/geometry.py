@@ -631,7 +631,7 @@ class Geometry:
 				raise GeometryError("Error parsing supercell vectors in gen file")
 		# convert from fractional to direct coordinates
 		if self.Mode=="F":
-			self.Geometry = numpy.dot(self.Geometry,self.Lattice)*Angstrom
+			self.Geometry = numpy.dot(self.Geometry,self.Lattice)
 			self.Mode="S"
 		# add dummy supercell spec to cluster Geometry
 		elif self.Mode=="C":
@@ -852,7 +852,7 @@ class Geometry:
 			if h5py.version.version_tuple[0]==1 and h5py.version.version_tuple[1]<3:
 				residuesDict=h5py.get_enum(residueGroup["residues"].dtype) #@UndefinedVariable
 			else: 
-				residuesDict=h5py.check_dtype(residueGroup["residues"].dtype) #@UndefinedVariable
+				residuesDict=h5py.check_dtype(enum=residueGroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
 			for ii in residuesDict.keys():
 					self.addlayer(ii, residuesDict[ii])
@@ -1546,8 +1546,7 @@ class Geometry:
 		outfile.write(line)
 		outfile.flush()
 		if self.Mode=="S" and cmode=="F":
-			pass
-##			outgeo=matrixmultiply(self.Geometry,lina.inverse(self.Lattice))*Angstrom
+			outgeo=self.fractionalGeometry
 		else:
 			outgeo=self.Geometry*Angstrom
 		for i in range(self.Atomcount):
