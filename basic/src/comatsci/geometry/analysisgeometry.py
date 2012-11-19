@@ -436,7 +436,7 @@ class AnalysisGeometry(Geometry):
 		if histstepsfunction!=None:
 			histstepsfunction(bincount)
 		# generate histogram
-		(counts,bins)=numpy.histogram(bllist,bincount,new=True,normed=False)
+		(counts,bins)=numpy.histogram(bllist,bincount,normed=False)
 		if histprogressfunction!=None:
 			histprogressfunction(bincount)
 		rdf=numpy.zeros((2,bincount-1),dtype=float)
@@ -618,7 +618,7 @@ class AnalysisGeometry(Geometry):
 			@param bins: number of bins in histogram, default=36 (<=5 deg per bin)
 			@param normed: if True, the histogram is normed, so that the area under it is 1. default=False
 			@return: array containing bond angles histogram"""
-			return numpy.histogram(self.getBondAngles().values(),bins,new=True,normed=normed)
+			return numpy.histogram(self.getBondAngles().values(),bins,normed=normed)
 
 
 
@@ -644,7 +644,7 @@ class AnalysisGeometry(Geometry):
 		histbyelement={}
 		ec=self.elemcounts()
 		for i in bangbyelement.keys():
-			histbyelement[i]=numpy.histogram(bangbyelement[i],bins,new=True,normed=normed)
+			histbyelement[i]=numpy.histogram(bangbyelement[i],bins,normed=normed)
 			# if histograms are normed, weight each one by the composition fraction of its element, to allow comparbility with the total histogram
 			if normed:
 				histbyelement[i]=(histbyelement[i][0]/(float(self.Atomcount)/float(ec[i])),histbyelement[i][1])
@@ -740,12 +740,12 @@ class AnalysisGeometry(Geometry):
 		# initizalize return dictionary
 		bondLengthHistograms={}
 		# calculate total bond length histogram
-		tempHist=numpy.histogram(total,bins,new=True,normed=False)
+		tempHist=numpy.histogram(total,bins,normed=False)
 		bincenters=tempHist[1][:-1]+((tempHist[1][1]-tempHist[1][0])/2.0)
 		bondLengthHistograms[(-1,-1)]=numpy.array([bincenters,tempHist[0]])
 		# calculate elemental bond length histograms, using bins from total histogram
 		for i in elemBondLengths.keys():
-			bondLengthHistograms[i]=numpy.array([bincenters,numpy.histogram(elemBondLengths[i],tempHist[1],new=True,normed=False)[0]])
+			bondLengthHistograms[i]=numpy.array([bincenters,numpy.histogram(elemBondLengths[i],tempHist[1],normed=False)[0]])
 		# finished, return
 		return bondLengthHistograms
 
