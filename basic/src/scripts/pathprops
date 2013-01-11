@@ -279,7 +279,7 @@ parser.add_option("--pivot-er",
 				  help="locate vacancies in every single frame by PIVOT with d0 and tau using external reference geometry read from file R. Write vacancy postions for each frame to 'pivot-er.xyz'")
 
 parser.add_option("--pivot-debug",
-				  action="store_true", dest="pvtdbg", default=True,
+				  action="store_true", dest="pvtdbg", default=False,
 				  help="store internal variables for PIVoT calculation")
 
 parser.set_defaults(voids_element=None,voids_radius=None,voids_stride=100,voids_voxelsize=0.2)
