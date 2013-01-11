@@ -2343,21 +2343,20 @@ class Geometry:
 	
 	
 	
-	def rotateAxis(self,axis,angle,atomlist=None):
+	def rotateAxis(self,axis,angle,atomlist=None,rotatelattice=False):
 		""" rotate selected atoms around selected primary axis intersecting coordinate origin
 		@type axis: string
 		@param axis: single character x,y or z specifying which axis to rotate around
 		@type angle: float
 		@param angle: rotation angle in raidans
 		@type atomlist: sequence of integer
-		@param atomlist: indices of atoms to be rotated
+		@param atomlist: indices of atoms to be rotated, if not specified, rotate all atoms
+		@type rotatelatiice: boolean
+		@param rotatelattlice: if True, also rotate lattice vectors. Useful e.g. to align supercell vectors in x,y,z directions 
 		"""
 		# check specified axis
 		if not axis in ("x","y","z"):
 			raise ValueError("invalid rotation axis specified")
-		# index-check atomlist
-		if (min(atomlist)<0) or (max(atomlist)>self.Atomcount):
-			raise ValueError("atom index does not refer to an atom in the geometry")
 		# calculate rotation matrix
 		rotmatrix=numpy.zeros((3,3),dtype=float)
 		if axis=="x":
@@ -2379,8 +2378,16 @@ class Geometry:
 			rotmatrix[1][0]=math.sin(angle)
 			rotmatrix[0][1]=-rotmatrix[1][0]
 		# apply rotation matrix to selected atoms
-		for atom in atomlist:
-			self.Geometry[atom]=numpy.dot(self.Geometry[atom],rotmatrix)
+		if atomlist== None:
+			self.Geometry=numpy.dot(self.Geometry,rotmatrix)
+		else:
+			# index-check atomlist
+			if (min(atomlist)<0) or (max(atomlist)>self.Atomcount):
+				raise ValueError("atom index does not refer to an atom in the geometry")
+			for atom in atomlist:
+				self.Geometry[atom]=numpy.dot(self.Geometry[atom],rotmatrix)
+		if rotatelattice:
+			self.Lattice=numpy.dot(self.Lattice,rotmatrix)
 		# done
 		
 	
