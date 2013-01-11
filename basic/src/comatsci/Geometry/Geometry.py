@@ -626,7 +626,7 @@ class Geometry:
 		# create datasets, initialize with data where straightforward
 		framegroup.attrs["label"]=labelstring
 		framegroup.attrs["uuid"]=str(self.uuid)
-		if refGroup==None or not "coordinates" in refGroup.keys():
+		if refGroup==None or not "coordinates" in refGroup.keys(): #FIXME: write coordinates if changed!
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
 			geoset.attrs["mode"]="C"
 		if refGroup==None or not "elements" in refGroup.keys():
@@ -695,13 +695,13 @@ class Geometry:
 			self.uuid=uuid.UUID(framegroup.attrs["uuid"])
 		# first check if geometry is cluster or periodic and set lattice if necessary:
 		if "lattice" in framesets:
-			self. Mode="S"
+			self.Mode="S"
 			if framegroup["lattice"].attrs["mode"]=="C":
 				self.Lattice=framegroup["lattice"].value
 			else:
 				raise NotImplementedError("Lattice types other than carthesian not supported")
 		elif "lattice" in globalsets:
-			self. Mode="S"
+			self.Mode="S"
 			if globalsGroup["lattice"].attrs["mode"]=="C":
 				self.Lattice=globalsGroup["lattice"].value
 			else:
