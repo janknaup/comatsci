@@ -84,6 +84,7 @@ def uncompresscopy(source, destination):
 	@param source: source file path to copy and uncompress, if necessary
 	@param destination: destination path to copy (uncompressed) source to"""
 	# just check for a known compressed format filename extension and handle accordingly
+	# FIXME: This is not actually a copy. The original is destroyed!
 	if source[-3:].lower()==".gz":
 		os.system("gzip -d {0:s}".format(source))
 		shutil.copy(source[:-3],destination)
