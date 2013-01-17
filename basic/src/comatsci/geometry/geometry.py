@@ -664,7 +664,7 @@ class Geometry:
 			except IndexError:
 				typelabel=self.PTE[self.AtomTypes[i]]
 			# assemble atom line
-			rlines.append("atom   {0[0]:24E}   {0[1]:24E}   {0[2]:24E}   {1:s}".format(coordinates,typelabel))
+			rlines.append("atom   {0[0]: 24.17E}   {0[1]: 24.17E}   {0[2]: 24.17E}   {1:s}".format(coordinates,typelabel))
 		# write lattice vectors if supercell geometry
 		if self.Mode=="S":
 			for i in range(3):
@@ -672,7 +672,7 @@ class Geometry:
 				lv=numpy.array(self.Lattice[i])
 				lv*=constants.ANGSTROM
 				# assemble lattice line
-				rlines.append("lattice_vector   {0:24E}   {1:24E}   {2:24E}   ".format(lv[0],lv[1],lv[2]))
+				rlines.append("lattice_vector   {0: 24.17E}   {1: 24.17E}   {2: 24.17E}   ".format(lv[0],lv[1],lv[2]))
 		# finished, return
 		return "\n".join(rlines)
 	
@@ -1408,7 +1408,7 @@ class Geometry:
 			if len(self.LPops[i])>0:
 				dummy=[]
 				for j in self.Lpops[i]:
-					dummy.append("{0:24E}".format(j))
+					dummy.append("{0: 24.17E}".format(j))
 				lines.append("\t\t<lpop>"+"\t".join(dummy)+"</lpop>")
 			lines.append("\t</atom>")
 		lines.append("</geometry>")
@@ -1452,7 +1452,7 @@ class Geometry:
 		# generate carthesian corrdinales lines using AtomSubType
 		for i in range(self.Atomcount):
 			# length unit for TM is Bohr
-			retstr+="{0:24E} {1:24E} {2:24E} {3:s}\n".format(self.Geometry[i][0]*constants.BOHR,self.Geometry[i][1]*constants.BOHR,self.Geometry[i][2]*constants.BOHR,self.AtomSubTypes[i])
+			retstr+="{0: 24.17E} {1: 24.17E} {2: 24.17E} {3:s}\n".format(self.Geometry[i][0]*constants.BOHR,self.Geometry[i][1]*constants.BOHR,self.Geometry[i][2]*constants.BOHR,self.AtomSubTypes[i])
 		return retstr
 
 
@@ -1502,15 +1502,15 @@ class Geometry:
 			currentatom=ET.SubElement(root,"atom")
 			# fill current atom with data, lengths are in ANGSTROM
 			x=ET.SubElement(currentatom,"x")
-			x.text="{0:24E}".format(self.Geometry[i][0]*constants.ANGSTROM,)
+			x.text="{0: 24.17E}".format(self.Geometry[i][0]*constants.ANGSTROM,)
 			y=ET.SubElement(currentatom,"y")
-			y.text="{0:24E}".format(self.Geometry[i][1]*constants.ANGSTROM,)
+			y.text="{0: 24.17E}".format(self.Geometry[i][1]*constants.ANGSTROM,)
 			z=ET.SubElement(currentatom,"z")
-			z.text="{0:24E}".format(self.Geometry[i][2]*constants.ANGSTROM,)
+			z.text="{0: 24.17E}".format(self.Geometry[i][2]*constants.ANGSTROM,)
 			atomradius=ET.SubElement(currentatom,"atomradius")
-			atomradius.text="{0:24E}".format(self.CORAD[self.AtomTypes[i]]*constants.ANGSTROM,)
+			atomradius.text="{0: 24.17E}".format(self.CORAD[self.AtomTypes[i]]*constants.ANGSTROM,)
 			charge=ET.SubElement(currentatom,"charge")
-			charge.text="{0:24E}".format(self.AtomCharges[i],)
+			charge.text="{0: 24.17E}".format(self.AtomCharges[i],)
 		# now build element tree and write XML to file
 		APBSTree=ET.ElementTree(root)
 		APBSTree.write(filename)
@@ -1550,12 +1550,12 @@ class Geometry:
 		else:
 			outgeo=self.Geometry*Angstrom
 		for i in range(self.Atomcount):
-			print("{0:4d} {1:2d}\t{2:24E} {3:24E} {4:24E}".format(i+1, AtomSymbols[ self.AtomTypes[i] ]+1,
+			print("{0:4d} {1:2d}\t{2: 24.17E} {3: 24.17E} {4: 24.17E}".format(i+1, AtomSymbols[ self.AtomTypes[i] ]+1,
 				outgeo[i][0], outgeo[i][1], outgeo[i][2]),file=outfile)
 		if self.Mode=="S" or cmode=="F":
-			print("{0[0]:24E} {0[1]:24E} {0[2]:24E}".format(self.Origin*Angstrom),file=outfile)
+			print("{0[0]: 24.17E} {0[1]: 24.17E} {0[2]: 24.17E}".format(self.Origin*Angstrom),file=outfile)
 			for i in range(3):
-				print("{0[0]:24E} {0[1]:24E} {0[2]:24E} ".format(self.Lattice[i]*Angstrom),file=outfile)
+				print("{0[0]: 24.17E} {0[1]: 24.17E} {0[2]: 24.17E} ".format(self.Lattice[i]*Angstrom),file=outfile)
 		outfile.close()
 
 
@@ -1568,7 +1568,7 @@ class Geometry:
 		outstring="{0:d}\n\n".format(self.Atomcount)
 		# iterate through atoms and append xyz lines
 		for j in range(self.Atomcount):
-			outstring+="{0:3}\t{1:24E} {2:24E} {3:24E}\n".format(self.PTE[self.AtomTypes[j]],
+			outstring+="{0:3}\t{1: 24.17E} {2: 24.17E} {3: 24.17E}\n".format(self.PTE[self.AtomTypes[j]],
 			outgeo[j][0],outgeo[j][1],outgeo[j][2])
 		return outstring
 
@@ -1617,7 +1617,7 @@ class Geometry:
 			elif atomColumn=="s":
 				prefix="{0:12s}  ".format(self.AtomSubTypes[i])
 			elif atomColumn=="c":
-				prefix="{0:24E}  ".format(self.AtomCharges[i])
+				prefix="{0: 24.17E}  ".format(self.AtomCharges[i])
 			# generate coordinates in carthesian angstroms
 			coordinates=("{24E} "*3).format(tuple(self.Geometry[i]*Angstrom))
 			# assemble atom line and append to lines list
@@ -1664,7 +1664,7 @@ class Geometry:
 		retstr=""
 		outgeo=self.Geometry*Bohr
 		for i in range(self.Atomcount):
-			retstr+="{0:24E} {1:24E} {2:24E} {3:24E}\n".format(outgeo[i][0],
+			retstr+="{0: 24.17E} {1: 24.17E} {2: 24.17E} {3: 24.17E}\n".format(outgeo[i][0],
 				outgeo[i][1],outgeo[i][2],self.AtomCharges[i])
 		return retstr
 
@@ -1787,7 +1787,7 @@ class Geometry:
 		print("%block AtomicCoordinatesAndAtomicSpecies",file=outfile)
 		outgeo=self.Geometry*Angstrom
 		for i in range(self.Atomcount):
-			print("{0:24E} {1:24E} {2:24E} {3:d}".format(outgeo[i][0],outgeo[i][1],outgeo[i][2],
+			print("{0: 24.17E} {1: 24.17E} {2: 24.17E} {3:d}".format(outgeo[i][0],outgeo[i][1],outgeo[i][2],
 					AtomSymbols[self.AtomTypes[i]]+1),file=outfile)
 		print("%endblock AtomicCoordinatesAndAtomicSpecies\n",file=outfile)
 		if self.Mode=="S":
@@ -1795,7 +1795,7 @@ class Geometry:
 			print("%block LatticeVectors",file=outfile)
 			outlattice=self.Lattice*Angstrom
 			for i in range(3):
-				print("{0:24E} {1:24E} {2:24E}".format(outlattice[i][0],outlattice[i][1],
+				print("{0: 24.17E} {1: 24.17E} {2: 24.17E}".format(outlattice[i][0],outlattice[i][1],
 						outlattice[i][2]),file=outfile)
 			print("%endblock LatticeVectors",file=outfile)
 
@@ -1806,12 +1806,12 @@ class Geometry:
 		rlines=[]
 		tmpgeo=self.Geometry*Angstrom
 		for i in range(self.Atomcount):
-			rlines.append(" {0:s} {1:24E} {2:24E} {3:24E}".format(self.PTE[self.AtomTypes[i]],
+			rlines.append(" {0:s} {1: 24.17E} {2: 24.17E} {3: 24.17E}".format(self.PTE[self.AtomTypes[i]],
 			tmpgeo[i][0],tmpgeo[i][1],tmpgeo[i][2]))
 		if self.Mode=="S":
 			tmplattice=self.Lattice*Angstrom
 			for i in range(3):
-				rlines.append(" TV {0:24E} {1:24E} {2:24E}".format(tmplattice[i][0],
+				rlines.append(" TV {0: 24.17E} {1: 24.17E} {2: 24.17E}".format(tmplattice[i][0],
 					tmplattice[i][1],tmplattice[i][2]))
 		return "\n".join(rlines)
 
@@ -1831,7 +1831,7 @@ class Geometry:
 		constring=""
 		# iterate through atomlist and append the contraint lines
 		for i in atomlist:
-			constring+="ChargeConstraint = {{ Atoms = {{{0:d}}}\nReferenceCharge = {1:24E}\nPrefactor = {2:24E} }}\n".format(i+1,self.AtomCharges[i],prefactor)
+			constring+="ChargeConstraint = {{ Atoms = {{{0:d}}}\nReferenceCharge = {1: 24.17E}\nPrefactor = {2: 24.17E} }}\n".format(i+1,self.AtomCharges[i],prefactor)
 		# finished, return charge constraints string
 		return constring
 		

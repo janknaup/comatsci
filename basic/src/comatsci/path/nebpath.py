@@ -428,10 +428,10 @@ class NEBPath(Reactionpath):
 		self.writexyzpath(pathFileNamePrefix+".xyz")
 		self.writefmgpath(pathFileNamePrefix+".fmg")
 		if len(self.nebforces)==0:
-			print("{0:4d}  {1:24E}  {2:24E}  {3:24E}  {4:24E}  {5:24E}".format(
+			print("{0:4d}  {1: 24.17E}  {2: 24.17E}  {3: 24.17E}  {4: 24.17E}  {5: 24.17E}".format(
 				index, max(self.energies), self.rmsforce(force=self.realforces), self.maxforce(force=self.realforces), 0, 0),file=DebugInfoEnergiesFile)
 		else:
-			print("{0:4d}  {1:24E}  {2:24E}  {3:24E}  {4:24E}  {5:24E}".format(
+			print("{0:4d}  {1: 24.17E}  {2: 24.17E}  {3: 24.17E}  {4: 24.17E}  {5: 24.17E}".format(
 				index, max(self.energies), self.rmsforce(force=self.realforces), self.maxforce(force=self.realforces), self.rmsforce(force=self.nebforces), self.maxforce(force=self.nebforces)))
 
 
@@ -694,12 +694,12 @@ class NEBPath(Reactionpath):
 				y+= cubicparms[i][1]*x*x
 				y+= cubicparms[i][2]*x
 				y+= cubicparms[i][3]
-				print("{0:24E} {1:24E}".format((x+xoffset)/totallength,y),file=CEfile)
+				print("{0: 24.17E} {1: 24.17E}".format((x+xoffset)/totallength,y),file=CEfile)
 			xoffset+=cubicparms[i][4]
 		print("\n",file=CEfile)
 		x=0
 		for i in range(self.numimages()):
-			print("{0:24E} {1:24E}".format(x/totallength,self.energies[i]),file=CEfile)
+			print("{0: 24.17E} {1: 24.17E}".format(x/totallength,self.energies[i]),file=CEfile)
 			if i < self.numimages()-1:
 				x+=cubicparms[i][4]
 		CEfile.close()
@@ -741,7 +741,7 @@ class NEBPath(Reactionpath):
 		if self.verbosity>=constants.VBL_NORMAL:
 			print("Initial barrier:{0:12.6f} H".format(barrier))
 		for i in range(self.numimages()):
-			print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=energyfile)
+			print("{0:5d}  {1: 24.17E}".format(i,self.energies[i]),file=energyfile)
 		print("\n",file=energyfile)
 		energyfile.flush()
 		#Do some sanity checking on start- and endpoints and warn the user if necessary
@@ -777,7 +777,7 @@ class NEBPath(Reactionpath):
 			self.nebstep()
 			self.realforcesfunc(calculator,charge=self.charge)
 			for i in range(self.numimages()):
-				print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=energyfile)
+				print("{0:5d}  {1: 24.17E}".format(i,self.energies[i]),file=energyfile)
 			print("\n",file=energyfile)
 			energyfile.flush()
 			if self.convcheckfunc()!=0:

@@ -271,7 +271,7 @@ class Reactionpath:
 			if len(self.realforces)>0:
 				FElines.append("\t<forces>")
 				for j in range(self.geos[0].Atomcount):
-					FElines.append("\t\t{0:24E}  {1:24E}  {2:24E}".format(self.realforces[i][j][0],
+					FElines.append("\t\t{0: 24.17E}  {1: 24.17E}  {2: 24.17E}".format(self.realforces[i][j][0],
 						self.realforces[i][j][1],self.realforces[i][j][2]))
 				FElines.append("\t</forces>")
 			FElines.append("</trjstep>")
@@ -576,7 +576,7 @@ class Reactionpath:
 			print("{0:d}".format(i),file=outFile)
 			tempforce=self.realforces[i].ravel()
 			for j in range(self.Atomcount):
-				print("{0:24E} {1:24E} {2:24E} ".format(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2]),file=outFile)
+				print("{0: 24.17E} {1: 24.17E} {2: 24.17E} ".format(tempforce[3*j],tempforce[(3*j)+1],tempforce[(3*j)+2]),file=outFile)
 		outFile.close()
 
 
@@ -587,7 +587,7 @@ class Reactionpath:
 		"""
 		outFile=open(name,"w")
 		for i in range(self.numimages()):
-			print("{0:5d}  {1:24E}".format(i,self.energies[i]),file=outFile)
+			print("{0:5d}  {1: 24.17E}".format(i,self.energies[i]),file=outFile)
 		outFile.close()
 
 
@@ -931,7 +931,7 @@ class Reactionpath:
 		"""
 		outFile=open(filename,'w')
 		for i in self.geos[image].centerdists(center):
-			print("{0:24E}".format(i),file=outFile)
+			print("{0: 24.17E}".format(i),file=outFile)
 		outFile.close
 
 
@@ -955,7 +955,7 @@ class Reactionpath:
 		"""
 		ofile=open(filename,'w')
 		for i in self.rmsds():
-			print("{0:24E}".format(i),file=ofile)
+			print("{0: 24.17E}".format(i),file=ofile)
 		ofile.close()
 
 

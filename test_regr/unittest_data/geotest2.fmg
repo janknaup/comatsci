@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE fmg>
+<fmg>
+<geometry>
+	<mode>S</mode>
+	<lattice lunit="ang" orgx="0.0" orgy="0.0" orgz="0.0">
+		<latvec_a>4.59373 0.0 0.0 </latvec_a>
+		<latvec_b>0.0 4.59373 0.0 </latvec_b>
+		<latvec_c>0.0 0.0 2.95812 </latvec_c>
+	</lattice>
+	<atom lunit="ang">
+		<x>0.0</x> <y>0.0</y> <z>0.0</z>
+		<el>22</el>
+		<st>Ti</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.296865</x> <y>2.296865</y> <z>1.47906</z>
+		<el>22</el>
+		<st>Ti</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.40246577</x> <y>1.40246577</y> <z>0.0</z>
+		<el>8</el>
+		<st>O</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.40246577</x> <y>-1.40246577</y> <z>0.0</z>
+		<el>8</el>
+		<st>O</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.69933077</x> <y>0.89439923</y> <z>1.47906</z>
+		<el>8</el>
+		<st>O</st>
+		<chr>0.0</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.89439923</x> <y>3.69933077</y> <z>1.47906</z>
+		<el>8</el>
+		<st>O</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+</fmg>
+
