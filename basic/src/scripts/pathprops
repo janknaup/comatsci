@@ -837,7 +837,7 @@ if options.pivoter!=None:
 
 	progress=comatsci.utils.ProgressMeter(total=path.numimages())
 	
-	refgeo=comatsci.Geometry.Geometry()
+	refgeo=comatsci.geometry.Geometry()
 	refgeo.readfile(options.pivoter[0])
 	if options.pvtdbg:
 		mdfile=open("mindist.dat","w")
@@ -919,7 +919,7 @@ if options.voids:
 		xmasked=numpy.ma.array(grid[0,:,:,:],mask=voxels)
 		ymasked=numpy.ma.array(grid[1,:,:,:],mask=voxels)
 		zmasked=numpy.ma.array(grid[2,:,:,:],mask=voxels)
-		dummygeo=comatsci.Geometry.AnalysisGeometry()
+		dummygeo=comatsci.geometry.AnalysisGeometry()
 		dummygeo.addatom(cogAtomType,numpy.array((numpy.ma.average(xmasked),numpy.ma.average(ymasked),numpy.ma.average(zmasked))))
 		vpath.appendGeoObject(dummygeo,checkCompat=False)
 		volume=numpy.ma.count(xmasked)*(options.voids_voxelsize**3)
