@@ -726,11 +726,11 @@ class Geometry:
 		# overwriting datasets will still fail!
 		framegroup=h5file.require_group(groupname)
 		# create datasets, initialize with data where straightforward
-		framegroup.attrs["label"]=labelstring
+		if labelstring!=None:
+			framegroup.attrs["label"]=labelstring
 		framegroup.attrs["uuid"]=str(self.uuid)
 		if refGroup==None or not "coordinates" in refGroup.keys(): #FIXME: write coordinates if changed!
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
-			geoset.attrs["mode"]="C"
 		if refGroup==None or not "elements" in refGroup.keys():
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
 		if refGroup==None or not "types" in refGroup.keys():
@@ -739,6 +739,8 @@ class Geometry:
 		if numpy.shape(numpy.nonzero(self.AtomCharges))[1]!=0:
 			if refGroup==None or not "charges" in refGroup.keys():
 				chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
+			else:
+				chargeset=refgroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
 		if refGroup==None or not "lattice" in refGroup.keys():
 			if self.Mode=="S":
 				if refGroup!=None and "lattice" in refGroup.keys():
@@ -746,10 +748,8 @@ class Geometry:
 						framegroup["lattice"]=refGroup["lattice"]
 					else:
 						latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
-						latticeset.attrs["mode"]="C"
 				else:
 					latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
-					latticeset.attrs["mode"]="C"
 		# layer indices might not be contigous, depending on geometry history
 		if refGroup==None or not "residues" in refGroup.keys():
 			residueset=framegroup.create_dataset("residues",(self.Atomcount,),dtype=layerenum) #@UnusedVariable
@@ -792,22 +792,65 @@ class Geometry:
 			raise ValueError("non CDH compliant data group passed for parsing.")
 		# clear self
 		self._reset_derived()
+		#********************************************************************
+		# Frame attributes first
+		#********************************************************************
 		# uuid
 		if "uuid" in framegroup.attrs.keys():
 			self.uuid=uuid.UUID(framegroup.attrs["uuid"])
+		# label
+		if "label" in framegroup.attrs.keys():
+			self.label=str(framegroup.attrs["label"])
+		# method
+		if "method" in framegroup.attrs.keys():
+			self.method=str(framegroup.attrs["method"])
+		elif "method" in globalsgroup.attrs.keys():
+			self.method=str(globalsgroup.attrs["method"])
+		# totalenergy
+		if "totalenergy" in framegroup.attrs.keys():
+			self.totalenergy=float(framegroup.attrs["totalenergy"])
+		elif "totalenergy" in globalsgroup.attrs.keys():
+			self.totalenergy=float(globalsgroup.attrs["totalenergy"])
+		# ionkineticenergy
+		if "ionkineticenergy" in framegroup.attrs.keys():
+			self.ionkineticenergy=float(framegroup.attrs["ionkineticenergy"])
+		elif "ionkineticenergy" in globalsgroup.attrs.keys():
+			self.ionkineticenergy=float(globalsgroup.attrs["ionkineticenergy"])
+		# iontemperature
+		if "iontemperature" in framegroup.attrs.keys():
+			self.iontemperature=float(framegroup.attrs["iontemperature"])
+		elif "iontemperature" in globalsgroup.attrs.keys():
+			self.iontemperature=float(globalsgroup.attrs["iontemperature"])
+		# iontargettemperature
+		if "iontargettemperature" in framegroup.attrs.keys():
+			self.iontargettemperature=float(framegroup.attrs["iontargettemperature"])
+		elif "iontargettemperature" in globalsgroup.attrs.keys():
+			self.iontargettemperature=float(globalsgroup.attrs["iontargettemperature"])
+		# electrontemperature
+		if "electrontemperature" in framegroup.attrs.keys():
+			self.electrontemperature=float(framegroup.attrs["electrontemperature"])
+		elif "electrontemperature" in globalsgroup.attrs.keys():
+			self.electrontemperature=float(globalsgroup.attrs["electrontemperature"])
+		# timestep
+		if "timestep" in framegroup.attrs.keys():
+			self.timestep=int(framegroup.attrs["timestep"])
+		elif "timestep" in globalsgroup.attrs.keys():
+			self.timestep=int(globalsgroup.attrs["timestep"])
+		# simtime
+		if "simtime" in framegroup.attrs.keys():
+			self.simtime=float(framegroup.attrs["simtime"])
+		elif "simtime" in globalsgroup.attrs.keys():
+			self.simtime=float(globalsgroup.attrs["simtime"])
+		#********************************************************************
+		# Now data sets
+		#********************************************************************
 		# first check if geometry is cluster or periodic and set lattice if necessary:
 		if "lattice" in framesets:
 			self.Mode="S"
-			if framegroup["lattice"].attrs["mode"]=="C":
-				self.Lattice=framegroup["lattice"].value
-			else:
-				raise NotImplementedError("Lattice types other than carthesian not supported")
+			self.Lattice=framegroup["lattice"].value
 		elif "lattice" in globalsets:
 			self.Mode="S"
-			if globalsGroup["lattice"].attrs["mode"]=="C":
-				self.Lattice=globalsGroup["lattice"].value
-			else:
-				raise NotImplementedError("Lattice types other than carthesian not supported")
+			self.Lattice=globalsGroup["lattice"].value
 		else:
 			self.Mode="C"
 		# set corrdinates
@@ -815,25 +858,13 @@ class Geometry:
 			coordgroup=framegroup
 		else:
 			coordgroup=globalsGroup
-		if coordgroup["coordinates"].attrs["mode"]=="C":
-			self.Geometry=coordgroup["coordinates"].value
-		elif coordgroup.attrs["mode"]=="f":
-			if self.Mode!="S": 
-				raise ValueError("Fractional coordiates undefined in non-periodic geometry")
-			else:
-				self.Geometry=self.Lattice*coordgroup["coordinates"]
-		elif coordgroup.attrs["mode"]=="z":
-			if self.Mode=="S":
-				raise ValueError("Z-matrix coordinates forbidden in periodic geometry")
-			else:
-				raise NotImplementedError("Z-matrix geometries not supported")
+		self.Geometry=coordgroup["coordinates"].value
 		# set elements
 		if "elements" in framesets:
 			self.AtomTypes=list(framegroup["elements"].value)
 		else:
 			self.AtomTypes=list(globalsGroup["elements"].value)
 		self.Atomcount=len(self.AtomTypes)
-		# ***** optional content starts here *******
 		# set atom subtypes
 		if "types" in framesets:
 			self.AtomSubTypes=list(framegroup["types"].value)
