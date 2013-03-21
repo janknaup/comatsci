@@ -343,7 +343,7 @@ class Reactionpath:
 			if self.numimages()>1 and checkCompat:
 				try:
 					self.geos[0].compatcheck(tempGeometry)
-				except Geometry.GeometryError,inst:
+				except geometry.GeometryError,inst:
 					if inst.args[0]=='Geometry lattice mismatch' and self.verbosity>=constants.VBL_SILENCE:
 						print("ReactionPath warning: Geometry lattice mismatch")
 					else:
@@ -473,7 +473,7 @@ class Reactionpath:
 			try:
 				globalSets=["elements","types","lattice","residues"]
 				self.geos[0].compatcheck(self.geos[-1])
-			except Geometry.GeometryError,inst:
+			except geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
 					print("ReactionPath warning: Geometry lattice mismatch")
 					globalSets.remove("lattice")
