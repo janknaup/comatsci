@@ -495,7 +495,7 @@ class Reactionpath:
 				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,refGroup=refGroup)[1] #@UndefinedVariable
 			# add additional path data, if present
 			if self.has_energies():
-				energyset=imagegroup.create_dataset("energy",(1,),"=f8")
+				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")
 				energyset[0]=self.energies[image]
 			if self.has_realforces():
 				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
@@ -531,7 +531,7 @@ class Reactionpath:
 			framegroup=pathfile[frame]
 			tg.parseH5Framegroup(framegroup,globalsGroup)
 			if "energy" in framegroup.keys() and hasE:
-				tempEnergies.append(framegroup["energy"].value[0])
+				tempEnergies.append(framegroup["totalenergy"].value[0])
 			else:
 				hasE=False
 			if "forces" in framegroup.keys() and hasF:
