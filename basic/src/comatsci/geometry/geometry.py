@@ -298,6 +298,14 @@ class Geometry:
 			self.LPops=iLPops
 		self._elementSubGeos={}
 		self.uuid=uuid.uuid4()
+		self.label=None
+		self.method=None
+		self.totalenergy=None
+		self.ionkineticenergy=None
+		self.iontemperature=None
+		self.electrontemperature=None
+		self.timestep=None
+		self.simtime=None
 		self._reset_derived()
 		self._consistency_check()
 	
@@ -727,8 +735,18 @@ class Geometry:
 		framegroup=h5file.require_group(groupname)
 		# create datasets, initialize with data where straightforward
 		if labelstring!=None:
-			framegroup.attrs["label"]=labelstring
+			if self.label!=None:
+				framegroup.attrs["label"]=self.label
+			else
+				framegroup.attrs["label"]=labelstring
 		framegroup.attrs["uuid"]=str(self.uuid)
+		if self.method != None framegroup.attrs["method"]=self.method
+		if self.totalenergy != None framegroup.attrs["totalenergy"]=self.totalenergy
+		if self.ionkineticenergy != None framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
+		if self.iontemperature != None framegroup.attrs["iontemperature"]=self.iontemperature
+		if self.electrontemperature != None framegroup.attrs["electrontemperature"]=self.electrontemperature
+		if self.timestep != None framegroup.attrs["timestep"]=self.timestep
+		if self.simtime != None framegroup.attrs["simtime"]=self.simtime
 		if refGroup==None or not "coordinates" in refGroup.keys(): #FIXME: write coordinates if changed!
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
 		if refGroup==None or not "elements" in refGroup.keys():
@@ -906,15 +924,22 @@ class Geometry:
 
 
 
-	def readCDHFile(self,filename,groupname="frame0000000000"):
+	def readCDHFile(self,filename,groupname=None):
 		"""
 		read Geometry from Chemical Data Hierachy file
 		@type filename: string
 		@param filename: name of the cdh file read from
 		@type groupname: string
-		@param groupname: name of the HDF5 data group to read from, default frame0000000000 
+		@param groupname: name of the HDF5 data group to read from, frame with alphabetically lowest label 
 		"""
 		h5file=h5py.File(filename,"r")
+		# fine the aphabatically first item named frame*
+		if groupname==None:
+			filekeys=h5file.keys()
+			filekeys.sort()
+			groupname=filekeys.pop(0)
+			while (groupname[0:4].lower()!="frame"):
+				groupname=filekeys.pop(0)
 		self.parseH5Framegroup(h5file[groupname],h5file.get("globals",None))
 		h5file.close()
 
@@ -1299,13 +1324,15 @@ class Geometry:
 			- B{gen} dftb .gen format
 			- B{xyz} xmol carthesian format
 			- B{fmg} flexible molecular geometry xml format
+			- B{cdh} chemical data hierarchy
 		@param filename: input file name
 		@param typespec: lowercase string, specifying file type, autodetect if omitted
 		"""
 		typefunctions={
 			'gen': self.readgen,
 			'xyz': self.readxyz,
-			'fmg': self.readfmg
+			'fmg': self.readfmg,
+			'cdh': self.readCDHFile
 			}
 		if typespec!=None:
 			ftype=typespec.strip('.').strip().lower()
