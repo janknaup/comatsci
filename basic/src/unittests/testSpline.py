@@ -33,22 +33,16 @@ class splineTest(unittest.TestCase):
         II=numpy.array([ SS.splint(x) for x in XX ],dtype=float)
         I2=numpy.array([ SS.splint(x) for x in X2 ],dtype=float)
         ID2=numpy.array([ SS.splder(x) for x in X2 ],dtype=float)
-        print("SS")
-        print(SS.ygrid)
-        print(SS.x2grid)
         self.assertTrue(numpy.allclose(YY, II),"Node values deviate")
         self.assertTrue(numpy.allclose(Y2, I2),"Interpolated value deviation too large")
-        # don't be too picky with the end point derivatives
+        # don't be too picky with the end point derivatives, natural cspline d2/dx2 is wrong here
         self.assertTrue(numpy.allclose(C2[1:-2], ID2[1:-2]),"Interpolated derivative deviation too large")
         # have to check behavior in the case of just 2 points. Spline interpolation should be the same as linear here
         X3=numpy.arange(0,11,5,dtype=float)
         Y3=numpy.zeros_like(X3)+3.14157
         S3=comatsci.spline.Spline(X3,Y3)
-        print("S3")
-        print(S3.x2grid)
         Y3=numpy.zeros_like(XX)+3.14157
         I3=numpy.array([ S3.splint(x) for x in XX ],dtype=float)
-        print(I3)
         self.assertTrue(numpy.allclose(Y3, I3), "constant interpolation deviates")
     
     
