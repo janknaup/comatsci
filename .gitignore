@@ -1,1 +1,5 @@
 test_install
+/fixdate.sh
+*.pyc
+/.project
+/.pydevproject
