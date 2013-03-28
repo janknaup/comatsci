@@ -737,16 +737,16 @@ class Geometry:
 		if labelstring!=None:
 			if self.label!=None:
 				framegroup.attrs["label"]=self.label
-			else
+			else:
 				framegroup.attrs["label"]=labelstring
 		framegroup.attrs["uuid"]=str(self.uuid)
-		if self.method != None framegroup.attrs["method"]=self.method
-		if self.totalenergy != None framegroup.attrs["totalenergy"]=self.totalenergy
-		if self.ionkineticenergy != None framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
-		if self.iontemperature != None framegroup.attrs["iontemperature"]=self.iontemperature
-		if self.electrontemperature != None framegroup.attrs["electrontemperature"]=self.electrontemperature
-		if self.timestep != None framegroup.attrs["timestep"]=self.timestep
-		if self.simtime != None framegroup.attrs["simtime"]=self.simtime
+		if self.method != None: framegroup.attrs["method"]=self.method
+		if self.totalenergy != None: framegroup.attrs["totalenergy"]=self.totalenergy
+		if self.ionkineticenergy != None: framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
+		if self.iontemperature != None: framegroup.attrs["iontemperature"]=self.iontemperature
+		if self.electrontemperature != None: framegroup.attrs["electrontemperature"]=self.electrontemperature
+		if self.timestep != None: framegroup.attrs["timestep"]=self.timestep
+		if self.simtime != None: framegroup.attrs["simtime"]=self.simtime
 		if refGroup==None or not "coordinates" in refGroup.keys(): #FIXME: write coordinates if changed!
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
 		if refGroup==None or not "elements" in refGroup.keys():
@@ -801,7 +801,7 @@ class Geometry:
 		@return: reference to self
 		"""
 		# if globasGroup is not specified, create an empty dictionary as dummy
-		if globalsGroup==None: globalsGroup={}
+		if globalsGroup==None: globalsGroup=framegroup
 		# CDH compliance check
 		framesets=framegroup.keys()
 		globalsets=globalsGroup.keys()
@@ -822,43 +822,43 @@ class Geometry:
 		# method
 		if "method" in framegroup.attrs.keys():
 			self.method=str(framegroup.attrs["method"])
-		elif "method" in globalsgroup.attrs.keys():
-			self.method=str(globalsgroup.attrs["method"])
+		elif "method" in globalsGroup.attrs.keys():
+			self.method=str(globalsGroup.attrs["method"])
 		# totalenergy
 		if "totalenergy" in framegroup.attrs.keys():
 			self.totalenergy=float(framegroup.attrs["totalenergy"])
-		elif "totalenergy" in globalsgroup.attrs.keys():
-			self.totalenergy=float(globalsgroup.attrs["totalenergy"])
+		elif "totalenergy" in globalsGroup.attrs.keys():
+			self.totalenergy=float(globalsGroup.attrs["totalenergy"])
 		# ionkineticenergy
 		if "ionkineticenergy" in framegroup.attrs.keys():
 			self.ionkineticenergy=float(framegroup.attrs["ionkineticenergy"])
-		elif "ionkineticenergy" in globalsgroup.attrs.keys():
-			self.ionkineticenergy=float(globalsgroup.attrs["ionkineticenergy"])
+		elif "ionkineticenergy" in globalsGroup.attrs.keys():
+			self.ionkineticenergy=float(globalsGroup.attrs["ionkineticenergy"])
 		# iontemperature
 		if "iontemperature" in framegroup.attrs.keys():
 			self.iontemperature=float(framegroup.attrs["iontemperature"])
-		elif "iontemperature" in globalsgroup.attrs.keys():
-			self.iontemperature=float(globalsgroup.attrs["iontemperature"])
+		elif "iontemperature" in globalsGroup.attrs.keys():
+			self.iontemperature=float(globalsGroup.attrs["iontemperature"])
 		# iontargettemperature
 		if "iontargettemperature" in framegroup.attrs.keys():
 			self.iontargettemperature=float(framegroup.attrs["iontargettemperature"])
-		elif "iontargettemperature" in globalsgroup.attrs.keys():
-			self.iontargettemperature=float(globalsgroup.attrs["iontargettemperature"])
+		elif "iontargettemperature" in globalsGroup.attrs.keys():
+			self.iontargettemperature=float(globalsGroup.attrs["iontargettemperature"])
 		# electrontemperature
 		if "electrontemperature" in framegroup.attrs.keys():
 			self.electrontemperature=float(framegroup.attrs["electrontemperature"])
-		elif "electrontemperature" in globalsgroup.attrs.keys():
-			self.electrontemperature=float(globalsgroup.attrs["electrontemperature"])
+		elif "electrontemperature" in globalsGroup.attrs.keys():
+			self.electrontemperature=float(globalsGroup.attrs["electrontemperature"])
 		# timestep
 		if "timestep" in framegroup.attrs.keys():
 			self.timestep=int(framegroup.attrs["timestep"])
-		elif "timestep" in globalsgroup.attrs.keys():
-			self.timestep=int(globalsgroup.attrs["timestep"])
+		elif "timestep" in globalsGroup.attrs.keys():
+			self.timestep=int(globalsGroup.attrs["timestep"])
 		# simtime
 		if "simtime" in framegroup.attrs.keys():
-			self.simtime=float(framegroup.attrs["simtime"])
-		elif "simtime" in globalsgroup.attrs.keys():
-			self.simtime=float(globalsgroup.attrs["simtime"])
+			self.simtime=float(frameGroup.attrs["simtime"])
+		elif "simtime" in globalsGroup.attrs.keys():
+			self.simtime=float(globalsGroup.attrs["simtime"])
 		#********************************************************************
 		# Now data sets
 		#********************************************************************
@@ -938,7 +938,7 @@ class Geometry:
 			filekeys=h5file.keys()
 			filekeys.sort()
 			groupname=filekeys.pop(0)
-			while (groupname[0:4].lower()!="frame"):
+			while (groupname[0:5].lower()!="frame"):
 				groupname=filekeys.pop(0)
 		self.parseH5Framegroup(h5file[groupname],h5file.get("globals",None))
 		h5file.close()
@@ -2496,6 +2496,7 @@ class Geometry:
 		# finisehd, return
 		return pruned
 	
+		
 	
 	def layerNames(self):
 		"""

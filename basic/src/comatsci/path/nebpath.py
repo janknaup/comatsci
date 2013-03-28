@@ -662,7 +662,7 @@ class NEBPath(Reactionpath):
 			newcoordinates+=x*x*x*cubicparms[segment][0]
 			newcoordinates=numpy.reshape(newcoordinates,geoshape)
 			# store new coordinates and append to new geometres array
-			newgeoarray.append(Geometry.Geometry(self.geos[segment].Mode, self.geos[segment].Atomcount, self.geos[segment].AtomTypes, self.geos[segment].Origin, self.geos[segment].Lattice, newcoordinates, self.geos[segment].AtomLayers, self.geos[segment].LayerDict, self.geos[segment].AtomCharges, self.geos[segment].AtomSubTypes, self.geos[segment].LPops))
+			newgeoarray.append(geometry.Geometry(self.geos[segment].Mode, self.geos[segment].Atomcount, self.geos[segment].AtomTypes, self.geos[segment].Origin, self.geos[segment].Lattice, newcoordinates, self.geos[segment].AtomLayers, self.geos[segment].LayerDict, self.geos[segment].AtomCharges, self.geos[segment].AtomSubTypes, self.geos[segment].LPops))
 			newgeoarray[-1].writexyz("dbg-{0:05d}.xyz".format(i))
 		# append end geometry
 		newgeoarray.append(self.geos[-1])
