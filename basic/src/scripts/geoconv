@@ -23,6 +23,8 @@ from optparse import OptionParser
 
 import random
 
+import numpy
+
 programname=os.path.basename(sys.argv[0]).lower()
 
 geo=geometry.Geometry()
@@ -71,6 +73,9 @@ parser.add_option("-e","--element",
 parser.add_option("-s", "--scale",
 				action="store", metavar="S", dest="scale", type="float", default=None,
 				help="scale the whole geometry by a factor of S.")
+parser.add_option("--anisoscale",
+				action="store", metavar="S", dest="anisoscale", type="float", nargs=3, default=None,
+				help="anisotropically scale the whole geometry by a vector S. Scale in lattice vector directions for supercells and Cartesian directions for cluster geometries")
 #.................................................
 parser.set_defaults(append=None)
 parser.add_option("-a","--append",
@@ -232,6 +237,16 @@ if options.scale!=None:
 		outgeo.Geometry*=options.scale
 		if outgeo.Mode=="S":
 				outgeo.Lattice*=options.scale
+				
+if options.anisoscale!=None:
+	if outgeo.Mode=="S":
+		print "anisotropically scaling output geometry along lattice vectors"
+		newlattice=numpy.multiply(numpy.array(outgeo.Lattice),numpy.array(options.anisoscale))
+		outgeo.Geometry=numpy.dot(outgeo.fractionalGeometry,newlattice)
+		outgeo.Lattice=newlattice
+	else:
+		print "anisotropically scaling output geometry in Cartesian directions"
+		outgeo.Geometry=numpy.multiply(outgeo.Geometry,numpy.array(options.anisoscale))
 				
 
 if options.foldback:
