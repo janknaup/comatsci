@@ -1,0 +1,2 @@
+splot [-2:1.5] [-1:2.5] [*:150] 'REFERENCE.DATA' u 3:($4+0.15):2:1 w labels t"", "" u 3:4:2 w p t ""
+

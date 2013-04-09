@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE fmg>
+<fmg>
+<dimer>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.434612140218</x> <y>0.329586382367</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<DeltaR>
+	-4.185076047740e-01	2.735898111158e-01	0.000000000000e+00
+</DeltaR>
+</dimer>
+</fmg>
+

@@ -1,0 +1,11 @@
+from K. Müller, L. D. Brown: Theor. Chim. Acta 53, 75-93, (1979)
+
+Minima:	E		x	y
+A	-146.700	-0.558	1.442
+B	-108.167	0.623	0.028	
+C	-80.768		-0.050	0.467	(extremely shallow)
+
+Saddle points
+E	x	y
+-40.665	-0.822	0.624
+-72.249	0.212	0.293

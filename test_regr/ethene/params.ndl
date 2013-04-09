@@ -1,0 +1,5 @@
+Hamiltonian{
+	DFTB {
+		SCC=No
+		}
+	}

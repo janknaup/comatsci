@@ -1,0 +1,3 @@
+set xrange [-2:1.5]
+set yrange [-1:2.5]
+set term png transparent size 640,480; set out 'plot-0099.png'; set view map; splot 'evol.dat' u 1:2:(0.) i 0099 w lp lt 2 t ''; set out 

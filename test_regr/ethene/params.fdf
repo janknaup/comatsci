@@ -1,0 +1,35 @@
+# default parameter include file for SIESTA calculations
+# put no geometry, chemical species, systemlabel, numcgsteps,
+# or MD information in here
+# Do not use any %include directives!
+
+PAO.BasisSize     DZP
+PAO.EnergyShift   0.020 Ry
+
+MeshCutoff          90.0 Ry
+
+MaxSCFIterations     50
+DM.MixingWeight      0.2
+DM.NumberPulay       3
+DM.Tolerance         4.d-4
+
+
+SolutionMethod       diagon
+ElectronicTemperature 20.0 K
+
+%block kgrid_Monkhorst_Pack
+1  0  0  0.0
+0  1  0  0.0
+0  0  1  0.0
+%endblock kgrid_Monkhorst_Pack
+
+#ParallelOverK   .true.
+
+#WriteMullikenPop 3
+#WriteMDXmol .true.
+
+# Charge
+NetCharge 0
+
+# Spinpolarization
+SpinPolarized .false.

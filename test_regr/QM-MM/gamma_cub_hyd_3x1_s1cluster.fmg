@@ -1,0 +1,3948 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE fmg>
+<fmg>
+<geometry>
+	<mode>S</mode>
+	<lattice lunit="ang" orgx="0.0" orgy="0.0" orgz="0.0">
+		<latvec_a>23.715 0.0 0.0 </latvec_a>
+		<latvec_b>0.0 23.715 0.0 </latvec_b>
+		<latvec_c>0.0 0.0 60.0 </latvec_c>
+	</lattice>
+	<layer>
+		<li>0</li>
+		<lname>default Layer</lname>
+	</layer>
+	<layer>
+		<li>1</li>
+		<lname>PCHR</lname>
+	</layer>
+	<atom lunit="ang">
+		<x>-3.343839</x> <y>11.154628</y> <z>3.536055</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.34285063</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.358877</x> <y>11.181941</y> <z>4.633978</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.59620329</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.990671</x> <y>8.518164</y> <z>4.508736</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.65578683</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.42138300001</x> <y>-0.58253</y> <z>4.510271</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.67593329</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.352074</x> <y>8.40830800001</y> <z>3.204096</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.38253085</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.091601</x> <y>-8.48086600002</y> <z>4.370613</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.33451257</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.08847499997</x> <y>-0.832184999998</y> <z>3.674468</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.37560599</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.706247</x> <y>-5.270593</y> <z>4.84941</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.32326917</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.88158899998</x> <y>3.753241</y> <z>2.758011</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.37962051</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.295192</x> <y>-7.92269599998</y> <z>4.53093</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.35650582</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.50410400002</x> <y>4.476813</y> <z>5.243958</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.3353305</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.859083</x> <y>-6.59842999999</y> <z>3.581522</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.38068969</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.608828999997</x> <y>11.504562</y> <z>5.171403</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.30455364</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.279336</x> <y>8.83928900001</y> <z>3.881642</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.3577401</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.119832</x> <y>-8.38940800001</y> <z>4.854683</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.30492924</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.54150500002</x> <y>-4.118063</y> <z>3.030319</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.34756999</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.492943</x> <y>7.72967</y> <z>4.822125</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.33570324</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.65448500001</x> <y>-5.824169</y> <z>4.850898</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.32335827</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.66858100002</x> <y>3.557015</y> <z>4.939232</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.54907189</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.091774</x> <y>-2.414996</y> <z>3.623936</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.36007664</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.269014</x> <y>7.06597699999</y> <z>4.838262</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.31844227</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.035641</x> <y>-8.57682699998</y> <z>4.530698</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.60490321</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.063488</x> <y>-6.54104</y> <z>4.513702</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.63134223</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.131198</x> <y>-4.532569</y> <z>4.511703</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.64832139</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.662107</x> <y>-0.282058</y> <z>5.054032</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.31512706</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.794505</x> <y>-9.04613199999</y> <z>3.641293</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.33638266</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.112768</x> <y>6.67109400001</y> <z>4.523496</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.6912233</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.439412</x> <y>-7.24003599999</y> <z>3.759122</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>-0.32768815</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.335996</x> <y>0.627851000001</y> <z>3.761321</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>-0.12951126</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.951934</x> <y>10.669934</y> <z>2.775115</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45174693</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.08424699998</x> <y>10.476523</y> <z>3.212882</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47784939</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.182809</x> <y>-0.736175</y> <z>2.833009</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3672964</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.530091</x> <y>3.173231</y> <z>2.729252</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.44841767</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.35542599999</x> <y>3.308894</y> <z>3.277406</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.624234</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.345824</x> <y>6.91414100003</y> <z>2.405127</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.48068465</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.142506</x> <y>-11.039475</y> <z>2.707163</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47471891</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.05445500002</x> <y>-0.648114</y> <z>2.697772</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3074259</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.37357399998</x> <y>1.403843</y> <z>2.689491</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39251944</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.050057</x> <y>-8.64903600001</y> <z>2.769001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.5460058</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.059868</x> <y>10.991349</y> <z>2.916781</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56328611</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.200136</x> <y>-4.612642</y> <z>2.738254</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.52713043</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.09198299998</x> <y>-6.65378300002</y> <z>2.753852</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.52277279</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.150883</x> <y>-6.64904000002</y> <z>2.631378</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.30310845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.93499100002</x> <y>-8.47966200002</y> <z>2.517691</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.44239845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.056821</x> <y>-4.402556</y> <z>2.562896</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43865539</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.11180899997</x> <y>3.159801</y> <z>2.468569</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.34999995</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.32341200001</x> <y>-11.774415</y> <z>2.589175</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.72718881</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.305628</x> <y>5.019996</y> <z>2.603874</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.56650493</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.275657</x> <y>8.81675999998</y> <z>2.795392</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56199238</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.186998</x> <y>-8.47382</y> <z>2.567044</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41792118</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.20083</x> <y>-2.654633</y> <z>2.673924</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.29978199</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.089362</x> <y>-6.50820099999</y> <z>2.541938</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.32688485</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.132754</x> <y>-10.523915</y> <z>2.499739</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43944042</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.164369</x> <y>-4.698265</y> <z>2.530265</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.35287595</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.21129799998</x> <y>1.250816</y> <z>2.461504</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67550194</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.084638</x> <y>1.123012</y> <z>2.493915</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.40306072</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.067184</x> <y>-0.562644</y> <z>2.753783</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.57044662</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.243175</x> <y>6.78354999999</y> <z>2.738422</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.54584713</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.986077</x> <y>-2.484191</y> <z>2.501572</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.57517156</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.071557</x> <y>4.966139</y> <z>2.389924</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.69472247</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.043489</x> <y>4.972062</y> <z>2.404036</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40099982</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.13327</x> <y>-2.504801</y> <z>2.432507</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64603906</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.09647900002</x> <y>7.07465699999</y> <z>2.585628</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43062986</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.02173199999</x> <y>8.85935900001</y> <z>2.457412</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.60501581</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.018925</x> <y>9.05585400001</y> <z>2.522272</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.34233825</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.184908</x> <y>8.746676</y> <z>2.901619</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.34682428</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.17764</x> <y>2.104496</y> <z>1.403826</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68431232</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.04209</x> <y>-5.55870999997</y> <z>1.635702</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65429785</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.027723</x> <y>-9.606972</y> <z>1.610871</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65070032</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.144167</x> <y>-1.657675</y> <z>1.527153</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.63576775</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.322445</x> <y>6.05276800002</y> <z>1.59459</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.56466075</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.285233</x> <y>3.156774</y> <z>0.397485</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43796768</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.41587800002</x> <y>11.212432</y> <z>0.972788999998</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42370983</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.997521</x> <y>-8.67441999999</y> <z>0.788193000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37400429</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.029004</x> <y>10.976545</y> <z>0.929628000001</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37955737</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.085905</x> <y>-8.62001800002</y> <z>0.768531999998</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59464438</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.193564</x> <y>-10.495667</y> <z>0.704050000003</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42773199</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.143297</x> <y>8.979653</y> <z>0.907361999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.35097644</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.11793199997</x> <y>-6.52842799999</y> <z>0.787561</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3917455</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.057914</x> <y>-4.691187</y> <z>0.776659000003</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40227383</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.05514199998</x> <y>-4.64908</y> <z>0.638598000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.57409385</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.20752700001</x> <y>3.191326</y> <z>0.514094</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59310571</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.131089</x> <y>-6.62580500002</y> <z>0.676615999998</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64101072</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.23536</x> <y>-0.694757000001</y> <z>0.825896</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.4487141</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.177679</x> <y>-8.55575300002</y> <z>0.644685000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37493097</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.23940899999</x> <y>1.288401</y> <z>0.613793</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38573951</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.289388</x> <y>1.203505</y> <z>0.620506000002</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.61643151</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.050724</x> <y>-10.597771</y> <z>0.592602000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62901037</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.180567</x> <y>-2.614836</y> <z>0.606156</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.412028</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.278271</x> <y>5.128318</y> <z>0.538868999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3425317</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.057355</x> <y>-2.551605</y> <z>0.622482999999</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.61059817</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.040742</x> <y>-6.67020000001</y> <z>0.574126</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3872732</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.152949</x> <y>-4.52731</y> <z>0.581595000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41427371</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.179184</x> <y>6.97993100003</y> <z>0.764746000001</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39220085</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.141429</x> <y>3.083655</y> <z>0.508534</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.47741791</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.99929699998</x> <y>-2.755089</y> <z>0.555907000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3931666</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.195392</x> <y>5.079395</y> <z>0.494906</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.6186183</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.140362</x> <y>5.074135</y> <z>0.489588</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40039302</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.103682</x> <y>1.17824</y> <z>0.435703</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39247264</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.116739</x> <y>-0.684172999999</y> <z>0.499601</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.43319434</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.189862</x> <y>9.19345099999</y> <z>0.645047999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39237912</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.00239599999</x> <y>-10.724264</y> <z>0.446065</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42772041</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.24149</x> <y>9.06488800003</y> <z>0.566091999999</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62310821</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.28472</x> <y>10.07356</y> <z>0.022684</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68454161</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.30618</x> <y>7.197583</y> <z>0.617936999999</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.43924264</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.16100599999</x> <y>11.072375</y> <z>0.254149</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67149747</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.24729</x> <y>7.06546099999</y> <z>0.462956</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.58804027</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.05725</x> <y>-11.566371</y> <z>-0.0636570000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64288632</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.05934799999</x> <y>-7.63080799999</y> <z>-0.23284</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62791727</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.138647</x> <y>-3.685258</y> <z>-0.304287</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.60243788</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.11554099998</x> <y>0.245076</y> <z>-0.365551</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59770125</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.25759900001</x> <y>7.91738000002</y> <z>-0.354158</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68697454</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.180304</x> <y>4.126674</y> <z>-0.513031</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64708316</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.179793</x> <y>11.061897</y> <z>-0.953661000001</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38993612</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.16003999998</x> <y>-8.663496</y> <z>-1.118914</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43279781</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.218652</x> <y>9.133902</y> <z>-1.150469</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39970837</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.991317</x> <y>-8.56716799999</y> <z>-1.182067</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39250704</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.096325</x> <y>-10.556735</y> <z>-1.209649</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42067117</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.218421</x> <y>-10.537366</y> <z>-1.253557</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.44216163</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.024938</x> <y>-4.621664</y> <z>-1.239535</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37749247</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.34017800001</x> <y>5.038982</y> <z>-1.309123</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47273086</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.086398</x> <y>3.188705</y> <z>-1.367029</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37377022</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.183343</x> <y>-6.703468</y> <z>-1.237865</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38467471</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.025994</x> <y>-6.57660899999</y> <z>-1.247416</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38199692</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.246749</x> <y>1.104389</y> <z>-1.306834</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.36943483</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.177756</x> <y>-4.748281</y> <z>-1.296566</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39737697</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.077638</x> <y>-8.61631800002</y> <z>-1.307803</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63798988</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.15857</x> <y>-2.741359</y> <z>-1.289818</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37581959</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.070471</x> <y>-2.700802</y> <z>-1.331328</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38376426</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.108976</x> <y>-6.673075</y> <z>-1.368783</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.61640823</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.17869899998</x> <y>-0.823595999998</y> <z>-1.357095</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40062312</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.23834</x> <y>-0.780177000001</y> <z>-1.396639</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62911407</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.103213</x> <y>-4.659023</y> <z>-1.373184</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.6388401</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.097718</x> <y>1.265983</y> <z>-1.406964</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39444669</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.06103599998</x> <y>-2.719101</y> <z>-1.40726</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63357654</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.142549</x> <y>9.07272800001</y> <z>-1.247206</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45390598</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.168936</x> <y>1.14763</y> <z>-1.459264</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62667177</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.333986</x> <y>7.042688</y> <z>-1.429244</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37604747</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.087587</x> <y>-0.726325000001</y> <z>-1.477297</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43769568</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.261475</x> <y>3.08846</y> <z>-1.483496</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37844473</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.18923599999</x> <y>5.124365</y> <z>-1.493276</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63508867</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.05327699998</x> <y>-10.498924</y> <z>-1.486593</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64548383</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.203674</x> <y>5.25176</y> <z>-1.488365</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37494473</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.18776600002</x> <y>11.307712</y> <z>-1.49824</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45043925</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.116701</x> <y>7.26375000002</y> <z>-1.260322</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.58139845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.386071</x> <y>7.19833400003</y> <z>-1.660875</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64908161</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.169512</x> <y>3.21474</y> <z>-1.579344</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.6487128</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.176009</x> <y>-9.51730699998</y> <z>-2.30541</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56117948</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.177016</x> <y>2.088288</y> <z>-2.434523</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62302519</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.143361</x> <y>-5.67362</y> <z>-2.426079</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.60640767</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.12031</x> <y>-1.743951</y> <z>-2.496753</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.66063598</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.235029</x> <y>10.06167</y> <z>-2.435799</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59902029</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.2084</x> <y>11.047608</y> <z>-2.781451</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65016058</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.197881</x> <y>8.837367</y> <z>-3.021613</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62315904</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.223461</x> <y>-10.836218</y> <z>-3.07401</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40502884</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.440877</x> <y>-10.773644</y> <z>-3.083825</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.69993108</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-0.868979999999</x> <y>-8.99958000002</y> <z>-3.164293</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.18737958</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.259558</x> <y>-6.554184</y> <z>-3.188804</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50763619</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.978486</x> <y>-4.825009</y> <z>-3.195863</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49813323</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.194921</x> <y>-6.74232300001</y> <z>-3.204397</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67210134</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.426035</x> <y>11.149585</y> <z>-3.243394</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40438799</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.20675800002</x> <y>-2.654835</y> <z>-3.248961</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50439076</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.127566</x> <y>-4.706044</y> <z>-3.24715</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68408056</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.037098</x> <y>-0.918444000002</y> <z>-3.270287</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49385341</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.62711400002</x> <y>-10.089572</y> <z>-3.266538</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.18410213</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.179767</x> <y>-2.765663</y> <z>-3.266223</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.69326628</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.216541</x> <y>3.155791</y> <z>-3.286061</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43797925</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.266798</x> <y>1.266221</y> <z>-3.315774</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50890551</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.08619400002</x> <y>-0.775767000001</y> <z>-3.288251</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67903761</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.04965800002</x> <y>9.01827100001</y> <z>-3.281417</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43430233</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.267512</x> <y>5.202283</y> <z>-3.327054</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47272393</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.96515500002</x> <y>-6.61216699998</y> <z>-3.315228</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49080265</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.119529</x> <y>1.158077</y> <z>-3.341064</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68766913</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.273794</x> <y>-4.614155</y> <z>-3.331305</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41726599</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.443593</x> <y>9.33674700003</y> <z>-3.366976</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.15304924</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.020572</x> <y>-8.50380300002</y> <z>-3.360843</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.48631653</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-6.98565199998</x> <y>1.048985</y> <z>-3.396407</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41743845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.035676</x> <y>-2.861373</y> <z>-3.399332</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42305755</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-7.12385400001</x> <y>7.07156099999</y> <z>-3.394896</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68982579</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-3.104661</x> <y>3.15015</y> <z>-3.440355</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65559081</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.239664</x> <y>-0.716053000002</y> <z>-3.438335</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42551302</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.222364</x> <y>5.069136</y> <z>-3.450755</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.66508919</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.011263</x> <y>2.999499</y> <z>-3.407126</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.46450526</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-1.081702</x> <y>6.98104000002</y> <z>-3.455543</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47198613</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-5.38123799997</x> <y>7.25196499998</y> <z>-3.679386</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49355884</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-4.635118</x> <y>10.476025</y> <z>-3.731604</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.21596385</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>-2.828959</x> <y>4.755243</y> <z>-4.109614</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.51658896</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.561161</x> <y>11.154628</y> <z>3.536055</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.34285063</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.54612300001</x> <y>11.181941</y> <z>4.633978</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.59620329</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.914329</x> <y>8.518164</y> <z>4.508736</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.65578683</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.483617</x> <y>-0.58253</y> <z>4.510271</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.67593329</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.55292600001</x> <y>8.40830800001</y> <z>3.204096</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.38253085</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.81339900001</x> <y>-8.48086600002</y> <z>4.370613</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.33451257</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.816524999999</x> <y>-0.832184999998</y> <z>3.674468</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.37560599</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.19875300002</x> <y>-5.270593</y> <z>4.84941</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.32326917</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.023411</x> <y>3.753241</y> <z>2.758011</z>
+		<el>1</el>
+		<li>0</li>
+		<st>H</st>
+		<chr>0.37962051</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.60980800001</x> <y>-7.92269599998</y> <z>4.53093</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.35650582</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.400896</x> <y>4.476813</y> <z>5.243958</z>
+		<el>1</el>
+		<li>0</li>
+		<st>H</st>
+		<chr>0.3353305</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.045917</x> <y>-6.59842999999</y> <z>3.581522</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.38068969</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.29617099999</x> <y>11.504562</y> <z>5.171403</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.30455364</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.625664</x> <y>8.83928900001</y> <z>3.881642</z>
+		<el>1</el>
+		<li>0</li>
+		<st>H</st>
+		<chr>0.3577401</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.785168</x> <y>-8.38940800001</y> <z>4.854683</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.30492924</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.363495</x> <y>-4.118063</y> <z>3.030319</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.34756999</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.412057</x> <y>7.72967</y> <z>4.822125</z>
+		<el>1</el>
+		<li>0</li>
+		<st>H</st>
+		<chr>0.33570324</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.250515</x> <y>-5.824169</y> <z>4.850898</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.32335827</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.236419</x> <y>3.557015</y> <z>4.939232</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.54907189</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.81322600002</x> <y>-2.414996</y> <z>3.623936</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.36007664</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.635986</x> <y>7.06597699999</y> <z>4.838262</z>
+		<el>1</el>
+		<li>0</li>
+		<st>H</st>
+		<chr>0.31844227</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.869359</x> <y>-8.57682699998</y> <z>4.530698</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.60490321</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.841512</x> <y>-6.54104</y> <z>4.513702</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.63134223</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.77380200001</x> <y>-4.532569</y> <z>4.511703</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.64832139</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.242893</x> <y>-0.282058</y> <z>5.054032</z>
+		<el>1</el>
+		<li>0</li>
+		<st>H</st>
+		<chr>0.31512706</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.11049500002</x> <y>-9.04613199999</y> <z>3.641293</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.33638266</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.792232</x> <y>6.67109400001</y> <z>4.523496</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.6912233</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>5.46558799998</x> <y>-7.24003599999</y> <z>3.759122</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>-0.32768815</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>5.56900400001</x> <y>0.627851000001</y> <z>3.761321</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>-0.12951126</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.953066</x> <y>10.669934</y> <z>2.775115</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45174693</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.820752999999</x> <y>10.476523</y> <z>3.212882</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47784939</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.722191</x> <y>-0.736175</y> <z>2.833009</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.3672964</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.374909</x> <y>3.173231</y> <z>2.729252</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.44841767</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.549574</x> <y>3.308894</y> <z>3.277406</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.624234</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.559176</x> <y>6.91414100003</y> <z>2.405127</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.48068465</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.76249400001</x> <y>-11.039475</y> <z>2.707163</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47471891</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.850545000002</x> <y>-0.648114</y> <z>2.697772</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.3074259</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.531426</x> <y>1.403843</y> <z>2.689491</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.39251944</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.854943</x> <y>-8.64903600001</y> <z>2.769001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.5460058</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.84513199998</x> <y>10.991349</y> <z>2.916781</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56328611</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.70486399999</x> <y>-4.612642</y> <z>2.738254</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.52713043</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.813017</x> <y>-6.65378300002</y> <z>2.753852</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.52277279</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.754117</x> <y>-6.64904000002</y> <z>2.631378</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.30310845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.970009</x> <y>-8.47966200002</y> <z>2.517691</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.44239845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.848179</x> <y>-4.402556</y> <z>2.562896</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43865539</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.793190999999</x> <y>3.159801</y> <z>2.468569</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.34999995</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.581588</x> <y>-11.774415</y> <z>2.589175</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.72718881</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.59937200001</x> <y>5.019996</y> <z>2.603874</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.56650493</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.629343</x> <y>8.81675999998</y> <z>2.795392</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.56199238</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.718002</x> <y>-8.47382</y> <z>2.567044</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41792118</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.70417000002</x> <y>-2.654633</y> <z>2.673924</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.29978199</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.81563800002</x> <y>-6.50820099999</y> <z>2.541938</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.32688485</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.772246</x> <y>-10.523915</y> <z>2.499739</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43944042</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.740630999998</x> <y>-4.698265</y> <z>2.530265</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.35287595</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.693701999998</x> <y>1.250816</y> <z>2.461504</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.67550194</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.82036200002</x> <y>1.123012</y> <z>2.493915</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.40306072</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.837816</x> <y>-0.562644</y> <z>2.753783</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.57044662</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.661825</x> <y>6.78354999999</y> <z>2.738422</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.54584713</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.918923</x> <y>-2.484191</y> <z>2.501572</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.57517156</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.833443</x> <y>4.966139</y> <z>2.389924</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.69472247</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.861511</x> <y>4.972062</y> <z>2.404036</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.40099982</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.77173</x> <y>-2.504801</y> <z>2.432507</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64603906</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.808521000001</x> <y>7.07465699999</y> <z>2.585628</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.43062986</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.883268000002</x> <y>8.85935900001</y> <z>2.457412</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.60501581</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.88607499998</x> <y>9.05585400001</y> <z>2.522272</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.34233825</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.720092</x> <y>8.746676</y> <z>2.901619</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.34682428</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.72736</x> <y>2.104496</y> <z>1.403826</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.68431232</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.86291</x> <y>-5.55870999997</y> <z>1.635702</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65429785</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.87727699999</x> <y>-9.606972</y> <z>1.610871</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65070032</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.76083299999</x> <y>-1.657675</y> <z>1.527153</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63576775</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.58255499998</x> <y>6.05276800002</y> <z>1.59459</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.56466075</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.619767</x> <y>3.156774</y> <z>0.397485</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.43796768</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.489122</x> <y>11.212432</y> <z>0.972788999998</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42370983</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.907479</x> <y>-8.67441999999</y> <z>0.788193000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37400429</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.87599599998</x> <y>10.976545</y> <z>0.929628000001</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37955737</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.819095</x> <y>-8.62001800002</y> <z>0.768531999998</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59464438</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.711436</x> <y>-10.495667</y> <z>0.704050000003</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42773199</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.761703</x> <y>8.979653</y> <z>0.907361999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.35097644</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.787067999999</x> <y>-6.52842799999</y> <z>0.787561</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3917455</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.84708600002</x> <y>-4.691187</y> <z>0.776659000003</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40227383</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.849857999999</x> <y>-4.64908</y> <z>0.638598000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.57409385</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.697473000001</x> <y>3.191326</y> <z>0.514094</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.59310571</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.77391099998</x> <y>-6.62580500002</y> <z>0.676615999998</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64101072</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.66964</x> <y>-0.694757000001</y> <z>0.825896</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.4487141</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.72732100001</x> <y>-8.55575300002</y> <z>0.644685000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37493097</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.665591</x> <y>1.288401</y> <z>0.613793</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.38573951</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.61561200002</x> <y>1.203505</y> <z>0.620506000002</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.61643151</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.854276</x> <y>-10.597771</y> <z>0.592602000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62901037</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.724433</x> <y>-2.614836</y> <z>0.606156</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.412028</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.626729</x> <y>5.128318</y> <z>0.538868999999</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.3425317</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.847645</x> <y>-2.551605</y> <z>0.622482999999</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.61059817</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.864258</x> <y>-6.67020000001</y> <z>0.574126</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3872732</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.752051</x> <y>-4.52731</y> <z>0.581595000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41427371</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.725816</x> <y>6.97993100003</y> <z>0.764746000001</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.39220085</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.763571</x> <y>3.083655</y> <z>0.508534</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.47741791</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.905703000002</x> <y>-2.755089</y> <z>0.555907000002</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.3931666</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.709608</x> <y>5.079395</y> <z>0.494906</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.6186183</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.764637999998</x> <y>5.074135</y> <z>0.489588</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.40039302</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.801318</x> <y>1.17824</y> <z>0.435703</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.39247264</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.78826100001</x> <y>-0.684172999999</y> <z>0.499601</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43319434</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.715138000002</x> <y>9.19345099999</y> <z>0.645047999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39237912</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.902603999997</x> <y>-10.724264</y> <z>0.446065</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42772041</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.66351000003</x> <y>9.06488800003</y> <z>0.566091999999</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62310821</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.62028</x> <y>10.07356</y> <z>0.022684</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68454161</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.59881999998</x> <y>7.197583</y> <z>0.617936999999</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.43924264</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.743993999999</x> <y>11.072375</y> <z>0.254149</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67149747</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.65771</x> <y>7.06546099999</y> <z>0.462956</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.58804027</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>5.84775000002</x> <y>-11.566371</y> <z>-0.0636570000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64288632</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.845652</x> <y>-7.63080799999</y> <z>-0.23284</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62791727</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>5.76635299998</x> <y>-3.685258</y> <z>-0.304287</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.60243788</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.789459</x> <y>0.245076</y> <z>-0.365551</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.59770125</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>1.647401</x> <y>7.91738000002</y> <z>-0.354158</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.68697454</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>5.72469599998</x> <y>4.126674</y> <z>-0.513031</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.64708316</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.725207</x> <y>11.061897</y> <z>-0.953661000001</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38993612</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.744960000002</x> <y>-8.663496</y> <z>-1.118914</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43279781</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.686348</x> <y>9.133902</y> <z>-1.150469</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.39970837</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.913683</x> <y>-8.56716799999</y> <z>-1.182067</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39250704</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.80867500001</x> <y>-10.556735</y> <z>-1.209649</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42067117</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.686579</x> <y>-10.537366</y> <z>-1.253557</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.44216163</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.880062000002</x> <y>-4.621664</y> <z>-1.239535</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37749247</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.564822</x> <y>5.038982</y> <z>-1.309123</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.47273086</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.818601999998</x> <y>3.188705</y> <z>-1.367029</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.37377022</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.72165700001</x> <y>-6.703468</y> <z>-1.237865</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38467471</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.879006</x> <y>-6.57660899999</y> <z>-1.247416</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38199692</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.65825100002</x> <y>1.104389</y> <z>-1.306834</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.36943483</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.727244</x> <y>-4.748281</y> <z>-1.296566</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39737697</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.827362</x> <y>-8.61631800002</y> <z>-1.307803</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63798988</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.74643</x> <y>-2.741359</y> <z>-1.289818</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37581959</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.83452899999</x> <y>-2.700802</y> <z>-1.331328</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38376426</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.796024</x> <y>-6.673075</y> <z>-1.368783</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.61640823</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.726301</x> <y>-0.823595999998</y> <z>-1.357095</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.40062312</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.66666000002</x> <y>-0.780177000001</y> <z>-1.396639</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62911407</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.801787</x> <y>-4.659023</y> <z>-1.373184</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.6388401</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.807282</x> <y>1.265983</y> <z>-1.406964</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.39444669</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.843963999998</x> <y>-2.719101</y> <z>-1.40726</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63357654</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.762451</x> <y>9.07272800001</y> <z>-1.247206</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45390598</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.736064</x> <y>1.14763</y> <z>-1.459264</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.62667177</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.571014</x> <y>7.042688</y> <z>-1.429244</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.37604747</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.817413</x> <y>-0.726325000001</y> <z>-1.477297</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43769568</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.643525</x> <y>3.08846</y> <z>-1.483496</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.37844473</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.715764000003</x> <y>5.124365</y> <z>-1.493276</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.63508867</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.851723000002</x> <y>-10.498924</y> <z>-1.486593</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64548383</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.70132600003</x> <y>5.25176</y> <z>-1.488365</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.37494473</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.717234000002</x> <y>11.307712</y> <z>-1.49824</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45043925</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.788299</x> <y>7.26375000002</y> <z>-1.260322</z>
+		<el>8</el>
+		<li>0</li>
+		<st>O</st>
+		<chr>-0.58139845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.518929</x> <y>7.19833400003</y> <z>-1.660875</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64908161</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.735488</x> <y>3.21474</y> <z>-1.579344</z>
+		<el>13</el>
+		<li>0</li>
+		<st>Al</st>
+		<chr>0.6487128</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.728991</x> <y>-9.51730699998</y> <z>-2.30541</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56117948</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.72798400001</x> <y>2.088288</y> <z>-2.434523</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62302519</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.76163899999</x> <y>-5.67362</y> <z>-2.426079</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.60640767</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.78469</x> <y>-1.743951</y> <z>-2.496753</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.66063598</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.66997100002</x> <y>10.06167</y> <z>-2.435799</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59902029</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.6966</x> <y>11.047608</y> <z>-2.781451</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65016058</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.707119</x> <y>8.837367</y> <z>-3.021613</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62315904</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.681539</x> <y>-10.836218</y> <z>-3.07401</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40502884</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.46412300001</x> <y>-10.773644</y> <z>-3.083825</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.69993108</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.03601999998</x> <y>-8.99958000002</y> <z>-3.164293</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.18737958</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.645442</x> <y>-6.554184</y> <z>-3.188804</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50763619</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.926514</x> <y>-4.825009</y> <z>-3.195863</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49813323</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.710079</x> <y>-6.74232300001</y> <z>-3.204397</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67210134</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.478965</x> <y>11.149585</y> <z>-3.243394</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40438799</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.698242000001</x> <y>-2.654835</y> <z>-3.248961</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50439076</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.777434</x> <y>-4.706044</y> <z>-3.24715</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68408056</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.86790200001</x> <y>-0.918444000002</y> <z>-3.270287</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49385341</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.277886</x> <y>-10.089572</y> <z>-3.266538</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.18410213</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.72523299998</x> <y>-2.765663</y> <z>-3.266223</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.69326628</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.688459</x> <y>3.155791</y> <z>-3.286061</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43797925</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.638202</x> <y>1.266221</y> <z>-3.315774</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50890551</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.818806</x> <y>-0.775767000001</y> <z>-3.288251</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67903761</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.855341999999</x> <y>9.01827100001</y> <z>-3.281417</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43430233</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.637488000002</x> <y>5.202283</y> <z>-3.327054</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47272393</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.939844999999</x> <y>-6.61216699998</y> <z>-3.315228</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49080265</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.785471</x> <y>1.158077</y> <z>-3.341064</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68766913</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.63120600002</x> <y>-4.614155</y> <z>-3.331305</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41726599</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.461407</x> <y>9.33674700003</y> <z>-3.366976</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.15304924</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.884428</x> <y>-8.50380300002</y> <z>-3.360843</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.48631653</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.919348000001</x> <y>1.048985</y> <z>-3.396407</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41743845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.869324</x> <y>-2.861373</y> <z>-3.399332</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42305755</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>0.781145999999</x> <y>7.07156099999</y> <z>-3.394896</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68982579</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>4.800339</x> <y>3.15015</y> <z>-3.440355</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65559081</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.665336</x> <y>-0.716053000002</y> <z>-3.438335</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42551302</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.68263600002</x> <y>5.069136</y> <z>-3.450755</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.66508919</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.893737</x> <y>2.999499</y> <z>-3.407126</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.46450526</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>6.82329800001</x> <y>6.98104000002</y> <z>-3.455543</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47198613</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>2.523762</x> <y>7.25196499998</y> <z>-3.679386</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49355884</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>3.269882</x> <y>10.476025</y> <z>-3.731604</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.21596385</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>5.076041</x> <y>4.755243</y> <z>-4.109614</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.51658896</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.466161</x> <y>11.154628</y> <z>3.536055</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.34285063</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.451123</x> <y>11.181941</y> <z>4.633978</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.59620329</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.819329</x> <y>8.518164</y> <z>4.508736</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.65578683</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.388617</x> <y>-0.58253</y> <z>4.510271</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.67593329</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.457926</x> <y>8.40830800001</y> <z>3.204096</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.38253085</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.718399</x> <y>-8.48086600002</y> <z>4.370613</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.33451257</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.72152500003</x> <y>-0.832184999998</y> <z>3.674468</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.37560599</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.103753</x> <y>-5.270593</y> <z>4.84941</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.32326917</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>7.92841100002</x> <y>3.753241</y> <z>2.758011</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.37962051</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.514808</x> <y>-7.92269599998</y> <z>4.53093</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.35650582</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.305896</x> <y>4.476813</y> <z>5.243958</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.3353305</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.950917</x> <y>-6.59842999999</y> <z>3.581522</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.38068969</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.201171</x> <y>11.504562</y> <z>5.171403</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.30455364</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.530664</x> <y>8.83928900001</y> <z>3.881642</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.3577401</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.690168</x> <y>-8.38940800001</y> <z>4.854683</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.30492924</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>9.26849499998</x> <y>-4.118063</y> <z>3.030319</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.34756999</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.317057</x> <y>7.72967</y> <z>4.822125</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.33570324</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.15551499999</x> <y>-5.824169</y> <z>4.850898</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.32335827</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.141419</x> <y>3.557015</y> <z>4.939232</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.54907189</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.718226</x> <y>-2.414996</y> <z>3.623936</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.36007664</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.540986</x> <y>7.06597699999</y> <z>4.838262</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.31844227</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.774359</x> <y>-8.57682699998</y> <z>4.530698</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.60490321</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.746512</x> <y>-6.54104</y> <z>4.513702</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.63134223</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.678802</x> <y>-4.532569</y> <z>4.511703</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.64832139</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.147893</x> <y>-0.282058</y> <z>5.054032</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.31512706</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.015495</x> <y>-9.04613199999</y> <z>3.641293</z>
+		<el>1</el>
+		<li>1</li>
+		<st>H</st>
+		<chr>0.33638266</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.697232</x> <y>6.67109400001</y> <z>4.523496</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.6912233</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>13.370588</x> <y>-7.24003599999</y> <z>3.759122</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>-0.32768815</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>13.474004</x> <y>0.627851000001</y> <z>3.761321</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>-0.12951126</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.858066</x> <y>10.669934</y> <z>2.775115</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45174693</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.72575300001</x> <y>10.476523</y> <z>3.212882</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47784939</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.627191</x> <y>-0.736175</y> <z>2.833009</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3672964</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.279909</x> <y>3.173231</y> <z>2.729252</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.44841767</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.454574</x> <y>3.308894</y> <z>3.277406</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.624234</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.464176</x> <y>6.91414100003</y> <z>2.405127</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.48068465</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.667494</x> <y>-11.039475</y> <z>2.707163</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47471891</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.75554499998</x> <y>-0.648114</y> <z>2.697772</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3074259</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.436426</x> <y>1.403843</y> <z>2.689491</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39251944</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.759943</x> <y>-8.64903600001</y> <z>2.769001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.5460058</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.750132</x> <y>10.991349</y> <z>2.916781</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56328611</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.609864</x> <y>-4.612642</y> <z>2.738254</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.52713043</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.71801700002</x> <y>-6.65378300002</y> <z>2.753852</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.52277279</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.659117</x> <y>-6.64904000002</y> <z>2.631378</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.30310845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.87500899998</x> <y>-8.47966200002</y> <z>2.517691</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.44239845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.753179</x> <y>-4.402556</y> <z>2.562896</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43865539</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.69819100003</x> <y>3.159801</y> <z>2.468569</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.34999995</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>9.48658799999</x> <y>-11.774415</y> <z>2.589175</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.72718881</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.504372</x> <y>5.019996</y> <z>2.603874</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.56650493</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.534343</x> <y>8.81675999998</y> <z>2.795392</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56199238</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.623002</x> <y>-8.47382</y> <z>2.567044</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41792118</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.60917</x> <y>-2.654633</y> <z>2.673924</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.29978199</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.720638</x> <y>-6.50820099999</y> <z>2.541938</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.32688485</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.677246</x> <y>-10.523915</y> <z>2.499739</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43944042</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.645631</x> <y>-4.698265</y> <z>2.530265</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.35287595</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.59870200002</x> <y>1.250816</y> <z>2.461504</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67550194</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.725362</x> <y>1.123012</y> <z>2.493915</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40306072</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.742816</x> <y>-0.562644</y> <z>2.753783</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.57044662</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.566825</x> <y>6.78354999999</y> <z>2.738422</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.54584713</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.823923</x> <y>-2.484191</y> <z>2.501572</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.57517156</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.738443</x> <y>4.966139</y> <z>2.389924</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.69472247</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.766511</x> <y>4.972062</y> <z>2.404036</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40099982</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.67673</x> <y>-2.504801</y> <z>2.432507</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64603906</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.71352099998</x> <y>7.07465699999</y> <z>2.585628</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43062986</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.78826800001</x> <y>8.85935900001</y> <z>2.457412</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.60501581</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.791075</x> <y>9.05585400001</y> <z>2.522272</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.34233825</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.625092</x> <y>8.746676</y> <z>2.901619</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.34682428</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.63236</x> <y>2.104496</y> <z>1.403826</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68431232</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.76791</x> <y>-5.55870999997</y> <z>1.635702</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65429785</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.782277</x> <y>-9.606972</y> <z>1.610871</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65070032</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.665833</x> <y>-1.657675</y> <z>1.527153</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63576775</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.487555</x> <y>6.05276800002</y> <z>1.59459</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56466075</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.524767</x> <y>3.156774</y> <z>0.397485</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43796768</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.394122</x> <y>11.212432</y> <z>0.972788999998</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42370983</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.812479</x> <y>-8.67441999999</y> <z>0.788193000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37400429</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.780996</x> <y>10.976545</y> <z>0.929628000001</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37955737</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.724095</x> <y>-8.62001800002</y> <z>0.768531999998</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59464438</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.616436</x> <y>-10.495667</y> <z>0.704050000003</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42773199</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.666703</x> <y>8.979653</y> <z>0.907361999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.35097644</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.69206800003</x> <y>-6.52842799999</y> <z>0.787561</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3917455</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.752086</x> <y>-4.691187</y> <z>0.776659000003</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40227383</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.75485800002</x> <y>-4.64908</y> <z>0.638598000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.57409385</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.60247299999</x> <y>3.191326</y> <z>0.514094</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59310571</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.678911</x> <y>-6.62580500002</y> <z>0.676615999998</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64101072</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.57464</x> <y>-0.694757000001</y> <z>0.825896</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.4487141</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.632321</x> <y>-8.55575300002</y> <z>0.644685000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37493097</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.57059100001</x> <y>1.288401</y> <z>0.613793</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38573951</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.520612</x> <y>1.203505</y> <z>0.620506000002</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.61643151</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.759276</x> <y>-10.597771</y> <z>0.592602000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62901037</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.629433</x> <y>-2.614836</y> <z>0.606156</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.412028</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.531729</x> <y>5.128318</y> <z>0.538868999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3425317</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.752645</x> <y>-2.551605</y> <z>0.622482999999</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.61059817</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.769258</x> <y>-6.67020000001</y> <z>0.574126</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3872732</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.657051</x> <y>-4.52731</y> <z>0.581595000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41427371</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.630816</x> <y>6.97993100003</y> <z>0.764746000001</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39220085</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.668571</x> <y>3.083655</y> <z>0.508534</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47741791</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.81070300002</x> <y>-2.755089</y> <z>0.555907000002</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.3931666</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.614608</x> <y>5.079395</y> <z>0.494906</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.6186183</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.669638</x> <y>5.074135</y> <z>0.489588</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40039302</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.706318</x> <y>1.17824</y> <z>0.435703</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39247264</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.693261</x> <y>-0.684172999999</y> <z>0.499601</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43319434</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.620138</x> <y>9.19345099999</y> <z>0.645047999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39237912</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.80760400001</x> <y>-10.724264</y> <z>0.446065</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42772041</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.56851</x> <y>9.06488800003</y> <z>0.566091999999</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62310821</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.52528</x> <y>10.07356</y> <z>0.022684</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68454161</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.50382</x> <y>7.197583</y> <z>0.617936999999</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43924264</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.64899400001</x> <y>11.072375</y> <z>0.254149</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67149747</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.56271</x> <y>7.06546099999</y> <z>0.462956</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.58804027</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>13.75275</x> <y>-11.566371</y> <z>-0.0636570000001</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64288632</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>9.75065200001</x> <y>-7.63080799999</y> <z>-0.23284</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62791727</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>13.671353</x> <y>-3.685258</y> <z>-0.304287</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.60243788</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>9.69445900002</x> <y>0.245076</y> <z>-0.365551</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59770125</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>9.55240099999</x> <y>7.91738000002</y> <z>-0.354158</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68697454</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>13.629696</x> <y>4.126674</y> <z>-0.513031</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64708316</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.630207</x> <y>11.061897</y> <z>-0.953661000001</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38993612</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.64996000002</x> <y>-8.663496</y> <z>-1.118914</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43279781</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.591348</x> <y>9.133902</y> <z>-1.150469</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39970837</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.818683</x> <y>-8.56716799999</y> <z>-1.182067</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39250704</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.713675</x> <y>-10.556735</y> <z>-1.209649</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42067117</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.591579</x> <y>-10.537366</y> <z>-1.253557</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.44216163</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.785062</x> <y>-4.621664</y> <z>-1.239535</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37749247</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.469822</x> <y>5.038982</y> <z>-1.309123</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47273086</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.723602</x> <y>3.188705</y> <z>-1.367029</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37377022</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.626657</x> <y>-6.703468</y> <z>-1.237865</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38467471</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.784006</x> <y>-6.57660899999</y> <z>-1.247416</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38199692</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.563251</x> <y>1.104389</y> <z>-1.306834</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.36943483</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.632244</x> <y>-4.748281</y> <z>-1.296566</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39737697</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.732362</x> <y>-8.61631800002</y> <z>-1.307803</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63798988</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.65143</x> <y>-2.741359</y> <z>-1.289818</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37581959</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.739529</x> <y>-2.700802</y> <z>-1.331328</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.38376426</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.701024</x> <y>-6.673075</y> <z>-1.368783</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.61640823</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.63130100002</x> <y>-0.823595999998</y> <z>-1.357095</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40062312</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.57166</x> <y>-0.780177000001</y> <z>-1.396639</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62911407</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.706787</x> <y>-4.659023</y> <z>-1.373184</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.6388401</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.712282</x> <y>1.265983</y> <z>-1.406964</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.39444669</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.74896400002</x> <y>-2.719101</y> <z>-1.40726</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63357654</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.667451</x> <y>9.07272800001</y> <z>-1.247206</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45390598</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.641064</x> <y>1.14763</y> <z>-1.459264</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62667177</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.47601399999</x> <y>7.042688</y> <z>-1.429244</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37604747</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.722413</x> <y>-0.726325000001</y> <z>-1.477297</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43769568</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.548525</x> <y>3.08846</y> <z>-1.483496</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37844473</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.62076400001</x> <y>5.124365</y> <z>-1.493276</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.63508867</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.75672300002</x> <y>-10.498924</y> <z>-1.486593</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64548383</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.606326</x> <y>5.25176</y> <z>-1.488365</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.37494473</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.62223399998</x> <y>11.307712</y> <z>-1.49824</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.45043925</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.693299</x> <y>7.26375000002</y> <z>-1.260322</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.58139845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.423929</x> <y>7.19833400003</y> <z>-1.660875</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.64908161</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.640488</x> <y>3.21474</y> <z>-1.579344</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.6487128</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.633991</x> <y>-9.51730699998</y> <z>-2.30541</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.56117948</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.632984</x> <y>2.088288</y> <z>-2.434523</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62302519</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.666639</x> <y>-5.67362</y> <z>-2.426079</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.60640767</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.68969</x> <y>-1.743951</y> <z>-2.496753</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.66063598</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>15.574971</x> <y>10.06167</y> <z>-2.435799</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.59902029</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.6016</x> <y>11.047608</y> <z>-2.781451</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65016058</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.612119</x> <y>8.837367</y> <z>-3.021613</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.62315904</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.586539</x> <y>-10.836218</y> <z>-3.07401</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40502884</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.369123</x> <y>-10.773644</y> <z>-3.083825</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.69993108</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.94102</x> <y>-8.99958000002</y> <z>-3.164293</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.18737958</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.550442</x> <y>-6.554184</y> <z>-3.188804</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50763619</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.831514</x> <y>-4.825009</y> <z>-3.195863</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49813323</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.615079</x> <y>-6.74232300001</y> <z>-3.204397</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67210134</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.383965</x> <y>11.149585</y> <z>-3.243394</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.40438799</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.60324199997</x> <y>-2.654835</y> <z>-3.248961</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50439076</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.682434</x> <y>-4.706044</y> <z>-3.24715</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68408056</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.772902</x> <y>-0.918444000002</y> <z>-3.270287</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49385341</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.18288599998</x> <y>-10.089572</y> <z>-3.266538</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.18410213</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.630233</x> <y>-2.765663</y> <z>-3.266223</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.69326628</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.593459</x> <y>3.155791</y> <z>-3.286061</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43797925</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.543202</x> <y>1.266221</y> <z>-3.315774</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.50890551</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.72380599998</x> <y>-0.775767000001</y> <z>-3.288251</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.67903761</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.76034199998</x> <y>9.01827100001</y> <z>-3.281417</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.43430233</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.542488</x> <y>5.202283</y> <z>-3.327054</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47272393</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.84484499998</x> <y>-6.61216699998</y> <z>-3.315228</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49080265</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.690471</x> <y>1.158077</y> <z>-3.341064</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68766913</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.536206</x> <y>-4.614155</y> <z>-3.331305</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41726599</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.366407</x> <y>9.33674700003</y> <z>-3.366976</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.15304924</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.789428</x> <y>-8.50380300002</y> <z>-3.360843</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.48631653</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.82434800002</x> <y>1.048985</y> <z>-3.396407</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.41743845</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.774324</x> <y>-2.861373</y> <z>-3.399332</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42305755</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>8.68614599999</x> <y>7.07156099999</y> <z>-3.394896</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.68982579</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.705339</x> <y>3.15015</y> <z>-3.440355</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.65559081</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.570336</x> <y>-0.716053000002</y> <z>-3.438335</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.42551302</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.587636</x> <y>5.069136</y> <z>-3.450755</z>
+		<el>13</el>
+		<li>1</li>
+		<st>Al</st>
+		<chr>0.66508919</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.798737</x> <y>2.999499</y> <z>-3.407126</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.46450526</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>14.728298</x> <y>6.98104000002</y> <z>-3.455543</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.47198613</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>10.428762</x> <y>7.25196499998</y> <z>-3.679386</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.49355884</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>11.174882</x> <y>10.476025</y> <z>-3.731604</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.21596385</chr>
+	</atom>
+	<atom lunit="ang">
+		<x>12.981041</x> <y>4.755243</y> <z>-4.109614</z>
+		<el>8</el>
+		<li>1</li>
+		<st>O</st>
+		<chr>-0.51658896</chr>
+	</atom>
+</geometry>
+</fmg>
+

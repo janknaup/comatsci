@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE fmg>
+<fmg>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.295398</x> <y>0.76293</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.386275857806</x> <y>0.671247622497</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.473180109002</x> <y>0.575806169253</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.530855692136</x> <y>0.460354004789</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.455948906336</x> <y>0.355297162435</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.348531302352</x> <y>0.283866586225</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.221355317252</x> <y>0.262447616413</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>-0.0927244918015</x> <y>0.253618242547</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>0.0344996092056</x> <y>0.232889669449</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>0.117028245433</x> <y>0.133906558713</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>0.203212103965</x> <y>0.0381117610359</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<geometry>
+	<mode>C</mode>
+	<atom lunit="ang">
+		<x>0.329941</x> <y>0.014837</y> <z>0.0</z>
+		<el>1</el>
+		<st>H</st>
+		<chr>0.0</chr>
+	</atom>
+</geometry>
+<trjstep>
+	<nrg>-146.699517207</nrg>
+	<forces>
+		2.10456177e-04  -2.36280490e-03  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-135.645362348</nrg>
+	<forces>
+		5.85494743e+01  6.16033463e+01  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-108.74343087</nrg>
+	<forces>
+		7.22489000e+01  1.05384422e+02  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-75.3356810131</nrg>
+	<forces>
+		-1.17023937e+01  1.49629860e+02  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-42.2208676885</nrg>
+	<forces>
+		-3.84112934e+01  3.71793443e+01  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-49.3221648887</nrg>
+	<forces>
+		6.73398646e+01  -2.66506344e+01  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-67.2693458027</nrg>
+	<forces>
+		6.58144907e+01  -7.78208630e+00  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-79.0531867928</nrg>
+	<forces>
+		2.66740923e+01  -3.08198703e+00  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-79.1967793535</nrg>
+	<forces>
+		-2.34220154e+01  1.33678716e+01  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-72.8041229117</nrg>
+	<forces>
+		2.06999852e+01  -2.38957618e+01  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-95.2734555378</nrg>
+	<forces>
+		8.25193842e+01  -4.61468150e+01  0.00000000e+00
+	</forces>
+</trjstep>
+<trjstep>
+	<nrg>-108.166724116</nrg>
+	<forces>
+		6.83405715e-04  -1.29250509e-04  0.00000000e+00
+	</forces>
+</trjstep>
+<trjinfo>
+	<stepcount>1230</stepcount>
+</trjinfo>
+</fmg>
+
