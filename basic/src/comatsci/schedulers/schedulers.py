@@ -302,7 +302,7 @@ class mpiScheduler(Scheduler):
 					self._worker.shutdown()
 				except:
 					pass
-				self.pypar.Finalize()
+				self.pypar.finalize()
 				if self._verbosity>=constants.VBL_TALKY:
 					print("[SLAVE {0:d}]: MPI environment finalized.".format(self.__MPI_myid))
 				sys.exit(0)
@@ -438,7 +438,7 @@ class mpiScheduler(Scheduler):
 		except:
 			pass
 		#call the base class shutdown
-		self.pypar.Finalize()
+		self.pypar.finalize()
 		if self._verbosity>=constants.VBL_NORMAL:
 			print("MPI scheduler: [master] MPI environment finalized")
 		Scheduler.shutdown(self)
