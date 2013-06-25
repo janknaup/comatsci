@@ -23,6 +23,7 @@ from .. import geometry, calculators
 
 from ..calculators.calcerror import CalcError
 from .. import constants,spline,utils
+from .pathiterator import PathIterator
 
 
 #complicated import statement to make it work with python 2.4 and 2.5
@@ -97,6 +98,16 @@ class Reactionpath:
 		self._rSplineRep=None
 
 
+	def __iter__(self):
+		return PathIterator(self)
+	
+	
+	def __getitem__(self,index):
+		if abs(index)>self.numImages():
+			raise IndexError
+		else:
+			return self.geos[index]
+
 
 	def getHasSplineRep(self):
 		return self.splineRep!=None
@@ -133,8 +144,38 @@ class Reactionpath:
 			self.Atomcount=geo.Atomcount
 			self.amasses=geo.getmasses()
 		self.geos.append(geo)
+		if geo.totalenergy!=None:
+			if self.has_energies() or self.numimages()==1:
+				self.energies.append(geo.totalenergy)
 		# kill possibly stored spline representation
 		self.splineRep=None
+		
+		
+		
+	def appendPath(self, appendPath, checkCompat=True):
+		"""append a reaction path geometry by geometry
+		@type appendPath: Reactionpath instance
+		@param appendPath: reactionpath to append to self
+		@type checkCompat: boolean
+		@param checkCompat: perform compatibility check on appended geometries
+		"""
+		# iterate through Geometries and append
+		for ii in appendPath.numimages():
+			appendGeo=appendPath.geos[ii]
+			self.appendGeoObject(appendGeo, checkCompat)
+		# handle energies and forces
+		if self.has_energies():
+			if appendPath.has_energies():
+				self.energies.extend(appendPath.energies)
+			else:
+				print("Reactionpath warning: appending path without energies to path with energies. Dropping existing energies")
+				self.energies=[]
+		if self.has_realforces():
+			if appendPath.has_realsforces():
+				self.realforces.extend(appendPath.realforces)
+			else:
+				print("Reactionpath warning: appending path without forces to path with forces. Dropping existing forces")
+				self.realforces=[]
 
 
 
