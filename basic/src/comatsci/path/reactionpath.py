@@ -282,6 +282,8 @@ class Reactionpath:
 		"""return the number of images in the path"""
 		return len(self.geos)
 	numImages=property(numimages,doc="""number of images in path""")
+	def __len__(self):
+		return len(self.geos)
 
 
 	def writegenpath(self,nameprefix="path"):
