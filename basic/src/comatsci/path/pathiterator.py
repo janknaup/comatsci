@@ -20,7 +20,7 @@ class PathIterator:
         return self
     
     def next(self):
-        if self.index==self.path.numimages():
+        if self.index==self.path.numimages()-1:
             raise StopIteration
         else:
             self.index=self.index+1
