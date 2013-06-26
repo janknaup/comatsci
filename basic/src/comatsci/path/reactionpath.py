@@ -38,7 +38,7 @@ except:
 class Reactionpath:
 	"""Class for work with reaction paths"""
 
-	def __init__(self,icheckpointdir,ifixedatoms,icmode,ifmax,ifrms,imaxit,
+	def __init__(self,icheckpointdir='checkpoint',ifixedatoms=[],icmode='s',ifmax=1e-4,ifrms=1e-5,imaxit=500,
 				charge=0.0,verbosity=None):
 		"""initialize Reactionpath
 		@param icheckpointdir: directory name for checkpoint storage
@@ -103,7 +103,7 @@ class Reactionpath:
 	
 	
 	def __getitem__(self,index):
-		if abs(index)>self.numImages():
+		if abs(index)>self.numImages:
 			raise IndexError
 		else:
 			return self.geos[index]
