@@ -306,6 +306,7 @@ class Geometry:
 		self.electrontemperature=None
 		self.timestep=None
 		self.simtime=None
+		self.forces=None
 		self._reset_derived()
 		self._consistency_check()
 	
@@ -348,6 +349,9 @@ class Geometry:
 		elif self.LPops!=None:
 			if len(self.LPops)!=self.Atomcount:
 				raise GeometryError('Atom l-shell populations mismatch')
+		elif self.forces!=None:
+			if self.forces.shape != self.Geometry.shape:
+				raise GeometryError('Force array does not match coordinates')
 		return 1
 
 
@@ -749,6 +753,8 @@ class Geometry:
 		if self.simtime != None: framegroup.attrs["simtime"]=self.simtime
 		if refGroup==None or not "coordinates" in refGroup.keys(): #FIXME: write coordinates if changed!
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
+		if self.forces!=None and ( refGroup==None or not "forces" in refGroup.keys()): #FIXME: write coordinates if changed!
+				forceset=imagegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
 		if refGroup==None or not "elements" in refGroup.keys():
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
 		if refGroup==None or not "types" in refGroup.keys():
@@ -871,7 +877,7 @@ class Geometry:
 			self.Lattice=globalsGroup["lattice"].value
 		else:
 			self.Mode="C"
-		# set corrdinates
+		# set coordinates
 		if "coordinates" in framesets:
 			coordgroup=framegroup
 		else:
@@ -916,6 +922,12 @@ class Geometry:
 			self.AtomCharges=globalsGroup["charges"].value
 		else:
 			self.AtomCharges=numpy.zeros((self.Atomcount,),dtype=float)
+		# set forces
+		if "forces" in framesets:
+			forcesgroup=framegroup
+		else:
+			forcesgroup=globalsGroup
+		self.Geometry=forcesgroup["forces"].value
 		# dummy data
 		self.LPops=numpy.zeros((self.Atomcount,3),dtype=int)
 		# Finally, check consistency and return
