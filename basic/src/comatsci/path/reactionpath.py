@@ -103,7 +103,7 @@ class Reactionpath:
 	
 	
 	def __getitem__(self,index):
-		if abs(index)>self.numImages:
+		if abs(index)>=self.numImages:
 			raise IndexError
 		else:
 			return self.geos[index]
@@ -573,12 +573,20 @@ class Reactionpath:
 			tg=geoconstructor()
 			framegroup=pathfile[frame]
 			tg.parseH5Framegroup(framegroup,globalsGroup)
-			if "totalenergy" in framegroup.attrs.keys() and hasE:
-				tempEnergies.append(framegroup.attrs["totalenergy"].value[0])
+# 			if "totalenergy" in framegroup.attrs.keys() and hasE:
+# 				tempEnergies.append(framegroup.attrs["totalenergy"].value[0])
+# 			else:
+# 				hasE=False
+# 			if "forces" in framegroup.keys() and hasF:
+# 				tempForces.append(framegroup["forces"].value)
+# 			else:
+# 				hasF=False
+			if tg.totalenergy!=None and hasE:
+				tempEnergies.append(tg.totalenergy)
 			else:
 				hasE=False
-			if "forces" in framegroup.keys() and hasF:
-				tempForces.append(framegroup["forces"].value)
+			if tg.forces!=None and hasF:
+				tempForces.append(tg.forces)
 			else:
 				hasF=False
 			self.appendGeoObject(tg, checkCompat=checkCompat)
