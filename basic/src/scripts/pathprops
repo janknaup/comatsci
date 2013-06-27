@@ -389,7 +389,7 @@ if len(args) != 1 and options.externalcalcs==None:
 	
 
 
-path=comatsci.path.NEBPath('',[],1.,'s','w',-1,1.,'s',1.,1.,1,'v',0,options.verbosity)
+path=comatsci.path.NEBPath('',[],1.,'s','w',-1,1.,'d',1.,1.,1,'v',0,options.verbosity)
 
 
 if os.path.isdir(args[0]):
