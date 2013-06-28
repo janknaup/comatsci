@@ -14,13 +14,13 @@ class PathIterator:
     
     def __init__(self,path):
         self.path=path
-        self.index=0
+        self.index=-1
     
     def __iter__(self):
         return self
     
     def next(self):
-        if self.index==self.path.numimages()-1:
+        if self.index>=self.path.numimages()-1:
             raise StopIteration
         else:
             self.index=self.index+1
@@ -30,13 +30,13 @@ class PathIterator:
 class EnergyAccessor:
     def __init__(self,path):
         self.path=path
-        self.index=0
+        self.index=-1
         
     def __iter__(self):
         return self
     
     def next(self):
-        if self.index==self.path.numimages()-1:
+        if self.index>=self.path.numimages()-1:
             raise StopIteration
         else:
             self.index=self.index+1
@@ -73,13 +73,13 @@ class EnergyAccessor:
 class ForcesAccessor:
     def __init__(self,path):
         self.path=path
-        self.index=0
+        self.index=-1
         
     def __iter__(self):
         return self
     
     def next(self):
-        if self.index==self.path.numimages()-1:
+        if self.index>=self.path.numimages()-1:
             raise StopIteration
         else:
             self.index=self.index+1
