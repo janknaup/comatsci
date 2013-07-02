@@ -106,10 +106,32 @@ class Reactionpath:
 	        return [ self.__getitem__(ii) for ii in range(start,index.stop,step) ]
 	    else:
 	        if index<0: index=index+self.__len__()
-	        if index < 0 or index>=self.numImages:
+	        if index < 0 or index >=self.numImages:
 	            raise IndexError
 	        else:
 	            return self.geos[index]
+	           
+
+	def __setitem__(self,index,data):
+		if isinstance(index,slice):
+			if index.start==None: 
+				start=0
+			else:
+				start=index.start
+			if indes.step==None:
+				step=1
+			else:
+				step=index.step
+				dataindex=0
+				for ii in range(start,index.stop,step):
+					self.geos[ii]=data[dataindex]		
+		else:
+			if index<0: index=index+self.__len__()
+			if index < 0 or index >=self.numImages:
+				raise IndexError
+			else:
+				self.geos[index]=data
+				self.splineRep=None
 
 
 	def getHasSplineRep(self):
@@ -140,16 +162,16 @@ class Reactionpath:
 				self.geos[0].compatcheck(geo)
 			except geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
-					print("ReactionPath warning: Geometry lattice mismatch")
+					print("ReactionPath warning: Geometry lattice mismatch",file=sys.stderr)
 				else:
 					raise
 		else:
 			self.Atomcount=geo.Atomcount
 			self.amasses=geo.getmasses()
 		self.geos.append(geo)
-		if geo.totalenergy!=None:
-			if self.has_energies() or self.numimages()==1:
-				self.energies.append(geo.totalenergy)
+# 		if geo.totalenergy!=None:
+# 			if self.has_energies() or self.numimages()==1:
+# 				self.energies.append(geo.totalenergy)
 		# kill possibly stored spline representation
 		self.splineRep=None
 		
@@ -163,9 +185,8 @@ class Reactionpath:
 		@param checkCompat: perform compatibility check on appended geometries
 		"""
 		# iterate through Geometries and append
-		for ii in appendPath.numimages():
-			appendGeo=appendPath.geos[ii]
-			self.appendGeoObject(appendGeo, checkCompat)
+		for ii in appendPath:
+			self.appendGeoObject(ii, checkCompat)
 # 		# handle energies and forces
 # 		if self.has_energies():
 # 			if appendPath.has_energies():
