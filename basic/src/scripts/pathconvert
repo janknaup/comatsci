@@ -1,0 +1,259 @@
+#!/usr/bin/env python
+##############################################################################
+# pathconvert
+# Part of COmputational MAterials SCIence toolkit - comatsci
+# (c) 2005-2013 by Jan M. Knaup <janknaup@gmail.com>
+# all rights reserved
+##############################################################################
+# Licensed under the Non-Profit Open Software License version 3.0
+# see file LICENSE for details.
+##############################################################################
+
+from __future__ import print_function
+import cProfile
+import plop.collector
+
+import os,sys,re
+
+import comatsci
+
+from optparse import OptionParser,OptionGroup
+
+import random
+
+import numpy
+
+programname=os.path.basename(sys.argv[0]).lower()
+
+#map mode names, file name endings and writer functions
+outputModes={"xyz"    :    ("xyz",comatsci.path.Reactionpath.writexyzpath),
+    "gen" :    ("gen",comatsci.path.Reactionpath.writegenpath),
+    "fmg" : ("fmg",comatsci.path.Reactionpath.writefmgpath),
+    "cdh" : ("cdh",comatsci.path.Reactionpath.writeCDHPath)}
+
+#map mode names, file name endings and writer functions
+inputModes={"xyz"    :    comatsci.path.Reactionpath.readXyzPath,
+    "checkpoint" :    comatsci.path.Reactionpath.readcheckpoint,
+    "fmg" : comatsci.path.Reactionpath.readfmgpath,
+    "cdh" : comatsci.path.Reactionpath.readCDHPath}
+# set default output mode to CDH
+outputMode="cdh"
+fileExtensionRe=re.compile("(.*)\.(.+)$")
+
+usage=("usage: %prog [options] <input file> [<input file>] [<output file>]\nLicensed under the "+
+"Non-Profit Open Software License version 3.0")
+
+parser=OptionParser(usage)
+
+parser.add_option("-f","--format",
+        action="store", metavar="F", default=None, dest="mode", choices=outputModes.keys(),
+        help=("Write output geometry in format F. Choose from : {0:s}. Default determined from "+
+        "output file name if provided, else {1:s}.").format(str(outputModes.keys()),outputMode))
+#.................................................
+addDataGroup=OptionGroup(parser,"Options to add data to input paths")
+
+parser.set_defaults(popfiles=[])
+addDataGroup.add_option("-p","--population",
+        action="store", metavar="F", dest="popfiles", type="string",
+        help="Read atomic populations from file F. If multiple input geometries are given, "+
+        "this option must be repeated for each input file in order or left out completely. "+
+        "No default. Special Value '-' to skip reading population for corresponding input file")
+#.................................................
+manipulateGeometriesGroup=OptionGroup(parser,"Options to manipulate image geometries")
+
+parser.set_defaults(xtnd="1:1:1")
+manipulateGeometriesGroup.add_option("-x","--extend",
+        action="store", metavar="XTND", dest="xtnd", type="string", 
+        help="periodically extend the input geometry to include a:b:c original supercells in "+
+        "the a:b:c lattice directions, default = %default (only the original supercell)")
+parser.set_defaults(layer=None)
+manipulateGeometriesGroup.add_option("-l","--layer",
+        action="store", metavar="L", dest="layer", type="int", 
+        help="Write only atoms from layer L into output geometry. default: write whole geometry")
+parser.set_defaults(element=None)
+manipulateGeometriesGroup.add_option("-e","--element",
+        action="store", metavar="E", dest="element", type="int",
+        help="Write only atoms of lement E into output geometry. default: write all elements")
+parser.set_defaults(scale=None)
+manipulateGeometriesGroup.add_option("-s", "--scale",
+                action="store", metavar="S", dest="scale", type="float",
+                help="scale the whole geometry by a factor of S.")
+parser.set_defaults(anisoscale=None)
+manipulateGeometriesGroup.add_option("--anisoscale",
+                action="store", metavar="S", dest="anisoscale", type="float", nargs=3,
+                help="anisotropically scale the whole geometry by a vector S. Scale in lattice "+
+                "vector directions for supercells and Cartesian directions for cluster geometries")
+parser.set_defaults(foldback=False)
+manipulateGeometriesGroup.add_option("-F","--foldback",
+         action="store_true", dest="foldback",
+         help="Fold periodic geometry back into unit cell.")
+#.................................................
+parser.add_option_group(addDataGroup)
+parser.add_option_group(manipulateGeometriesGroup)
+
+
+(options,args) = parser.parse_args()
+
+# check if output mode (file format) was specified by option
+if options.mode!=None:
+    outputMode=options.mode
+
+# see if last positional arguments contains existing file
+# if true, use as input file, else use as output file
+if (os.path.isfile(args[-1])):
+    if options.mode==None:
+        raise ValueError("No explicit output file given and no output mode specified")
+    infileNames=[ os.path.abspath(iii) for iii in args ]
+    outputPrefix=fileExtensionRe.match(args[0]).groups()[0]
+    outfileName=outputPrefix+"."+options.mode
+    if os.path.exists(outfileName):
+        raise ValueError("Output file '{0:s}' already exists.".format(outfileName))
+else:
+    infileNames=[ os.path.abspath(iii) for iii in args[0:-1] ]
+    outfileName=os.path.abspath(args[-1])
+    if options.mode==None:
+        (outputPrefix,outputMode)=fileExtensionRe.match(args[-1]).groups()
+        if not outputMode in outputModes.keys():
+            raise ValueError("Output file format '{0:s} not supported")
+    elif fileExtensionRe.match(args[-1]).groups()[1].lower()!=outputMode:
+        print("Warning: specified file format '{0:s}' does not match extension of output file name '{1:s}'".format(outputMode,outfileName),file=sys.stderr)
+
+#***********************************************************************
+#*** be sure to perform option checks before reading inputs ************
+#***********************************************************************
+
+# check if all specified input files exist and their types can be inferred
+for ii in infileNames:
+    if not os.path.exists(ii):
+        raise ValueError("Specified input file '{0:s}' does not exist".format(ii))
+    else:
+        if os.path.isfile(ii):
+            inmode=fileExtensionRe.match(ii).groups()[1]
+            if not inmode in inputModes.keys():
+                raise ValueError("Unknown file type '{0:s}' of specified input file '{1:s}'".format(inmode,ii))
+
+# check if add data options provide arguments either for every input geometry or for none
+# also check file existence 
+
+if (len(options.popfiles)!=0 and len(options.popfiles)!=len(infileNames)):
+    raise ValueError("Not enough population files specified for number of input files")
+for ii in options.popfiles:
+    if not os.path.isfile(ii):
+        raise ValueError("Specified population input file '{0:s}' does not exist".format(ii))
+
+#***********************************************************************
+#*** read input files **************************************************
+#***********************************************************************
+
+inputPaths=[]
+print("reading input files:",file=sys.stderr)
+for ii in infileNames:
+    print(ii,end=' ... ',file=sys.stderr)
+    inputPaths.append(comatsci.path.Reactionpath(verbosity=comatsci.constants.VBL_SILENCE))
+    # if input path name is a directory, try to read as bunch of .gen files
+    if os.path.isdir(ii):
+        inputModes["checkpoint"](inputPaths[-1],ii)
+    # otherwise use file read methods
+    else:
+        inmode=fileExtensionRe.match(ii).groups()[1]
+        inputModes[inmode](inputPaths[-1],ii)
+    print("done",file=sys.stderr)
+print("finished reading input files",file=sys.stderr)
+
+#***********************************************************************
+#*** perform data adding actions ***************************************
+#***********************************************************************
+
+geoindex=0
+if len(options.popfiles)!=0:
+    for popfile in options.popfiles:
+        print("reading dftb mulliken populations from {0:s}".format(popfile),file=sys.stderr)
+        if options.popfile.find("CHR.DAT")!=-1:
+            inputPaths[geoindex].read_dftb_charges(popfile)
+        elif options.popfile.find("detailed.out")!=-1:
+            inputPaths[geoindex].read_noodle_charges(popfile)
+        else:
+            raise ValueError("Cannot identify population file type of specified file '{0:s}'.".format(popfile))
+        geoindex=geoindex+1
+
+
+#***********************************************************************
+#*** assemble output path, catch some consistency exceptions************
+#***********************************************************************
+outPath=comatsci.path.Reactionpath(verbosity=comatsci.constants.VBL_SILENCE)
+for ii in inputPaths:
+    try:
+        outPath.appendPath(ii)
+    except comatsci.geometry.GeometryError as GE:
+        if GE.args[0] in ('Atom layer list inconsistency',):
+            print("Warning: {0:s}".format(GE.args[0]),file=sys.stderr)
+        else:
+            raise
+
+#***********************************************************************
+#*** perform geometry manipulation options *****************************
+#***********************************************************************
+if (options.xtnd != "1:1:1"):
+    print("Peiodically expanding geometries ... ",end="",file=sys.stderr)
+    extensions=[ int(ii) for ii in options.xtnd.split(':') ]
+    if len(extensions)!=3:
+        raise ValueError("Periodic extension needs three integer arguments in the form a:b:c")
+    for geo in outPath:
+        geo.periodicexpand(extensions)
+    print("done",file=sys.stderr)
+
+if options.layer!=None:
+    print("Filtering layer subgeometry for layer {0:d}:{1:s} ...".format(
+        options.layer,outPath[0].LayerDict[options.layer].Name),end=" ",file=sys.stderr)
+    for ii in range(len(outPath)):
+        outPath[ii]=outPath[ii].layersubgeometry(options.layer)
+    print("done",file=sys.stderr)
+
+if options.element!=None:
+    print("Filtering element subgeometry for element {0:d}:{1:s} ...".format(
+        options.element,outPath[0].PTE[options.element]),end=" ",file=sys.stderr)
+    for ii in range(len(outPath)):
+        outPath[ii]=outPath[ii].elementsubgeometry(options.element)
+    print("done",file=sys.stderr)
+
+if options.scale!=None:
+        print("Scaling output geometries by {0: 24.17E} ".format(options.scale),end=" ",file=sys.stderr)
+        for outgeo in outPath:
+            outgeo.Geometry*=options.scale
+            if outgeo.Mode=="S":
+                outgeo.Lattice*=options.scale
+        print("done",file=sys.stderr)
+                
+if options.anisoscale!=None:
+    if outPath[0].Mode=="S":
+        print("Anisotropically scaling output geometry along lattice vectors ...",end=" ",file=sys.stderr)
+        for outgeo in outPath:
+            newlattice=numpy.multiply(numpy.array(outgeo.Lattice),numpy.array(options.anisoscale))
+            outgeo.Geometry=numpy.dot(outgeo.fractionalGeometry,newlattice)
+            outgeo.Lattice=newlattice
+    else:
+        print("Anisotropically scaling output geometry in Cartesian directions",end=" ",file=sys.stderr)
+        for outgeo in outPath:
+            outgeo.Geometry=numpy.multiply(outgeo.Geometry,numpy.array(options.anisoscale))
+    print("done",file=sys.stderr)
+                
+
+if options.foldback:
+    if outPath[0].Mode!="S":
+        raise ValueError("Foldback on non-periodic geomety requested")
+    else:
+        print("folding coordinates back into unit cell...",end=" ",file=sys.stderr)
+        for outgeo in outPath:
+            outgeo.foldToCell()
+    print("done.",file=
+
+#***********************************************************************
+#*** write output file *************************************************
+#***********************************************************************
+print("writing output file '{0:s}' ... ".format(outfileName),end='',file=sys.stderr)
+
+#outputModes[outputMode][1](outPath,outfileName)
+cProfile.run("outputModes[outputMode][1](outPath,outfileName)",filename="profile")
+
+print("done",file=sys.stderr)
+print("exiting",file=sys.stderr)

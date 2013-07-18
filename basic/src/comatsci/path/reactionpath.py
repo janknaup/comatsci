@@ -535,7 +535,7 @@ class Reactionpath:
 
 
 
-	def writeCDHPath(self,filename="path.cdh",savespace=False):
+	def writeCDHPath(self,filename="path.cdh",savespace=True):
 		""" 
 		Write the current path in HDF5 format according to CDH specification
 		@type filename: string
@@ -567,11 +567,11 @@ class Reactionpath:
 			else:
 				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,refGroup=refGroup)[1] #@UndefinedVariable
 			# add additional path data, if present
-			if self.has_energies():
-				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")
-				energyset[0]=self.energies[image]
-			if self.has_realforces():
-				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
+# 			if self.has_energies():
+# 				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")
+# 				energyset[0]=self.energies[image]
+# 			if self.has_realforces():
+# 				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
 		pathfile.close()
 			
 
@@ -603,6 +603,7 @@ class Reactionpath:
 			tg=geoconstructor()
 			framegroup=pathfile[frame]
 			tg.parseH5Framegroup(framegroup,globalsGroup)
+			self.appendGeoObject(tg, checkCompat)
 # 			if "totalenergy" in framegroup.attrs.keys() and hasE:
 # 				tempEnergies.append(framegroup.attrs["totalenergy"].value[0])
 # 			else:
@@ -627,6 +628,7 @@ class Reactionpath:
 # 		if hasF:
 # 			self.realforces=tempForces
 		# finished. cleanup and return
+		
 		pathfile.close()
 		return(self)
 

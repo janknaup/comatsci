@@ -910,26 +910,31 @@ class Geometry:
 				residuesDict=h5py.check_dtype(enum=residueGroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
 			for ii in residuesDict.keys():
-					self.addlayer(ii, residuesDict[ii])
+				if self.layerbyname(residuesDict[ii])==None:
+					self.addlayer(residuesDict[ii],ii)
 			self.AtomLayers=residueGroup["residues"].value
 		else:
-			self.addlayer("default layer", 0)
-			self.AtomLayers=numpy.zeros((self.Atomcount,),dtpye=int)
+			if not self.layerbyname("default layer")==0:
+				self.addlayer("default layer", 0)
+			self.AtomLayers=list(numpy.zeros((self.Atomcount,)))
 		# set atom charges
 		if "charges" in framesets:
-			self.AtomCharges=framegroup["charges"].value
+			self.AtomCharges=list(framegroup["charges"].value)
 		elif "charges" in globalsets:
-			self.AtomCharges=globalsGroup["charges"].value
+			self.AtomCharges=list(globalsGroup["charges"].value)
 		else:
-			self.AtomCharges=numpy.zeros((self.Atomcount,),dtype=float)
+			self.AtomCharges=list(numpy.zeros((self.Atomcount,),dtype=float))
 		# set forces
 		if "forces" in framesets:
 			forcesgroup=framegroup
 		else:
 			forcesgroup=globalsGroup
-		self.Geometry=forcesgroup["forces"].value
+		if "forces" in globalsets:
+			self.forces=forcesgroup["forces"].value
+		else:
+			self.forces=None
 		# dummy data
-		self.LPops=numpy.zeros((self.Atomcount,3),dtype=int)
+		self.LPops=list(numpy.zeros((self.Atomcount,3),dtype=int))
 		# Finally, check consistency and return
 		self._consistency_check()
 		return self
