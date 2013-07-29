@@ -10,8 +10,7 @@
 ##############################################################################
 
 from __future__ import print_function
-import cProfile
-import plop.collector
+#import cProfile
 
 import os,sys,re
 
@@ -104,7 +103,7 @@ if (os.path.isfile(args[-1])):
     if options.mode==None:
         raise ValueError("No explicit output file given and no output mode specified")
     infileNames=[ os.path.abspath(iii) for iii in args ]
-    outputPrefix=fileExtensionRe.match(args[0]).groups()[0]
+    outputPrefix=fileExtensionRe.match(args[-1]).groups()[0]
     outfileName=outputPrefix+"."+options.mode
     if os.path.exists(outfileName):
         raise ValueError("Output file '{0:s}' already exists.".format(outfileName))
@@ -245,15 +244,14 @@ if options.foldback:
         print("folding coordinates back into unit cell...",end=" ",file=sys.stderr)
         for outgeo in outPath:
             outgeo.foldToCell()
-    print("done.",file=
+    print("done.",file=sys.stderr)
 
 #***********************************************************************
 #*** write output file *************************************************
 #***********************************************************************
 print("writing output file '{0:s}' ... ".format(outfileName),end='',file=sys.stderr)
 
-#outputModes[outputMode][1](outPath,outfileName)
-cProfile.run("outputModes[outputMode][1](outPath,outfileName)",filename="profile")
+outputModes[outputMode][1](outPath,outfileName)
 
 print("done",file=sys.stderr)
 print("exiting",file=sys.stderr)
