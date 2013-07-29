@@ -544,7 +544,7 @@ class Reactionpath:
 		# check if space saving can be used between geometries, THIS CHECK IS UNSAFE
 		if savespace:
 			try:
-				globalSets=["elements","types","lattice","residues"]
+				globalSets=["elements","types","lattice","residues","method"]
 				self.geos[0].compatcheck(self.geos[-1])
 			except geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
@@ -552,6 +552,8 @@ class Reactionpath:
 					globalSets.remove("lattice")
 				else:
 					savespace=False
+					globalSets=[]
+		globalExclude=set(self.geos[0].knownCDHFields).difference(set(globalSets))
 		# open HDF5 file for overwriting
 		pathfile=h5py.File(filename,"w")
 		# iterate through path images
@@ -560,12 +562,9 @@ class Reactionpath:
 			imagelabel="frame{0:010d}".format(image)
 			# first write the image geometry
 			if image==0 and savespace:
-				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel)[1] #@UndefinedVariable
-				refGroup=pathfile.require_group("globals")
-				for iii in globalSets:
-					refGroup[iii]=imagegroup[iii]
+				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]
 			else:
-				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,refGroup=refGroup)[1] #@UndefinedVariable
+				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable
 			# add additional path data, if present
 # 			if self.has_energies():
 # 				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")

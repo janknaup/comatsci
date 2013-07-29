@@ -702,8 +702,11 @@ class Geometry:
 		outfile.close()
 
 
-
-	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, labelstring="comatsci geometry",refGroup=None):
+	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","iontemperature",
+				"electrontemperature","timestep","simtime","coordinates","forces",
+				"elements","types","charges","lattice","residues")
+	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, 
+						labelstring="comatsci geometry",exclude=None):
 		"""
 		write HDF5 representation of Geometry into HDF5 file followin CDH specification
 		DOES NOT CLOSE the HDF5 file under any circumstances to allow writing multi-frame geometries into one file
@@ -715,13 +718,15 @@ class Geometry:
 		@param overwrite: if true, overwrite preexisting geometry group
 		@type labelstring: string
 		@param labelstring: string to be attached to the HDF frame group as the label property
-		@type refGroup: h5py data group object
-		@param refGroup: HD5 reference group. Will link identical data to refGroup to save space for redundant data   
-		@return: tuple of hdf5 file and framegroup written to
+		@type exclude: sequence
+		@param exclude: list of attribute and set names to exclude 
 		"""
-		# check overwrite
-		if groupname in h5file.keys() and overwrite==False:
-			raise ValueError("specified geometry group already present in HDF5 file")
+		# check overwrite 
+		# *** deactivated to reduce keys() calls 
+# 		if groupname in h5file.keys() and overwrite==False:
+# 			raise ValueError("specified geometry group already present in HDF5 file")
+		# ...
+		if exclude==None: exclude=[]
 		# create HDF5 datatypes
 		ResidueDict={}
 		for i in self.LayerDict.keys():
@@ -738,44 +743,42 @@ class Geometry:
 		# overwriting datasets will still fail!
 		framegroup=h5file.require_group(groupname)
 		# create datasets, initialize with data where straightforward
-		if labelstring!=None:
+		if labelstring!=None and self.label!=None:
 			if self.label!=None:
 				framegroup.attrs["label"]=self.label
 			else:
 				framegroup.attrs["label"]=labelstring
 		framegroup.attrs["uuid"]=str(self.uuid)
-		if self.method != None: framegroup.attrs["method"]=self.method
-		if self.totalenergy != None: framegroup.attrs["totalenergy"]=self.totalenergy
-		if self.ionkineticenergy != None: framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
-		if self.iontemperature != None: framegroup.attrs["iontemperature"]=self.iontemperature
-		if self.electrontemperature != None: framegroup.attrs["electrontemperature"]=self.electrontemperature
-		if self.timestep != None: framegroup.attrs["timestep"]=self.timestep
-		if self.simtime != None: framegroup.attrs["simtime"]=self.simtime
-		if refGroup==None or not "coordinates" in refGroup.keys(): #FIXME: write coordinates if changed!
+		if self.method != None and (not "method" in exclude): 
+			framegroup.attrs["method"]=self.method
+		if self.totalenergy != None and (not "totalenergy" in exclude): 
+			framegroup.attrs["totalenergy"]=self.totalenergy
+		if self.ionkineticenergy != None and (not "ionkineticenergy" in exclude): 
+			framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
+		if self.iontemperature != None and (not "iontemperature" in exclude): 
+			framegroup.attrs["iontemperature"]=self.iontemperature
+		if self.electrontemperature != None and (not "electrontemperature" in exclude): 
+			framegroup.attrs["electrontemperature"]=self.electrontemperature
+		if self.timestep != None and (not "timestep" in exclude): 
+			framegroup.attrs["timestep"]=self.timestep
+		if self.simtime != None and (not "simtime" in exclude): 
+			framegroup.attrs["simtime"]=self.simtime
+		if (not "coordinates" in exclude): 
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
-		if self.forces!=None and ( refGroup==None or not "forces" in refGroup.keys()): #FIXME: write coordinates if changed!
-				forceset=imagegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
-		if refGroup==None or not "elements" in refGroup.keys():
+		if self.forces != None and (not "forces" in exclude):
+			forceset=imagegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
+		if self.AtomTypes != None and (not "elements" in exclude):
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
-		if refGroup==None or not "types" in refGroup.keys():
+		if self.AtomSubTypes != None and (not "types" in exclude):
 			typeset=framegroup.create_dataset("types",data=numpy.asarray(self.AtomSubTypes,dtype="string_"))
 		# charges are tricky, but we should just leave them out if all charges in Geometry instance are zero anyway
-		if numpy.shape(numpy.nonzero(self.AtomCharges))[1]!=0:
-			if refGroup==None or not "charges" in refGroup.keys():
-				chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
-			else:
-				chargeset=refgroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
-		if refGroup==None or not "lattice" in refGroup.keys():
+		if numpy.shape(numpy.nonzero(self.AtomCharges))[1]!=0 and (not "charges" in exclude):
+			chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
+		if (not "lattice" in exclude):
 			if self.Mode=="S":
-				if refGroup!=None and "lattice" in refGroup.keys():
-					if numpy.array_equal(self.Lattice,refGroup["lattice"]):
-						framegroup["lattice"]=refGroup["lattice"]
-					else:
-						latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
-				else:
-					latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
+				latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
 		# layer indices might not be contigous, depending on geometry history
-		if refGroup==None or not "residues" in refGroup.keys():
+		if (not "residues" in exclude):
 			residueset=framegroup.create_dataset("residues",(self.Atomcount,),dtype=layerenum) #@UnusedVariable
 			# populate so far uninitialized data sets
 			residueset=numpy.array(self.AtomLayers) #@UnusedVariable
