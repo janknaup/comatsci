@@ -44,7 +44,7 @@ def gaussian(x,s=1.,x0=0.):
 	@param s: half-width parameter (default 1.0)
 	@param x0: peak position (default 0.0)
 	"""
-	return (1./(s*math.sqrt(2*constants.PI)))*math.exp(-((x-x0)**2)/(2*s**2))
+	return (1./(s*numpy.sqrt(2*constants.PI)))*numpy.exp(-((x-x0)**2)/(2*s**2))
 
 
 
@@ -406,7 +406,7 @@ class DOS:
 		numsteps=int(len(energies))
 		peakenergies=numpy.arange(-stepwidth*numsteps/2, stepwidth*numsteps/2, stepwidth) # energies for peak function
 		# fill peak function array
-		spreadpeak=numpy.fromfunction(lambda II: self.spreadfunctions[spreadfunction](x=peakenergies[II],s=spread,x0=0.0),(numsteps,))
+		spreadpeak=self.spreadfunctions[spreadfunction](x=peakenergies,s=spread,x0=0.0)
 		# initialize per psin channel DOS list
 		spindoses=[]
 		# define what filling is a full spin orbital (will probably break with non-colinear spin
