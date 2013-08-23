@@ -1,22 +1,9 @@
 #!/usr/bin/env python
-from distutils.core import setup,Extension
-from distutils.dir_util import remove_tree
+from setuptools import setup,Extension
 import os,sys
 
-sys.path.append("../basic/src/comatsci")
 
-from constants import VERSIONPREFIX as COMATSCI_VERSIONPREFIX
-from constants import VERSION as COMATSCI_VERSION
-
-try:
-	from bzrlib.branch import BzrBranch
-	branch = BzrBranch.open_containing('.')[0]
-	if branch.nick!="trunk":
-		VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{1:s}-{0:d}".format(branch.last_revision_info()[0],branch.nick)
-	else:
-		VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{0:d}".format(branch.last_revision_info()[0])
-except:
-		VERSIONTAG=COMATSCI_VERSIONPREFIX
+VERSIONTAG="1.4.0"
 
 startpath=os.getcwd()
 
@@ -40,6 +27,7 @@ distrib=setup (	name="comatsci-gui",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
 		url=URL, 
+		install_requires=["comatsci-base >= 1.4","matplotlib"],
 		classifiers=[
 			'Development Status :: 5 - Production/Stable',
 			'Environment :: X11 Applications :: Qt',
