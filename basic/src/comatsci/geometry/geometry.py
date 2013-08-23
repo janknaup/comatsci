@@ -913,10 +913,12 @@ class Geometry:
 			else: 
 				residuesDict=h5py.check_dtype(enum=residueGroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
+			print(residuesDict)
 			for ii in residuesDict.keys():
 				if self.layerbyname(residuesDict[ii])==None:
-					self.addlayer(residuesDict[ii],ii)
+					self.addlayer(ii,int(residuesDict[ii]))
 			self.AtomLayers=residueGroup["residues"].value
+			print(self.AtomLayers)
 		else:
 			if not self.layerbyname("default layer")==0:
 				self.addlayer("default layer", 0)
