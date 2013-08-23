@@ -8,8 +8,6 @@
 # see file LICENSE for details.
 ##############################################################################
 
-from _version import version_info as bzrversion
-
 #
 # This file contains various constants for global use in pastafarian/comatsci
 #
@@ -17,12 +15,8 @@ from _version import version_info as bzrversion
 #
 # comatsci Version
 #
-VERSIONPREFIX="1.4.0rc1"
 
-if bzrversion["branch_nick"]!="trunk": 
-    VERSION=VERSIONPREFIX+"-{0:s}-{1:d}".format(bzrversion["branch_nick"],bzrversion["revno"])
-else:
-    VERSION=VERSIONPREFIX+"-{0:d}".format(bzrversion["revno"])
+from ._version import *
 
 # Verbosity levels:
 # only fatal errors

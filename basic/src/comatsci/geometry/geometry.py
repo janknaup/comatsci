@@ -417,6 +417,7 @@ class Geometry:
 								iAtomcount=len(subIndices), iAtomTypes=list(typesArray[subIndices]),
 								iGeometry=self.Geometry[subIndices],
 								iAtomSubTypes=list(stArray[subIndices]))
+			esubgeo.parentmap=dict.fromkeys(list(range(esubgeo.Atomcount)),subIndices)
 			if cache:
 				self._elementSubGeos[element]=esubgeo
 		return esubgeo
