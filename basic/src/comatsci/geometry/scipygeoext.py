@@ -55,7 +55,7 @@ def crossSupercellDistanceMatrix(a,b,lattice):
     for a in range(-1,2,1):
         for b in range(-1,2,1):
             for c in range (-1,2,1):
-                dms.append(scipy.spatial.distance.cdist(a+lattice*numpy.array((a,b,c)).sum(axis=1),b,metric='euclidean'))
+                dms.append(spatial.distance.cdist(a+lattice*numpy.array((a,b,c)).sum(axis=1),b,metric='euclidean'))
     return numpy.array(dms).min(axis=0)
     
     
@@ -68,7 +68,7 @@ def blmatrix(types,corad):
     @rtype: ndarray of floats
     @return: matrix of covalent bond distances between atom types listed in types     
     """
-    ARAD=numpy.array(g.CORAD)[g.AtomTypes]
+    ARAD=numpy.array(corad)[types]
     return numpy.array(numpy.meshgrid(ARAD,ARAD)).sum(axis=0)
 
 
@@ -86,7 +86,7 @@ def blist(positions,types,corad,tolerance=1.1):
     @return: list of lists containing bond partners per atom in sequence
     @see: Calls the L{blmatrix} and L{dmatrix} functions"""
     dm=dmatrix(positions)
-    BB=(blmatrix(types,corad)/constants.ANGSROM)*tolerance
+    BB=(blmatrix(types,corad)/constants.ANGSTROM)*tolerance
     bondmattrix=numpy.less(dm,BB*(numpy.ones_like(BB)-numpy.eye(BB.shape[0]))*1.1)
     bondlist=[]
     for ii in bondmatrix:
@@ -108,7 +108,7 @@ def sblist(positions,lattice,types,corad,tolerance=1.1):
     @rtype: list of lists of integers
     @return: list of lists containing bond partners per atom in sequence
     @see: Calls the L{blmatrix} and L{dmatrix} functions. sdmatrix and crossSupercellDistanceMatrix are B{not} called."""
-    BB=(blmatrix(types,corad)/constants.ANGSROM)*tolerance
+    BB=(blmatrix(types,corad)/constants.ANGSTROM)*tolerance
     natom=len(types)
     bondlist=[[]]*natom
     imagecoordlist=[[]]*natom
@@ -116,10 +116,12 @@ def sblist(positions,lattice,types,corad,tolerance=1.1):
         for b in range(-1,2,1):
             for c in range (-1,2,1):
                 sccoord=[(a,b,c)]
-                dm=scipy.spatial.distance.cdist(a+lattice*numpy.array((a,b,c)).sum(axis=1),b)
-                bondmattrix=numpy.less(dm,BB*(numpy.ones_like(BB)-numpy.eye(BB.shape[0]))*1.1)
+                dm=spatial.distance.cdist(positions+(lattice*numpy.array((a,b,c))).sum(axis=1),positions)
+                bondmatrix=numpy.less(dm,BB*(numpy.ones_like(BB)-numpy.eye(BB.shape[0]))*1.1)
                 for ii in range(natom):
-                    tempbonds=numpy.nonzero(ii)[0].tolist()
-                    bondlist[ii]+=tempbonds
+                    tempbonds=numpy.nonzero(bondmatrix[ii])[0].tolist()
+                    bondlist[ii]=bondlist[ii]+tempbonds
                     imagecoordlist[ii]+=sccoord*len(tempbonds)
+    for ii in range(natom):
+        bondlist[ii].sort()
     return [bondlist,imagecoordlist]

@@ -27,7 +27,7 @@ class Spline:
 		@param x: abscissa values
 		@param y: ordinate values"""
 		if x==None and y==None:
-			pass
+                        self.UVSpline=None
 		else:
 			self.setdata(x,y)
 	
@@ -36,21 +36,26 @@ class Spline:
 	
 	
 	def splint(self,x):
+                if self.UVSpline==None: raise ValueError("Spline uninitialized")
 		return self.UVSpline(x)
 	
 	def splder(self,x):
-		return self.UVSpline(x,1)
+		 if self.UVSpline==None: raise ValueError("Spline uninitialized")
+                 return self.UVSpline(x,1)
 		
 	def __gety2grid__(self):
-		return self.UVSpline(self.UVSpline.get_knots(),2)
+		 if self.UVSpline==None: raise ValueError("Spline uninitialized")
+                 return self.UVSpline(self.UVSpline.get_knots(),2)
 	y2grid=property(__gety2grid__,None,None,"grid of second derivative points for backwards compatibility")
 	
 	def __getygrid__(self):
-		return self.UVSpline(self.UVSpline.get_knots())
+		 if self.UVSpline==None: raise ValueError("Spline uninitialized")
+                 return self.UVSpline(self.UVSpline.get_knots())
 	ygrid=property(__getygrid__,None,None,"grid of second derivative points for backwards compatibility")
 	
 	def __getxgrid__(self):
-		return self.UVSpline.get_knots()
+		 if self.UVSpline==None: raise ValueError("Spline uninitialized")
+                 return self.UVSpline.get_knots()
 	xgrid=property(__getxgrid__,None,None,"grid of x fitting points for backwards compatibility")
 	
 	
