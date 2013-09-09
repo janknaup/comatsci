@@ -13,7 +13,8 @@
 from __future__ import print_function
 from .. import constants, utils
 #from numpy.oldnumeric import *
-import geoext as gx #@UnresolvedImport
+#import geoext as gx #@UnresolvedImport
+from . import scipygeoext as gx
 import h5py
 import uuid
 import numpy

@@ -15,7 +15,8 @@ from __future__ import print_function
 from . import Geometry
 from .. import constants #,  utils
 
-import geoext as gx #@UnresolvedImport
+#import geoext as gx #@UnresolvedImport
+from . import scipygeoext as gx
 
 import numpy
 from numpy import linalg

@@ -12,67 +12,105 @@
 
 from __future__ import print_function
 
-import splext #@UnresolvedImport
+#import splext #@UnresolvedImport
 import bisect
 import numpy.oldnumeric as num
 import math
+from scipy.interpolate import UnivariateSpline
+
 
 class Spline:
-	"""class for 1D spline interpolation of Numeric arrays"""
-	
-	
+	"""wrapper for scipy.interpolate.UnivariateSpline"""
 	
 	def __init__(self, x=None, y=None):
 		"""Constructor, directly calculate coefficients, if x and y arrays are passed
 		@param x: abscissa values
 		@param y: ordinate values"""
 		if x==None and y==None:
-			self.xgrid=[]
-			self.ygrid=[]
-			self.x2=[]
+			pass
 		else:
 			self.setdata(x,y)
-
-	
 	
 	def setdata(self,x,y):
-		"""set spline input grid and calculate input second derivatives
-		@param x: abscissa values
-		@param y: ordinate values"""
-##		if not ((type(x) is 'array') and (type(y) is 'array') and len(x)==len(y)):
-		if not len(x)==len(y):
-			raise ValueError("Incompatible X and Y initialization data passed")
-		elif num.sometrue(x-num.sort(x)):
-			raise ValueError("x-array must be monotonic")
-		else:
-			self.xgrid=x
-			self.ygrid=y
-			self.x2grid=splext.spline(x,y)
-
-
-
+		self.UVSpline=UnivariateSpline(x,y,s=0)
+	
+	
 	def splint(self,x):
-		"""interpolate value at x
-		@param x: abscissa value"""
-		if self.xgrid==[]:
-			raise ValueError("No data defined")
-		elif x<self.xgrid[0] or x>self.xgrid[len(self.xgrid)-1]:
-			raise ValueError("interpolation value out of fitrange")
-		else:
-			return splext.splint(self.xgrid,self.ygrid,self.x2grid,x)
-	
-	
+		return self.UVSpline(x)
 	
 	def splder(self,x):
-		"""return spline first derivative at x
-		@param x: abscissa value"""
-		if self.xgrid==[]:
-			raise ValueError("No data defined")
-		elif x<self.xgrid[0] or x>self.xgrid[len(self.xgrid)-1]:
-			raise ValueError("interpolation value out of fit range")
-		else:
-			return splext.splder(self.xgrid,self.ygrid,self.x2grid,x)
+		return self.UVSpline(x,1)
 		
+	def __gety2grid__(self):
+		return self.UVSpline(self.UVSpline.get_knots(),2)
+	y2grid=property(__gety2grid__,None,None,"grid of second derivative points for backwards compatibility")
+	
+	def __getygrid__(self):
+		return self.UVSpline(self.UVSpline.get_knots())
+	ygrid=property(__getygrid__,None,None,"grid of second derivative points for backwards compatibility")
+	
+	def __getxgrid__(self):
+		return self.UVSpline.get_knots()
+	xgrid=property(__getxgrid__,None,None,"grid of x fitting points for backwards compatibility")
+	
+	
+
+# class oldSpline:
+# 	"""class for 1D spline interpolation of Numeric arrays"""
+# 	
+# 	
+# 	
+# 	def __init__(self, x=None, y=None):
+# 		"""Constructor, directly calculate coefficients, if x and y arrays are passed
+# 		@param x: abscissa values
+# 		@param y: ordinate values"""
+# 		if x==None and y==None:
+# 			self.xgrid=[]
+# 			self.ygrid=[]
+# 			self.x2=[]
+# 		else:
+# 			self.setdata(x,y)
+# 
+# 	
+# 	
+# 	def setdata(self,x,y):
+# 		"""set spline input grid and calculate input second derivatives
+# 		@param x: abscissa values
+# 		@param y: ordinate values"""
+# ##		if not ((type(x) is 'array') and (type(y) is 'array') and len(x)==len(y)):
+# 		if not len(x)==len(y):
+# 			raise ValueError("Incompatible X and Y initialization data passed")
+# 		elif num.sometrue(x-num.sort(x)):
+# 			raise ValueError("x-array must be monotonic")
+# 		else:
+# 			self.xgrid=x
+# 			self.ygrid=y
+# 			self.x2grid=splext.spline(x,y)
+# 
+# 
+# 
+# 	def splint(self,x):
+# 		"""interpolate value at x
+# 		@param x: abscissa value"""
+# 		if self.xgrid==[]:
+# 			raise ValueError("No data defined")
+# 		elif x<self.xgrid[0] or x>self.xgrid[len(self.xgrid)-1]:
+# 			raise ValueError("interpolation value out of fitrange")
+# 		else:
+# 			return splext.splint(self.xgrid,self.ygrid,self.x2grid,x)
+# 	
+# 	
+# 	
+# 	def splder(self,x):
+# 		"""return spline first derivative at x
+# 		@param x: abscissa value"""
+# 		if self.xgrid==[]:
+# 			raise ValueError("No data defined")
+# 		elif x<self.xgrid[0] or x>self.xgrid[len(self.xgrid)-1]:
+# 			raise ValueError("interpolation value out of fit range")
+# 		else:
+# 			return splext.splder(self.xgrid,self.ygrid,self.x2grid,x)
+# 		
 
 
 
