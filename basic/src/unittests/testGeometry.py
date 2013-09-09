@@ -386,7 +386,7 @@ class geometryTest(unittest.TestCase):
         testfile=open("test.pdb")
         testlines=list(testfile)
         testfile.close()
-        #os.unlink("test.pdb")
+        os.unlink("test.pdb")
         reffile=open("../../test_regr/unittest_data/geotest2b.pdb")
         reflines=list(reffile)
         reffile.close()
