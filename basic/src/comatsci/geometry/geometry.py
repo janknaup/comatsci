@@ -2565,7 +2565,7 @@ class Geometry:
 				self.SBCR[self.AtomTypes[bl[-1][0]]])/Angstrom)-numpy.sqrt(numpy.dot(shiftvec,shiftvec))
 				shiftdir=shiftvec/numpy.sqrt(numpy.dot(shiftvec,shiftvec))
 				self.Geometry[-1]=self.Geometry[-1]+(shiftdir*shiftlen)
-				self._reset_derives()
+				self._reset_derived()
 				if len(self.bondlist()[-1])==0:
 				        return True
 				else:
