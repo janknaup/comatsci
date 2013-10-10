@@ -12,7 +12,7 @@
 def mainfunc():
 	import os,sys
 	
-	from comatsci import geometry
+	from comatsci import geometry,constants
 	
 	
 	from optparse import OptionParser
@@ -78,6 +78,10 @@ def mainfunc():
 			action="append", metavar="F L", dest="append", type="string", nargs=2,
 			help="Append geometry from file F to input geometry into layer named L. L _must_ be specified, if L ist not present in primary input geometry, it will be created in the output geometry. The special layer name 'default' specifies the .fmg default layer 0.")	
 	#.................................................
+	parser.set_defaults(lattice=None)
+	parser.add_option("-L","--lattice",
+			 action="store", dest="lattice", nargs=9, type="float",
+			 help="Set mode to periodic and apply supplied lattice vectors. Suppy in format a1 a2 a3 b1 ... c3.")
 	parser.set_defaults(foldback=False)
 	parser.add_option("-F","--foldback",
 			 action="store_true", dest="foldback",
@@ -250,6 +254,11 @@ def mainfunc():
 			outgeo.Geometry=numpy.multiply(outgeo.Geometry,numpy.array(options.anisoscale))
 					
 	
+	if options.lattice!=None:
+		print "Applying periodic boundary conditions"
+		outgeo.Mode="S"
+		outgeo.Lattice=numpy.array(options.lattice).reshape((3,3))/constants.ANGSTROM
+
 	if options.foldback:
 		if outgeo.Mode!="S":
 			print "Ignoring fold-back request as geometry is not periodic"
