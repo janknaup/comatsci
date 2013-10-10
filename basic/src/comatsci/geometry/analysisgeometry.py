@@ -1307,3 +1307,16 @@ class AnalysisGeometry(Geometry):
 			cfile.close()
 		# finished, return grid and voxels
 		return (numpy.mgrid[0.:self.Lattice[0][0]:step,0.:self.Lattice[1][1]:step,0.:self.Lattice[2][2]:step],voxels)
+	
+	
+	
+	def similarityMap(self,other,**kwargs):
+		"""
+		Maps each atom of self to the closest atom of same element in other
+		@type other: Geometry
+		@param other: Geometry instance to compare to
+		@return: dictionary of closest same element atom map and statistical data
+		"""
+		raise NotImplementedError()
+	
+	

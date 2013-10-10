@@ -417,6 +417,7 @@ class Geometry:
 								iAtomcount=len(subIndices), iAtomTypes=list(typesArray[subIndices]),
 								iGeometry=self.Geometry[subIndices],
 								iAtomSubTypes=list(stArray[subIndices]))
+			esubgeo.parentmap=dict.fromkeys(list(range(esubgeo.Atomcount)),subIndices)
 			if cache:
 				self._elementSubGeos[element]=esubgeo
 		return esubgeo
@@ -912,10 +913,12 @@ class Geometry:
 			else: 
 				residuesDict=h5py.check_dtype(enum=residueGroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
+			print(residuesDict)
 			for ii in residuesDict.keys():
 				if self.layerbyname(residuesDict[ii])==None:
-					self.addlayer(residuesDict[ii],ii)
+					self.addlayer(ii,int(residuesDict[ii]))
 			self.AtomLayers=residueGroup["residues"].value
+			print(self.AtomLayers)
 		else:
 			if not self.layerbyname("default layer")==0:
 				self.addlayer("default layer", 0)
@@ -2524,3 +2527,79 @@ class Geometry:
 		@return: list of strings
 		"""
 		return [self.LayerDict[layer].Name for layer in self.LayerDict.keys()]
+
+
+
+	@classmethod
+	def createMagneli(cls,elementA,elementB,aR,cR,n):
+		"""
+		create an A_n B_(2n-1) Magneli Phase based on a rutile structure in the axis system defined in
+		Le Page and Strobel: J. Sol. Stat. Chem. B{43}, 314 (1982)
+		@type elementA: integer
+		@param elementA: element number of the cations (metal)
+		@type elementB: integer
+		@param elementB: element number of the anions (usually oxygen)
+		@type aR: float
+		@param aR: M{a} lattice constant of the underlying rutile structure
+		@type cR: float
+		@param cR: M{c} lattice constant of the underlying rutile structure
+		@type n: integer
+		@param n: M{n} in the AnB2n-1 composition formula. Must be >= 2.
+		""" 
+		# sanity checks
+		if n<2: raise ValueError("n must be >=2")
+		# calculate number of B atoms as it will be needed several times
+		NB=(2*n)-1
+		NBf=float(NB)
+		# construct Lattice
+		magLattice=numpy.array(
+							[[+aR,0.0,-cR],
+							 [-aR,-aR,-cR],
+							 [0.0,0.0,-((2*n)-1)*cR]])
+		# rutile base atoms
+		baseElements={'A':elementA,'B':elementB}
+		baseCoordinates={'A':numpy.array([[0.,0.,0.],[0.,0.5,0.]]),
+		                 'B':numpy.array([[0.0000,0.6952,0.3048],
+						                  [0.0000,0.3048,0.6952],
+						                  [0.6096,0.8048,0.0856],
+						                  [0.3904,0.1952,0.9144]])
+						}
+		# I-1 symmetry operators
+		symmMat=[numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]]),
+				 numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]]),
+				 numpy.array([[-1.,0.,0.],[0.,-1.,0.],[0.,0.,-1.]]),
+				 numpy.array([[-1.,0.,0.],[0.,-1.,0.],[0.,0.,-1.]])
+				]
+		symmShift=[numpy.array([0.0,0.0,0.0,]),
+				   numpy.array([0.5,0.5,0.5,]),
+				   numpy.array([0.0,0.0,0.0,]),
+				   numpy.array([0.5,0.5,0.5,]),
+				]
+		# origin shift q (cf. Eq.(2) in Le Page,Strobel)
+		if n%2==0:
+			q=-0.5
+		else:
+			q=0.0
+		# build list of asymmetric unit cell atoms
+		tempCoordinates=[]
+		tempTypes=[]
+		for k in range(0,(n/2)+1):
+			for base in ('A','B'):
+				for atomCoord in baseCoordinates[base]:
+					Zpk=(atomCoord[2]+(float(k)+q))/NBf
+					if Zpk<=0.25 and Zpk>=0.0:
+						tempCoordinates.append(numpy.array([atomCoord[0],atomCoord[1],Zpk]))
+						tempTypes.append(baseElements[base])
+		# apply symmetry operators
+		symmCoordinates=[]
+		for SO in range(4):
+			for coord in tempCoordinates:
+				symmCoordinates.append(numpy.dot(coord,symmMat[SO])+symmShift[SO])
+		# replicate Types list
+		tempTypes=tempTypes*len(symmShift)
+		# build geometry instance to return
+		returnGeo=cls(iMode="S",iAtomcount=len(tempTypes), iAtomTypes=tempTypes, 
+					iLattice=magLattice, iGeometry=numpy.dot(numpy.array(symmCoordinates),magLattice))
+		# remove symmetry equivalent atoms before returning
+		return returnGeo.doubleRemoved()
+		
