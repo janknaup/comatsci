@@ -306,6 +306,7 @@ class Geometry:
 		self.electrontemperature=None
 		self.timestep=None
 		self.simtime=None
+		self.forces=None
 		self._reset_derived()
 		self._consistency_check()
 	
@@ -348,6 +349,9 @@ class Geometry:
 		elif self.LPops!=None:
 			if len(self.LPops)!=self.Atomcount:
 				raise GeometryError('Atom l-shell populations mismatch')
+		elif self.forces!=None:
+			if self.forces.shape != self.Geometry.shape:
+				raise GeometryError('Force array does not match coordinates')
 		return 1
 
 
@@ -413,6 +417,7 @@ class Geometry:
 								iAtomcount=len(subIndices), iAtomTypes=list(typesArray[subIndices]),
 								iGeometry=self.Geometry[subIndices],
 								iAtomSubTypes=list(stArray[subIndices]))
+			esubgeo.parentmap=dict.fromkeys(list(range(esubgeo.Atomcount)),subIndices)
 			if cache:
 				self._elementSubGeos[element]=esubgeo
 		return esubgeo
@@ -698,8 +703,11 @@ class Geometry:
 		outfile.close()
 
 
-
-	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, labelstring="comatsci geometry",refGroup=None):
+	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","iontemperature",
+				"electrontemperature","timestep","simtime","coordinates","forces",
+				"elements","types","charges","lattice","residues")
+	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, 
+						labelstring="comatsci geometry",exclude=None):
 		"""
 		write HDF5 representation of Geometry into HDF5 file followin CDH specification
 		DOES NOT CLOSE the HDF5 file under any circumstances to allow writing multi-frame geometries into one file
@@ -711,13 +719,15 @@ class Geometry:
 		@param overwrite: if true, overwrite preexisting geometry group
 		@type labelstring: string
 		@param labelstring: string to be attached to the HDF frame group as the label property
-		@type refGroup: h5py data group object
-		@param refGroup: HD5 reference group. Will link identical data to refGroup to save space for redundant data   
-		@return: tuple of hdf5 file and framegroup written to
+		@type exclude: sequence
+		@param exclude: list of attribute and set names to exclude 
 		"""
-		# check overwrite
-		if groupname in h5file.keys() and overwrite==False:
-			raise ValueError("specified geometry group already present in HDF5 file")
+		# check overwrite 
+		# *** deactivated to reduce keys() calls 
+# 		if groupname in h5file.keys() and overwrite==False:
+# 			raise ValueError("specified geometry group already present in HDF5 file")
+		# ...
+		if exclude==None: exclude=[]
 		# create HDF5 datatypes
 		ResidueDict={}
 		for i in self.LayerDict.keys():
@@ -734,42 +744,42 @@ class Geometry:
 		# overwriting datasets will still fail!
 		framegroup=h5file.require_group(groupname)
 		# create datasets, initialize with data where straightforward
-		if labelstring!=None:
+		if labelstring!=None and self.label!=None:
 			if self.label!=None:
 				framegroup.attrs["label"]=self.label
 			else:
 				framegroup.attrs["label"]=labelstring
 		framegroup.attrs["uuid"]=str(self.uuid)
-		if self.method != None: framegroup.attrs["method"]=self.method
-		if self.totalenergy != None: framegroup.attrs["totalenergy"]=self.totalenergy
-		if self.ionkineticenergy != None: framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
-		if self.iontemperature != None: framegroup.attrs["iontemperature"]=self.iontemperature
-		if self.electrontemperature != None: framegroup.attrs["electrontemperature"]=self.electrontemperature
-		if self.timestep != None: framegroup.attrs["timestep"]=self.timestep
-		if self.simtime != None: framegroup.attrs["simtime"]=self.simtime
-		if refGroup==None or not "coordinates" in refGroup.keys(): #FIXME: write coordinates if changed!
+		if self.method != None and (not "method" in exclude): 
+			framegroup.attrs["method"]=self.method
+		if self.totalenergy != None and (not "totalenergy" in exclude): 
+			framegroup.attrs["totalenergy"]=self.totalenergy
+		if self.ionkineticenergy != None and (not "ionkineticenergy" in exclude): 
+			framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
+		if self.iontemperature != None and (not "iontemperature" in exclude): 
+			framegroup.attrs["iontemperature"]=self.iontemperature
+		if self.electrontemperature != None and (not "electrontemperature" in exclude): 
+			framegroup.attrs["electrontemperature"]=self.electrontemperature
+		if self.timestep != None and (not "timestep" in exclude): 
+			framegroup.attrs["timestep"]=self.timestep
+		if self.simtime != None and (not "simtime" in exclude): 
+			framegroup.attrs["simtime"]=self.simtime
+		if (not "coordinates" in exclude): 
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
-		if refGroup==None or not "elements" in refGroup.keys():
+		if self.forces != None and (not "forces" in exclude):
+			forceset=imagegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
+		if self.AtomTypes != None and (not "elements" in exclude):
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
-		if refGroup==None or not "types" in refGroup.keys():
+		if self.AtomSubTypes != None and (not "types" in exclude):
 			typeset=framegroup.create_dataset("types",data=numpy.asarray(self.AtomSubTypes,dtype="string_"))
 		# charges are tricky, but we should just leave them out if all charges in Geometry instance are zero anyway
-		if numpy.shape(numpy.nonzero(self.AtomCharges))[1]!=0:
-			if refGroup==None or not "charges" in refGroup.keys():
-				chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
-			else:
-				chargeset=refgroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
-		if refGroup==None or not "lattice" in refGroup.keys():
+		if numpy.shape(numpy.nonzero(self.AtomCharges))[1]!=0 and (not "charges" in exclude):
+			chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
+		if (not "lattice" in exclude):
 			if self.Mode=="S":
-				if refGroup!=None and "lattice" in refGroup.keys():
-					if numpy.array_equal(self.Lattice,refGroup["lattice"]):
-						framegroup["lattice"]=refGroup["lattice"]
-					else:
-						latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
-				else:
-					latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
+				latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
 		# layer indices might not be contigous, depending on geometry history
-		if refGroup==None or not "residues" in refGroup.keys():
+		if (not "residues" in exclude):
 			residueset=framegroup.create_dataset("residues",(self.Atomcount,),dtype=layerenum) #@UnusedVariable
 			# populate so far uninitialized data sets
 			residueset=numpy.array(self.AtomLayers) #@UnusedVariable
@@ -871,7 +881,7 @@ class Geometry:
 			self.Lattice=globalsGroup["lattice"].value
 		else:
 			self.Mode="C"
-		# set corrdinates
+		# set coordinates
 		if "coordinates" in framesets:
 			coordgroup=framegroup
 		else:
@@ -903,21 +913,34 @@ class Geometry:
 			else: 
 				residuesDict=h5py.check_dtype(enum=residueGroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
+			print(residuesDict)
 			for ii in residuesDict.keys():
-					self.addlayer(ii, residuesDict[ii])
+				if self.layerbyname(residuesDict[ii])==None:
+					self.addlayer(ii,int(residuesDict[ii]))
 			self.AtomLayers=residueGroup["residues"].value
+			print(self.AtomLayers)
 		else:
-			self.addlayer("default layer", 0)
-			self.AtomLayers=numpy.zeros((self.Atomcount,),dtpye=int)
+			if not self.layerbyname("default layer")==0:
+				self.addlayer("default layer", 0)
+			self.AtomLayers=list(numpy.zeros((self.Atomcount,)))
 		# set atom charges
 		if "charges" in framesets:
-			self.AtomCharges=framegroup["charges"].value
+			self.AtomCharges=list(framegroup["charges"].value)
 		elif "charges" in globalsets:
-			self.AtomCharges=globalsGroup["charges"].value
+			self.AtomCharges=list(globalsGroup["charges"].value)
 		else:
-			self.AtomCharges=numpy.zeros((self.Atomcount,),dtype=float)
+			self.AtomCharges=list(numpy.zeros((self.Atomcount,),dtype=float))
+		# set forces
+		if "forces" in framesets:
+			forcesgroup=framegroup
+		else:
+			forcesgroup=globalsGroup
+		if "forces" in globalsets:
+			self.forces=forcesgroup["forces"].value
+		else:
+			self.forces=None
 		# dummy data
-		self.LPops=numpy.zeros((self.Atomcount,3),dtype=int)
+		self.LPops=list(numpy.zeros((self.Atomcount,3),dtype=int))
 		# Finally, check consistency and return
 		self._consistency_check()
 		return self
@@ -2504,3 +2527,79 @@ class Geometry:
 		@return: list of strings
 		"""
 		return [self.LayerDict[layer].Name for layer in self.LayerDict.keys()]
+
+
+
+	@classmethod
+	def createMagneli(cls,elementA,elementB,aR,cR,n):
+		"""
+		create an A_n B_(2n-1) Magneli Phase based on a rutile structure in the axis system defined in
+		Le Page and Strobel: J. Sol. Stat. Chem. B{43}, 314 (1982)
+		@type elementA: integer
+		@param elementA: element number of the cations (metal)
+		@type elementB: integer
+		@param elementB: element number of the anions (usually oxygen)
+		@type aR: float
+		@param aR: M{a} lattice constant of the underlying rutile structure
+		@type cR: float
+		@param cR: M{c} lattice constant of the underlying rutile structure
+		@type n: integer
+		@param n: M{n} in the AnB2n-1 composition formula. Must be >= 2.
+		""" 
+		# sanity checks
+		if n<2: raise ValueError("n must be >=2")
+		# calculate number of B atoms as it will be needed several times
+		NB=(2*n)-1
+		NBf=float(NB)
+		# construct Lattice
+		magLattice=numpy.array(
+							[[+aR,0.0,-cR],
+							 [-aR,-aR,-cR],
+							 [0.0,0.0,-((2*n)-1)*cR]])
+		# rutile base atoms
+		baseElements={'A':elementA,'B':elementB}
+		baseCoordinates={'A':numpy.array([[0.,0.,0.],[0.,0.5,0.]]),
+		                 'B':numpy.array([[0.0000,0.6952,0.3048],
+						                  [0.0000,0.3048,0.6952],
+						                  [0.6096,0.8048,0.0856],
+						                  [0.3904,0.1952,0.9144]])
+						}
+		# I-1 symmetry operators
+		symmMat=[numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]]),
+				 numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]]),
+				 numpy.array([[-1.,0.,0.],[0.,-1.,0.],[0.,0.,-1.]]),
+				 numpy.array([[-1.,0.,0.],[0.,-1.,0.],[0.,0.,-1.]])
+				]
+		symmShift=[numpy.array([0.0,0.0,0.0,]),
+				   numpy.array([0.5,0.5,0.5,]),
+				   numpy.array([0.0,0.0,0.0,]),
+				   numpy.array([0.5,0.5,0.5,]),
+				]
+		# origin shift q (cf. Eq.(2) in Le Page,Strobel)
+		if n%2==0:
+			q=-0.5
+		else:
+			q=0.0
+		# build list of asymmetric unit cell atoms
+		tempCoordinates=[]
+		tempTypes=[]
+		for k in range(0,(n/2)+1):
+			for base in ('A','B'):
+				for atomCoord in baseCoordinates[base]:
+					Zpk=(atomCoord[2]+(float(k)+q))/NBf
+					if Zpk<=0.25 and Zpk>=0.0:
+						tempCoordinates.append(numpy.array([atomCoord[0],atomCoord[1],Zpk]))
+						tempTypes.append(baseElements[base])
+		# apply symmetry operators
+		symmCoordinates=[]
+		for SO in range(4):
+			for coord in tempCoordinates:
+				symmCoordinates.append(numpy.dot(coord,symmMat[SO])+symmShift[SO])
+		# replicate Types list
+		tempTypes=tempTypes*len(symmShift)
+		# build geometry instance to return
+		returnGeo=cls(iMode="S",iAtomcount=len(tempTypes), iAtomTypes=tempTypes, 
+					iLattice=magLattice, iGeometry=numpy.dot(numpy.array(symmCoordinates),magLattice))
+		# remove symmetry equivalent atoms before returning
+		return returnGeo.doubleRemoved()
+		

@@ -23,6 +23,7 @@ from .. import geometry, calculators
 
 from ..calculators.calcerror import CalcError
 from .. import constants,spline,utils
+from .pathiterator import PathIterator, EnergyAccessor, ForcesAccessor
 
 
 #complicated import statement to make it work with python 2.4 and 2.5
@@ -37,24 +38,23 @@ except:
 class Reactionpath:
 	"""Class for work with reaction paths"""
 
-	def __init__(self,icheckpointdir,ifixedatoms,icmode,ifmax,ifrms,imaxit,
+	def __init__(self,icheckpointdir='checkpoint',ifixedatoms=[],icmode='d',ifmax=1e-4,ifrms=1e-5,imaxit=500,
 				charge=0.0,verbosity=None):
 		"""initialize Reactionpath
 		@param icheckpointdir: directory name for checkpoint storage
 		@param ifixedatoms: list of atom indices to keep fixed
 		@param icmode: energies and forces calculation mode
-			* B{s} serial
-			* B{p} parallel
 			* B{d} external scheduler
+		@note: scheduler modes B{s} and B{p} have been removed, paramter icmode is left for backward compatibility
 		@param ifmax: max normal force convergence criterion
 		@param ifrms: rms normal force convergence criterion
 		@param imaxit: maximum number of iterations to perform
 		@param charge: system charge in electrons
 		@param verbosity: Verbosity level. Choose NORMAL as default. (default None)
 		"""
-		self.realforces=[]
+		self.realforces=ForcesAccessor(self)
 		self.geos=[]
-		self.energies=[]
+		self.energies=EnergyAccessor(self)
 		self.Atomcount=0
 		self.nstep=0
 		self.checkpointdir=icheckpointdir
@@ -66,15 +66,7 @@ class Reactionpath:
 			self.fixedatoms=ifixedatoms
 		else:
 			self.fixedatoms=[]
-		if icmode=='s':
-			self.realforcesfunc=self.calcenergiesforces
-			if self.verbosity >= constants.VBL_NORMAL:
-				print("Serial calculation of energies and forces")
-		elif icmode=='p':
-			self.realforcesfunc=self.pcalcenergiesforces
-			if self.verbosity >= constants.VBL_NORMAL:
-				print("Parallel calculation of energies and forces")
-		elif icmode=='d':
+		if icmode=='d':
 			self.realforcesfunc=self.schedcalcenergiesforces
 			if self.verbosity >= constants.VBL_NORMAL:
 				print("Externally scheduled calculation of energies and forces")
@@ -96,6 +88,50 @@ class Reactionpath:
 		# Renner subspline representation interpolating only coordinates
 		self._rSplineRep=None
 
+
+	def __iter__(self):
+		return PathIterator(self)
+	
+	
+	def __getitem__(self,index):
+	    if isinstance(index,slice):
+	        if index.start==None: 
+	            start=0
+	        else:
+	            start=index.start
+	        if indes.step==None:
+	            step=1
+	        else:
+	            step=index.step
+	        return [ self.__getitem__(ii) for ii in range(start,index.stop,step) ]
+	    else:
+	        if index<0: index=index+self.__len__()
+	        if index < 0 or index >=self.numImages:
+	            raise IndexError
+	        else:
+	            return self.geos[index]
+	           
+
+	def __setitem__(self,index,data):
+		if isinstance(index,slice):
+			if index.start==None: 
+				start=0
+			else:
+				start=index.start
+			if indes.step==None:
+				step=1
+			else:
+				step=index.step
+				dataindex=0
+				for ii in range(start,index.stop,step):
+					self.geos[ii]=data[dataindex]		
+		else:
+			if index<0: index=index+self.__len__()
+			if index < 0 or index >=self.numImages:
+				raise IndexError
+			else:
+				self.geos[index]=data
+				self.splineRep=None
 
 
 	def getHasSplineRep(self):
@@ -126,15 +162,44 @@ class Reactionpath:
 				self.geos[0].compatcheck(geo)
 			except geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
-					print("ReactionPath warning: Geometry lattice mismatch")
+					print("ReactionPath warning: Geometry lattice mismatch",file=sys.stderr)
 				else:
 					raise
 		else:
 			self.Atomcount=geo.Atomcount
 			self.amasses=geo.getmasses()
 		self.geos.append(geo)
+# 		if geo.totalenergy!=None:
+# 			if self.has_energies() or self.numimages()==1:
+# 				self.energies.append(geo.totalenergy)
 		# kill possibly stored spline representation
 		self.splineRep=None
+		
+		
+		
+	def appendPath(self, appendPath, checkCompat=True):
+		"""append a reaction path geometry by geometry
+		@type appendPath: Reactionpath instance
+		@param appendPath: reactionpath to append to self
+		@type checkCompat: boolean
+		@param checkCompat: perform compatibility check on appended geometries
+		"""
+		# iterate through Geometries and append
+		for ii in appendPath:
+			self.appendGeoObject(ii, checkCompat)
+# 		# handle energies and forces
+# 		if self.has_energies():
+# 			if appendPath.has_energies():
+# 				self.energies.extend(appendPath.energies)
+# 			else:
+# 				print("Reactionpath warning: appending path without energies to path with energies. Dropping existing energies")
+# 				self.energies=[]
+# 		if self.has_realforces():
+# 			if appendPath.has_realsforces():
+# 				self.realforces.extend(appendPath.realforces)
+# 			else:
+# 				print("Reactionpath warning: appending path without forces to path with forces. Dropping existing forces")
+# 				self.realforces=[]
 
 
 
@@ -241,6 +306,8 @@ class Reactionpath:
 		"""return the number of images in the path"""
 		return len(self.geos)
 	numImages=property(numimages,doc="""number of images in path""")
+	def __len__(self):
+		return len(self.geos)
 
 
 	def writegenpath(self,nameprefix="path"):
@@ -301,7 +368,7 @@ class Reactionpath:
 		outstring='<?xml version="1.0" encoding="ISO-8859-1" ?>\n<!DOCTYPE fmg>\n<fmg>\n'
 		for i in range(self.numimages()):
 			outstring+=(self.geos[i].fmgString+"\n")
-		if len(self.energies)>0:
+		if self.has_energies():
 			outstring+=(self.fmgFEstring()+"\n")
 		outstring+=self.fmgTrjinfoString()+"\n"
 		outstring+='</fmg>\n'
@@ -361,12 +428,14 @@ class Reactionpath:
 		elif len(trjsteps)==self.numimages():
 			if self.verbosity >= constants.VBL_DEBUG2:
 				print('Interate through trajectory steps ',end="")
-			self.energies=[]
-			self.realforces=[]
+			#self.energies=[]
+			#self.realforces=[]
+			self._stepIndex=0
 			for i in trjsteps:
 				self.handletrjstep_etree(i)
 				if self.verbosity >= constants.VBL_DEBUG2:
 					print('.',end="")
+				self._stepIndex=self._stepIndex+1
 		if self.verbosity >= constants.VBL_DEBUG2:
 			print('done.')
 		# check if global trahectory info is present
@@ -426,7 +495,8 @@ class Reactionpath:
 		if len(energies)!=1:
 			raise "FMG ERROR: trajectory step for path must contain exactly one energy!"
 		else:
-			self.energies.append(float(energies[0].childNodes[0].data))
+			#self.energies.append(float(energies[0].childNodes[0].data))
+			self.energies[self._stepIndex]=float(energies[0].childNodes[0].data)
 		# now get the forces, no defaults here either
 		forces=step.getElementsByTagName("forces")
 		if len(forces)>1:
@@ -436,7 +506,8 @@ class Reactionpath:
 		else:
 			dummy=forces[0].childNodes[0].data.strip().split()
 			gradsbuf=[ float(s) for s in dummy ]
-			self.realforces.append(numpy.reshape(numpy.array(gradsbuf),(-1,3)))
+			#self.realforces.append(numpy.reshape(numpy.array(gradsbuf),(-1,3)))
+			self.realforces[self._stepIndex]=numpy.reshape(numpy.array(gradsbuf),(-1,3))
 
 
 
@@ -448,7 +519,8 @@ class Reactionpath:
 		if len(energies)!=1:
 			raise "FMG ERROR: trajectory step for path must contain exactly one energy!"
 		else:
-			self.energies.append(float(energies[0].text))
+			#self.energies.append(float(energies[0].text))
+			self.energies[self._stepIndex]=float(energies[0].text)
 		# now get the forces, no defaults here either
 		forces=step.findall("forces")
 		if len(forces)>1:
@@ -458,11 +530,12 @@ class Reactionpath:
 		else:
 			dummy=forces[0].text.strip().split()
 			gradsbuf=[ float(s) for s in dummy ]
-			self.realforces.append(numpy.reshape(numpy.array(gradsbuf),(-1,3)))
+			#self.realforces.append(numpy.reshape(numpy.array(gradsbuf),(-1,3)))
+			self.realforces[self._stepIndex]=numpy.reshape(numpy.array(gradsbuf),(-1,3))
 
 
 
-	def writeCDHPath(self,filename="path.cdh",savespace=False):
+	def writeCDHPath(self,filename="path.cdh",savespace=True):
 		""" 
 		Write the current path in HDF5 format according to CDH specification
 		@type filename: string
@@ -471,7 +544,7 @@ class Reactionpath:
 		# check if space saving can be used between geometries, THIS CHECK IS UNSAFE
 		if savespace:
 			try:
-				globalSets=["elements","types","lattice","residues"]
+				globalSets=["elements","types","lattice","residues","method"]
 				self.geos[0].compatcheck(self.geos[-1])
 			except geometry.GeometryError,inst:
 				if inst.args[0]=='Geometry lattice mismatch':
@@ -479,6 +552,8 @@ class Reactionpath:
 					globalSets.remove("lattice")
 				else:
 					savespace=False
+					globalSets=[]
+		globalExclude=set(self.geos[0].knownCDHFields).difference(set(globalSets))
 		# open HDF5 file for overwriting
 		pathfile=h5py.File(filename,"w")
 		# iterate through path images
@@ -487,18 +562,15 @@ class Reactionpath:
 			imagelabel="frame{0:010d}".format(image)
 			# first write the image geometry
 			if image==0 and savespace:
-				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel)[1] #@UndefinedVariable
-				refGroup=pathfile.require_group("globals")
-				for iii in globalSets:
-					refGroup[iii]=imagegroup[iii]
+				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]
 			else:
-				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,refGroup=refGroup)[1] #@UndefinedVariable
+				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable
 			# add additional path data, if present
-			if self.has_energies():
-				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")
-				energyset[0]=self.energies[image]
-			if self.has_realforces():
-				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
+# 			if self.has_energies():
+# 				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")
+# 				energyset[0]=self.energies[image]
+# 			if self.has_realforces():
+# 				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
 		pathfile.close()
 			
 
@@ -530,22 +602,32 @@ class Reactionpath:
 			tg=geoconstructor()
 			framegroup=pathfile[frame]
 			tg.parseH5Framegroup(framegroup,globalsGroup)
-			if "totalenergy" in framegroup.attrs.keys() and hasE:
-				tempEnergies.append(framegroup.attrs["totalenergy"].value[0])
-			else:
-				hasE=False
-			if "forces" in framegroup.keys() and hasF:
-				tempForces.append(framegroup["forces"].value)
-			else:
-				hasF=False
-			self.appendGeoObject(tg, checkCompat=checkCompat)
-		# only set energies, if every frame has energies data
-		if hasE:
-			self.energies=tempEnergies
-		# only set forces if every frame has froces data
-		if hasF:
-			self.realforces=tempForces
+			self.appendGeoObject(tg, checkCompat)
+# 			if "totalenergy" in framegroup.attrs.keys() and hasE:
+# 				tempEnergies.append(framegroup.attrs["totalenergy"].value[0])
+# 			else:
+# 				hasE=False
+# 			if "forces" in framegroup.keys() and hasF:
+# 				tempForces.append(framegroup["forces"].value)
+# 			else:
+# 				hasF=False
+# 			if tg.totalenergy!=None and hasE:
+# 				tempEnergies.append(tg.totalenergy)
+# 			else:
+# 				hasE=False
+# 			if tg.forces!=None and hasF:
+# 				tempForces.append(tg.forces)
+# 			else:
+# 				hasF=False
+# 			self.appendGeoObject(tg, checkCompat=checkCompat)
+# 		# only set energies, if every frame has energies data
+# 		if hasE:
+# 			self.energies=tempEnergies
+# 		# only set forces if every frame has froces data
+# 		if hasF:
+# 			self.realforces=tempForces
 		# finished. cleanup and return
+		
 		pathfile.close()
 		return(self)
 
@@ -553,16 +635,24 @@ class Reactionpath:
 	
 	def has_energies(self):
 		"""return true if calculated energies are available, else false"""
-		return len(self.energies)==self.numimages()
+		#return len(self.energies)==self.numimages()
+		for ii in range(self.numImages):
+			if self.energies[ii]==None:
+				return False
+		return True
 	
 	
 	
 	def has_realforces(self):
 		"""return true if calculated forces are available, else false"""
-		if self.realforces!=None:
-			return len(self.realforces)==self.numimages()
-		else:
-			return False
+# 		if self.realforces!=None:
+# 			return len(self.realforces)==self.numimages()
+# 		else:
+# 			return False
+		for ii in range(self.numImages):
+			if self.realforces[ii]==None:
+				return False
+		return True
 
 
 
@@ -614,7 +704,7 @@ class Reactionpath:
 				dummy=buf.split()
 				gradsbuf.append([ float(s) for s in dummy[0:3] ])
 			gradients.append(numpy.array(gradsbuf))
-		self.realforces=gradients
+		for ii in range(self.numimages()): self.realforces[ii]=gradients[ii]
 		file.close()
 
 
@@ -632,7 +722,7 @@ class Reactionpath:
 			raise "Image count mismatch in energy file"
 		else:
 			inFile.close()
-			self.energies=enbuf
+			for ii in range(len(enbuf)): self.energies[ii]=enbuf[ii]
 
 
 
@@ -655,9 +745,9 @@ class Reactionpath:
 			os.mkdir(directory)
 		os.chdir(directory)
 		self.writegenpath()
-		if len(self.energies)>0:
+		if self.has_energies():
 			self._writeenergies()
-		if self.realforces!=None and len(self.realforces)>0:
+		if self.has_realforces():
 			self._writeforces()
 		os.chdir(curdir)
 		self.writefmgpath(directory+".fmg")
@@ -719,12 +809,10 @@ class Reactionpath:
 		"""
 		if not len(directories)==self.numimages():
 			raise ValueError,"Number of images does not match number of results paths"
-		self.energies=[]
-		self.realforces=[]
 		for i in range(self.numimages()):
 			calculator.parseForeignOutput(self.Atomcount,directories[i])
-			self.energies.append(calculator.getenergy())
-			self.realforces.append(calculator.getforces())
+			self.energies[i]=calculator.getenergy()
+			self.realforces[i]=calculator.getforces()
 			calculator.finreready()
 			if self.verbosity>=constants.VBL_NORMAL:
 				if i%10==0:
@@ -741,52 +829,7 @@ class Reactionpath:
 		@param charge: charge for calculation (default 0)
 		@param steplabelprefix: prefix prepend to step label
 		"""	
-		if not (self.has_energies() and self.has_realforces()):
-			#First energies & forces call, so we must do all images
-			self.energies=[]
-			self.realforces=[]
-			for i in range(self.numimages()):
-				if calculator.status()==calculators.CALCSTATUS_READY:
-					label="{0:s}-{1:6.4f}".format(steplabelprefix,(float(i)/(float(self.numimages())-1)))
-					calculator.runfg(self.geos[i],label,charge)
-					self.energies.append(calculator.getenergy())
-					self.realforces.append(calculator.getforces())
-					calculator.finreready()
-					if self.verbosity>=constants.VBL_NORMAL:
-						if i%10==0:
-							sys.stdout.write(':')
-						else:
-							sys.stdout.write(".")
-						sys.stdout.flush()
-				else:
-					raise CalcError("Calculator not ready")
-		else:
-			#Subsequent call, we don't have to calculate for the first and last image, they don't change
-			Efirst=self.energies[0]
-			Elast=self.energies[self.numimages()-1]
-			Ffirst=self.realforces[0]
-			Flast=self.realforces[self.numimages()-1]
-			self.energies=[Efirst]
-			self.realforces=[Ffirst]
-			for i in range(1,(self.numimages()-1)):
-				if calculator.status()==calculators.CALCSTATUS_READY:
-					label="{0:s}-{1:6.4f}".format(steplabelprefix,(float(i)/(float(self.numimages())-1)))
-					calculator.runfg(self.geos[i],label,charge)
-					self.energies.append(calculator.getenergy())
-					self.realforces.append(calculator.getforces())
-					calculator.finreready()
-					if self.verbosity>constants.VBL_NORMAL:
-						if i%10==0:
-							sys.stdout.write(':')
-						else:
-							sys.stdout.write(".")
-						sys.stdout.flush()					
-				else:
-					raise CalcError("Calculator not ready")
-			self.energies.append(Elast)
-			self.realforces.append(Flast)
-		if self.verbosity>0:
-			sys.stdout.write("\n")	
+		raise NotImplementedError
 
 
 	def pcalcenergiesforces(self, scheduler, charge=0, steplabelprefix="step"):
@@ -796,26 +839,7 @@ class Reactionpath:
 		@param charge: charge to pass to calculators
 		@param steplabelprefix: string to prepend to step labels
 		"""
-		if not (self.has_energies() and self.has_realforces()):
-			#First energies & forces call, so we must do all images
-			self.energies=[]
-			self.realforces=[]
-			wl=copy.deepcopy(self.geos)
-			self.energies, self.realforces=scheduler(self.numimages(),charge,steplabelprefix,wl)
-		else:
-			#Subsequent call, we don't have to calculate for the first and last image again, they don't change
-			Efirst=self.energies[0]
-			Elast=self.energies[self.numimages()-1]
-			Ffirst=self.realforces[0]
-			Flast=self.realforces[self.numimages()-1]
-			self.energies=[Efirst]
-			self.realforces=[Ffirst]
-			wl=copy.deepcopy(self.geos[1:self.numimages()-1])
-			tempenergies, tempforces=scheduler(self.numimages(),charge,steplabelprefix,wl)
-			self.energies+=tempenergies
-			self.realforces+=tempforces
-			self.energies.append(Elast)
-			self.realforces.append(Flast)
+		raise NotImplementedError
 
 
 
@@ -826,25 +850,18 @@ class Reactionpath:
 		@param steplabelprefix: string to prepend to step labels
 		"""
 		if not (self.has_energies() and self.has_realforces()):
+			start=0
+			end=0
 			#First energies & forces call, so we must do all images
-			self.energies, self.realforces=self.__schedperform(charge, steplabelprefix, scheduler,0,0)
+			#self.energies, self.realforces=self.__schedperform(charge, steplabelprefix, scheduler,0,0)
 		else:
 			#Subsequent call, we don't have to calculate for the first and last image again, they don't change
-			# store first and last energies and forces
-			Efirst=self.energies[0]
-			Elast=self.energies[self.numimages()-1]
-			Ffirst=self.realforces[0]
-			Flast=self.realforces[self.numimages()-1]
-			# initialize first energies
-			self.energies=[Efirst]
-			self.realforces=[Ffirst]
-			# calculate and append middle parts of energies and forces arrays
-			tempenergies, tempforces=self.__schedperform(charge, steplabelprefix, scheduler,1,1)
-			self.energies+=tempenergies
-			self.realforces+=tempforces
-			# append last energies and forces from storage
-			self.energies.append(Elast)
-			self.realforces.append(Flast)
+			start=1
+			end=1
+		tempEnergy, tempForce=self.__schedperform(charge, steplabelprefix, scheduler,start,end)
+		for ii in range(start,self.numImages-end):
+			self.energies[ii]=tempEnergy[ii-start]
+			self.realforces[ii]=tempForce[ii-start]
 
 
 
@@ -885,7 +902,7 @@ class Reactionpath:
 		"""
 		if force==None:
 	#TODO rmsforce -> realforces
-			force=self.nebforces
+			force=self.realforces
 		ms=0.0
 		if images==None:
 			rng=range(self.numimages())
@@ -1037,7 +1054,7 @@ class Reactionpath:
 		# now overwrite geometries arrays and reset energies and forces and kill old spline representation (for hygenic reasons)
 		self.geos=newgeos
 		self.realforces=None
-		self.energies=[]
+		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
 
@@ -1179,7 +1196,7 @@ class Reactionpath:
 			newgeos.append(tempgeo)
 		# now replace old path geometries and zero out related values
 		self.geos=newgeos
-		self.energies=[]
+		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
 		self.realforces=None
@@ -1220,7 +1237,7 @@ class Reactionpath:
 			newgeos.append(tempgeo)
 		# finished resampling, set new geometries etc
 		self.geos=newgeos
-		self.energies=[]
+		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
 		self.realforces=None

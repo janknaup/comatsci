@@ -1,26 +1,11 @@
 #!/usr/bin/env python
-from distutils.core import setup,Extension
-from distutils.dir_util import remove_tree
-import os,subprocess,sys
+from setuptools import setup,Extension
+import os,sys
 
-sys.path.append("src/comatsci")
-
-from constants import VERSIONPREFIX as COMATSCI_VERSIONPREFIX
-from constants import VERSION as COMATSCI_VERSION
+execfile('src/comatsci/_version.py')
 
 
-try:
-	from bzrlib.branch import BzrBranch
-	branch = BzrBranch.open_containing('.')[0]
-	if branch.nick!="trunk":
-		VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{1:s}-{0:d}".format(branch.last_revision_info()[0],branch.nick)
-	else:
-		VERSIONTAG=COMATSCI_VERSIONPREFIX+"-{0:d}".format(branch.last_revision_info()[0])
-except:
-		VERSIONTAG=COMATSCI_VERSIONPREFIX
-	
-
-print COMATSCI_VERSION
+VERSIONTAG=VERSION
 
 startpath=os.getcwd()
 
@@ -32,7 +17,17 @@ URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 # the source script or by symlinking, if symlinks are available on the target
 # platform, format is a dictionary with script names as keys containing lists of
 # alias name strings
-aliases={"geoconv":["togen","toxyz","tofmg","tofdf","topdb","toxyzq","totm","toaims","tocdh"]}
+aliases={"comatsci.geoconvert":["geoconv","togen","toxyz","tofmg","tofdf","topdb","toxyzq","totm","toaims","tocdh"]}
+
+aliasentries=[]
+for cmd in aliases.keys():
+ 		for alias in aliases[cmd]:
+ 			aliasentries.append("{0:s} = {1:s}:mainfunc".format(alias,cmd))
+
+print aliases
+print aliasentries
+
+#sys.exit() 			
 
 distrib=setup (	name="comatsci-base",
 		version=VERSIONTAG,
@@ -43,20 +38,20 @@ distrib=setup (	name="comatsci-base",
 		ext_modules=[Extension('geometry.geoext',['src/extensions/geoext.c'],
 							extra_compile_args=['-fopenmp','-funroll-loops','-O2'],extra_link_args=['-lgomp']),
 			Extension('splext',['src/extensions/splext.c'])],
-		scripts=['src/scripts/geoconv',
-                         'src/scripts/coordination_check','src/scripts/splresample',
+		scripts=['src/scripts/coordination_check','src/scripts/splresample',
                          'src/scripts/splderive','src/scripts/dumpbonds','src/scripts/fitrep',
 			 "src/scripts/scale_linkdists","src/scripts/chargeanalys-2D",
 			 "src/scripts/dosanalys-2D","src/scripts/dosanalys-3D",
 			 'src/scripts/pastafarian','src/scripts/pathprepare',
 			'src/scripts/pathprops','src/scripts/multiaverage',
-			'src/scripts/dosplot'],
+			'src/scripts/dosplot','src/scripts/pathconvert'],
 		data_files=[("share/doc/comatsci",["doc/comatsci.pdf",
 						   "doc/run.sh.example"])],
 		description="Computational Materials Science Toolkit",
 		author=AUTHOR,
 		author_email=AU_EMAIL, 
 		url=URL, 
+		install_requires=["h5py >= 2.0","numpy >= 1.6",],
 		classifiers=[
 			'Development Status :: 5 - Production/Stable',
 			'Environment :: Console',
@@ -70,35 +65,39 @@ distrib=setup (	name="comatsci-base",
 			'Topic :: Scientific/Enginieering',
 			'Topic :: Scientific/Enginieering :: Physics',
 			'Topic :: Scientific/Enginieering :: Chemistry',
-		]
+		],
+		entry_points = {
+        'console_scripts': []+aliasentries,
+        'gui_scripts': []
+    	}
 		)
 
-#********************************************************************************************
-# post-install operations
-#********************************************************************************************
-
-# scripts postprocessing - check if scripts were installed
-
-if distrib.have_run.get("install_scripts",0)==1:
-	# script aliases processing
-	# decide wheter to symlink or copy aliases
-	if "symlink" in dir(os):
-		linktype="sym"
-	else:
-		linktype=None
-	# store install target and copy command locally to save typing
-	installdir=os.path.abspath(distrib.command_obj["install_scripts"].install_dir)
-	# process aliases
-	os.chdir(installdir)
-	for cmd in aliases.keys():
-		for alias in aliases[cmd]:
-			# remove existing alias if present
-			if os.path.exists(alias) and not distrib.dry_run:
-				os.unlink(alias)
-			# create new alias
-			copycmd=distrib.command_obj["install_scripts"].copy_file(cmd,alias,link=linktype)
-	os.chdir(startpath)
-	# finished with script aliases
-# finished with scripts postprocessing
-
-#print distrib.command_obj
+# #********************************************************************************************
+# # post-install operations
+# #********************************************************************************************
+# 
+# # scripts postprocessing - check if scripts were installed
+# 
+# if distrib.have_run.get("install_scripts",0)==1:
+# 	# script aliases processing
+# 	# decide wheter to symlink or copy aliases
+# 	if "symlink" in dir(os):
+# 		linktype="sym"
+# 	else:
+# 		linktype=None
+# 	# store install target and copy command locally to save typing
+# 	installdir=os.path.abspath(distrib.command_obj["install_scripts"].install_dir)
+# 	# process aliases
+# 	os.chdir(installdir)
+# 	for cmd in aliases.keys():
+# 		for alias in aliases[cmd]:
+# 			# remove existing alias if present
+# 			if os.path.exists(alias) and not distrib.dry_run:
+# 				os.unlink(alias)
+# 			# create new alias
+# 			copycmd=distrib.command_obj["install_scripts"].copy_file(cmd,alias,link=linktype)
+# 	os.chdir(startpath)
+# 	# finished with script aliases
+# # finished with scripts postprocessing
+# 
+# #print distrib.command_obj

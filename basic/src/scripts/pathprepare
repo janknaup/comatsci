@@ -79,7 +79,7 @@ if options.fileType!=None:
 
 
 #inititalize path and read geometry files
-path=comatsci.path.Reactionpath('checkpoint',[],'s',0.1,0.1,1)
+path=comatsci.path.Reactionpath('checkpoint',[],'d',0.1,0.1,1)
 print("reading input geometries")
 if len(args)==1:
 	if ".xyz" in args[0][-8:].lower():
