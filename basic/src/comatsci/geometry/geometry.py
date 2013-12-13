@@ -52,11 +52,11 @@ Pi=constants.PI
 FMG_DTD="""<!ELEMENT mode (#PCDATA)>
 <!ELEMENT lattice (latvec_a, latvec_b, latvec_c)>
 <!ATTLIST lattice
-    orgx CDATA "0.0"
-    orgy CDATA "0.0"
-    orgz CDATA "0.0"
-    lunit (ang|au) "ang"
-    >
+	orgx CDATA "0.0"
+	orgy CDATA "0.0"
+	orgz CDATA "0.0"
+	lunit (ang|au) "ang"
+	>
 <!ELEMENT latvec_a (#PCDATA)>
 <!ELEMENT latvec_b (#PCDATA)>
 <!ELEMENT latvec_c (#PCDATA)>
@@ -65,8 +65,8 @@ FMG_DTD="""<!ELEMENT mode (#PCDATA)>
 <!ELEMENT lname (#PCDATA)>
 <!ELEMENT atom (x, y, z, el, st?, chr?, li?, lpop?)>
 <!ATTLIST atom
-    lunit (ang|au) "ang"
-    >
+	lunit (ang|au) "ang"
+	>
 <!ELEMENT x (#PCDATA)>
 <!ELEMENT y (#PCDATA)>
 <!ELEMENT z (#PCDATA)>
@@ -136,17 +136,17 @@ class Geometry:
 
 	#Periodic Table of Elements
 	PTE=["X",
-	"H" ,                                                                                "He",
-	"Li","Be",                                                  "B" ,"C" ,"N" ,"O" ,"F" ,"Ne",
-	"Na","Mg",                                                  "Al","Si","P" ,"S" ,"Cl","Ar",
+	"H" ,																				"He",
+	"Li","Be",												  "B" ,"C" ,"N" ,"O" ,"F" ,"Ne",
+	"Na","Mg",												  "Al","Si","P" ,"S" ,"Cl","Ar",
 	"K" ,"Ca","Sc","Ti","V" ,"Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr",
 	"Rb","Sr","Y" ,"Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I" ,"Xe",
 	"Cs","Ba",
 	"La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb",
-	          "Lu","Hf","Ta","W" ,"Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn",
+			  "Lu","Hf","Ta","W" ,"Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn",
 	"Fr","Ra",
 	"Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No",
-	          "Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg"]
+			  "Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg"]
 
 
 
@@ -267,6 +267,7 @@ class Geometry:
 		#default layer is 0
 		if iAtomLayers==None:
 			self.AtomLayers=[0 for s in range(self.Atomcount)]
+			
 		else:
 			self.AtomLayers=iAtomLayers
 		#if no Layers are specified, create default layer
@@ -767,7 +768,7 @@ class Geometry:
 		if (not "coordinates" in exclude): 
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
 		if self.forces != None and (not "forces" in exclude):
-			forceset=imagegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
+			forceset=framegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
 		if self.AtomTypes != None and (not "elements" in exclude):
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
 		if self.AtomSubTypes != None and (not "types" in exclude):
@@ -866,7 +867,7 @@ class Geometry:
 			self.timestep=int(globalsGroup.attrs["timestep"])
 		# simtime
 		if "simtime" in framegroup.attrs.keys():
-			self.simtime=float(frameGroup.attrs["simtime"])
+			self.simtime=float(framegroup.attrs["simtime"])
 		elif "simtime" in globalsGroup.attrs.keys():
 			self.simtime=float(globalsGroup.attrs["simtime"])
 		#********************************************************************
@@ -1415,7 +1416,7 @@ class Geometry:
 			if i[:18]==" Atom populations ":
 				chrbase=line
 			#l-shell populations tag
-##			elif i[:24]=="  Atom  l         Charge"
+##			elif i[:24]=="  Atom  l		 Charge"
 ##				lpopbase=line
 			line+=1
 		# incorporate atom charges
@@ -1603,8 +1604,8 @@ class Geometry:
 		possible coordinates modes:
 			- B{C} Carthesian coordinates in Angstrom
 			- B{F} Fractional coordinates in lattice vector units.
-			       Choosing this for a cluster Geometry raises a
-			       GeometryError
+				   Choosing this for a cluster Geometry raises a
+				   GeometryError
 		@param filename: output file name
 		@param cmode: coordinates mode
 		"""
@@ -1798,8 +1799,8 @@ class Geometry:
 		elif len(beta)!=self.Atomcount:
 			raise GeometryError("Beta array mismatch")
 		# initialize header
-		pdbLines.append("HEADER    comatsci STRUCTURE                        ")
-		pdbLines.append("TITLE     comatsci STRUCTURE")
+		pdbLines.append("HEADER	comatsci STRUCTURE						")
+		pdbLines.append("TITLE	 comatsci STRUCTURE")
 		# check if geometry is supercell and orthorhombic, if so, add CRYST record, else skip supercell!
 		cubicmat=numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 		checkmat=self.Lattice*cubicmat
@@ -1807,7 +1808,7 @@ class Geometry:
 			a=self.Lattice[0][0]*Angstrom
 			b=self.Lattice[1][1]*Angstrom
 			c=self.Lattice[2][2]*Angstrom
-			pdbLines.append("CRYST1{0:9.3f}{1:9.3f}{2:9.3f}{3:7.2f}{4:7.2f}{5:7.2f}  P 1          1".format(a,b,c,90.,90.,90.))
+			pdbLines.append("CRYST1{0:9.3f}{1:9.3f}{2:9.3f}{3:7.2f}{4:7.2f}{5:7.2f}  P 1		  1".format(a,b,c,90.,90.,90.))
 		# add segment HET records for geometry layers
 		for i in self.LayerDict.keys():
 			pdbLines.append("HET   {0:3s} {1:4d}".format(self.LayerDict[i].Name[0:3].ljust(3).upper(), i+1))
@@ -1816,7 +1817,7 @@ class Geometry:
 		# write HETATM records for each atom
 		for i in range(self.Atomcount):
 			# ***** begin very very long formatted string *****
-			pdbLines.append("HETATM{0:5d} {1:3s}  {2:4s} {3:4d}    {4:8.3f}{5:8.3f}{6:8.3f}{7:6.2f}{8:6.2f}      {9:4s}{10:2s}{11:2s}".format(
+			pdbLines.append("HETATM{0:5d} {1:3s}  {2:4s} {3:4d}	{4:8.3f}{5:8.3f}{6:8.3f}{7:6.2f}{8:6.2f}	  {9:4s}{10:2s}{11:2s}".format(
 				# atom number, Atom Name
 				i+1,self.PTE[self.AtomTypes[i]].ljust(3),
 				# Layer name (corresponding to HET record created earlier)
@@ -2559,10 +2560,10 @@ class Geometry:
 		# rutile base atoms
 		baseElements={'A':elementA,'B':elementB}
 		baseCoordinates={'A':numpy.array([[0.,0.,0.],[0.,0.5,0.]]),
-		                 'B':numpy.array([[0.0000,0.6952,0.3048],
-						                  [0.0000,0.3048,0.6952],
-						                  [0.6096,0.8048,0.0856],
-						                  [0.3904,0.1952,0.9144]])
+						 'B':numpy.array([[0.0000,0.6952,0.3048],
+										  [0.0000,0.3048,0.6952],
+										  [0.6096,0.8048,0.0856],
+										  [0.3904,0.1952,0.9144]])
 						}
 		# I-1 symmetry operators
 		symmMat=[numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]]),
