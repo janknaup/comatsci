@@ -159,7 +159,7 @@ class growingString(path.Reactionpath):
 		if interpolationMode in ('a','l'):
 			self.__interpolator=linearInterpolator()
 		elif interpolationMode=='r':
-			self.__interpolator=Spline.RennerSpline()
+			self.__interpolator=spline.RennerSpline()
 		else:
 			raise(ValueError,"Invalid growing string interpolation mode specified.")
 
