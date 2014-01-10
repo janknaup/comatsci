@@ -710,7 +710,7 @@ class Geometry:
 		if (not "coordinates" in exclude): 
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))  # @UnusedVariable
 		if self.forces != None and (not "forces" in exclude):
-			forceset=imagegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
+			forceset=framegroup.create_dataset("forces",data=numpy.array(self.forces,"=f8")) #@UnusedVariable
 		if self.AtomTypes != None and (not "elements" in exclude):
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
 		if self.AtomSubTypes != None and (not "types" in exclude):
@@ -809,7 +809,7 @@ class Geometry:
 			self.timestep=int(globalsGroup.attrs["timestep"])
 		# simtime
 		if "simtime" in framegroup.attrs.keys():
-			self.simtime=float(frameGroup.attrs["simtime"])
+			self.simtime=float(framegroup.attrs["simtime"])
 		elif "simtime" in globalsGroup.attrs.keys():
 			self.simtime=float(globalsGroup.attrs["simtime"])
 		#********************************************************************
