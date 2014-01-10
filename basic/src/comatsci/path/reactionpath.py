@@ -17,11 +17,11 @@ import numpy
 import os, sys, copy
 
 import h5py
-import numpy as num
+import numpy as num  # @UnusedImport
 
-from .. import geometry, calculators
+from .. import geometry
 
-from ..calculators.calcerror import CalcError
+from ..calculators.calcerror import CalcError  # @UnusedImport
 from .. import constants,spline,utils
 from .pathiterator import PathIterator, EnergyAccessor, ForcesAccessor
 
@@ -94,23 +94,22 @@ class Reactionpath:
 	
 	
 	def __getitem__(self,index):
-	    if isinstance(index,slice):
-	        if index.start==None: 
-	            start=0
-	        else:
-	            start=index.start
-	        if indes.step==None:
-	            step=1
-	        else:
-	            step=index.step
-	        return [ self.__getitem__(ii) for ii in range(start,index.stop,step) ]
-	    else:
-	        if index<0: index=index+self.__len__()
-	        if index < 0 or index >=self.numImages:
-	            raise IndexError
-	        else:
-	            return self.geos[index]
-	           
+		if isinstance(index,slice):
+			if index.start==None: 
+				start=0
+			else:
+				start=index.start
+			if index.step==None:
+				step=1
+			else:
+				step=index.step
+			return [ self.__getitem__(ii) for ii in range(start,index.stop,step) ]
+		else:
+			if index<0: index=index+self.__len__()
+			if index < 0 or index >=self.numImages:
+				raise IndexError
+			else:
+				return self.geos[index]
 
 	def __setitem__(self,index,data):
 		if isinstance(index,slice):
@@ -118,7 +117,7 @@ class Reactionpath:
 				start=0
 			else:
 				start=index.start
-			if indes.step==None:
+			if index.step==None:
 				step=1
 			else:
 				step=index.step
@@ -557,14 +556,14 @@ class Reactionpath:
 		# open HDF5 file for overwriting
 		pathfile=h5py.File(filename,"w")
 		# iterate through path images
-		refGroup=None
+		refGroup=None  # @UnusedVariable
 		for image in range(self.numimages()):
 			imagelabel="frame{0:010d}".format(image)
 			# first write the image geometry
 			if image==0 and savespace:
-				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]
+				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]  # @UnusedVariable
 			else:
-				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable
+				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable @UnusedVariable
 			# add additional path data, if present
 # 			if self.has_energies():
 # 				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")
@@ -593,10 +592,10 @@ class Reactionpath:
 		frames.sort()
 		# iterate through frames
 		if stepsFunction!=None: stepsFunction(len(frames))
-		tempEnergies=[]
-		tempForces=[]
-		hasE=True
-		hasF=True
+# 		tempEnergies=[]
+# 		tempForces=[]
+# 		hasE=True
+# 		hasF=True
 		globalsGroup=pathfile.get("globals", None)
 		for frame in frames:
 			tg=geoconstructor()
