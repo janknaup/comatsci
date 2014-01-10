@@ -512,64 +512,7 @@ class Geometry:
 						appendlayer,
 						appendgeometry.AtomCharges[i],
 						appendgeometry.AtomSubTypes[i])
-
-
-
-#	def readgen(self, filename):
-#		"""Read Geometry from dftb .gen file
-#		@param filename: 	input file name
-#		"""
-#		self._reset_derived()
-#		infile=utils.compressedopen(filename,'r')
-#		line=infile.readline()
-#		dummy=line.split()
-#		self.Atomcount=int(dummy[0])
-#		self.Mode=dummy[1]
-#		self.Mode.strip()
-#		self.Mode.capitalize()
-#		line=infile.readline()
-#		dummy=line.split()
-#		AtomSymbols=[ s.lower() for s in dummy ]
-#		geo=[]
-#		self.LPops=[]
-#		self.AtomTypes=[]
-#		for i in range(self.Atomcount):
-#			line = infile.readline()
-#			dummy = line.split()
-#			geo.append([ float(s) for s in dummy[2:5] ])
-#			self.AtomTypes.append(int(self.RPTE[AtomSymbols[int(dummy[1])-1]]))
-#			self.LPops.append([])
-#		self.Geometry=numpy.array((geo))/Angstrom
-#		if self.Mode=="S":
-#			line = infile.readline()
-#			dummy=line.split()
-#			self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
-#			for i in range(3):
-#				line = infile.readline()
-#				dummy=line.split()
-#				self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
-#		elif self.Mode=="F":
-#			line = infile.readline()
-#			dummy=line.split()
-#			self.Origin=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
-#			for i in range(3):
-#				line = infile.readline()
-#				dummy=line.split()
-#				self.Lattice[i]=numpy.array( [ float(s)/Angstrom for s in dummy[:3] ] )
-#			#Undo angstrom conversion for fractional coordinates here!
-#			self.Geometry = numpy.dot(self.Geometry,self.Lattice)*Angstrom
-#			self.Mode="S"
-#		elif self.Mode=="C":
-#			self.Origin=numpy.array((0.,0.,0.),dtype=float)
-#			self.Lattice=numpy.array(([1.,0.,0.],[0.,1.,0.],[0.,0.,1.]),dtype=float)
-#		defaultlayer=GeoLayer("default layer")
-#		self.LayerDict={0: defaultlayer}
-#		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
-#		self.AtomLayers=[0 for s in range(self.Atomcount)]
-#		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
-#		self._consistency_check()
-#		infile.close()
-		
+	
 		
 	def readgen(self,filename):
 		"""
