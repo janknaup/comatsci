@@ -1453,6 +1453,8 @@ class Geometry:
 			- B{xyz} xmol carthesian format
 			- B{fmg} flexible molecular geometry xml format
 			- B{cdh} chemical data hierarchy
+			- B{car} VASP POSCAR/CONCTCAR format
+			- B{aims} FHI aims geometry.in / console output format
 		@param filename: input file name
 		@param typespec: lowercase string, specifying file type, autodetect if omitted
 		"""
@@ -1461,7 +1463,8 @@ class Geometry:
 			'xyz': self.readxyz,
 			'fmg': self.readfmg,
 			'cdh': self.readCDHFile,
-			'car': self.readcar
+			'car': self.readcar,
+			'aims' : self.readAimsFile
 			}
 		if typespec!=None:
 			ftype=typespec.strip('.').strip().lower()
@@ -1475,6 +1478,8 @@ class Geometry:
 				tempfilename=filename
 			if tempfilename.upper() in ("POSCAR","CONTCAR"):
 				ftype="car"
+			elif tempfilename.lower() in ("aims.out",):
+				ftype="aims"
 			else:
 				ftype=tempfilename.strip()[-3:].lower()
 		if ftype in typefunctions.keys():
