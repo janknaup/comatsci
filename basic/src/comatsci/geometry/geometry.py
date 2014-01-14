@@ -540,7 +540,7 @@ class Geometry:
 		tempAtomTypes=[]
 		tempElementCount = 0
 		tempElement = 0
-		tempSpeciesCount = 0
+		tempSpeciesCount = 0  # @UnusedVariable
 		AtomSymbols = []
 		alternativeSymbols = True
 		# split into lines, remove leading and trailing linebreaks
@@ -565,7 +565,6 @@ class Geometry:
 		tempCheckComment = carLines[4].split()
 		if tempCheckComment != [t for t in tempCheckComment if t.isdigit()]:
 			del carLines[4]
-			tempSpeciesCount = len(carLines[4].split())
 		# number of different species 
 		tempSpeciesCount = len(carLines[4].split())
 		# number of atoms in subgeometry
@@ -601,7 +600,7 @@ class Geometry:
 		else:
 			raise GeometryError("Error in CAR file: unknown mode")
 		# read Geometry 
-                for j in tempSubGeoCount:
+		for j in tempSubGeoCount:
 			for i in range(int(j)):
 				tempLine = carLines[6+tempElementCount+i].split()
 				try:
@@ -624,61 +623,44 @@ class Geometry:
 			self.Mode="S"
 		self.Geometry /=Angstrom
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+		self._consistency_check()
 		
 	
 	
-	def writecar(self, filename, cmode='S'):
+	def writecar(self, filename):
 		"""Write geometry to VASP CAR file
 		possible coordinates modes:
-			- B{C} Carthesian coordinates in Angstrom
-			- B{F} Fractional coordinates in lattice vector units.
-			       Choosing this for a cluster Geometry raises a
-			       GeometryError
 		@param filename: output file name
-		@param cmode: coordinates mode
 		"""
+		# VASP only knows periodic structures 
+		if not self.Mode=="S":
+			raise GeometryError("You need to specify lattice vectors for the CAR file format!")
 		line=""
-		occurr={}
 		outfile=open(filename,'w')
-		if cmode=="F":
-			writemode="F"
-		else:
-			writemode=self.Mode
 		print("created by comatsci",file=outfile)
 		print("1.0000",file=outfile)
-		if self.Mode=="S" or cmode=="F":
-			for i in range(3):
-				try:
-					print("{0[0]: 24.17E} {0[1]: 24.17E} {0[2]: 24.17E} ".format(self.Lattice[i]*Angstrom),file=outfile)
-				except:
-					raise GeometryError("You need to specify lattice vectors for the CAR file format!")
-		else: 
-			raise GeometryError("You need to specify lattice vectors for the CAR file format!")
-		atlist,AtomSymbols = self.getatomsymlistdict()
+		for i in range(3):
+			try:
+				print("{0[0]: 24.17E} {0[1]: 24.17E} {0[2]: 24.17E} ".format(self.Lattice[i]*Angstrom),file=outfile)
+			except:
+				raise GeometryError("You need to specify lattice vectors for the CAR file format!")
+		atlist,AtomSymbols = self.getatomsymlistdict()  # @UnusedVariable
 		for i in atlist:
 			line+=self.PTE[i]
 			line+=" "
 		line+="\n"
 		outfile.write(line)
-		outfile.flush()
 		line=""
 		occurr=self.elemcounts()
 		for i in atlist:
 			line+=str(occurr[i])
 			line+=" "
 		print(line,file=outfile)
-		if self.Mode=="S" and cmode=="F":
-			print("direct",file=outfile)
-		else:
-			print("cartesian",file=outfile)		      
+		print("Selective dynamics\ncartesian",file=outfile)		      
 		for i in atlist:
-		      subgeo=self.elementsubgeometry(i)
-		      if self.Mode=="S" and cmode=="F":
-			    subgeo=subgeo.fractionalGeometry
-		      else:
-			    subgeo=subgeo.Geometry*Angstrom
-		      for j in range(self.elementsubgeometry(i).Atomcount):
-			    print("{0: 24.17E} {1: 24.17E} {2: 24.17E} \t T \t T \t T".format(subgeo[j][0], subgeo[j][1], subgeo[j][2]),file=outfile)
+			subgeo=self.elementsubgeometry(i).Geometry*Angstrom
+			for j in range(self.elementsubgeometry(i).Atomcount):
+				print("{0: 24.17E} {1: 24.17E} {2: 24.17E} \t T \t T \t T".format(subgeo[j][0], subgeo[j][1], subgeo[j][2]),file=outfile)
 		outfile.close()
 	
 	
