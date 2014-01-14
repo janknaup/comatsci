@@ -1473,7 +1473,7 @@ class Geometry:
 				tempfilename=filename[:-4]
 			else:
 				tempfilename=filename
-			if tempfilename.lower() in ("POSCAR","CONTCAR"):
+			if tempfilename.upper() in ("POSCAR","CONTCAR"):
 				ftype="car"
 			else:
 				ftype=tempfilename.strip()[-3:].lower()
