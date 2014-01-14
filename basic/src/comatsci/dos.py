@@ -14,7 +14,7 @@
 from __future__ import print_function
 import numpy
 
-import os,sys,math,re
+import os,sys,re
 
 from . import utils, constants
 

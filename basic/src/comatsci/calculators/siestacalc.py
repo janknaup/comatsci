@@ -9,7 +9,7 @@
 ##############################################################################
 
 from __future__ import print_function
-from .calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
+from .calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED @UnusedImport
 
 from .calcerror import CalcError
 from .. import  constants, utils
@@ -149,7 +149,7 @@ class siestacalc(Calculator):
 			gradfile=utils.compressedopen("path.FA")
 			gradsbuf=[]
 			atomcount=int(gradfile.readline())
-			for i in range(atomcount):
+			for i in range(atomcount):  # @UnusedVariable
 				line=gradfile.readline()
 				dummy=line.split()
 				# This will break, if forces are not ordered in FRC.DAT!
@@ -173,7 +173,7 @@ class siestacalc(Calculator):
 		# copy the parameter file into the rundir
 		shutil.copy(self.startdir+"/"+self.paraminclude,self.rundir)
 		# finally, copy the PP files into the rundir
-		symlist,symdict = Geometry.getatomsymlistdict()
+		symlist,symdict = Geometry.getatomsymlistdict()  # @UnusedVariable
 		for i in symlist:
 			if os.path.exists(self.ppdir+"/"+Geometry.PTE[i]+".psf"):
 				shutil.copy(self.ppdir+"/"+Geometry.PTE[i]+".psf",self.rundir)

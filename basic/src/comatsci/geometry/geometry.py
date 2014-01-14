@@ -23,16 +23,17 @@ import os
 ##import sys
 import copy
 import math
+import re
 ##import xml.dom.minidom
 ##import bisect
 
 #complicated import statement to make it work with python 2.4 and 2.5
 #  see if python 2.5's elementTree implementation is present
 try:
-	from xml.etree import ElementTree as ET
+	from xml.etree import ElementTree as ET  # @UnusedImport
 #  otherwise try to import locally installed elementtree (for python 2.4 and below)
 except:
-	from elementtree import ElementTree as ET #@UnresolvedImport
+	from elementtree import ElementTree as ET #@UnresolvedImport @Reimport
 
 
 ##import numpy.oldnumeric.linear_algebra as lina
@@ -266,7 +267,7 @@ class Geometry:
 			self.Lattice=iLattice
 		#default layer is 0
 		if iAtomLayers==None:
-			self.AtomLayers=[0 for s in range(self.Atomcount)]
+			self.AtomLayers=[0 for s in range(self.Atomcount)]  # @UnusedVariable
 		else:
 			self.AtomLayers=iAtomLayers
 		#if no Layers are specified, create default layer
@@ -277,7 +278,7 @@ class Geometry:
 			self.LayerDict=iLayerDict
 		# default atom charge is 0
 		if iAtomCharges==None:
-			self.AtomCharges=[float(0) for s in range(self.Atomcount)]
+			self.AtomCharges=[float(0) for s in range(self.Atomcount)]  # @UnusedVariable
 		else:
 			self.AtomCharges=iAtomCharges
 		if iGeometry==None:
@@ -424,7 +425,7 @@ class Geometry:
 	
 	
 	
-	def addatom(self, type, position, layer=None, charge=0.0, subtype=None,LPop=None,checkConsistency=True):
+	def addatom(self, type, position, layer=None, charge=0.0, subtype=None,LPop=None,checkConsistency=True): #FIXME: rename type parameter
 		"""append atom of type with position to the geometry
 		@param type: atom type (element number)
 		@param position: carthesian bohr coordinates
@@ -852,10 +853,10 @@ class Geometry:
 		# hack for h5py API changes
 		# *** depending on installed h5py version, one of this will cause errors, hence UndefinedVariable comments ***
 		if h5py.version.version_tuple[0]==1 and h5py.version.version_tuple[1]<3:
-			vlstring=h5py.new_vlen(str)#@UndefinedVariable
+			vlstring=h5py.new_vlen(str)#@UndefinedVariable @UnusedVariable
 			layerenum=h5py.new_enum("i",ResidueDict)#@UndefinedVariable
 		else: 
-			vlstring=h5py.special_dtype(vlen=str) #@UndefinedVariable
+			vlstring=h5py.special_dtype(vlen=str) #@UndefinedVariable @UnusedVariable
 			layerenum=h5py.special_dtype(enum=("i",ResidueDict)) #@UndefinedVariable
 		# get frame group object, create if necessary. We already checked collision with existing froup if overwrite==False
 		# overwriting datasets will still fail!
@@ -882,19 +883,19 @@ class Geometry:
 		if self.simtime != None and (not "simtime" in exclude): 
 			framegroup.attrs["simtime"]=self.simtime
 		if (not "coordinates" in exclude): 
-			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
+			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))  # @UnusedVariable
 		if self.forces != None and (not "forces" in exclude):
-			forceset=imagegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
+			forceset=framegroup.create_dataset("forces",data=numpy.array(self.forces,"=f8")) #@UnusedVariable
 		if self.AtomTypes != None and (not "elements" in exclude):
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
 		if self.AtomSubTypes != None and (not "types" in exclude):
-			typeset=framegroup.create_dataset("types",data=numpy.asarray(self.AtomSubTypes,dtype="string_"))
+			typeset=framegroup.create_dataset("types",data=numpy.asarray(self.AtomSubTypes,dtype="string_"))  # @UnusedVariable
 		# charges are tricky, but we should just leave them out if all charges in Geometry instance are zero anyway
 		if numpy.shape(numpy.nonzero(self.AtomCharges))[1]!=0 and (not "charges" in exclude):
 			chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
 		if (not "lattice" in exclude):
 			if self.Mode=="S":
-				latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
+				latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))  # @UnusedVariable
 		# layer indices might not be contigous, depending on geometry history
 		if (not "residues" in exclude):
 			residueset=framegroup.create_dataset("residues",(self.Atomcount,),dtype=layerenum) #@UnusedVariable
@@ -983,7 +984,7 @@ class Geometry:
 			self.timestep=int(globalsGroup.attrs["timestep"])
 		# simtime
 		if "simtime" in framegroup.attrs.keys():
-			self.simtime=float(frameGroup.attrs["simtime"])
+			self.simtime=float(framegroup.attrs["simtime"])
 		elif "simtime" in globalsGroup.attrs.keys():
 			self.simtime=float(globalsGroup.attrs["simtime"])
 		#********************************************************************
@@ -1090,13 +1091,24 @@ class Geometry:
 		@type instring: string
 		@param instring: fhi aims formated geometry specification  
 		"""
+		#check if instring is an aims output string
+		finalGeoPattern=re.compile("Final atomic structure")
+		afracPattern=re.compile("Fractional coordinates")
+		finalGeoSearchResult = finalGeoPattern.search(instring)
 		#initialize temporary lattice, coordinates and atom types
 		templattice=[]
 		temptypes=[]
 		tempcoords=[]
 		tcfractional=[]
 		#split string into lines
-		lines=instring.split("\n")
+		if finalGeoSearchResult:
+			#output file contains a lot of unparseable stuff to skip
+			#atom coordinates are spiecified twice, first an atom block, then an atom_frac block
+			tempstring=instring[finalGeoSearchResult.end()+1:]
+			afracSearchResult=afracPattern.search(tempstring)
+			lines=tempstring[:afracSearchResult.start()-1].split("\n")[3:]
+		else:
+			lines=instring.split("\n")
 		#iterate through lines
 		for i in range(len(lines)):
 			#tokenize lines, split off comments at EOL if any
@@ -1505,7 +1517,7 @@ class Geometry:
 		chrfile=utils.compressedopen(chargefilename,'r')
 		# skip the first 5 lines
 		for i in range(5):
-			line=chrfile.readline()
+			line=chrfile.readline()  # @UnusedVariable
 		atchr=[]
 		for i in range(self.Atomcount):
 			dummy=chrfile.readline().split()
@@ -1915,7 +1927,7 @@ class Geometry:
 			raise GeometryError("Occupancy array mismatch")
 		# if no beta values were specified, use all zeros
 		if beta==None:
-			beta=[float(0) for s in range(self.Atomcount)]
+			beta=[float(0) for s in range(self.Atomcount)]  # @UnusedVariable
 		elif len(beta)!=self.Atomcount:
 			raise GeometryError("Beta array mismatch")
 		# initialize header
@@ -2286,7 +2298,7 @@ class Geometry:
 
 	def elemcounts(self):
 		"""return a dictionary of element ordinal numbers to numbers of occurrance"""
-		symlist,symdict = self.getatomsymlistdict()
+		symlist,symdict = self.getatomsymlistdict()  # @UnusedVariable
 		counts={}
 		counts=counts.fromkeys(symlist,0)
 		for i in range(self.Atomcount):
