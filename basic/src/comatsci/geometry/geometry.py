@@ -539,8 +539,6 @@ class Geometry:
 		tempSpeciesCount = 0
 		AtomSymbols = []
 		alternativeSymbols = True
-                # number of comment lines
-
 		# split into lines, remove leading and trailing linebreaks
 		carLines=carString.strip("\n").split("\n")
 		#self.Mode="S"
@@ -581,15 +579,10 @@ class Geometry:
 				if "TITEL" in line:
 					potline = line.split()
 					AtomSymbols.append(potline[3].lower())
-			print(AtomSymbols)
 			if len(AtomSymbols) == tempSpeciesCount:
 				alternativeSymbols = False
 				print("Species read from POTCAR file")
-			#if tempCheckComment != [t for t in tempCheckComment if t.isdigit()]:
-				#del carLines[4]
 		if alternativeSymbols:
-			#if tempCheckComment != [t for t in tempCheckComment if t.isdigit()]:
-				#del carLines[4]
 			self.PTE[:] = []
 			self.RPTE.clear()
 			self.PTE = AtomSymbols = [ "type"+str(i+1) for i in range(len(carLines[4].split()))]
@@ -607,15 +600,12 @@ class Geometry:
                 for j in tempSubGeoCount:
 			for i in range(int(j)):
 				tempLine = carLines[6+tempElementCount+i].split()
-				#print(tempLine)
 				try:
 					tempgeo.append([ float(s) for s in tempLine[0:3] ])
-					#print([ float(s) for s in tempLine[0:3] ])
 				except:
 					raise GeometryError("Error parsing Atom position in line {0:d} of CAR file")
 				try:
 					tempAtomTypes.append(int(self.RPTE[AtomSymbols[int(tempElement)]]))
-					#tempAtomTypes.append(AtomSymbols[int(tempElement)])
 				except:
 					raise GeometryError("Unable to parse atom type specification in line {0:d} of CAR file.".format(i+1+tempElementCount))
 				self.LPops.append([])
@@ -642,7 +632,6 @@ class Geometry:
 		@param filename: output file name
 		@param cmode: coordinates mode
 		"""
-		print("Function writecar invoked!")
 		line=""
 		occurr={}
 		outfile=open(filename,'w')
@@ -650,7 +639,7 @@ class Geometry:
 			writemode="F"
 		else:
 			writemode=self.Mode
-		print("VASP geometry input file",file=outfile)
+		print("created by comatsci",file=outfile)
 		print("1.0000",file=outfile)
 		if self.Mode=="S" or cmode=="F":
 			for i in range(3):
