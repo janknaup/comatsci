@@ -431,9 +431,9 @@ class Geometry:
 	
 	
 	
-	def addatom(self, type, position, layer=None, charge=0.0, subtype=None,LPop=None,checkConsistency=True): #FIXME: rename type parameter
-		"""append atom of type with position to the geometry
-		@param type: atom type (element number)
+	def addatom(self, atomType, position, layer=None, charge=0.0, subtype=None,LPop=None,checkConsistency=True):
+		"""append atom of atomType with position to the geometry
+		@param atomType: atom atomType (element number)
 		@param position: carthesian bohr coordinates
 		@param layer: layer index to add atom to (default layer if omitted) (default None)
 		@param charge: atom charge (default 0.0)
@@ -444,7 +444,7 @@ class Geometry:
 		if not (layer in self.LayerDict or layer==None):
 			raise GeometryError("Trying to add to nonexistent layer")
 		self._reset_derived()
-		self.AtomTypes.append(type)
+		self.AtomTypes.append(atomType)
 		#tempgeo=numpy.zeros((self.Atomcount+1,3),dtype=float)
 		tempgeo=numpy.empty((self.Atomcount+1,3),dtype=float)
 		if self.Atomcount > 0:
@@ -458,7 +458,7 @@ class Geometry:
 			self.AtomLayers.append(layer)
 		self.AtomCharges.append(float(charge))
 		if subtype==None:
-			subtype=self.PTE[type]
+			subtype=self.PTE[atomType]
 		self.AtomSubTypes.append(subtype)
 		if LPop==None:
 			self.LPops.append([])
