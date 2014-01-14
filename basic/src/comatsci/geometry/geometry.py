@@ -513,7 +513,180 @@ class Geometry:
 						appendgeometry.AtomCharges[i],
 						appendgeometry.AtomSubTypes[i])
 	
+	def readcar(self,filename):
+		"""
+		read Geometry from file in .gen format
+		@type filename: string
+		@param filename: name of the file to read
+		"""
+		infile=utils.compressedopen(filename, "r")
+		carString="".join(list(infile))
+		infile.close()
+		self.parseCarString(carString)
 		
+	def parseCarString(self,carString):
+		"""
+		Parse geometry representation from string in VASP CAR format
+		@type carstring: string
+		@param carstring: string containign VASP CAR format geometry
+		"""
+		# initialize temporary variables
+		tempgeo=[]
+		tempAtomTypes=[]
+		tempElementCount = 0
+		tempElement = 0
+		tempSpeciesCount = 0
+		AtomSymbols = []
+		alternativeSymbols = True
+                # number of comment lines
+
+		# split into lines, remove leading and trailing linebreaks
+		carLines=carString.strip("\n").split("\n")
+		#self.Mode="S"
+		# delete 1st comment line
+		del carLines[0]
+		# lattice scaling factor
+		try:
+			tempScaling=float(carLines[0])
+		except:
+			raise GeometryError("Error parsing lattice parameter in CAR file")
+		if tempScaling <= 0:
+			raise GeometryError("Error parsing lattice parameter in CAR file: lattice scaling should be greater than zero!")
+		try:
+			for i in range(3):
+				tempLattice=carLines[1+i].split()
+				self.Lattice[i]=numpy.array( [ float(s)/Angstrom*tempScaling for s in tempLattice[:3] ] )
+		except:
+			raise GeometryError("Error parsing supercell vectors in CAR file")
+
+		tempCheckComment = carLines[4].split()
+		if tempCheckComment != [t for t in tempCheckComment if t.isdigit()]:
+			del carLines[4]
+			tempSpeciesCount = len(carLines[4].split())
+		# number of different species 
+		tempSpeciesCount = len(carLines[4].split())
+		# number of atoms in subgeometry
+		tempSubGeoCount = [ int(u) for u in carLines[4].split() ]
+
+		# Atomsymbols read from comment line, POTCAR file or set alternative symbols
+		if tempCheckComment != [t for t in tempCheckComment if t.isdigit()] and set(tempCheckComment).issubset(self.PTE) and len(tempCheckComment) == len(carLines[4].split()):
+			print("Types of atoms are specified in comment line!")
+			AtomSymbols = [s.lower() for s in tempCheckComment]
+			alternativeSymbols = False
+			#del carLines[4]
+		elif os.path.isfile("POTCAR"):
+			potfile = file('POTCAR')
+			for line in potfile:
+				if "TITEL" in line:
+					potline = line.split()
+					AtomSymbols.append(potline[3].lower())
+			print(AtomSymbols)
+			if len(AtomSymbols) == tempSpeciesCount:
+				alternativeSymbols = False
+				print("Species read from POTCAR file")
+			#if tempCheckComment != [t for t in tempCheckComment if t.isdigit()]:
+				#del carLines[4]
+		if alternativeSymbols:
+			#if tempCheckComment != [t for t in tempCheckComment if t.isdigit()]:
+				#del carLines[4]
+			self.PTE[:] = []
+			self.RPTE.clear()
+			self.PTE = AtomSymbols = [ "type"+str(i+1) for i in range(len(carLines[4].split()))]
+			self.RPTE = dict((self.PTE[i],i) for i in range(len(carLines[4].split())))
+			print("alternative element name(s) used!")	
+		if str(carLines[5]).lower()[:1] == "s":
+			del carLines[5]
+		if str(carLines[5]).lower()[:1] == "c":
+			self.Mode = "S"
+		elif str(carLines[5]).lower()[:1] == "d":
+			self.Mode = "F"
+		else:
+			raise GeometryError("Error in CAR file: unknown mode")
+		# read Geometry 
+                for j in tempSubGeoCount:
+			for i in range(int(j)):
+				tempLine = carLines[6+tempElementCount+i].split()
+				#print(tempLine)
+				try:
+					tempgeo.append([ float(s) for s in tempLine[0:3] ])
+					#print([ float(s) for s in tempLine[0:3] ])
+				except:
+					raise GeometryError("Error parsing Atom position in line {0:d} of CAR file")
+				try:
+					tempAtomTypes.append(int(self.RPTE[AtomSymbols[int(tempElement)]]))
+					#tempAtomTypes.append(AtomSymbols[int(tempElement)])
+				except:
+					raise GeometryError("Unable to parse atom type specification in line {0:d} of CAR file.".format(i+1+tempElementCount))
+				self.LPops.append([])
+			tempElementCount += j
+			tempElement += 1
+		
+		self.Geometry = numpy.array(tempgeo)
+		self.AtomTypes = tempAtomTypes
+		self.Atomcount = sum(tempSubGeoCount) 
+		if self.Mode=="F":
+			self.Geometry = numpy.dot(self.Geometry,self.Lattice)
+			self.Mode="S"
+		self.Geometry /=Angstrom
+		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+		
+	
+	def writecar(self, filename, cmode='S'):
+		"""Write geometry to VASP CAR file
+		possible coordinates modes:
+			- B{C} Carthesian coordinates in Angstrom
+			- B{F} Fractional coordinates in lattice vector units.
+			       Choosing this for a cluster Geometry raises a
+			       GeometryError
+		@param filename: output file name
+		@param cmode: coordinates mode
+		"""
+		print("Function writecar invoked!")
+		line=""
+		occurr={}
+		outfile=open(filename,'w')
+		if cmode=="F":
+			writemode="F"
+		else:
+			writemode=self.Mode
+		print("VASP geometry input file",file=outfile)
+		print("1.0000",file=outfile)
+		if self.Mode=="S" or cmode=="F":
+			for i in range(3):
+				try:
+					print("{0[0]: 24.17E} {0[1]: 24.17E} {0[2]: 24.17E} ".format(self.Lattice[i]*Angstrom),file=outfile)
+				except:
+					raise GeometryError("You need to specify lattice vectors for the CAR file format!")
+		else: 
+			raise GeometryError("You need to specify lattice vectors for the CAR file format!")
+		atlist,AtomSymbols = self.getatomsymlistdict()
+		for i in atlist:
+			line+=self.PTE[i]
+			line+=" "
+		line+="\n"
+		outfile.write(line)
+		outfile.flush()
+		line=""
+		occurr=self.elemcounts()
+		for i in atlist:
+			line+=str(occurr[i])
+			line+=" "
+		print(line,file=outfile)
+		if self.Mode=="S" and cmode=="F":
+			print("direct",file=outfile)
+		else:
+			print("cartesian",file=outfile)		      
+		for i in atlist:
+		      subgeo=self.elementsubgeometry(i)
+		      if self.Mode=="S" and cmode=="F":
+			    subgeo=subgeo.fractionalGeometry
+		      else:
+			    subgeo=subgeo.Geometry*Angstrom
+		      for j in range(self.elementsubgeometry(i).Atomcount):
+			    print("{0: 24.17E} {1: 24.17E} {2: 24.17E} \t T \t T \t T".format(subgeo[j][0], subgeo[j][1], subgeo[j][2]),file=outfile)
+		outfile.close()
+	
+	
 	def readgen(self,filename):
 		"""
 		read Geometry from file in .gen format
@@ -572,6 +745,7 @@ class Geometry:
 		# if direct coordinate mode, convert positions from Angstrom to atomic units
 		if self.Mode in ('S','C'):
 			self.Geometry/=Angstrom
+			print(type(self.Geometry))
 		# if periodic geometry, parse supercell vectors
 		if self.Mode in ('S','F'):
 			dummy=genLines[self.Atomcount+2].split()
@@ -1298,7 +1472,8 @@ class Geometry:
 			'gen': self.readgen,
 			'xyz': self.readxyz,
 			'fmg': self.readfmg,
-			'cdh': self.readCDHFile
+			'cdh': self.readCDHFile,
+			'car': self.readcar
 			}
 		if typespec!=None:
 			ftype=typespec.strip('.').strip().lower()
@@ -1310,7 +1485,10 @@ class Geometry:
 				tempfilename=filename[:-4]
 			else:
 				tempfilename=filename
-			ftype=tempfilename.strip()[-3:].lower()
+			if tempfilename.lower() in ("POSCAR","CONTCAR"):
+				ftype="car"
+			else:
+				ftype=tempfilename.strip()[-3:].lower()
 		if ftype in typefunctions.keys():
 			typefunctions[ftype](filename)
 		else:
