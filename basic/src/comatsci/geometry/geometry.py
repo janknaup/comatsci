@@ -399,11 +399,13 @@ class Geometry:
 
 
 
-	def elementsubgeometry(self, element, mode=None, cache=False):
+	def elementsubgeometry(self, element, mode=None, cache=False, charges=False):
 		"""return a Geometry object identical to self but containing only
 		atoms of element *element*
 		@param element: element to filter for
 		@param mode: Mode of the new Geometry, Autoinit to parent Geometry mode if None (default None)
+		@param cache: cache element sub geometry. Useful for application with many subsequent calls
+		@param charges: if True, initialize subgeometry charges to parent charges, otherwise initialize to zero  
 		"""
 		if cache and self._elementSubGeos.has_key(element):
 			return self._elementSubGeos[element]
@@ -413,11 +415,15 @@ class Geometry:
 			typesArray=numpy.array(self.AtomTypes)
 			subIndices=(typesArray==element).nonzero()[0]
 			chargesArray=numpy.array(self.AtomCharges)
+			if charges:
+				subCharges=list(chargesArray[subIndices])
+			else:
+				subCharges=None
 			stArray=numpy.array(self.AtomSubTypes)
 			esubgeo=self.__class__(iMode=mode,iLattice=self.Lattice,iOrigin=self.Origin,
 								iAtomcount=len(subIndices), iAtomTypes=list(typesArray[subIndices]),
 								iGeometry=self.Geometry[subIndices],
-								iAtomSubTypes=list(stArray[subIndices]))
+								iAtomSubTypes=list(stArray[subIndices]),iAtomCharges=subCharges)
 			esubgeo.parentmap=dict.fromkeys(list(range(esubgeo.Atomcount)),subIndices)
 			if cache:
 				self._elementSubGeos[element]=esubgeo
