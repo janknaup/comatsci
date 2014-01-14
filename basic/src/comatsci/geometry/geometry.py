@@ -514,6 +514,8 @@ class Geometry:
 						appendgeometry.AtomCharges[i],
 						appendgeometry.AtomSubTypes[i])
 	
+	
+	
 	def readcar(self,filename):
 		"""
 		read Geometry from file in .gen format
@@ -524,6 +526,8 @@ class Geometry:
 		carString="".join(list(infile))
 		infile.close()
 		self.parseCarString(carString)
+	
+	
 		
 	def parseCarString(self,carString):
 		"""
@@ -621,6 +625,7 @@ class Geometry:
 		self.Geometry /=Angstrom
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
 		
+	
 	
 	def writecar(self, filename, cmode='S'):
 		"""Write geometry to VASP CAR file
