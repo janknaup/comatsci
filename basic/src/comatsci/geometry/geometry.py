@@ -23,6 +23,7 @@ import os
 ##import sys
 import copy
 import math
+import re
 ##import xml.dom.minidom
 ##import bisect
 
@@ -916,13 +917,24 @@ class Geometry:
 		@type instring: string
 		@param instring: fhi aims formated geometry specification  
 		"""
+		#check if instring is an aims output string
+		finalGeoPattern=re.compile("Final atomic structure")
+		afracPattern=re.compile("Fractional coordinates")
+		finalGeoSearchResult = finalGeoPattern.search(instring)
 		#initialize temporary lattice, coordinates and atom types
 		templattice=[]
 		temptypes=[]
 		tempcoords=[]
 		tcfractional=[]
 		#split string into lines
-		lines=instring.split("\n")
+		if finalGeoSearchResult:
+			#output file contains a lot of unparseable stuff to skip
+			#atom coordinates are spiecified twice, first an atom block, then an atom_frac block
+			tempstring=instring[finalGeoSearchResult.end()+1:]
+			afracSearchResult=afracPattern.search(tempstring)
+			lines=tempstring[:afracSearchResult.start()-1].split("\n")[3:]
+		else:
+			lines=instring.split("\n")
 		#iterate through lines
 		for i in range(len(lines)):
 			#tokenize lines, split off comments at EOL if any
