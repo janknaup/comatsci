@@ -41,6 +41,8 @@ def getCircumscribingCell(cell,unitcell=None):
         inverseUnitcell=numpy.linalg.inv(unitcell)
     # express the arbitrary cell in unit cell vectors
     reducedCell=numpy.round(numpy.dot(cell,inverseUnitcell),0)
+    print (cell/unitcell)
+    print (reducedCell)
 #    print(reducedCell)
     # shorthand variables
     a=reducedCell[0]
@@ -88,6 +90,8 @@ def completeSupercell(unclecell, additionalcell, config):
     # replace the additional geometrie's lattice and assemble the full Geometry
     addgeo.Lattice=numpy.array(unclecell.Lattice)
     addgeo.appendgeometryflat(unclecell.elementsubgeometry(config.getint("uncle", "element")))
+    addgeo.Geometry+=numpy.array((config.getfloat("uncle","cellshift"),config.getfloat("uncle","cellshift"),config.getfloat("uncle","cellshift")))
+    addgeo.foldToCell()
     # prune the additional atoms outside the uncle cell and return
     retgeo=addgeo.outOfCellPruned().doubleRemoved()
 #    retgeo.foldToCell()
@@ -104,6 +108,11 @@ if __name__ == '__main__':
     print("READING CONFIG FILE")
     config = ConfigParser.ConfigParser()
     config.read(['uncleJobs.cfg', os.path.expanduser('~/.uncleJobs.cfg')])
+    if not config.has_section("uncle"):
+        raise ValueError("no uncle section present in config file")
+    else:
+        if not config.has_option("uncle", "cellshift"):
+            config.set("uncle", "cellshift", "0.0")
     
     # read the UNCLE output file
     print("READING UNCLE ENERGY CALCULATION REQUESTS FROM COORD.out")
