@@ -1267,4 +1267,49 @@ class Reactionpath:
 		# finished, return
 		return hopcounter
 
+		
 
+	def read_mdout(self, filename="md.out"):
+		mdoutfile=utils.compressedopen(filename,"r")
+		mdoutString="".join(list(mdoutfile))
+		mdoutfile.close()
+		self.parse_mdout(mdoutString)
+		
+	
+	
+	def parse_mdout(self, mdoutString):
+		try:
+			# read properties in atomic units from md.out
+			mdoutLines = mdoutString.strip("\n").split("\n")
+			# temperature
+			temperatureLines = [i for i in mdoutLines if "temperature" in i.lower()]
+			mdTemperatures = [float(i.split()[2]) for i in temperatureLines]
+			# latticepressure
+			pressureLines = [i for i in mdoutLines if "pressure" in i.lower()]
+			mdPressure = [float(i.split()[1]) for i in pressureLines]
+			# total energy
+			etotLines = [i for i in mdoutLines if "total md energy" in i.lower()]
+			mdEtot = [float(i.split()[3]) for i in etotLines]
+			# ion potential energy
+			epotLines = [i for i in mdoutLines if "potential energy" in i.lower()]
+			mdEpot = [float(i.split()[2]) for i in epotLines]
+			# ion kinetic energy
+			ekinLines = [i for i in mdoutLines if "md kinetic energy" in i.lower()]
+			mdEkin = [float(i.split()[3]) for i in ekinLines]		
+			# md step
+			stepLines = [i for i in mdoutLines if "md step" in i.lower()]
+			mdStep = [int(i.split()[2]) for i in stepLines]
+			# save properties
+		except:
+			raise("Error parsing md.out file")
+		for i in range(self.numimages()):
+			self.geos[i].iontemperature = mdTemperatures[i]
+			self.geos[i].latticepressure = mdPressure[i]
+			self.geos[i].totalenergy = mdEtot[i]
+			self.geos[i].ionpotentialenergy = mdEpot[i]
+			self.geos[i].ionkineticenergy = mdEkin[i]
+			self.geos[i].timestep = mdStep[i]
+			
+		
+		
+		

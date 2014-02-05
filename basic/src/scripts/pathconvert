@@ -51,9 +51,16 @@ parser.add_option("-f","--format",
 #.................................................
 addDataGroup=OptionGroup(parser,"Options to add data to input paths")
 
+parser.set_defaults(mdoutfiles=[])
+addDataGroup.add_option("-m","--mdout",
+        action="append", metavar="F", dest="mdoutfiles", type="string",
+        help="Read trajectory properties (total, kinetic and potential energies, temperature, "+
+        "pressure, timestep) from md.out. "+
+        "This option can be used for DFTB+ MD trajectory file(s)!")
+
 parser.set_defaults(popfiles=[])
 addDataGroup.add_option("-p","--population",
-        action="store", metavar="F", dest="popfiles", type="string",
+        action="append", metavar="F", dest="popfiles", type="string",
         help="Read atomic populations from file F. If multiple input geometries are given, "+
         "this option must be repeated for each input file in order or left out completely. "+
         "No default. Special Value '-' to skip reading population for corresponding input file")
@@ -139,6 +146,15 @@ if (len(options.popfiles)!=0 and len(options.popfiles)!=len(infileNames)):
 for ii in options.popfiles:
     if not os.path.isfile(ii):
         raise ValueError("Specified population input file '{0:s}' does not exist".format(ii))
+    
+if (len(options.mdoutfiles)!=0 and len(options.mdoutfiles)!=len(infileNames)):
+    print("mdoutfiles: "+str(len(options.mdoutfiles)))
+    print("infileNames: "+str(len(infileNames)))
+    raise ValueError("Not enough md.out files specified for number of input files")
+for ii in options.mdoutfiles:
+    if not os.path.isfile(ii):
+        raise ValueError("Specified md.out input file '{0:s}' does not exist".format(ii))
+       
 
 #***********************************************************************
 #*** read input files **************************************************
@@ -175,6 +191,13 @@ if len(options.popfiles)!=0:
             raise ValueError("Cannot identify population file type of specified file '{0:s}'.".format(popfile))
         geoindex=geoindex+1
 
+if len(options.mdoutfiles)!=0:
+    for i in options.mdoutfiles:
+        inputPaths[geoindex].read_mdout(i)
+        geoindex+=1
+    
+        #raise ValueError("Number of specified md.out files does not match number of input paths")
+        
 
 #***********************************************************************
 #*** assemble output path, catch some consistency exceptions************

@@ -303,6 +303,8 @@ class Geometry:
 		self.method=None
 		self.totalenergy=None
 		self.ionkineticenergy=None
+		self.ionpotentialenergy=None
+		self.latticepressure=None
 		self.iontemperature=None
 		self.electrontemperature=None
 		self.timestep=None
@@ -803,7 +805,7 @@ class Geometry:
 		outfile.close()
 
 
-	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","iontemperature",
+	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","ionpotentialenergy","latticepressure","iontemperature",
 				"electrontemperature","timestep","simtime","coordinates","forces",
 				"elements","types","charges","lattice","residues")
 	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, 
@@ -856,6 +858,10 @@ class Geometry:
 			framegroup.attrs["totalenergy"]=self.totalenergy
 		if self.ionkineticenergy != None and (not "ionkineticenergy" in exclude): 
 			framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
+		if self.ionpotentialenergy != None and (not "ionpotentialenergy" in exclude): 
+			framegroup.attrs["ionpotentialenergy"]=self.ionpotentialenergy
+		if self.latticepressure != None and (not "latticepressure" in exclude): 
+			framegroup.attrs["latticepressure"]=self.latticepressure
 		if self.iontemperature != None and (not "iontemperature" in exclude): 
 			framegroup.attrs["iontemperature"]=self.iontemperature
 		if self.electrontemperature != None and (not "electrontemperature" in exclude): 
@@ -944,6 +950,16 @@ class Geometry:
 			self.ionkineticenergy=float(framegroup.attrs["ionkineticenergy"])
 		elif "ionkineticenergy" in globalsGroup.attrs.keys():
 			self.ionkineticenergy=float(globalsGroup.attrs["ionkineticenergy"])
+		# ionpotentialenergy
+		if "ionpotentialenergy" in framegroup.attrs.keys():
+			self.ionpotentialenergy=float(framegroup.attrs["ionpotentialenergy"])
+		elif "ionpotentialenergy" in globalsGroup.attrs.keys():
+			self.ionpotentialenergy=float(globalsGroup.attrs["ionpotentialenergy"])
+		# latticepressure
+		if "latticepressure" in framegroup.attrs.keys():
+			self.latticepressure=float(framegroup.attrs["latticepressure"])
+		elif "latticepressure" in globalsGroup.attrs.keys():
+			self.latticepressure=float(globalsGroup.attrs["latticepressure"])
 		# iontemperature
 		if "iontemperature" in framegroup.attrs.keys():
 			self.iontemperature=float(framegroup.attrs["iontemperature"])
