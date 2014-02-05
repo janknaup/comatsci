@@ -1480,6 +1480,7 @@ class Geometry:
 				tempfilename=filename[:-4]
 			else:
 				tempfilename=filename
+			tempfilename=os.path.basename(tempfilename)
 			if tempfilename.upper() in ("POSCAR","CONTCAR"):
 				ftype="car"
 			elif tempfilename.lower() in ("aims.out",):
