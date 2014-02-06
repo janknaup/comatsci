@@ -627,7 +627,8 @@ class Geometry:
 		if self.Mode=="F":
 			self.Geometry = numpy.dot(self.Geometry,self.Lattice)
 			self.Mode="S"
-		self.Geometry /=Angstrom
+		else:
+			self.Geometry /=Angstrom
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
 		self._consistency_check()
 		
@@ -1013,12 +1014,10 @@ class Geometry:
 			else: 
 				residuesDict=h5py.check_dtype(enum=residueGroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
-			print(residuesDict)
 			for ii in residuesDict.keys():
 				if self.layerbyname(residuesDict[ii])==None:
 					self.addlayer(ii,int(residuesDict[ii]))
 			self.AtomLayers=residueGroup["residues"].value
-			print(self.AtomLayers)
 		else:
 			if not self.layerbyname("default layer")==0:
 				self.addlayer("default layer", 0)
@@ -1482,6 +1481,7 @@ class Geometry:
 				tempfilename=filename[:-4]
 			else:
 				tempfilename=filename
+			tempfilename=os.path.basename(tempfilename)
 			if tempfilename.upper() in ("POSCAR","CONTCAR"):
 				ftype="car"
 			elif tempfilename.lower() in ("aims.out",):
