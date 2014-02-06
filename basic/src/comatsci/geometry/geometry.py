@@ -629,7 +629,8 @@ class Geometry:
 		if self.Mode=="F":
 			self.Geometry = numpy.dot(self.Geometry,self.Lattice)
 			self.Mode="S"
-		self.Geometry /=Angstrom
+		else:
+			self.Geometry /=Angstrom
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
@@ -1196,6 +1197,8 @@ class Geometry:
 			raise
 		# discard comment line, then check if number of atom lines
 		# matches number of atom
+		if xyzlines[0].find("MD iter:") != -1:
+			self.timestep = xyzlines[0].strip().split()[2]
 		del xyzlines[0]
 		if len(xyzlines)!=tempAtomCount:
 			raise(ValueError,"Number of atom lines does not match specified atom count in xyz string")
