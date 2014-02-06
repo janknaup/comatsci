@@ -69,7 +69,7 @@ addDataGroup.add_option("-p","--population",
 parser.set_defaults(lattice=None)
 parser.add_option("-L","--lattice",
          action="store", dest="lattice", nargs=9, type="float",
-         help="Set mode to periodic and apply supplied lattice vectors. Suppy in format a1 a2 a3 b1 ... c3.")
+         help="Set mode to periodic and apply supplied lattice vectors. Supply in format a1 a2 a3 b1 ... c3.")
 #.................................................
 manipulateGeometriesGroup=OptionGroup(parser,"Options to manipulate image geometries")
 
