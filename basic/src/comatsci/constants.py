@@ -16,7 +16,7 @@
 # comatsci Version
 #
 
-from ._version import *
+from ._version import *  # @UnusedWildImport
 
 # Verbosity levels:
 # only fatal errors

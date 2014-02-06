@@ -17,11 +17,11 @@ import numpy
 import os, sys, copy
 
 import h5py
-import numpy as num
+import numpy as num  # @UnusedImport
 
-from .. import geometry, calculators
+from .. import geometry
 
-from ..calculators.calcerror import CalcError
+from ..calculators.calcerror import CalcError  # @UnusedImport
 from .. import constants,spline,utils
 from .pathiterator import PathIterator, EnergyAccessor, ForcesAccessor
 
@@ -94,23 +94,22 @@ class Reactionpath:
 	
 	
 	def __getitem__(self,index):
-	    if isinstance(index,slice):
-	        if index.start==None: 
-	            start=0
-	        else:
-	            start=index.start
-	        if indes.step==None:
-	            step=1
-	        else:
-	            step=index.step
-	        return [ self.__getitem__(ii) for ii in range(start,index.stop,step) ]
-	    else:
-	        if index<0: index=index+self.__len__()
-	        if index < 0 or index >=self.numImages:
-	            raise IndexError
-	        else:
-	            return self.geos[index]
-	           
+		if isinstance(index,slice):
+			if index.start==None: 
+				start=0
+			else:
+				start=index.start
+			if index.step==None:
+				step=1
+			else:
+				step=index.step
+			return [ self.__getitem__(ii) for ii in range(start,index.stop,step) ]
+		else:
+			if index<0: index=index+self.__len__()
+			if index < 0 or index >=self.numImages:
+				raise IndexError
+			else:
+				return self.geos[index]
 
 	def __setitem__(self,index,data):
 		if isinstance(index,slice):
@@ -118,7 +117,7 @@ class Reactionpath:
 				start=0
 			else:
 				start=index.start
-			if indes.step==None:
+			if index.step==None:
 				step=1
 			else:
 				step=index.step
@@ -535,42 +534,42 @@ class Reactionpath:
 
 
 
-	def writeCDHPath(self,filename="path.cdh",savespace=True):
+	def writeCDHPath(self,filename="path.cdh",savespace=True,progressFunction=None,stepsFunction=None):
 		""" 
 		Write the current path in HDF5 format according to CDH specification
 		@type filename: string
 		@param filename: name of the HDF5 file to create
+		@type savespace: boolean
+		@param savespace: try to save space in .cdh file by moving constant data to globals group
+		@type progressFunction: callable
+		@param progressFunction: function to call after every write step to indicate progress to tge user
+		@type stepsFunction: callable taking integer argument
+		@param stepsFunction: function to call before writing, to initialize progress indicator.
+			Must accept integer argument of total step count.
 		"""
-		# check if space saving can be used between geometries, THIS CHECK IS UNSAFE
-		if savespace:
-			try:
-				globalSets=["elements","types","lattice","residues","method"]
-				self.geos[0].compatcheck(self.geos[-1])
-			except geometry.GeometryError,inst:
-				if inst.args[0]=='Geometry lattice mismatch':
-					print("ReactionPath warning: Geometry lattice mismatch")
-					globalSets.remove("lattice")
-				else:
-					savespace=False
-					globalSets=[]
-		globalExclude=set(self.geos[0].knownCDHFields).difference(set(globalSets))
 		# open HDF5 file for overwriting
 		pathfile=h5py.File(filename,"w")
+		if stepsFunction!=None: stepsFunction(self.numimages())
 		# iterate through path images
-		refGroup=None
 		for image in range(self.numimages()):
 			imagelabel="frame{0:010d}".format(image)
+			if savespace:
+				try:
+					globalSets=["elements","types","lattice","residues","method"]
+					self.geos[0].compatcheck(self.geos[image])
+				except geometry.GeometryError,inst:
+					if inst.args[0]=='Geometry lattice mismatch':
+						print("ReactionPath warning: Geometry lattice mismatch")
+						globalSets.remove("lattice")
+					else:
+						savespace=False
+						globalSets=[]
 			# first write the image geometry
 			if image==0 and savespace:
-				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]
-			else:
-				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable
-			# add additional path data, if present
-# 			if self.has_energies():
-# 				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")
-# 				energyset[0]=self.energies[image]
-# 			if self.has_realforces():
-# 				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
+				globalExclude=set(self.geos[0].knownCDHFields).difference(set(globalSets))
+				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]  # @UnusedVariable
+			imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable @UnusedVariable
+			if progressFunction: progressFunction()
 		pathfile.close()
 			
 
@@ -593,40 +592,13 @@ class Reactionpath:
 		frames.sort()
 		# iterate through frames
 		if stepsFunction!=None: stepsFunction(len(frames))
-		tempEnergies=[]
-		tempForces=[]
-		hasE=True
-		hasF=True
 		globalsGroup=pathfile.get("globals", None)
 		for frame in frames:
 			tg=geoconstructor()
 			framegroup=pathfile[frame]
 			tg.parseH5Framegroup(framegroup,globalsGroup)
 			self.appendGeoObject(tg, checkCompat)
-# 			if "totalenergy" in framegroup.attrs.keys() and hasE:
-# 				tempEnergies.append(framegroup.attrs["totalenergy"].value[0])
-# 			else:
-# 				hasE=False
-# 			if "forces" in framegroup.keys() and hasF:
-# 				tempForces.append(framegroup["forces"].value)
-# 			else:
-# 				hasF=False
-# 			if tg.totalenergy!=None and hasE:
-# 				tempEnergies.append(tg.totalenergy)
-# 			else:
-# 				hasE=False
-# 			if tg.forces!=None and hasF:
-# 				tempForces.append(tg.forces)
-# 			else:
-# 				hasF=False
-# 			self.appendGeoObject(tg, checkCompat=checkCompat)
-# 		# only set energies, if every frame has energies data
-# 		if hasE:
-# 			self.energies=tempEnergies
-# 		# only set forces if every frame has froces data
-# 		if hasF:
-# 			self.realforces=tempForces
-		# finished. cleanup and return
+			if progressFunction!=None: progressFunction()
 		
 		pathfile.close()
 		return(self)

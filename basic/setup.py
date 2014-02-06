@@ -17,7 +17,7 @@ URL="http://www.bccms.uni-bremen.de/en/people/home/j_m_knaup/software/"
 # the source script or by symlinking, if symlinks are available on the target
 # platform, format is a dictionary with script names as keys containing lists of
 # alias name strings
-aliases={"comatsci.geoconvert":["geoconv","togen","toxyz","tofmg","tofdf","topdb","toxyzq","totm","toaims","tocdh"]}
+aliases={"comatsci.geoconvert":["geoconv","togen","toxyz","tofmg","tofdf","topdb","toxyzq","totm","toaims","tocdh","tovasp"]}
 
 aliasentries=[]
 for cmd in aliases.keys():
