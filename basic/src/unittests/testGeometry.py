@@ -111,7 +111,7 @@ class geometryTest(unittest.TestCase):
           [  6.990722E+00 ,            1.690170E+00 ,            2.795018E+00 ],
           [  1.690170E+00 ,            6.990722E+00 ,            2.795018E+00]],dtype=float)
         self.assertTrue(numpy.allclose(georef, g.Geometry), "periodic geometry coordinates differ")
-        latticeref=numpy.array([[ 8.68089177,  0.        ,  0.        ],
+        latticeref=numpy.array([[ 8.68089177,  0.        ,  0.        ],  # @UnusedVariable
                           [ 0.        ,  8.68089177,  0.        ],
                           [ 0.        ,  0.        ,  5.59003676]],dtype=float)
         self.assertTrue(numpy.allclose(georef, g.Geometry), "periodic geometry lattice vectors differ")
@@ -165,7 +165,7 @@ class geometryTest(unittest.TestCase):
           [  6.990722E+00 ,            1.690170E+00 ,            2.795018E+00 ],
           [  1.690170E+00 ,            6.990722E+00 ,            2.795018E+00]],dtype=float)
         self.assertTrue(numpy.allclose(georef, g.Geometry), "periodic geometry coordinates differ")
-        latticeref=numpy.array([[ 8.68089177,  0.        ,  0.        ],
+        latticeref=numpy.array([[ 8.68089177,  0.        ,  0.        ],  # @UnusedVariable
                           [ 0.        ,  8.68089177,  0.        ],
                           [ 0.        ,  0.        ,  5.59003676]],dtype=float)
         self.assertTrue(numpy.allclose(georef, g.Geometry), "periodic geometry lattice vectors differ")
@@ -220,7 +220,7 @@ class geometryTest(unittest.TestCase):
           [  6.990722E+00 ,            1.690170E+00 ,            2.795018E+00 ],
           [  1.690170E+00 ,            6.990722E+00 ,            2.795018E+00]],dtype=float)
         self.assertTrue(numpy.allclose(georef, g.Geometry), "periodic geometry coordinates differ")
-        latticeref=numpy.array([[ 8.68089177,  0.        ,  0.        ],
+        latticeref=numpy.array([[ 8.68089177,  0.        ,  0.        ],  # @UnusedVariable
                           [ 0.        ,  8.68089177,  0.        ],
                           [ 0.        ,  0.        ,  5.59003676]],dtype=float)
         self.assertTrue(numpy.allclose(georef, g.Geometry), "periodic geometry lattice vectors differ")
@@ -275,7 +275,7 @@ class geometryTest(unittest.TestCase):
           [  6.990722E+00 ,            1.690170E+00 ,            2.795018E+00 ],
           [  1.690170E+00 ,            6.990722E+00 ,            2.795018E+00]],dtype=float)
         self.assertTrue(numpy.allclose(georef, g.Geometry), "periodic geometry coordinates differ")
-        latticeref=numpy.array([[ 8.68089177,  0.        ,  0.        ],
+        latticeref=numpy.array([[ 8.68089177,  0.        ,  0.        ],  # @UnusedVariable
                           [ 0.        ,  8.68089177,  0.        ],
                           [ 0.        ,  0.        ,  5.59003676]],dtype=float)
         self.assertTrue(numpy.allclose(georef, g.Geometry), "periodic geometry lattice vectors differ")

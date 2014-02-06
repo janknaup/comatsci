@@ -1,6 +1,6 @@
 comatsci
 computational materials science utility package
-Version 1.4.0
+Version 1.5.0
 
 Jan M. Knaup, Bremen Center for Compuational Materials Science
 Jan.Knaup@bccms.uni-bremen.de
@@ -17,7 +17,7 @@ comatsci requires the following software/libraries to be present
 on a system:
 
 • Python version \geq
- 2.6 (not fully compatible with python 3)
+ 2.7 (not fully compatible with python 3)
 
   – POSIX compatible build environment and header files to 
     compile python c-extensions
@@ -395,6 +395,10 @@ geometry to the [format] file format. Aliases are:
 • totm
 
 • tocdh
+
+• toaims
+
+• tovasp
 
 All options for geoconv also apply to the to[format] aliases.
 
@@ -1612,12 +1616,24 @@ Chemical data hierarchy format. Data is stored in binary HDF5
 format in Data groups corresponding to trajectory frames. 
 Experimental format, extensive documentation to follow.
 
-6.5 .pdb (write only)
+6.5 VASP (read/write)
+
+The POSCAR/CONTCAR format used by VASP. Upon read, parsing of 
+POTCAR files to determine atom types is supported. For file 
+format details, refer to the VASP manual.
+
+6.6 aims
+
+FHI aims geometry.in format. Reading of the Final Geometry: block 
+from aims output is supported. The file must be named aims.out 
+(with possible .gz .bz2 extensions) to be recognized by geoconv.
+
+6.7 .pdb (write only)
 
 Protein database format. Refer to PDB documentation for details. 
 .fmg layers are written as segments.
 
-6.6 .xyzq (write only)
+6.8 .xyzq (write only)
 
 Carthesian coordinates and atomic charges in a.u.. Suitable as 
 external electric field input in DFTB^{+}
@@ -1629,12 +1645,12 @@ external electric field input in DFTB^{+}
 -0.54141424 1.51278662 0.00000000 0.2938
 0.05430593 -0.19438394 0.00000000 -0.5877 
 
-6.7 .tm (write only)
+6.9 .tm (write only)
 
 Turbomole coord: block. Refer to Turbomole documentation for 
 details.
 
-6.8 .fdf (write only)
+6.10 .fdf (write only)
 
 Geometry specification in SIESTA fdf input format. Refer to 
 SIESTA documentation for details.

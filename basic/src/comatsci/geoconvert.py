@@ -34,11 +34,12 @@ def mainfunc():
 		"xyzq": ("xyzq",geometry.Geometry.writexyzq),
 		"tm"  : ("coord",geometry.Geometry.writeTurboMole),
 		"aims":	("geometry.in",geometry.Geometry.writeAIMS),
-		"cdh" : ("cdh",geometry.Geometry.writeCDH)}
+		"cdh" : ("cdh",geometry.Geometry.writeCDH),
+		"vasp":	("POSCAR",geometry.Geometry.writecar)}
 	
 	# geometry formats beloging to the work modes listed here have fixed file names by default.
 	# default file name will not be generated from input file name, but the fixed name will be used
-	fixednames=("aims","tm")
+	fixednames=("aims","tm","vasp")
 	
 	# dirty trick to make optparse display an intelligible error message, if output format is not specified
 	if not programname[2:] in workmodes.keys():
@@ -291,7 +292,9 @@ def mainfunc():
 	else:
 		outfilename=os.path.basename(infilename)
 		dotpos=outfilename.rfind('.')
-		outfilename=os.path.basename(outfilename[:dotpos+1]+workmodes[options.mode][0])
+		if dotpos==-1:
+			dotpos=len(outfilename)
+		outfilename=os.path.basename(outfilename[:dotpos]+'.'+workmodes[options.mode][0])
 			
 	workmodes[options.mode][1](outgeo,outfilename)
 

@@ -136,7 +136,7 @@ class AnalysisGeometry(Geometry):
 		elemavg=self.elem_avg_coordinations()
 		elemcounts=self.elemcounts()
 		elelco=self.elem_elem_coordinations()
-		bc=self.bondcount()
+		bc=self.bondcount()  # @UnusedVariable
 		elcoco=self.elem_coordination_counts()
 		blstats=self.bondLengthStatistics()
 		lines=[]
