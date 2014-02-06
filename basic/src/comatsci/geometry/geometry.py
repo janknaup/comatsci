@@ -627,7 +627,8 @@ class Geometry:
 		if self.Mode=="F":
 			self.Geometry = numpy.dot(self.Geometry,self.Lattice)
 			self.Mode="S"
-		self.Geometry /=Angstrom
+		else:
+			self.Geometry /=Angstrom
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
 		self._consistency_check()
 		
