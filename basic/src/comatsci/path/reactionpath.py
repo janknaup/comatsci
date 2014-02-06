@@ -592,40 +592,13 @@ class Reactionpath:
 		frames.sort()
 		# iterate through frames
 		if stepsFunction!=None: stepsFunction(len(frames))
-# 		tempEnergies=[]
-# 		tempForces=[]
-# 		hasE=True
-# 		hasF=True
 		globalsGroup=pathfile.get("globals", None)
 		for frame in frames:
 			tg=geoconstructor()
 			framegroup=pathfile[frame]
 			tg.parseH5Framegroup(framegroup,globalsGroup)
 			self.appendGeoObject(tg, checkCompat)
-# 			if "totalenergy" in framegroup.attrs.keys() and hasE:
-# 				tempEnergies.append(framegroup.attrs["totalenergy"].value[0])
-# 			else:
-# 				hasE=False
-# 			if "forces" in framegroup.keys() and hasF:
-# 				tempForces.append(framegroup["forces"].value)
-# 			else:
-# 				hasF=False
-# 			if tg.totalenergy!=None and hasE:
-# 				tempEnergies.append(tg.totalenergy)
-# 			else:
-# 				hasE=False
-# 			if tg.forces!=None and hasF:
-# 				tempForces.append(tg.forces)
-# 			else:
-# 				hasF=False
-# 			self.appendGeoObject(tg, checkCompat=checkCompat)
-# 		# only set energies, if every frame has energies data
-# 		if hasE:
-# 			self.energies=tempEnergies
-# 		# only set forces if every frame has froces data
-# 		if hasF:
-# 			self.realforces=tempForces
-		# finished. cleanup and return
+			if progressFunction!=None: progressFunction()
 		
 		pathfile.close()
 		return(self)
