@@ -629,7 +629,8 @@ class Geometry:
 		if self.Mode=="F":
 			self.Geometry = numpy.dot(self.Geometry,self.Lattice)
 			self.Mode="S"
-		self.Geometry /=Angstrom
+		else:
+			self.Geometry /=Angstrom
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
@@ -1498,6 +1499,7 @@ class Geometry:
 				tempfilename=filename[:-4]
 			else:
 				tempfilename=filename
+			tempfilename=os.path.basename(tempfilename)
 			if tempfilename.upper() in ("POSCAR","CONTCAR"):
 				ftype="car"
 			elif tempfilename.lower() in ("aims.out",):
