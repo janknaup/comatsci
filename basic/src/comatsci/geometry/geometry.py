@@ -631,6 +631,8 @@ class Geometry:
 			self.Mode="S"
 		self.Geometry /=Angstrom
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+		self.AtomLayers=[0 for s in range(self.Atomcount)]
+		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
 		self._consistency_check()
 		
 	
