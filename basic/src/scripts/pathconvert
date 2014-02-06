@@ -22,6 +22,7 @@ import random
 
 import numpy
 
+
 programname=os.path.basename(sys.argv[0]).lower()
 
 #map mode names, file name endings and writer functions
@@ -64,6 +65,11 @@ addDataGroup.add_option("-p","--population",
         help="Read atomic populations from file F. If multiple input geometries are given, "+
         "this option must be repeated for each input file in order or left out completely. "+
         "No default. Special Value '-' to skip reading population for corresponding input file")
+
+parser.set_defaults(lattice=None)
+parser.add_option("-L","--lattice",
+         action="store", dest="lattice", nargs=9, type="float",
+         help="Set mode to periodic and apply supplied lattice vectors. Suppy in format a1 a2 a3 b1 ... c3.")
 #.................................................
 manipulateGeometriesGroup=OptionGroup(parser,"Options to manipulate image geometries")
 
@@ -197,7 +203,7 @@ if len(options.mdoutfiles)!=0:
         geoindex+=1
     
         #raise ValueError("Number of specified md.out files does not match number of input paths")
-        
+ 
 
 #***********************************************************************
 #*** assemble output path, catch some consistency exceptions************
@@ -215,6 +221,12 @@ for ii in inputPaths:
 #***********************************************************************
 #*** perform geometry manipulation options *****************************
 #***********************************************************************
+if options.lattice!=None:
+    print("Applying periodic boundary conditions")
+    for outgeo in outPath:
+        outgeo.Mode="S"
+        outgeo.Lattice=numpy.array(options.lattice).reshape((3,3))/comatsci.constants.ANGSTROM
+
 if (options.xtnd != "1:1:1"):
     print("Peiodically expanding geometries ... ",end="",file=sys.stderr)
     extensions=[ int(ii) for ii in options.xtnd.split(':') ]
