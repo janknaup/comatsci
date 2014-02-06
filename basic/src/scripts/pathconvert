@@ -142,7 +142,7 @@ for ii in infileNames:
 # also check file existence 
 
 if (len(options.popfiles)!=0 and len(options.popfiles)!=len(infileNames)):
-    raise ValueError("Not enough population files specified for number of input files")
+    raise ValueError("Error: number of population files specified does not match number of input files")
 for ii in options.popfiles:
     if not os.path.isfile(ii):
         raise ValueError("Specified population input file '{0:s}' does not exist".format(ii))
