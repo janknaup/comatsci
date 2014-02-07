@@ -154,8 +154,6 @@ for ii in options.popfiles:
         raise ValueError("Specified population input file '{0:s}' does not exist".format(ii))
     
 if (len(options.mdoutfiles)!=0 and len(options.mdoutfiles)!=len(infileNames)):
-    print("mdoutfiles: "+str(len(options.mdoutfiles)))
-    print("infileNames: "+str(len(infileNames)))
     raise ValueError("Not enough md.out files specified for number of input files")
 for ii in options.mdoutfiles:
     if not os.path.isfile(ii):
