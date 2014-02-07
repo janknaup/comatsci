@@ -197,6 +197,9 @@ if len(options.popfiles)!=0:
             raise ValueError("Cannot identify population file type of specified file '{0:s}'.".format(popfile))
         geoindex=geoindex+1
 
+
+
+geoindex=0
 if len(options.mdoutfiles)!=0:
     for i in options.mdoutfiles:
         inputPaths[geoindex].read_mdout(i)
