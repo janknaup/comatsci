@@ -1198,7 +1198,7 @@ class Geometry:
 		# discard comment line, then check if number of atom lines
 		# matches number of atom
 		if xyzlines[0].find("MD iter:") != -1:
-			self.timestep = xyzlines[0].strip().split()[2]
+			self.timestep = int(xyzlines[0].strip().split()[2])
 		del xyzlines[0]
 		if len(xyzlines)!=tempAtomCount:
 			raise(ValueError,"Number of atom lines does not match specified atom count in xyz string")
