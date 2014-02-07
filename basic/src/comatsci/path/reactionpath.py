@@ -1283,3 +1283,10 @@ class Reactionpath:
 			self.geos[image].totalenergy = mdEtot[tempPos]
 			self.geos[image].ionpotentialenergy = mdEpot[tempPos]
 			self.geos[image].ionkineticenergy = mdEkin[tempPos]
+			
+			
+		def minimal_output(self):
+			exclude = tuple(set(list(knownCDHFields))-set(["coordinates","elements","types","lattice"]))
+			
+			
+			

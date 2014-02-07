@@ -70,6 +70,10 @@ parser.set_defaults(lattice=None)
 parser.add_option("-L","--lattice",
          action="store", dest="lattice", nargs=9, type="float",
          help="Set mode to periodic and apply supplied lattice vectors. Supply in format a1 a2 a3 b1 ... c3.")
+
+parser.set_defaults(minimal=False)
+parser.add_option("--minimal",action="store_true", dest="minimal",
+         help="Limit trajectory output information to coordinates, lattice and atomtypes.")
 #.................................................
 manipulateGeometriesGroup=OptionGroup(parser,"Options to manipulate image geometries")
 
@@ -281,6 +285,11 @@ if options.foldback:
         for outgeo in outPath:
             outgeo.foldToCell()
     print("done.",file=sys.stderr)
+    
+if options.minimal:
+    for image in outPath:
+        image.minimal_output()
+    
 
 #***********************************************************************
 #*** write output file *************************************************
