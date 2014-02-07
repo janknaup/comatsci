@@ -1274,8 +1274,9 @@ class Reactionpath:
 			mdStep = [int(i.split()[2]) for i in stepLines]
 			# save properties
 		except:
-			raise("Error parsing md.out file")
-		for i in range(self.numimages()):
+			print("Error while reading md.out file(s)")
+			raise
+		for i in xrange(0,self.numimages()):
 			self.geos[i].iontemperature = mdTemperatures[i]
 			self.geos[i].latticepressure = mdPressure[i]
 			self.geos[i].totalenergy = mdEtot[i]
