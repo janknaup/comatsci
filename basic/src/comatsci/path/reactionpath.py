@@ -1283,20 +1283,3 @@ class Reactionpath:
 			self.geos[image].totalenergy = mdEtot[tempPos]
 			self.geos[image].ionpotentialenergy = mdEpot[tempPos]
 			self.geos[image].ionkineticenergy = mdEkin[tempPos]
-# 			for i in mdStep:
-# 				if i == self.geos[image].timestep:
-# 					self.geos[image].iontemperature = mdTemperatures[i]
-# 					self.geos[image].latticepressure = mdPressure[i]
-# 					self.geos[image].totalenergy = mdEtot[i]
-# 					self.geos[image].ionpotentialenergy = mdEpot[i]
-# 					self.geos[image].ionkineticenergy = mdEkin[i]
-				
-		
-# 		for i in xrange(0,self.numimages()):
-# 			tempStep = self.geos[i].timestep
-# 			#if self.geos[i].timestep == mdStep[i]:
-# 			self.geos[i].iontemperature = mdTemperatures[tempStep]
-# 			self.geos[i].latticepressure = mdPressure[tempStep]
-# 			self.geos[i].totalenergy = mdEtot[tempStep]
-# 			self.geos[i].ionpotentialenergy = mdEpot[tempStep]
-# 			self.geos[i].ionkineticenergy = mdEkin[tempStep]	
