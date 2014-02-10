@@ -1064,8 +1064,8 @@ class Geometry:
 			velocitiesgroup = framegroup
 		else:
 			velocitiesgroup = globalsGroup
-		if "velocities" in globalsets:
-			self.velocities=forcesgroup["velocities"].value
+		if ("velocities" in globalsets) or ("velocities" in framesets):
+			self.velocities=velocitiesgroup["velocities"].value
 		else:
 			self.velocities=None
 		# dummy data
@@ -1262,7 +1262,7 @@ class Geometry:
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
 		if tempVelocities != None:
-			self.velocities = tempVelocities
+			self.velocities = numpy.array(tempVelocities)
 		# finally, check self for sanity.
 		self._consistency_check()
 		# finished.
