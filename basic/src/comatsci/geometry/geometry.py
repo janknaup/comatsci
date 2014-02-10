@@ -729,7 +729,6 @@ class Geometry:
 		# if direct coordinate mode, convert positions from Angstrom to atomic units
 		if self.Mode in ('S','C'):
 			self.Geometry/=Angstrom
-			print(type(self.Geometry))
 		# if periodic geometry, parse supercell vectors
 		if self.Mode in ('S','F'):
 			dummy=genLines[self.Atomcount+2].split()
@@ -2631,7 +2630,9 @@ class Geometry:
 				removeList.append(jj)
 				bondList[jj].remove(ii)
 		# sort list of atoms to be removed
+		removeList=list(set(removeList))
 		removeList.sort(reverse=True)
+		print(removeList)
 		# make a deep copy of self and remove the offending atoms
 		pruned=copy.deepcopy(self)
 		for ii in removeList:
