@@ -1034,7 +1034,7 @@ class Geometry:
 			forcesgroup=framegroup
 		else:
 			forcesgroup=globalsGroup
-		if "forces" in globalsets:
+		if ("forces" in globalsets) or ("forces" in framesets):
 			self.forces=forcesgroup["forces"].value
 		else:
 			self.forces=None
