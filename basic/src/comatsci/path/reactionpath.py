@@ -1278,13 +1278,17 @@ class Reactionpath:
 			raise
 		for image in xrange(0,self.numimages()):
 			tempPos = mdStep.index(self.geos[image].timestep)
-			self.geos[image].iontemperature = mdTemperatures[tempPos]
-			self.geos[image].latticepressure = mdPressure[tempPos]
-			self.geos[image].totalenergy = mdEtot[tempPos]
-			self.geos[image].ionpotentialenergy = mdEpot[tempPos]
-			self.geos[image].ionkineticenergy = mdEkin[tempPos]
-			
-			
+			if tempPos <= len(mdTemperatures):
+				self.geos[image].iontemperature = mdTemperatures[tempPos]
+				self.geos[image].latticepressure = mdPressure[tempPos]
+				self.geos[image].totalenergy = mdEtot[tempPos]
+				self.geos[image].ionpotentialenergy = mdEpot[tempPos]
+				self.geos[image].ionkineticenergy = mdEkin[tempPos]
+			else:
+				print ("md.out file does not fit to the trajectory. It is too short!")
+				raise
+		
+		
 		def minimal_output(self):
 			exclude = tuple(set(list(knownCDHFields))-set(["coordinates","elements","types","lattice"]))
 			
