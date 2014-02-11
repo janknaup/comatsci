@@ -810,7 +810,7 @@ class Geometry:
 
 
 	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","ionpotentialenergy","latticepressure","iontemperature",
-				"electrontemperature","timestep","simtime","coordinates","forces","velocities"
+				"electrontemperature","timestep","simtime","coordinates","forces","velocities",
 				"elements","types","charges","lattice","residues")
 	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, 
 						labelstring="comatsci geometry",exclude=None):

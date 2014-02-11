@@ -309,7 +309,7 @@ class Reactionpath:
 		return len(self.geos)
 
 
-	def writegenpath(self,nameprefix="path"):
+	def writegenpath(self,nameprefix="path",minimaloutput=False):
 		"""write the path geometries as gen files
 		@param nameprefix: string to prepend to each filename
 		"""
@@ -319,7 +319,7 @@ class Reactionpath:
 
 
 
-	def writexyzpath(self,name="path.xyz"):
+	def writexyzpath(self,name="path.xyz",minimaloutput=False):
 		"""write the path geometries as a single multiframe .xyz file
 		@param name: output filename
 		"""
@@ -360,7 +360,7 @@ class Reactionpath:
 
 
 
-	def writefmgpath(self,name='path.fmg'):
+	def writefmgpath(self,name='path.fmg',minimaloutput=False):
 		"""write the path as a single, multi-geometry .fmg file
 		@param name: output file name
 		"""
@@ -534,7 +534,7 @@ class Reactionpath:
 
 
 
-	def writeCDHPath(self,filename="path.cdh",savespace=True,progressFunction=None,stepsFunction=None):
+	def writeCDHPath(self,filename="path.cdh",savespace=True,progressFunction=None,stepsFunction=None,minimaloutput=False):
 		""" 
 		Write the current path in HDF5 format according to CDH specification
 		@type filename: string
@@ -568,10 +568,14 @@ class Reactionpath:
 			if image==0 and savespace:
 				globalExclude=set(self.geos[0].knownCDHFields).difference(set(globalSets))
 				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]  # @UnusedVariable
-			imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable @UnusedVariable
+			if minimaloutput:
+				tempMinimalOutput = ["coordinates","elements","types","lattice"]
+				excludeMinimal = list(set(list(self[0].knownCDHFields)).difference(set(tempMinimalOutput)))
+			else:
+				excludeMinimal = []
+			imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets+excludeMinimal)[1] #@UndefinedVariable @UnusedVariable
 			if progressFunction: progressFunction()
 		pathfile.close()
-			
 
 
 	def readCDHPath(self,filename,checkCompat=True,geoconstructor=geometry.Geometry,progressFunction=None,stepsFunction=None):
@@ -1289,8 +1293,8 @@ class Reactionpath:
 				raise
 		
 		
-		def minimal_output(self):
-			exclude = tuple(set(list(knownCDHFields))-set(["coordinates","elements","types","lattice"]))
+	def minimal_output(self):
+		exclude = tuple(set(list(self[0].knownCDHFields))-set(["coordinates","elements","types","lattice"]))
 			
 			
 			

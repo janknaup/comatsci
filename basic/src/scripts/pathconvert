@@ -138,7 +138,8 @@ else:
 #*** be sure to perform option checks before reading inputs ************
 #***********************************************************************
 
-# check if all specified input files exist and their types can be inferred
+# check if all specified input files exist and their types can be inferred,exclude=globalSets)[1] #@UndefinedVariable @UnusedVariable
+#            if progressFunction: progressFunction()
 for ii in infileNames:
     if not os.path.exists(ii):
         raise ValueError("Specified input file '{0:s}' does not exist".format(ii))
@@ -286,17 +287,13 @@ if options.foldback:
             outgeo.foldToCell()
     print("done.",file=sys.stderr)
     
-if options.minimal:
-    for image in outPath:
-        image.minimal_output()
-    
 
 #***********************************************************************
 #*** write output file *************************************************
 #***********************************************************************
 print("writing output file '{0:s}' ... ".format(outfileName),end='',file=sys.stderr)
 
-outputModes[outputMode][1](outPath,outfileName)
+outputModes[outputMode][1](outPath,outfileName,minimaloutput=options.minimal)
 
 print("done",file=sys.stderr)
 print("exiting",file=sys.stderr)
