@@ -17,7 +17,7 @@ Created on May 31, 2012
 
 from __future__ import print_function
 import comatsci
-import os,re,shutil,math,numpy
+import os,re,shutil,numpy
 
 import copy
 import ConfigParser
@@ -89,12 +89,13 @@ def completeSupercell(unclecell, additionalcell, config):
         addgeo.Geometry+=additionalcell.Lattice[ii]*origin[ii]
     # replace the additional geometrie's lattice and assemble the full Geometry
     addgeo.Lattice=numpy.array(unclecell.Lattice)
-    addgeo.appendgeometryflat(unclecell.elementsubgeometry(config.getint("uncle", "element")))
-    addgeo.Geometry+=numpy.array((config.getfloat("uncle","cellshift"),config.getfloat("uncle","cellshift"),config.getfloat("uncle","cellshift")))
+    geoshift=numpy.array((config.getfloat("uncle","cellshift"),config.getfloat("uncle","cellshift"),config.getfloat("uncle","cellshift")))
+    addgeo.Geometry+=geoshift
     addgeo.foldToCell()
     # prune the additional atoms outside the uncle cell and return
     retgeo=addgeo.outOfCellPruned().doubleRemoved()
-#    retgeo.foldToCell()
+    unclecell.Geometry+=geoshift
+    retgeo.appendgeometryflat(unclecell.elementsubgeometry(config.getint("uncle", "element")))
     return retgeo
    
 
