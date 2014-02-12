@@ -25,6 +25,7 @@ import sys
 import copy
 #import math
 import bisect
+from scipy import spatial
 
 
 class AnalysisGeometry(Geometry):
@@ -413,35 +414,57 @@ class AnalysisGeometry(Geometry):
 
 	def rdf(self, binwidth=0.2, 
 		stepsfunction=None, progressfunction=None, 
-		histstepsfunction=None, histprogressfunction=None):
+		histstepsfunction=None, histprogressfunction=None,bins=None):
 		"""return the radial distribution function over the whole geometry
 		@param binwidth: stepwidth for the returned rdf
 		@param stepsfunction: callback function to report the total number of progress steps to. For progress display purposes (default None)
 		@param progressfunction: callback function to report actual progress to. For progress display purposes. (default None)
 		@param histstepsfunction: callback function to report the total number of histogram progress steps to. For two-level progress display purposes (default None)
 		@param histprogressfunction: callback function to report actual histogram progress to. For two-level progress display purposes. (default None)
+		@param bins: array of floats denoting histogram binning boundaries
 		@return: (2,x) array of r,rdf(r)
 		"""
+		return self.crossRDF(self,binwidth, 
+		stepsfunction, progressfunction, histstepsfunction, histprogressfunction,bins)
+	
+	
+	def crossRDF(self, other,binwidth=0.2, 
+		stepsfunction=None, progressfunction=None, 
+		histstepsfunction=None, histprogressfunction=None,bins=None):
+		"""return the radial distribution of atoms from other around atoms from self
+		@param other: distributed atoms for which to calculate distances from self atoms
+		@param binwidth: stepwidth for the returned rdf
+		@param stepsfunction: callback function to report the total number of progress steps to. For progress display purposes (default None)
+		@param progressfunction: callback function to report actual progress to. For progress display purposes. (default None)
+		@param histstepsfunction: callback function to report the total number of histogram progress steps to. For two-level progress display purposes (default None)
+		@param histprogressfunction: callback function to report actual histogram progress to. For two-level progress display purposes. (default None)
+		@param bins: array of floats denoting histogram binning boundaries
+		@return: (2,x) array of r,rdf(r)
+		""" 
 		#get a 1D array of all bond lengths
-		bllist=self.distancematrix().ravel()
+		if self.Mode=="S":
+			bllist=gx.crossSupercellDistanceMatrix(self.Geometry,other.Geometry,self.Lattice).ravel()
+		else:
+			bllist=spatial.distance_matrix(self.Geometry,other.Geometry).ravel()
 		#****************************************************************
 		# UPDATED CODE - USE numpy.histogram instead of homebew function
 		# does not provide progress callbacks but is orders of magnitude
 		# faster
 		#****************************************************************
 		# calculate number of bins from bin width and max range
-		bincount=int(numpy.ceil((max(bllist)+binwidth)/binwidth))
+		if bins==None:
+			bins=int(numpy.ceil((max(bllist)+binwidth)/binwidth))-1
 		# pseudo progress function calls before and after histogram binning to
 		# stay backwards compatible
 		if histstepsfunction!=None:
-			histstepsfunction(bincount)
+			histstepsfunction(1)
 		# generate histogram
-		(counts,bins)=numpy.histogram(bllist,bincount,normed=False)
+		(counts,bins)=numpy.histogram(bllist,bins,normed=False)
 		if histprogressfunction!=None:
-			histprogressfunction(bincount)
-		rdf=numpy.zeros((2,bincount-1),dtype=float)
+			histprogressfunction(1)
+		rdf=numpy.zeros((2,len(bins)-1),dtype=float)
 		if stepsfunction!=None:
-			stepsfunction(bincount-2)
+			stepsfunction(len(bins)-1)
 		#for proper rdf normalization calculate the total density
 #		totaldensity=self.numberDensity
 		#bond length list contains 0 self distances so skip innermost bin
@@ -455,7 +478,7 @@ class AnalysisGeometry(Geometry):
 				progressfunction(i)
 		#bond length list contains 0 self distances so remove r=0 values
 		# also, shift r values to fall within center of range bin
-		rdf[0]=(bins[1:-1])+binwidth/2.0
+		rdf[0]=(bins[0:-1])+binwidth/2.0
 		#finished, return
 		return rdf
 
@@ -463,24 +486,61 @@ class AnalysisGeometry(Geometry):
 
 	def elementRDFs(self,binwidth=0.2,
 			stepsfunction=None, progressfunction=None, 
-			histstepsfunction=None, histprogressfunction=None):
+			histstepsfunction=None, histprogressfunction=None,bins=None):
 		"""return a dictionary of elemental radial distribution functions
 		@param binwidth: stepwidth for the returned rdfs
 		@param stepsfunction: callback function to report the total number of progress steps to. For progress display purposes (default None)
 		@param progressfunction: callback function to report actual progress to. For progress display purposes. (default None)
 		@param histstepsfunction: callback function to report the total number of histogram progress steps to. For two-level progress display purposes (default None)
 		@param histprogressfunction: callback function to report actual histogram progress to. For two-level progress display purposes. (default None)		@return: dictionary with keys Z and values elemental rdf (2,x) arrays
+		@param bins: array of floats denoting histogram binning boundaries
 		"""
 		# get list of elements
 		Z,dummy=self.getatomsymlistdict()
+		# get global set of bins from total RDF
+		if bins==None:
+			rdfbins=self.rdf(binwidth, stepsfunction, progressfunction, histstepsfunction, histprogressfunction)[0]
+			bins=numpy.zeros(len(rdfbins)+1)
+			bins[0:-1]=rdfbins-(binwidth/2.0)
+			bins[-1]=rdfbins[-2]+binwidth
 		# initialize return dictionary
 		elementRDF={}
 		for i in Z:
 			elementRDF[i]=self.elementsubgeometry(i).rdf(binwidth,
 						stepsfunction, progressfunction, 
-						histstepsfunction, histprogressfunction)
+						histstepsfunction, histprogressfunction,bins=bins)
 		# finished, return
 		return elementRDF
+	
+	
+	def crossElementRDFs(self,binwidth=0.2,
+			stepsfunction=None, progressfunction=None, 
+			histstepsfunction=None, histprogressfunction=None,bins=None):
+		"""return a dictionary of elemental radial distribution functions
+		@param binwidth: stepwidth for the returned rdfs
+		@param stepsfunction: callback function to report the total number of progress steps to. For progress display purposes (default None)
+		@param progressfunction: callback function to report actual progress to. For progress display purposes. (default None)
+		@param histstepsfunction: callback function to report the total number of histogram progress steps to. For two-level progress display purposes (default None)
+		@param histprogressfunction: callback function to report actual histogram progress to. For two-level progress display purposes. (default None)		@return: dictionary with keys Z and values elemental rdf (2,x) arrays
+		@param bins: array of floats denoting histogram binning boundaries
+		"""
+		#get list of elements in geometry 
+		Z=list(set(self.AtomTypes))
+		# get global set of bins from total RDF
+		if bins==None:
+			rdfbins=self.rdf(binwidth, stepsfunction, progressfunction, histstepsfunction, histprogressfunction)[0]
+			bins=numpy.zeros(len(rdfbins)+1)
+			bins[0:-1]=rdfbins-(binwidth/2.0)
+			bins[-1]=rdfbins[-2]+binwidth
+		# initialize return dictionary
+		crossRDF={}
+		for center in Z:
+			centerGeo=self.elementsubgeometry(center)
+			for outer in Z:
+				crossRDF[(center,outer)]=centerGeo.crossRDF(self.elementsubgeometry(outer),binwidth,
+						stepsfunction, progressfunction, histstepsfunction, histprogressfunction,bins=bins)
+		# finished, return
+		return crossRDF
 
 
 
