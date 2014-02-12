@@ -71,7 +71,7 @@ class Reactionpath:
 			if self.verbosity >= constants.VBL_NORMAL:
 				print("Externally scheduled calculation of energies and forces")
 		else:
-			raise("Unknown energies/forces calculation mode")
+			raise ValueError("Unknown energies/forces calculation mode")
 		self.forcetol=ifmax
 		if self.verbosity >= constants.VBL_NORMAL:
 			print("ReactionPath: Maximum normal force criterion:      {0:12.6f} a.u.".format(self.forcetol))
