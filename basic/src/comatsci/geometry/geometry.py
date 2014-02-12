@@ -2632,7 +2632,6 @@ class Geometry:
 		# sort list of atoms to be removed
 		removeList=list(set(removeList))
 		removeList.sort(reverse=True)
-		print(removeList)
 		# make a deep copy of self and remove the offending atoms
 		pruned=copy.deepcopy(self)
 		for ii in removeList:
