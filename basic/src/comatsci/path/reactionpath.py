@@ -1291,10 +1291,3 @@ class Reactionpath:
 			else:
 				print ("md.out file does not fit to the trajectory. It is too short!")
 				raise
-		
-		
-	def minimal_output(self):
-		exclude = tuple(set(list(self[0].knownCDHFields))-set(["coordinates","elements","types","lattice"]))
-			
-			
-			
