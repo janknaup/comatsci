@@ -279,7 +279,7 @@ class Reactionpath:
 				buf=line.split()
 				gradsbuf.append([ float(s)/0.529177 for s in buf[4:7] ])
 			gradients.append(numpy.array(gradsbuf))		
-			self.realforces=gradients
+			self.realforces=gradients  #FIXME: needs to ahdere to new logic of storing forces in Geometry
 								
 		#finished
 #_MANU]
@@ -1025,7 +1025,7 @@ class Reactionpath:
 			newgeos.append(tempgeo)
 		# now overwrite geometries arrays and reset energies and forces and kill old spline representation (for hygenic reasons)
 		self.geos=newgeos
-		self.realforces=None
+		#self.realforces=None
 		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
@@ -1171,7 +1171,7 @@ class Reactionpath:
 		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
-		self.realforces=None
+		#self.realforces=None
 
 
 
@@ -1212,7 +1212,7 @@ class Reactionpath:
 		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
-		self.realforces=None
+		#self.realforces=None
 
 
 
