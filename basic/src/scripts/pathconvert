@@ -35,7 +35,8 @@ outputModes={"xyz"    :    ("xyz",comatsci.path.Reactionpath.writexyzpath),
 inputModes={"xyz"    :    comatsci.path.Reactionpath.readXyzPath,
     "checkpoint" :    comatsci.path.Reactionpath.readcheckpoint,
     "fmg" : comatsci.path.Reactionpath.readfmgpath,
-    "cdh" : comatsci.path.Reactionpath.readCDHPath}
+    "cdh" : comatsci.path.Reactionpath.readCDHPath,
+    "gen" : comatsci.path.Reactionpath.appendgeofile}
 # set default output mode to CDH
 outputMode="cdh"
 fileExtensionRe=re.compile("(.*)\.(.+)$")

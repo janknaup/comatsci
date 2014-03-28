@@ -734,7 +734,6 @@ class Geometry:
 		# if direct coordinate mode, convert positions from Angstrom to atomic units
 		if self.Mode in ('S','C'):
 			self.Geometry/=Angstrom
-			print(type(self.Geometry))
 		# if periodic geometry, parse supercell vectors
 		if self.Mode in ('S','F'):
 			dummy=genLines[self.Atomcount+2].split()
