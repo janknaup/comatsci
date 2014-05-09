@@ -615,7 +615,7 @@ if options.coordinations:
 	coordinationsfile.close()
 	coordinationsTrace.close()
 	#write coordination analysis files
-	deviationsrange=range(minDev,maxDev+1)
+	deviationsrange=range(int(minDev),int(maxDev+1))
 	elementlist=path.geos[0].getatomsymlistdict()[0]
 	print "Writing element coordination analysis files, this may take some time."
 	progressMeter=comatsci.utils.ProgressMeter(total=len(elementlist)*path.numimages())

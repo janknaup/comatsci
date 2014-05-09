@@ -34,7 +34,7 @@ class xySplineFunction(potentialFunction):
 				if self._parameters.has_key("x") and self._parameters.has_key("y"):
 					if len(parameters["x"])!=len(parameters["y"]):
 						raise ValueError("x and y arrays of xy-spline potential not equal")
-					self._spline=Spline.spline(self._parameters.get("x"),self._parameters.get("y"))
+					self._spline=Spline(self._parameters.get("x"),self._parameters.get("y"))
 
 
 
@@ -97,7 +97,7 @@ class xySplineFunction(potentialFunction):
 					"y": numpy.array(yvals)
 				}
 				# reinit spline rep
-				self._spline=Spline.spline(self._parameters["x"],self._parameters["y"])
+				self._spline=Spline(self._parameters["x"],self._parameters["y"])
 				#done.
 
 		
@@ -155,7 +155,7 @@ class xySplineFunction(potentialFunction):
 				for i in range(len(mutated)):
 					self._parameters["y"][self._mutables[i]]=mutated[i]
 				# update internal spline representation
-				self._spline=Spline.spline(self._parameters["x"],self._parameters["y"])
+				self._spline=Spline(self._parameters["x"],self._parameters["y"])
 				#done.
 
 

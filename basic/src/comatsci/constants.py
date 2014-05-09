@@ -16,7 +16,7 @@
 # comatsci Version
 #
 
-from ._version import *
+from ._version import *  # @UnusedWildImport
 
 # Verbosity levels:
 # only fatal errors
@@ -56,8 +56,14 @@ KILOGRAM=1.660e-27
 # This converts eV/Ang to H/Bohr
 EVPERANG=0.01944691813482
 
+# This converts Ang/ps to au
+ANGPERPS = 0.457102857516272e-4
+
 #
 # Miscellaneous stuff
 #
 #pi
 PI=3.14159265358979
+
+
+

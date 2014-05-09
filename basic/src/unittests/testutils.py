@@ -4,7 +4,7 @@ Created on Oct 30, 2012
 @author: Jan M. Knaup <janknaup@gmail.com>
 '''
 from __future__ import print_function
-import unittest,numpy,os
+import unittest,os
 import comatsci
 
 class UtilsTest(unittest.TestCase):

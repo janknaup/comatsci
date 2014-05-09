@@ -84,7 +84,7 @@ ence utility package
 \begin_inset Newline newline
 \end_inset
 
-Version 1.4.0
+Version 1.5.0
 \end_layout
 
 \begin_layout Author
@@ -122,7 +122,7 @@ Python version
 \begin_inset Formula $\geq$
 \end_inset
 
- 2.6 (not fully compatible with python 3)
+ 2.7 (not fully compatible with python 3)
 \end_layout
 
 \begin_deeper
@@ -1204,6 +1204,14 @@ totm
 
 \begin_layout Itemize
 tocdh
+\end_layout
+
+\begin_layout Itemize
+toaims
+\end_layout
+
+\begin_layout Itemize
+tovasp
 \end_layout
 
 \begin_layout Standard
@@ -5503,6 +5511,31 @@ Chemical data hierarchy format.
  Data is stored in binary HDF5 format in Data groups corresponding to trajectory
  frames.
  Experimental format, extensive documentation to follow.
+\end_layout
+
+\begin_layout Subsection
+VASP (read/write)
+\end_layout
+
+\begin_layout Standard
+The POSCAR/CONTCAR format used by VASP.
+ Upon read, parsing of POTCAR files to determine atom types is supported.
+ For file format details, refer to the VASP manual.
+\end_layout
+
+\begin_layout Subsection
+aims
+\end_layout
+
+\begin_layout Standard
+FHI aims geometry.in format.
+ Reading of the 
+\emph on
+Final Geometry:
+\emph default
+ block from aims output is supported.
+ The file must be named aims.out (with possible .gz .bz2 extensions) to be
+ recognized by geoconv.
 \end_layout
 
 \begin_layout Subsection

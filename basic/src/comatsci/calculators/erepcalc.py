@@ -117,6 +117,6 @@ class erepcalc(Calculator):
 		self.erep_innercut={}
 		self.erep_outercut={}
 		for i in indict.keys():
-			self.erep[i]=Spline.spline(indict[i][0],indict[i][1])
+			self.erep[i]=Spline(indict[i][0],indict[i][1])
 			self.erep_innercut[i]=indict[i][0][0]
 			self.erep_outercut[i]=indict[i][0][len(indict[i][0])-1]

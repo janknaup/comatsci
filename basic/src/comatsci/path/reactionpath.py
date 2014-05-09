@@ -17,11 +17,11 @@ import numpy
 import os, sys, copy
 
 import h5py
-import numpy as num
+import numpy as num  # @UnusedImport
 
-from .. import geometry, calculators
+from .. import geometry
 
-from ..calculators.calcerror import CalcError
+from ..calculators.calcerror import CalcError  # @UnusedImport
 from .. import constants,spline,utils
 from .pathiterator import PathIterator, EnergyAccessor, ForcesAccessor
 
@@ -71,7 +71,7 @@ class Reactionpath:
 			if self.verbosity >= constants.VBL_NORMAL:
 				print("Externally scheduled calculation of energies and forces")
 		else:
-			raise("Unknown energies/forces calculation mode")
+			raise ValueError("Unknown energies/forces calculation mode")
 		self.forcetol=ifmax
 		if self.verbosity >= constants.VBL_NORMAL:
 			print("ReactionPath: Maximum normal force criterion:      {0:12.6f} a.u.".format(self.forcetol))
@@ -94,23 +94,22 @@ class Reactionpath:
 	
 	
 	def __getitem__(self,index):
-	    if isinstance(index,slice):
-	        if index.start==None: 
-	            start=0
-	        else:
-	            start=index.start
-	        if indes.step==None:
-	            step=1
-	        else:
-	            step=index.step
-	        return [ self.__getitem__(ii) for ii in range(start,index.stop,step) ]
-	    else:
-	        if index<0: index=index+self.__len__()
-	        if index < 0 or index >=self.numImages:
-	            raise IndexError
-	        else:
-	            return self.geos[index]
-	           
+		if isinstance(index,slice):
+			if index.start==None: 
+				start=0
+			else:
+				start=index.start
+			if index.step==None:
+				step=1
+			else:
+				step=index.step
+			return [ self.__getitem__(ii) for ii in range(start,index.stop,step) ]
+		else:
+			if index<0: index=index+self.__len__()
+			if index < 0 or index >=self.numImages:
+				raise IndexError
+			else:
+				return self.geos[index]
 
 	def __setitem__(self,index,data):
 		if isinstance(index,slice):
@@ -118,7 +117,7 @@ class Reactionpath:
 				start=0
 			else:
 				start=index.start
-			if indes.step==None:
+			if index.step==None:
 				step=1
 			else:
 				step=index.step
@@ -280,7 +279,7 @@ class Reactionpath:
 				buf=line.split()
 				gradsbuf.append([ float(s)/0.529177 for s in buf[4:7] ])
 			gradients.append(numpy.array(gradsbuf))		
-			self.realforces=gradients
+			self.realforces=gradients  #FIXME: needs to ahdere to new logic of storing forces in Geometry
 								
 		#finished
 #_MANU]
@@ -310,7 +309,7 @@ class Reactionpath:
 		return len(self.geos)
 
 
-	def writegenpath(self,nameprefix="path"):
+	def writegenpath(self,nameprefix="path",minimaloutput=False):
 		"""write the path geometries as gen files
 		@param nameprefix: string to prepend to each filename
 		"""
@@ -320,7 +319,7 @@ class Reactionpath:
 
 
 
-	def writexyzpath(self,name="path.xyz"):
+	def writexyzpath(self,name="path.xyz",minimaloutput=False):
 		"""write the path geometries as a single multiframe .xyz file
 		@param name: output filename
 		"""
@@ -361,7 +360,7 @@ class Reactionpath:
 
 
 
-	def writefmgpath(self,name='path.fmg'):
+	def writefmgpath(self,name='path.fmg',minimaloutput=False):
 		"""write the path as a single, multi-geometry .fmg file
 		@param name: output file name
 		"""
@@ -535,44 +534,48 @@ class Reactionpath:
 
 
 
-	def writeCDHPath(self,filename="path.cdh",savespace=True):
+	def writeCDHPath(self,filename="path.cdh",savespace=True,progressFunction=None,stepsFunction=None,minimaloutput=False):
 		""" 
 		Write the current path in HDF5 format according to CDH specification
 		@type filename: string
 		@param filename: name of the HDF5 file to create
+		@type savespace: boolean
+		@param savespace: try to save space in .cdh file by moving constant data to globals group
+		@type progressFunction: callable
+		@param progressFunction: function to call after every write step to indicate progress to tge user
+		@type stepsFunction: callable taking integer argument
+		@param stepsFunction: function to call before writing, to initialize progress indicator.
+			Must accept integer argument of total step count.
 		"""
-		# check if space saving can be used between geometries, THIS CHECK IS UNSAFE
-		if savespace:
-			try:
-				globalSets=["elements","types","lattice","residues","method"]
-				self.geos[0].compatcheck(self.geos[-1])
-			except geometry.GeometryError,inst:
-				if inst.args[0]=='Geometry lattice mismatch':
-					print("ReactionPath warning: Geometry lattice mismatch")
-					globalSets.remove("lattice")
-				else:
-					savespace=False
-					globalSets=[]
-		globalExclude=set(self.geos[0].knownCDHFields).difference(set(globalSets))
 		# open HDF5 file for overwriting
 		pathfile=h5py.File(filename,"w")
+		if stepsFunction!=None: stepsFunction(self.numimages())
 		# iterate through path images
-		refGroup=None
 		for image in range(self.numimages()):
 			imagelabel="frame{0:010d}".format(image)
+			if savespace:
+				try:
+					globalSets=["elements","types","lattice","residues","method"]
+					self.geos[0].compatcheck(self.geos[image])
+				except geometry.GeometryError,inst:
+					if inst.args[0]=='Geometry lattice mismatch':
+						print("ReactionPath warning: Geometry lattice mismatch")
+						globalSets.remove("lattice")
+					else:
+						savespace=False
+						globalSets=[]
 			# first write the image geometry
 			if image==0 and savespace:
-				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]
+				globalExclude=set(self.geos[0].knownCDHFields).difference(set(globalSets))
+				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]  # @UnusedVariable
+			if minimaloutput:
+				tempMinimalOutput = ["coordinates","elements","types","lattice"]
+				excludeMinimal = list(set(list(self[0].knownCDHFields)).difference(set(tempMinimalOutput)))
 			else:
-				imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable
-			# add additional path data, if present
-# 			if self.has_energies():
-# 				energyset=imagegroup.create_dataset("totalenergy",(1,),"=f8")
-# 				energyset[0]=self.energies[image]
-# 			if self.has_realforces():
-# 				forceset=imagegroup.create_dataset("forces",data=num.array(self.realforces[image],"=f8")) #@UnusedVariable
+				excludeMinimal = []
+			imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets+excludeMinimal)[1] #@UndefinedVariable @UnusedVariable
+			if progressFunction: progressFunction()
 		pathfile.close()
-			
 
 
 	def readCDHPath(self,filename,checkCompat=True,geoconstructor=geometry.Geometry,progressFunction=None,stepsFunction=None):
@@ -593,40 +596,13 @@ class Reactionpath:
 		frames.sort()
 		# iterate through frames
 		if stepsFunction!=None: stepsFunction(len(frames))
-		tempEnergies=[]
-		tempForces=[]
-		hasE=True
-		hasF=True
 		globalsGroup=pathfile.get("globals", None)
 		for frame in frames:
 			tg=geoconstructor()
 			framegroup=pathfile[frame]
 			tg.parseH5Framegroup(framegroup,globalsGroup)
 			self.appendGeoObject(tg, checkCompat)
-# 			if "totalenergy" in framegroup.attrs.keys() and hasE:
-# 				tempEnergies.append(framegroup.attrs["totalenergy"].value[0])
-# 			else:
-# 				hasE=False
-# 			if "forces" in framegroup.keys() and hasF:
-# 				tempForces.append(framegroup["forces"].value)
-# 			else:
-# 				hasF=False
-# 			if tg.totalenergy!=None and hasE:
-# 				tempEnergies.append(tg.totalenergy)
-# 			else:
-# 				hasE=False
-# 			if tg.forces!=None and hasF:
-# 				tempForces.append(tg.forces)
-# 			else:
-# 				hasF=False
-# 			self.appendGeoObject(tg, checkCompat=checkCompat)
-# 		# only set energies, if every frame has energies data
-# 		if hasE:
-# 			self.energies=tempEnergies
-# 		# only set forces if every frame has froces data
-# 		if hasF:
-# 			self.realforces=tempForces
-		# finished. cleanup and return
+			if progressFunction!=None: progressFunction()
 		
 		pathfile.close()
 		return(self)
@@ -1053,7 +1029,7 @@ class Reactionpath:
 			newgeos.append(tempgeo)
 		# now overwrite geometries arrays and reset energies and forces and kill old spline representation (for hygenic reasons)
 		self.geos=newgeos
-		self.realforces=None
+		#self.realforces=None
 		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
@@ -1199,7 +1175,7 @@ class Reactionpath:
 		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
-		self.realforces=None
+		#self.realforces=None
 
 
 
@@ -1240,7 +1216,7 @@ class Reactionpath:
 		#self.energies=[]
 		self.splineRep=None
 		self._rSplineRep=None
-		self.realforces=None
+		#self.realforces=None
 
 
 
@@ -1268,4 +1244,50 @@ class Reactionpath:
 		# finished, return
 		return hopcounter
 
+		
 
+	def read_mdout(self, filename="md.out"):
+		mdoutfile=utils.compressedopen(filename,"r")
+		mdoutString="".join(list(mdoutfile))
+		mdoutfile.close()
+		self.parse_mdout(mdoutString)
+		
+	
+	
+	def parse_mdout(self, mdoutString):
+		try:
+			# read properties in atomic units from md.out
+			mdoutLines = mdoutString.strip("\n").split("\n")
+			# temperature
+			temperatureLines = [i for i in mdoutLines if "temperature" in i.lower()]
+			mdTemperatures = [float(i.split()[2]) for i in temperatureLines]
+			# latticepressure
+			pressureLines = [i for i in mdoutLines if "pressure" in i.lower()]
+			mdPressure = [float(i.split()[1]) for i in pressureLines]
+			# total energy
+			etotLines = [i for i in mdoutLines if "total md energy" in i.lower()]
+			mdEtot = [float(i.split()[3]) for i in etotLines]
+			# ion potential energy
+			epotLines = [i for i in mdoutLines if "potential energy" in i.lower()]
+			mdEpot = [float(i.split()[2]) for i in epotLines]
+			# ion kinetic energy
+			ekinLines = [i for i in mdoutLines if "md kinetic energy" in i.lower()]
+			mdEkin = [float(i.split()[3]) for i in ekinLines]		
+			# md step
+			stepLines = [i for i in mdoutLines if "md step" in i.lower()]
+			mdStep = [int(i.split()[2]) for i in stepLines]
+			# save properties
+		except:
+			print("Error while reading md.out file(s)")
+			raise
+		for image in xrange(0,self.numimages()):
+			tempPos = mdStep.index(self.geos[image].timestep)
+			if tempPos <= len(mdTemperatures):
+				self.geos[image].iontemperature = mdTemperatures[tempPos]
+				self.geos[image].latticepressure = mdPressure[tempPos]
+				self.geos[image].totalenergy = mdEtot[tempPos]
+				self.geos[image].ionpotentialenergy = mdEpot[tempPos]
+				self.geos[image].ionkineticenergy = mdEkin[tempPos]
+			else:
+				print ("md.out file does not fit to the trajectory. It is too short!")
+				raise

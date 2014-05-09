@@ -9,7 +9,7 @@
 ##############################################################################
 
 from __future__ import print_function
-from .calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED
+from .calculator import Calculator,CALCSTATUS_READY,CALCSTATUS_RUNNING,CALCSTATUS_FINISHED#,CALCSTATUS_ERROR,CALCSTATUS_DISABLED @UnusedImport
 
 from .calcerror import CalcError
 from .. import constants, utils
@@ -17,10 +17,9 @@ import ConfigParser
 
 import tempfile
 import os
-import re
+import re  # @UnusedImport
 import shutil
 import numpy
-
 
 
 class noodlecalc(Calculator):

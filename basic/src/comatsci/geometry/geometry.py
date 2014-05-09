@@ -23,16 +23,17 @@ import os
 ##import sys
 import copy
 import math
+import re
 ##import xml.dom.minidom
 ##import bisect
 
 #complicated import statement to make it work with python 2.4 and 2.5
 #  see if python 2.5's elementTree implementation is present
 try:
-	from xml.etree import ElementTree as ET
+	from xml.etree import ElementTree as ET  # @UnusedImport
 #  otherwise try to import locally installed elementtree (for python 2.4 and below)
 except:
-	from elementtree import ElementTree as ET #@UnresolvedImport
+	from elementtree import ElementTree as ET #@UnresolvedImport @Reimport
 
 
 ##import numpy.oldnumeric.linear_algebra as lina
@@ -266,8 +267,7 @@ class Geometry:
 			self.Lattice=iLattice
 		#default layer is 0
 		if iAtomLayers==None:
-			self.AtomLayers=[0 for s in range(self.Atomcount)]
-			
+			self.AtomLayers=[0 for s in range(self.Atomcount)]  # @UnusedVariable
 		else:
 			self.AtomLayers=iAtomLayers
 		#if no Layers are specified, create default layer
@@ -278,7 +278,7 @@ class Geometry:
 			self.LayerDict=iLayerDict
 		# default atom charge is 0
 		if iAtomCharges==None:
-			self.AtomCharges=[float(0) for s in range(self.Atomcount)]
+			self.AtomCharges=[float(0) for s in range(self.Atomcount)]  # @UnusedVariable
 		else:
 			self.AtomCharges=iAtomCharges
 		if iGeometry==None:
@@ -303,11 +303,14 @@ class Geometry:
 		self.method=None
 		self.totalenergy=None
 		self.ionkineticenergy=None
+		self.ionpotentialenergy=None
+		self.latticepressure=None
 		self.iontemperature=None
 		self.electrontemperature=None
 		self.timestep=None
 		self.simtime=None
 		self.forces=None
+		self.velocities=None
 		self._reset_derived()
 		self._consistency_check()
 	
@@ -399,11 +402,13 @@ class Geometry:
 
 
 
-	def elementsubgeometry(self, element, mode=None, cache=False):
+	def elementsubgeometry(self, element, mode=None, cache=False, charges=False):
 		"""return a Geometry object identical to self but containing only
 		atoms of element *element*
 		@param element: element to filter for
 		@param mode: Mode of the new Geometry, Autoinit to parent Geometry mode if None (default None)
+		@param cache: cache element sub geometry. Useful for application with many subsequent calls
+		@param charges: if True, initialize subgeometry charges to parent charges, otherwise initialize to zero  
 		"""
 		if cache and self._elementSubGeos.has_key(element):
 			return self._elementSubGeos[element]
@@ -413,11 +418,15 @@ class Geometry:
 			typesArray=numpy.array(self.AtomTypes)
 			subIndices=(typesArray==element).nonzero()[0]
 			chargesArray=numpy.array(self.AtomCharges)
+			if charges:
+				subCharges=list(chargesArray[subIndices])
+			else:
+				subCharges=None
 			stArray=numpy.array(self.AtomSubTypes)
 			esubgeo=self.__class__(iMode=mode,iLattice=self.Lattice,iOrigin=self.Origin,
 								iAtomcount=len(subIndices), iAtomTypes=list(typesArray[subIndices]),
 								iGeometry=self.Geometry[subIndices],
-								iAtomSubTypes=list(stArray[subIndices]))
+								iAtomSubTypes=list(stArray[subIndices]),iAtomCharges=subCharges)
 			esubgeo.parentmap=dict.fromkeys(list(range(esubgeo.Atomcount)),subIndices)
 			if cache:
 				self._elementSubGeos[element]=esubgeo
@@ -425,9 +434,9 @@ class Geometry:
 	
 	
 	
-	def addatom(self, type, position, layer=None, charge=0.0, subtype=None,LPop=None,checkConsistency=True):
-		"""append atom of type with position to the geometry
-		@param type: atom type (element number)
+	def addatom(self, atomType, position, layer=None, charge=0.0, subtype=None,LPop=None,checkConsistency=True):
+		"""append atom of atomType with position to the geometry
+		@param atomType: atom atomType (element number)
 		@param position: carthesian bohr coordinates
 		@param layer: layer index to add atom to (default layer if omitted) (default None)
 		@param charge: atom charge (default 0.0)
@@ -438,7 +447,7 @@ class Geometry:
 		if not (layer in self.LayerDict or layer==None):
 			raise GeometryError("Trying to add to nonexistent layer")
 		self._reset_derived()
-		self.AtomTypes.append(type)
+		self.AtomTypes.append(atomType)
 		#tempgeo=numpy.zeros((self.Atomcount+1,3),dtype=float)
 		tempgeo=numpy.empty((self.Atomcount+1,3),dtype=float)
 		if self.Atomcount > 0:
@@ -452,7 +461,7 @@ class Geometry:
 			self.AtomLayers.append(layer)
 		self.AtomCharges.append(float(charge))
 		if subtype==None:
-			subtype=self.PTE[type]
+			subtype=self.PTE[atomType]
 		self.AtomSubTypes.append(subtype)
 		if LPop==None:
 			self.LPops.append([])
@@ -514,7 +523,159 @@ class Geometry:
 						appendgeometry.AtomCharges[i],
 						appendgeometry.AtomSubTypes[i])
 	
+	
+	
+	def readcar(self,filename):
+		"""
+		read Geometry from file in .gen format
+		@type filename: string
+		@param filename: name of the file to read
+		"""
+		infile=utils.compressedopen(filename, "r")
+		carString="".join(list(infile))
+		infile.close()
+		self.parseCarString(carString)
+	
+	
 		
+	def parseCarString(self,carString):
+		"""
+		Parse geometry representation from string in VASP CAR format
+		@type carstring: string
+		@param carstring: string containign VASP CAR format geometry
+		"""
+		# initialize temporary variables
+		tempgeo=[]
+		tempAtomTypes=[]
+		tempElementCount = 0
+		tempElement = 0
+		tempSpeciesCount = 0  # @UnusedVariable
+		AtomSymbols = []
+		alternativeSymbols = True
+		# split into lines, remove leading and trailing linebreaks
+		carLines=carString.strip("\n").split("\n")
+		#self.Mode="S"
+		# delete 1st comment line
+		del carLines[0]
+		# lattice scaling factor
+		try:
+			tempScaling=float(carLines[0])
+		except:
+			raise GeometryError("Error parsing lattice parameter in CAR file")
+		if tempScaling <= 0:
+			raise GeometryError("Error parsing lattice parameter in CAR file: lattice scaling should be greater than zero!")
+		try:
+			for i in range(3):
+				tempLattice=carLines[1+i].split()
+				self.Lattice[i]=numpy.array( [ float(s)/Angstrom*tempScaling for s in tempLattice[:3] ] )
+		except:
+			raise GeometryError("Error parsing supercell vectors in CAR file")
+
+		tempCheckComment = carLines[4].split()
+		if tempCheckComment != [t for t in tempCheckComment if t.isdigit()]:
+			del carLines[4]
+		# number of different species 
+		tempSpeciesCount = len(carLines[4].split())
+		# number of atoms in subgeometry
+		tempSubGeoCount = [ int(u) for u in carLines[4].split() ]
+
+		# Atomsymbols read from comment line, POTCAR file or set alternative symbols
+		if tempCheckComment != [t for t in tempCheckComment if t.isdigit()] and set(tempCheckComment).issubset(self.PTE) and len(tempCheckComment) == len(carLines[4].split()):
+			print("Types of atoms are specified in comment line!")
+			AtomSymbols = [s.lower() for s in tempCheckComment]
+			alternativeSymbols = False
+			#del carLines[4]
+		elif os.path.isfile("POTCAR"):
+			potfile = file('POTCAR')
+			for line in potfile:
+				if "TITEL" in line:
+					potline = line.split()
+					AtomSymbols.append(potline[3].lower())
+			if len(AtomSymbols) == tempSpeciesCount:
+				alternativeSymbols = False
+				print("Species read from POTCAR file")
+		if alternativeSymbols:
+			self.PTE[:] = []
+			self.RPTE.clear()
+			self.PTE = AtomSymbols = [ "type"+str(i+1) for i in range(len(carLines[4].split()))]
+			self.RPTE = dict((self.PTE[i],i) for i in range(len(carLines[4].split())))
+			print("alternative element name(s) used!")	
+		if str(carLines[5]).lower()[:1] == "s":
+			del carLines[5]
+		if str(carLines[5]).lower()[:1] == "c":
+			self.Mode = "S"
+		elif str(carLines[5]).lower()[:1] == "d":
+			self.Mode = "F"
+		else:
+			raise GeometryError("Error in CAR file: unknown mode")
+		# read Geometry 
+		for j in tempSubGeoCount:
+			for i in range(int(j)):
+				tempLine = carLines[6+tempElementCount+i].split()
+				try:
+					tempgeo.append([ float(s) for s in tempLine[0:3] ])
+				except:
+					raise GeometryError("Error parsing Atom position in line {0:d} of CAR file")
+				try:
+					tempAtomTypes.append(int(self.RPTE[AtomSymbols[int(tempElement)]]))
+				except:
+					raise GeometryError("Unable to parse atom type specification in line {0:d} of CAR file.".format(i+1+tempElementCount))
+				self.LPops.append([])
+			tempElementCount += j
+			tempElement += 1
+		
+		self.Geometry = numpy.array(tempgeo)
+		self.AtomTypes = tempAtomTypes
+		self.Atomcount = sum(tempSubGeoCount) 
+		if self.Mode=="F":
+			self.Geometry = numpy.dot(self.Geometry,self.Lattice)
+			self.Mode="S"
+		else:
+			self.Geometry /=Angstrom
+		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+		self.AtomLayers=[0 for s in range(self.Atomcount)]
+		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
+		self._consistency_check()
+		
+	
+	
+	def writecar(self, filename):
+		"""Write geometry to VASP CAR file
+		possible coordinates modes:
+		@param filename: output file name
+		"""
+		# VASP only knows periodic structures 
+		if not self.Mode=="S":
+			raise GeometryError("You need to specify lattice vectors for the CAR file format!")
+		line=""
+		outfile=open(filename,'w')
+		print("created by comatsci",file=outfile)
+		print("1.0000",file=outfile)
+		for i in range(3):
+			try:
+				print("{0[0]: 24.17E} {0[1]: 24.17E} {0[2]: 24.17E} ".format(self.Lattice[i]*Angstrom),file=outfile)
+			except:
+				raise GeometryError("You need to specify lattice vectors for the CAR file format!")
+		atlist,AtomSymbols = self.getatomsymlistdict()  # @UnusedVariable
+		for i in atlist:
+			line+=self.PTE[i]
+			line+=" "
+		line+="\n"
+		outfile.write(line)
+		line=""
+		occurr=self.elemcounts()
+		for i in atlist:
+			line+=str(occurr[i])
+			line+=" "
+		print(line,file=outfile)
+		print("Selective dynamics\ncartesian",file=outfile)		      
+		for i in atlist:
+			subgeo=self.elementsubgeometry(i).Geometry*Angstrom
+			for j in range(self.elementsubgeometry(i).Atomcount):
+				print("{0: 24.17E} {1: 24.17E} {2: 24.17E} \t T \t T \t T".format(subgeo[j][0], subgeo[j][1], subgeo[j][2]),file=outfile)
+		outfile.close()
+	
+	
 	def readgen(self,filename):
 		"""
 		read Geometry from file in .gen format
@@ -647,8 +808,8 @@ class Geometry:
 		outfile.close()
 
 
-	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","iontemperature",
-				"electrontemperature","timestep","simtime","coordinates","forces",
+	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","ionpotentialenergy","latticepressure","iontemperature",
+				"electrontemperature","timestep","simtime","coordinates","forces","velocities",
 				"elements","types","charges","lattice","residues")
 	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, 
 						labelstring="comatsci geometry",exclude=None):
@@ -679,10 +840,10 @@ class Geometry:
 		# hack for h5py API changes
 		# *** depending on installed h5py version, one of this will cause errors, hence UndefinedVariable comments ***
 		if h5py.version.version_tuple[0]==1 and h5py.version.version_tuple[1]<3:
-			vlstring=h5py.new_vlen(str)#@UndefinedVariable
+			vlstring=h5py.new_vlen(str)#@UndefinedVariable @UnusedVariable
 			layerenum=h5py.new_enum("i",ResidueDict)#@UndefinedVariable
 		else: 
-			vlstring=h5py.special_dtype(vlen=str) #@UndefinedVariable
+			vlstring=h5py.special_dtype(vlen=str) #@UndefinedVariable @UnusedVariable
 			layerenum=h5py.special_dtype(enum=("i",ResidueDict)) #@UndefinedVariable
 		# get frame group object, create if necessary. We already checked collision with existing froup if overwrite==False
 		# overwriting datasets will still fail!
@@ -700,6 +861,10 @@ class Geometry:
 			framegroup.attrs["totalenergy"]=self.totalenergy
 		if self.ionkineticenergy != None and (not "ionkineticenergy" in exclude): 
 			framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
+		if self.ionpotentialenergy != None and (not "ionpotentialenergy" in exclude): 
+			framegroup.attrs["ionpotentialenergy"]=self.ionpotentialenergy
+		if self.latticepressure != None and (not "latticepressure" in exclude): 
+			framegroup.attrs["latticepressure"]=self.latticepressure
 		if self.iontemperature != None and (not "iontemperature" in exclude): 
 			framegroup.attrs["iontemperature"]=self.iontemperature
 		if self.electrontemperature != None and (not "electrontemperature" in exclude): 
@@ -709,19 +874,21 @@ class Geometry:
 		if self.simtime != None and (not "simtime" in exclude): 
 			framegroup.attrs["simtime"]=self.simtime
 		if (not "coordinates" in exclude): 
-			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))
+			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))  # @UnusedVariable
 		if self.forces != None and (not "forces" in exclude):
-			forceset=framegroup.create_dataset("forces",data=num.array(self.forces,"=f8")) #@UnusedVariable
+			forceset=framegroup.create_dataset("forces",data=numpy.array(self.forces,"=f8")) #@UnusedVariable
+		if self.velocities != None and (not "velocities" in exclude):
+			velocitiesset=framegroup.create_dataset("velocities",data=numpy.array(self.velocities,"=f8")) #@UnusedVariable
 		if self.AtomTypes != None and (not "elements" in exclude):
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
 		if self.AtomSubTypes != None and (not "types" in exclude):
-			typeset=framegroup.create_dataset("types",data=numpy.asarray(self.AtomSubTypes,dtype="string_"))
+			typeset=framegroup.create_dataset("types",data=numpy.asarray(self.AtomSubTypes,dtype="string_"))  # @UnusedVariable
 		# charges are tricky, but we should just leave them out if all charges in Geometry instance are zero anyway
 		if numpy.shape(numpy.nonzero(self.AtomCharges))[1]!=0 and (not "charges" in exclude):
 			chargeset=framegroup.create_dataset("charges",data=numpy.array(self.AtomCharges,'=f8')) #@UnusedVariable
 		if (not "lattice" in exclude):
 			if self.Mode=="S":
-				latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))
+				latticeset=framegroup.create_dataset("lattice",data=numpy.array(self.Lattice,'=f8'))  # @UnusedVariable
 		# layer indices might not be contigous, depending on geometry history
 		if (not "residues" in exclude):
 			residueset=framegroup.create_dataset("residues",(self.Atomcount,),dtype=layerenum) #@UnusedVariable
@@ -788,6 +955,16 @@ class Geometry:
 			self.ionkineticenergy=float(framegroup.attrs["ionkineticenergy"])
 		elif "ionkineticenergy" in globalsGroup.attrs.keys():
 			self.ionkineticenergy=float(globalsGroup.attrs["ionkineticenergy"])
+		# ionpotentialenergy
+		if "ionpotentialenergy" in framegroup.attrs.keys():
+			self.ionpotentialenergy=float(framegroup.attrs["ionpotentialenergy"])
+		elif "ionpotentialenergy" in globalsGroup.attrs.keys():
+			self.ionpotentialenergy=float(globalsGroup.attrs["ionpotentialenergy"])
+		# latticepressure
+		if "latticepressure" in framegroup.attrs.keys():
+			self.latticepressure=float(framegroup.attrs["latticepressure"])
+		elif "latticepressure" in globalsGroup.attrs.keys():
+			self.latticepressure=float(globalsGroup.attrs["latticepressure"])
 		# iontemperature
 		if "iontemperature" in framegroup.attrs.keys():
 			self.iontemperature=float(framegroup.attrs["iontemperature"])
@@ -857,12 +1034,10 @@ class Geometry:
 			else: 
 				residuesDict=h5py.check_dtype(enum=residueGroup["residues"].dtype) #@UndefinedVariable
 			self.LayerDict={}
-			print(residuesDict)
 			for ii in residuesDict.keys():
 				if self.layerbyname(residuesDict[ii])==None:
 					self.addlayer(ii,int(residuesDict[ii]))
 			self.AtomLayers=residueGroup["residues"].value
-			print(self.AtomLayers)
 		else:
 			if not self.layerbyname("default layer")==0:
 				self.addlayer("default layer", 0)
@@ -879,10 +1054,19 @@ class Geometry:
 			forcesgroup=framegroup
 		else:
 			forcesgroup=globalsGroup
-		if "forces" in globalsets:
+		if ("forces" in globalsets) or ("forces" in framesets):
 			self.forces=forcesgroup["forces"].value
 		else:
 			self.forces=None
+		# set velocities
+		if "velocities" in framesets:
+			velocitiesgroup = framegroup
+		else:
+			velocitiesgroup = globalsGroup
+		if ("velocities" in globalsets) or ("velocities" in framesets):
+			self.velocities=velocitiesgroup["velocities"].value
+		else:
+			self.velocities=None
 		# dummy data
 		self.LPops=list(numpy.zeros((self.Atomcount,3),dtype=int))
 		# Finally, check consistency and return
@@ -917,13 +1101,24 @@ class Geometry:
 		@type instring: string
 		@param instring: fhi aims formated geometry specification  
 		"""
+		#check if instring is an aims output string
+		finalGeoPattern=re.compile("Final atomic structure")
+		afracPattern=re.compile("Fractional coordinates")
+		finalGeoSearchResult = finalGeoPattern.search(instring)
 		#initialize temporary lattice, coordinates and atom types
 		templattice=[]
 		temptypes=[]
 		tempcoords=[]
 		tcfractional=[]
 		#split string into lines
-		lines=instring.split("\n")
+		if finalGeoSearchResult:
+			#output file contains a lot of unparseable stuff to skip
+			#atom coordinates are spiecified twice, first an atom block, then an atom_frac block
+			tempstring=instring[finalGeoSearchResult.end()+1:]
+			afracSearchResult=afracPattern.search(tempstring)
+			lines=tempstring[:afracSearchResult.start()-1].split("\n")[3:]
+		else:
+			lines=instring.split("\n")
 		#iterate through lines
 		for i in range(len(lines)):
 			#tokenize lines, split off comments at EOL if any
@@ -999,6 +1194,7 @@ class Geometry:
 		tempAtomTypes=[]
 		tempLPops=[]
 		tempAtomCharges=[]
+		tempMethodDftbPlus=False
 		# break string into a list of lines
 		xyzlines=xyzstring.split('\n')
 		# discard trailing empty line if present
@@ -1013,6 +1209,10 @@ class Geometry:
 			raise
 		# discard comment line, then check if number of atom lines
 		# matches number of atom
+		if xyzlines[0].find("MD iter:") != -1:
+			self.timestep = int(xyzlines[0].strip().split()[2])
+			tempMethodDftbPlus=True
+			tempVelocities = []
 		del xyzlines[0]
 		if len(xyzlines)!=tempAtomCount:
 			raise(ValueError,"Number of atom lines does not match specified atom count in xyz string")
@@ -1037,6 +1237,12 @@ class Geometry:
 					tempAtomCharges.append(-(float(line[4])-self.VALEL[tempAtomTypes[-1]]))
 				except:
 					tempAtomCharges.append(0.0)
+				if len(line)>=6 and tempMethodDftbPlus:
+					try:
+						tempVelocities.append([ float(s)/constants.ANGPERPS for s in line[5:8] ])
+					except: 
+						tempMethodDftbPlus=False
+						tempVelocities = None
 			else:
 				tempAtomCharges.append(0.0)
 		# clear self before applying parsed geometry
@@ -1054,6 +1260,8 @@ class Geometry:
 		self.AtomCharges=tempAtomCharges
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+		if tempVelocities != None:
+			self.velocities = numpy.array(tempVelocities)
 		# finally, check self for sanity.
 		self._consistency_check()
 		# finished.
@@ -1292,6 +1500,8 @@ class Geometry:
 			- B{xyz} xmol carthesian format
 			- B{fmg} flexible molecular geometry xml format
 			- B{cdh} chemical data hierarchy
+			- B{car} VASP POSCAR/CONCTCAR format
+			- B{aims} FHI aims geometry.in / console output format
 		@param filename: input file name
 		@param typespec: lowercase string, specifying file type, autodetect if omitted
 		"""
@@ -1299,7 +1509,9 @@ class Geometry:
 			'gen': self.readgen,
 			'xyz': self.readxyz,
 			'fmg': self.readfmg,
-			'cdh': self.readCDHFile
+			'cdh': self.readCDHFile,
+			'car': self.readcar,
+			'aims' : self.readAimsFile
 			}
 		if typespec!=None:
 			ftype=typespec.strip('.').strip().lower()
@@ -1311,7 +1523,13 @@ class Geometry:
 				tempfilename=filename[:-4]
 			else:
 				tempfilename=filename
-			ftype=tempfilename.strip()[-3:].lower()
+			tempfilename=os.path.basename(tempfilename)
+			if tempfilename.upper() in ("POSCAR","CONTCAR"):
+				ftype="car"
+			elif tempfilename.lower() in ("aims.out",):
+				ftype="aims"
+			else:
+				ftype=tempfilename.strip()[-3:].lower()
 		if ftype in typefunctions.keys():
 			typefunctions[ftype](filename)
 		else:
@@ -1328,7 +1546,7 @@ class Geometry:
 		chrfile=utils.compressedopen(chargefilename,'r')
 		# skip the first 5 lines
 		for i in range(5):
-			line=chrfile.readline()
+			line=chrfile.readline()  # @UnusedVariable
 		atchr=[]
 		for i in range(self.Atomcount):
 			dummy=chrfile.readline().split()
@@ -1738,7 +1956,7 @@ class Geometry:
 			raise GeometryError("Occupancy array mismatch")
 		# if no beta values were specified, use all zeros
 		if beta==None:
-			beta=[float(0) for s in range(self.Atomcount)]
+			beta=[float(0) for s in range(self.Atomcount)]  # @UnusedVariable
 		elif len(beta)!=self.Atomcount:
 			raise GeometryError("Beta array mismatch")
 		# initialize header
@@ -2109,7 +2327,7 @@ class Geometry:
 
 	def elemcounts(self):
 		"""return a dictionary of element ordinal numbers to numbers of occurrance"""
-		symlist,symdict = self.getatomsymlistdict()
+		symlist,symdict = self.getatomsymlistdict()  # @UnusedVariable
 		counts={}
 		counts=counts.fromkeys(symlist,0)
 		for i in range(self.Atomcount):
@@ -2455,6 +2673,7 @@ class Geometry:
 				removeList.append(jj)
 				bondList[jj].remove(ii)
 		# sort list of atoms to be removed
+		removeList=list(set(removeList))
 		removeList.sort(reverse=True)
 		# make a deep copy of self and remove the offending atoms
 		pruned=copy.deepcopy(self)
