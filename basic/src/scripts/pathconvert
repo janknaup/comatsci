@@ -22,6 +22,7 @@ import random
 
 import numpy
 
+
 programname=os.path.basename(sys.argv[0]).lower()
 
 #map mode names, file name endings and writer functions
@@ -34,7 +35,8 @@ outputModes={"xyz"    :    ("xyz",comatsci.path.Reactionpath.writexyzpath),
 inputModes={"xyz"    :    comatsci.path.Reactionpath.readXyzPath,
     "checkpoint" :    comatsci.path.Reactionpath.readcheckpoint,
     "fmg" : comatsci.path.Reactionpath.readfmgpath,
-    "cdh" : comatsci.path.Reactionpath.readCDHPath}
+    "cdh" : comatsci.path.Reactionpath.readCDHPath,
+    "gen" : comatsci.path.Reactionpath.appendgeofile}
 # set default output mode to CDH
 outputMode="cdh"
 fileExtensionRe=re.compile("(.*)\.(.+)$")
@@ -51,12 +53,28 @@ parser.add_option("-f","--format",
 #.................................................
 addDataGroup=OptionGroup(parser,"Options to add data to input paths")
 
+parser.set_defaults(mdoutfiles=[])
+addDataGroup.add_option("-m","--mdout",
+        action="append", metavar="F", dest="mdoutfiles", type="string",
+        help="Read trajectory properties (total, kinetic and potential energies, temperature, "+
+        "pressure, timestep) from md.out. "+
+        "This option can be used for DFTB+ MD trajectory file(s)!")
+
 parser.set_defaults(popfiles=[])
 addDataGroup.add_option("-p","--population",
-        action="store", metavar="F", dest="popfiles", type="string",
+        action="append", metavar="F", dest="popfiles", type="string",
         help="Read atomic populations from file F. If multiple input geometries are given, "+
         "this option must be repeated for each input file in order or left out completely. "+
         "No default. Special Value '-' to skip reading population for corresponding input file")
+
+parser.set_defaults(lattice=None)
+parser.add_option("-L","--lattice",
+         action="store", dest="lattice", nargs=9, type="float",
+         help="Set mode to periodic and apply supplied lattice vectors. Supply in format a1 a2 a3 b1 ... c3.")
+
+parser.set_defaults(minimal=False)
+parser.add_option("--minimal",action="store_true", dest="minimal",
+         help="Limit trajectory output information to coordinates, lattice and atomtypes.")
 #.................................................
 manipulateGeometriesGroup=OptionGroup(parser,"Options to manipulate image geometries")
 
@@ -121,7 +139,8 @@ else:
 #*** be sure to perform option checks before reading inputs ************
 #***********************************************************************
 
-# check if all specified input files exist and their types can be inferred
+# check if all specified input files exist and their types can be inferred,exclude=globalSets)[1] #@UndefinedVariable @UnusedVariable
+#            if progressFunction: progressFunction()
 for ii in infileNames:
     if not os.path.exists(ii):
         raise ValueError("Specified input file '{0:s}' does not exist".format(ii))
@@ -135,10 +154,17 @@ for ii in infileNames:
 # also check file existence 
 
 if (len(options.popfiles)!=0 and len(options.popfiles)!=len(infileNames)):
-    raise ValueError("Not enough population files specified for number of input files")
+    raise ValueError("Error: number of population files specified does not match number of input files")
 for ii in options.popfiles:
     if not os.path.isfile(ii):
         raise ValueError("Specified population input file '{0:s}' does not exist".format(ii))
+    
+if (len(options.mdoutfiles)!=0 and len(options.mdoutfiles)!=len(infileNames)):
+    raise ValueError("Not enough md.out files specified for number of input files")
+for ii in options.mdoutfiles:
+    if not os.path.isfile(ii):
+        raise ValueError("Specified md.out input file '{0:s}' does not exist".format(ii))
+       
 
 #***********************************************************************
 #*** read input files **************************************************
@@ -176,6 +202,16 @@ if len(options.popfiles)!=0:
         geoindex=geoindex+1
 
 
+
+geoindex=0
+if len(options.mdoutfiles)!=0:
+    for i in options.mdoutfiles:
+        inputPaths[geoindex].read_mdout(i)
+        geoindex+=1
+    
+        #raise ValueError("Number of specified md.out files does not match number of input paths")
+ 
+
 #***********************************************************************
 #*** assemble output path, catch some consistency exceptions************
 #***********************************************************************
@@ -192,6 +228,12 @@ for ii in inputPaths:
 #***********************************************************************
 #*** perform geometry manipulation options *****************************
 #***********************************************************************
+if options.lattice!=None:
+    print("Applying periodic boundary conditions")
+    for outgeo in outPath:
+        outgeo.Mode="S"
+        outgeo.Lattice=numpy.array(options.lattice).reshape((3,3))/comatsci.constants.ANGSTROM
+
 if (options.xtnd != "1:1:1"):
     print("Peiodically expanding geometries ... ",end="",file=sys.stderr)
     extensions=[ int(ii) for ii in options.xtnd.split(':') ]
@@ -245,13 +287,14 @@ if options.foldback:
         for outgeo in outPath:
             outgeo.foldToCell()
     print("done.",file=sys.stderr)
+    
 
 #***********************************************************************
 #*** write output file *************************************************
 #***********************************************************************
 print("writing output file '{0:s}' ... ".format(outfileName),end='',file=sys.stderr)
 
-outputModes[outputMode][1](outPath,outfileName)
+outputModes[outputMode][1](outPath,outfileName,minimaloutput=options.minimal)
 
 print("done",file=sys.stderr)
 print("exiting",file=sys.stderr)
