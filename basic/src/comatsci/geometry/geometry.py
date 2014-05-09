@@ -303,11 +303,14 @@ class Geometry:
 		self.method=None
 		self.totalenergy=None
 		self.ionkineticenergy=None
+		self.ionpotentialenergy=None
+		self.latticepressure=None
 		self.iontemperature=None
 		self.electrontemperature=None
 		self.timestep=None
 		self.simtime=None
 		self.forces=None
+		self.velocities=None
 		self._reset_derived()
 		self._consistency_check()
 	
@@ -630,6 +633,8 @@ class Geometry:
 		else:
 			self.Geometry /=Angstrom
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+		self.AtomLayers=[0 for s in range(self.Atomcount)]
+		self.AtomCharges=[float(0) for s in range(self.Atomcount)]
 		self._consistency_check()
 		
 	
@@ -803,8 +808,8 @@ class Geometry:
 		outfile.close()
 
 
-	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","iontemperature",
-				"electrontemperature","timestep","simtime","coordinates","forces",
+	knownCDHFields=("uuid","method","totalenergy","ionkineticenergy","ionpotentialenergy","latticepressure","iontemperature",
+				"electrontemperature","timestep","simtime","coordinates","forces","velocities",
 				"elements","types","charges","lattice","residues")
 	def writeCDHFrameGroup(self,h5file, groupname="frame0000000000",overwrite=False, 
 						labelstring="comatsci geometry",exclude=None):
@@ -856,6 +861,10 @@ class Geometry:
 			framegroup.attrs["totalenergy"]=self.totalenergy
 		if self.ionkineticenergy != None and (not "ionkineticenergy" in exclude): 
 			framegroup.attrs["ionkineticenergy"]=self.ionkineticenergy
+		if self.ionpotentialenergy != None and (not "ionpotentialenergy" in exclude): 
+			framegroup.attrs["ionpotentialenergy"]=self.ionpotentialenergy
+		if self.latticepressure != None and (not "latticepressure" in exclude): 
+			framegroup.attrs["latticepressure"]=self.latticepressure
 		if self.iontemperature != None and (not "iontemperature" in exclude): 
 			framegroup.attrs["iontemperature"]=self.iontemperature
 		if self.electrontemperature != None and (not "electrontemperature" in exclude): 
@@ -868,6 +877,8 @@ class Geometry:
 			geoset=framegroup.create_dataset("coordinates",data=numpy.array(self.Geometry,'=f8'))  # @UnusedVariable
 		if self.forces != None and (not "forces" in exclude):
 			forceset=framegroup.create_dataset("forces",data=numpy.array(self.forces,"=f8")) #@UnusedVariable
+		if self.velocities != None and (not "velocities" in exclude):
+			velocitiesset=framegroup.create_dataset("velocities",data=numpy.array(self.velocities,"=f8")) #@UnusedVariable
 		if self.AtomTypes != None and (not "elements" in exclude):
 			elementset=framegroup.create_dataset("elements",data=numpy.array(self.AtomTypes,'=u1')) #@UnusedVariable
 		if self.AtomSubTypes != None and (not "types" in exclude):
@@ -944,6 +955,16 @@ class Geometry:
 			self.ionkineticenergy=float(framegroup.attrs["ionkineticenergy"])
 		elif "ionkineticenergy" in globalsGroup.attrs.keys():
 			self.ionkineticenergy=float(globalsGroup.attrs["ionkineticenergy"])
+		# ionpotentialenergy
+		if "ionpotentialenergy" in framegroup.attrs.keys():
+			self.ionpotentialenergy=float(framegroup.attrs["ionpotentialenergy"])
+		elif "ionpotentialenergy" in globalsGroup.attrs.keys():
+			self.ionpotentialenergy=float(globalsGroup.attrs["ionpotentialenergy"])
+		# latticepressure
+		if "latticepressure" in framegroup.attrs.keys():
+			self.latticepressure=float(framegroup.attrs["latticepressure"])
+		elif "latticepressure" in globalsGroup.attrs.keys():
+			self.latticepressure=float(globalsGroup.attrs["latticepressure"])
 		# iontemperature
 		if "iontemperature" in framegroup.attrs.keys():
 			self.iontemperature=float(framegroup.attrs["iontemperature"])
@@ -1037,6 +1058,15 @@ class Geometry:
 			self.forces=forcesgroup["forces"].value
 		else:
 			self.forces=None
+		# set velocities
+		if "velocities" in framesets:
+			velocitiesgroup = framegroup
+		else:
+			velocitiesgroup = globalsGroup
+		if ("velocities" in globalsets) or ("velocities" in framesets):
+			self.velocities=velocitiesgroup["velocities"].value
+		else:
+			self.velocities=None
 		# dummy data
 		self.LPops=list(numpy.zeros((self.Atomcount,3),dtype=int))
 		# Finally, check consistency and return
@@ -1164,6 +1194,7 @@ class Geometry:
 		tempAtomTypes=[]
 		tempLPops=[]
 		tempAtomCharges=[]
+		tempMethodDftbPlus=False
 		# break string into a list of lines
 		xyzlines=xyzstring.split('\n')
 		# discard trailing empty line if present
@@ -1178,6 +1209,10 @@ class Geometry:
 			raise
 		# discard comment line, then check if number of atom lines
 		# matches number of atom
+		if xyzlines[0].find("MD iter:") != -1:
+			self.timestep = int(xyzlines[0].strip().split()[2])
+			tempMethodDftbPlus=True
+			tempVelocities = []
 		del xyzlines[0]
 		if len(xyzlines)!=tempAtomCount:
 			raise(ValueError,"Number of atom lines does not match specified atom count in xyz string")
@@ -1202,6 +1237,12 @@ class Geometry:
 					tempAtomCharges.append(-(float(line[4])-self.VALEL[tempAtomTypes[-1]]))
 				except:
 					tempAtomCharges.append(0.0)
+				if len(line)>=6 and tempMethodDftbPlus:
+					try:
+						tempVelocities.append([ float(s)/constants.ANGPERPS for s in line[5:8] ])
+					except: 
+						tempMethodDftbPlus=False
+						tempVelocities = None
 			else:
 				tempAtomCharges.append(0.0)
 		# clear self before applying parsed geometry
@@ -1219,6 +1260,8 @@ class Geometry:
 		self.AtomCharges=tempAtomCharges
 		self.AtomLayers=[0 for s in range(self.Atomcount)]
 		self.AtomSubTypes=[self.PTE[self.AtomTypes[s]] for s in range(self.Atomcount)]
+		if tempVelocities != None:
+			self.velocities = numpy.array(tempVelocities)
 		# finally, check self for sanity.
 		self._consistency_check()
 		# finished.

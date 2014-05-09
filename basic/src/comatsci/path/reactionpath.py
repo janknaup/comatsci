@@ -309,7 +309,7 @@ class Reactionpath:
 		return len(self.geos)
 
 
-	def writegenpath(self,nameprefix="path"):
+	def writegenpath(self,nameprefix="path",minimaloutput=False):
 		"""write the path geometries as gen files
 		@param nameprefix: string to prepend to each filename
 		"""
@@ -319,7 +319,7 @@ class Reactionpath:
 
 
 
-	def writexyzpath(self,name="path.xyz"):
+	def writexyzpath(self,name="path.xyz",minimaloutput=False):
 		"""write the path geometries as a single multiframe .xyz file
 		@param name: output filename
 		"""
@@ -360,7 +360,7 @@ class Reactionpath:
 
 
 
-	def writefmgpath(self,name='path.fmg'):
+	def writefmgpath(self,name='path.fmg',minimaloutput=False):
 		"""write the path as a single, multi-geometry .fmg file
 		@param name: output file name
 		"""
@@ -534,7 +534,7 @@ class Reactionpath:
 
 
 
-	def writeCDHPath(self,filename="path.cdh",savespace=True,progressFunction=None,stepsFunction=None):
+	def writeCDHPath(self,filename="path.cdh",savespace=True,progressFunction=None,stepsFunction=None,minimaloutput=False):
 		""" 
 		Write the current path in HDF5 format according to CDH specification
 		@type filename: string
@@ -568,10 +568,14 @@ class Reactionpath:
 			if image==0 and savespace:
 				globalExclude=set(self.geos[0].knownCDHFields).difference(set(globalSets))
 				globalsGroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname="globals",exclude=globalExclude)[1]  # @UnusedVariable
-			imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets)[1] #@UndefinedVariable @UnusedVariable
+			if minimaloutput:
+				tempMinimalOutput = ["coordinates","elements","types","lattice"]
+				excludeMinimal = list(set(list(self[0].knownCDHFields)).difference(set(tempMinimalOutput)))
+			else:
+				excludeMinimal = []
+			imagegroup=self.geos[image].writeCDHFrameGroup(h5file=pathfile,groupname=imagelabel,exclude=globalSets+excludeMinimal)[1] #@UndefinedVariable @UnusedVariable
 			if progressFunction: progressFunction()
 		pathfile.close()
-			
 
 
 	def readCDHPath(self,filename,checkCompat=True,geoconstructor=geometry.Geometry,progressFunction=None,stepsFunction=None):
@@ -1240,4 +1244,50 @@ class Reactionpath:
 		# finished, return
 		return hopcounter
 
+		
 
+	def read_mdout(self, filename="md.out"):
+		mdoutfile=utils.compressedopen(filename,"r")
+		mdoutString="".join(list(mdoutfile))
+		mdoutfile.close()
+		self.parse_mdout(mdoutString)
+		
+	
+	
+	def parse_mdout(self, mdoutString):
+		try:
+			# read properties in atomic units from md.out
+			mdoutLines = mdoutString.strip("\n").split("\n")
+			# temperature
+			temperatureLines = [i for i in mdoutLines if "temperature" in i.lower()]
+			mdTemperatures = [float(i.split()[2]) for i in temperatureLines]
+			# latticepressure
+			pressureLines = [i for i in mdoutLines if "pressure" in i.lower()]
+			mdPressure = [float(i.split()[1]) for i in pressureLines]
+			# total energy
+			etotLines = [i for i in mdoutLines if "total md energy" in i.lower()]
+			mdEtot = [float(i.split()[3]) for i in etotLines]
+			# ion potential energy
+			epotLines = [i for i in mdoutLines if "potential energy" in i.lower()]
+			mdEpot = [float(i.split()[2]) for i in epotLines]
+			# ion kinetic energy
+			ekinLines = [i for i in mdoutLines if "md kinetic energy" in i.lower()]
+			mdEkin = [float(i.split()[3]) for i in ekinLines]		
+			# md step
+			stepLines = [i for i in mdoutLines if "md step" in i.lower()]
+			mdStep = [int(i.split()[2]) for i in stepLines]
+			# save properties
+		except:
+			print("Error while reading md.out file(s)")
+			raise
+		for image in xrange(0,self.numimages()):
+			tempPos = mdStep.index(self.geos[image].timestep)
+			if tempPos <= len(mdTemperatures):
+				self.geos[image].iontemperature = mdTemperatures[tempPos]
+				self.geos[image].latticepressure = mdPressure[tempPos]
+				self.geos[image].totalenergy = mdEtot[tempPos]
+				self.geos[image].ionpotentialenergy = mdEpot[tempPos]
+				self.geos[image].ionkineticenergy = mdEkin[tempPos]
+			else:
+				print ("md.out file does not fit to the trajectory. It is too short!")
+				raise
