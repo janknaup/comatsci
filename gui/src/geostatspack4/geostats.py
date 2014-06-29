@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ##############################################################################
-# geostats
+# geostats.py
 # Part of PAth Search Tool bAsed on Flexible Atomistic Reaction Image ANalysis
 # (c) 2005-20012 by Jan M. Knaup <Knaup@bccms.uni-bremen.de>
 # all rights reserved
@@ -121,7 +121,7 @@ class MainWindow(QtGui.QMainWindow):
         
     def showAbout(self):
         about=QtGui.QMessageBox(parent=self)
-        about.setText("About geostats")
+        about.setText("About geostats.py")
         infoTextFile = QtCore.QFile(":/html/html/about.htm")
         if infoTextFile.open(QtCore.QIODevice.ReadOnly):
             infoString=QtCore.QString(infoTextFile.readAll())

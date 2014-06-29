@@ -31,7 +31,7 @@
 <sect2>
 <title>Main window</title>
 <para><figure><dummy><inlinemediaobject><imageobject><imagedata fileref="&graph1146;.png"  width="47%"  role="png"/></imageobject><imageobject><imagedata fileref="&graph1146;.pdf"  width="47%"  role="pdf"/></imageobject><imageobject><imagedata fileref="&graph1146;.eps"  width="47%"  role="eps"/></imageobject><imageobject><imagedata fileref="&graph1146;.bmp"  width="47%"  role="bmp"/></imageobject></inlinemediaobject>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="&graph1147;.png"  width="47%"  role="png"/></imageobject><imageobject><imagedata fileref="&graph1147;.pdf"  width="47%"  role="pdf"/></imageobject><imageobject><imagedata fileref="&graph1147;.eps"  width="47%"  role="eps"/></imageobject><imageobject><imagedata fileref="&graph1147;.bmp"  width="47%"  role="bmp"/></imageobject></inlinemediaobject></dummy>
-<dummy><title><dummy id='fig.geostats-main-window-1' ><!-- anchor id="fig.geostats-main-window-1" -->geostats main window</dummy></title>
+<dummy><title><dummy id='fig.geostats-main-window-1' ><!-- anchor id="fig.geostats.py-main-window-1" -->geostats main window</dummy></title>
 </dummy></figure> The geostats main window <para>(cf. figure&nbsp;<xref linkend="fig.geostats-main-window-1" />)</para> is composed of the main menu at the top and the text display area. This area will display all statistical reports and graphs generated. Its contents can be copy-pasted, saved as plain text and html or printed. On most systems, the print dialog also allows saving in PDF format.</para></sect2><sect2>
 <title>File menu</title>
 <variablelist>
@@ -52,7 +52,7 @@
 <para>geostats is Copyrighted © to Jan M. Knaup &lt;<ulink url="janknaup@gmail.com">janknaup@gmail.com</ulink>&gt; 2004--2006 Universität Paderborn, 2006--2012 Universität Bremen. geostats is licensed under the GNU General Public License Version 3, cf.&nbsp;<xref linkend="sec:geostats-license" /></para>
 <para>geostats uses the following 3rd party software</para><variablelist>
 <varlistentry><term>Qt4</term><listitem><para>is Copyright © to the Nokia corporation and licensed under the GNU lesser GPL 2.1 (cf.&nbsp;<xref linkend="sub:LGPL" />).</para></listitem></varlistentry><varlistentry><term>PyQt</term><listitem><para>is Copyright © to Riverbank Computing Limited and licensed under the GNU GPL Version 3 (cf.&nbsp;<xref linkend="sec:geostats-license" />).</para></listitem></varlistentry><varlistentry><term>matplotlib</term><listitem><para>is Copyright © to John D. Hunter and licensed under the matplotlib license (cf.&nbsp;<xref linkend="sub:license-matplotlib" />).</para></listitem></varlistentry><varlistentry><term>comatsci</term><listitem><para>is Copyright © to Jan M. Knaup and licensed under the Non-Profit Open Software Licensense Version 3.0 (cf.&nbsp;<xref linkend="sub:NP-OSL" />).</para></listitem></varlistentry></variablelist></sect1><sect1 id='sec:geostats-license' >
-<title>geostats license<!-- anchor id="sec:geostats-license" --></title>
+<title>geostats license<!-- anchor id="sec:geostats.py-license" --></title>
 <bridgehead renderas="sect2">GNU GENERAL PUBLIC LICENSE</bridgehead>
 <para>Version 3, 29 June 2007</para>
 <para>Copyright © 2007 Free Software Foundation, Inc. &lt;<ulink url="http://fsf.org/"></ulink>&gt;</para>

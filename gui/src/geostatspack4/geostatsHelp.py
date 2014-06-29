@@ -31,8 +31,8 @@ class Ui_GeostatsHelp(object):
     def retranslateUi(self, GeostatsHelp):
         GeostatsHelp.setWindowTitle(QtGui.QApplication.translate("GeostatsHelp", "Geostats Help", None, QtGui.QApplication.UnicodeUTF8))
         GeostatsHelp.setWindowIconText(QtGui.QApplication.translate("GeostatsHelp", "Help on Geostats", None, QtGui.QApplication.UnicodeUTF8))
-        GeostatsHelp.setToolTip(QtGui.QApplication.translate("GeostatsHelp", "Help on geostats.py", None, QtGui.QApplication.UnicodeUTF8))
-        GeostatsHelp.setWhatsThis(QtGui.QApplication.translate("GeostatsHelp", "Help on geostats.py", None, QtGui.QApplication.UnicodeUTF8))
+        GeostatsHelp.setToolTip(QtGui.QApplication.translate("GeostatsHelp", "Help on geostats.py.py", None, QtGui.QApplication.UnicodeUTF8))
+        GeostatsHelp.setWhatsThis(QtGui.QApplication.translate("GeostatsHelp", "Help on geostats.py.py", None, QtGui.QApplication.UnicodeUTF8))
         self.textBrowser.setDocumentTitle(QtGui.QApplication.translate("GeostatsHelp", "Geostats Help", None, QtGui.QApplication.UnicodeUTF8))
         self.textBrowser.setHtml(QtGui.QApplication.translate("GeostatsHelp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><title>Geostats Help</title><style type=\"text/css\">\n"

@@ -3,7 +3,7 @@ from setuptools import setup,Extension
 import os,sys
 
 
-VERSIONTAG="1.4.0"
+VERSIONTAG="1.6.0"
 
 startpath=os.getcwd()
 
@@ -21,7 +21,6 @@ distrib=setup (	name="comatsci-gui",
 		version=VERSIONTAG,
 		packages=['geostatspack4'],
 		package_dir={'geostatspack4':'src/geostatspack4'},
-		scripts=['src/scripts/geostats',],
 		data_files=[("share/doc/comatsci",["doc/comatsci-gui.pdf"])],
 		description="Computational Materials Science Toolkit GUI utilities",
 		author=AUTHOR,
@@ -42,11 +41,10 @@ distrib=setup (	name="comatsci-gui",
 			'Topic :: Scientific/Enginieering',
 			'Topic :: Scientific/Enginieering :: Physics',
 			'Topic :: Scientific/Enginieering :: Chemistry',
-		]
-		)
+		],
+        entry_points = {
+            'console_scripts': [],
+            'gui_scripts': ["geostats = geostatspack4.geostats:mainfunc",]
+    	}
+)
 
-#********************************************************************************************
-# post-install operations
-#********************************************************************************************
-
-#print distrib.command_obj
