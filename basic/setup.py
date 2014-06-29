@@ -71,33 +71,3 @@ distrib=setup (	name="comatsci-base",
         'gui_scripts': []
     	}
 		)
-
-# #********************************************************************************************
-# # post-install operations
-# #********************************************************************************************
-# 
-# # scripts postprocessing - check if scripts were installed
-# 
-# if distrib.have_run.get("install_scripts",0)==1:
-# 	# script aliases processing
-# 	# decide wheter to symlink or copy aliases
-# 	if "symlink" in dir(os):
-# 		linktype="sym"
-# 	else:
-# 		linktype=None
-# 	# store install target and copy command locally to save typing
-# 	installdir=os.path.abspath(distrib.command_obj["install_scripts"].install_dir)
-# 	# process aliases
-# 	os.chdir(installdir)
-# 	for cmd in aliases.keys():
-# 		for alias in aliases[cmd]:
-# 			# remove existing alias if present
-# 			if os.path.exists(alias) and not distrib.dry_run:
-# 				os.unlink(alias)
-# 			# create new alias
-# 			copycmd=distrib.command_obj["install_scripts"].copy_file(cmd,alias,link=linktype)
-# 	os.chdir(startpath)
-# 	# finished with script aliases
-# # finished with scripts postprocessing
-# 
-# #print distrib.command_obj
