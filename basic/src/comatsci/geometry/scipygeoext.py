@@ -87,7 +87,7 @@ def blist(positions,types,corad,tolerance=1.1):
     @see: Calls the L{blmatrix} and L{dmatrix} functions"""
     dm=dmatrix(positions)
     BB=(blmatrix(types,corad)/constants.ANGSTROM)*tolerance
-    bondmattrix=numpy.less(dm,BB*(numpy.ones_like(BB)-numpy.eye(BB.shape[0]))*1.1)
+    bondmatrix=numpy.less(dm,BB*(numpy.ones_like(BB)-numpy.eye(BB.shape[0]))*1.1)
     bondlist=[]
     for ii in bondmatrix:
         bondlist.append(numpy.nonzero(ii)[0].tolist())
