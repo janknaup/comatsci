@@ -1200,17 +1200,25 @@ class GeometryAtomDelegate(QtGui.QItemDelegate):
             model.setData(index,QtCore.QVariant(editor.value()))
         elif index.column() in (GeometryTableModel.ELEMENT, GeometryTableModel.SUBTYPE, GeometryTableModel.LAYER):
             model.setData(index,QtCore.QVariant(editor.currentText()))
-    
-          
+
+
+def mainfunc():
+    global app, argList, geostatsWidget
+    app = QtGui.QApplication(sys.argv)
+    argList = app.arguments()
+    geostatsWidget = MainWindow()
+    print(list(argList))
+    # if argList.count()==2:
+    try:
+        geostatsWidget.readGeometry(str(argList.last()))
+    except comatsci.geometry.GeometryError:
+        pass
+    #elif argList.count()>2:
+    #    raise ValueError("More than one geometry file specified on command line. Abort.")
+    geostatsWidget.show()
+    sys.exit(app.exec_())
+
 
 if __name__=="__main__":
-    app = QtGui.QApplication(sys.argv)
-    argList=app.arguments()
-    geostatsWidget=MainWindow()
-    if argList.count()==2:
-        geostatsWidget.readGeometry(str(argList.last()))
-    elif argList.count()>2:
-        raise ValueError("More than one geometry file specified on command line. Abort.")
-    geostatsWidget.show()
-    sys.exit(app.exec_())  
+    mainfunc()
     
