@@ -1196,6 +1196,7 @@ class Geometry:
 		tempLPops=[]
 		tempAtomCharges=[]
 		tempMethodDftbPlus=False
+		tempVelocities=None
 		# break string into a list of lines
 		xyzlines=xyzstring.split('\n')
 		# discard trailing empty line if present
