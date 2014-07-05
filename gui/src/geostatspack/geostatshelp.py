@@ -95,8 +95,8 @@ class GeostatsHelp(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("Geostats Help"))
         self.setIconText(self.__tr("Help on Geostats"))
-        QToolTip.add(self,self.__tr("Help on geostats.py"))
-        QWhatsThis.add(self,self.__tr("Help on geostats.py"))
+        QToolTip.add(self,self.__tr("Help on geostats.py.py"))
+        QWhatsThis.add(self,self.__tr("Help on geostats.py.py"))
         self.helpTextBrowser.setText(self.__tr("<html>\n"
 "<head>\n"
 "<title>Geostats.py Help</title>\n"
@@ -159,12 +159,12 @@ class GeostatsHelp(QDialog):
 "<h4>bond list</h4>\n"
 "<p>Adds a complete bond table to the main text area.<i>Can generate large amounts of text.</i></p>\n"
 "<h4>save statistics</h4>\n"
-"<p>Saves the contents of the main text area to geostats.html in the directory from which geostats.py was called.</p>\n"
+"<p>Saves the contents of the main text area to geostats.py.html in the directory from which geostats.py.py was called.</p>\n"
 "<h3>Help</h3>\n"
 "<h4>contents</h4>\n"
 "<p>This dialog</p>\n"
 "<h4>about</h4>\n"
-"<p>A very shirt description of geostats.py</p>\n"
+"<p>A very shirt description of geostats.py.py</p>\n"
 "<a name=\"sec_dialogs\"><h2>Dialogs</h2>\n"
 "<h3>edit atoms</h3>\n"
 "<p>The edit atoms provides two functions: 1. a table view of the atoms, in which position element, position, layer, charge and subtype of each atom can be edited.</p>\n"
@@ -200,10 +200,10 @@ class GeostatsHelp(QDialog):
 "<p>In step 3, just klick finish to start the calculation of the rdf. Progress bars inform about the progress of the bond length binning and normalization.</p>\n"
 "<p>Normalization is shaky and will not work as expected for molecules or surface slab models.</p>\n"
 "<a name=\"sec_copyright\"><h2>Copyright</h2></a>\n"
-"<p>This program was written by <a href=\"mailto:Jan.Knaup@bccms.uni-bremen.de\"><b>Jan M. Knaup</b> &lt;Jan.Knaup@bccms.uni-bremen.de&gt;</a> of the <a href=\"http://www.bccms.uni-bremen.de\"><b>Bremen Center for Computational Materials Science</b></a>. It may be redistributed without charge, as long as this copyright notice is left intact. Any software derived from this package must contain a reference to geostats.py and proper mention of the copyrights on geostats.py</p>\n"
+"<p>This program was written by <a href=\"mailto:Jan.Knaup@bccms.uni-bremen.de\"><b>Jan M. Knaup</b> &lt;Jan.Knaup@bccms.uni-bremen.de&gt;</a> of the <a href=\"http://www.bccms.uni-bremen.de\"><b>Bremen Center for Computational Materials Science</b></a>. It may be redistributed without charge, as long as this copyright notice is left intact. Any software derived from this package must contain a reference to geostats.py.py and proper mention of the copyrights on geostats.py.py</p>\n"
 "</body>"))
-        QToolTip.add(self.helpTextBrowser,self.__tr("Help on geostats.py"))
-        QWhatsThis.add(self.helpTextBrowser,self.__tr("Help on geostats.py"))
+        QToolTip.add(self.helpTextBrowser,self.__tr("Help on geostats.py.py"))
+        QWhatsThis.add(self.helpTextBrowser,self.__tr("Help on geostats.py.py"))
 
 
     def __tr(self,s,c = None):

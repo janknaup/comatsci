@@ -3,3 +3,4 @@ test_install
 *.pyc
 /.project
 /.pydevproject
+basic/doc-src/_build/

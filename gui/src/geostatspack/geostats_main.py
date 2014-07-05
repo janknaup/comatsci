@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         self.image2 = QPixmap()
         self.image2.loadFromData(image2_data,"PNG")
         if not name:
-            self.setName("geostats")
+            self.setName("geostats.py")
 
         self.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.sizePolicy().hasHeightForWidth()))
         self.setMinimumSize(QSize(21,177))
@@ -322,7 +322,7 @@ class MainWindow(QMainWindow):
         self.whateverButton.setText(self.__tr("nothing yet"))
         QToolTip.add(self.whateverButton,self.__tr("nothing"))
         QWhatsThis.add(self.whateverButton,self.__tr("nothing"))
-        self.textBrowser1.setText(self.__tr("geostats.py -- tool to analyze and manupulate molecular geometries"))
+        self.textBrowser1.setText(self.__tr("geostats.py.py -- tool to analyze and manupulate molecular geometries"))
         QToolTip.add(self.textBrowser1,self.__tr("Textual geometry Statistics"))
         QWhatsThis.add(self.textBrowser1,self.__tr("Displays textual statistics information on the loaded geometry. Can be saved in .html format via Statistics->save statistics"))
         self.fileOpenAction.setText(self.__tr("Open"))
@@ -443,14 +443,14 @@ class MainWindow(QMainWindow):
         
 
     def helpAbout(self):
-        	QMessageBox.about(self,"About geostats","""<H1>geostats %s</H1><p>Calculate geometry statistics and transform file formats.</p>
+        	QMessageBox.about(self,"About geostats.py","""<H1>geostats.py %s</H1><p>Calculate geometry statistics and transform file formats.</p>
         			  <p>Licensed under the Non-Profit Open Software License version 3.0</p>
         			  <p>see file LICENSE for details.</p>
         			  <p>Written by Jan M. Knaup <b><a href="mailto:Jan.Knaup@bccms.uni-bremen.de">Jan.Knaup@bccms.uni-bremen.de</a></b></p>"""%(comatsci.constants.VERSION))
         
 
     def SaveStatistics(self):
-        	statsfile=codecs.open("geostats.htm","wb","utf-8")
+        	statsfile=codecs.open("geostats.py.htm","wb","utf-8")
         	statsfile.write(unicode(self.textBrowser1.text()))
         	statsfile.close()
         
