@@ -52,10 +52,10 @@ def crossSupercellDistanceMatrix(a,b,lattice):
     # distances to each periodic image directly after calculating them instead of accumulating first 
     dms=[]  # distance matrices to the periodic images are stored here
     # iterate over one neighbor image per direction.
-    for a in range(-1,2,1):
-        for b in range(-1,2,1):
-            for c in range (-1,2,1):
-                dms.append(spatial.distance.cdist(a+lattice*numpy.array((a,b,c)).sum(axis=1),b,metric='euclidean'))
+    for i in range(-1,2,1):
+        for j in range(-1,2,1):
+            for k in range (-1,2,1):
+                dms.append(spatial.distance.cdist(a+(lattice*numpy.array((i,j,k))).sum(axis=1),b,metric='euclidean'))
     return numpy.array(dms).min(axis=0)
     
     

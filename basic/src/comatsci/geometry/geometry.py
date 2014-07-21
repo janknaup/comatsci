@@ -2695,8 +2695,8 @@ class Geometry:
 
 
 
-        def randominterstitial(self, interstitialtype, interstitialsubtype=None, interstitialcharge=0.0, mindistscale=0.75, maxattempts=10):
-	        """Add an interstitial at a random position within the unit cell.
+	def randominterstitial(self, interstitialtype, interstitialsubtype=None, interstitialcharge=0.0, mindistscale=0.75, maxattempts=10):
+		"""Add an interstitial at a random position within the unit cell.
 		@note: Requires periodic boundary conditions
 		@type interstitialtype: integer
 		@param interstitialtype: element number of the interstitial atom to add
@@ -2713,36 +2713,36 @@ class Geometry:
 		"""
 		# hande default for interstitial subtyp
 		if interstitialsubtype==None:
-		        intersitialsubtype=self.PTE[interstitialtype]
+			intersitialsubtype=self.PTE[interstitialtype]
 		attempts=1
 		while(attempts<maxattempts):
-		        # roll a random position within the unit cell
-		        randompos=numpy.dot(numpy.random.random((3,)),self.Lattice)
-		        # tentatively add atom to self
-		        self.addatom(interstitialtype,randompos,charge=interstitialcharge,subtype=interstitialsubtype)
-		        bl=self.bondlist(tolerance=mindistscale)
-		        if (len(bl[-1])==0):
-			        return True
-		        elif (len(bl[-1])==1):
-			        shiftvec=self.Geometry[-1]-self.Geometry[bl[-1][0]]
+			# roll a random position within the unit cell
+			randompos=numpy.dot(numpy.random.random((3,)),self.Lattice)
+			# tentatively add atom to self
+			self.addatom(interstitialtype,randompos,charge=interstitialcharge,subtype=interstitialsubtype)
+			bl=self.bondlist(tolerance=mindistscale)
+			if (len(bl[-1])==0):
+				return True
+			elif (len(bl[-1])==1):
+				shiftvec=self.Geometry[-1]-self.Geometry[bl[-1][0]]
 				shiftlen=((mindistscale+0.0001)*(self.SBCR[self.AtomTypes[-1]]+
 				self.SBCR[self.AtomTypes[bl[-1][0]]])/Angstrom)-numpy.sqrt(numpy.dot(shiftvec,shiftvec))
 				shiftdir=shiftvec/numpy.sqrt(numpy.dot(shiftvec,shiftvec))
 				self.Geometry[-1]=self.Geometry[-1]+(shiftdir*shiftlen)
 				self._reset_derived()
 				if len(self.bondlist()[-1])==0:
-				        return True
+					return True
 				else:
-				        self.delatom(self.Atomcount-1)
+					self.delatom(self.Atomcount-1)
 			else:
-			        self.delatom(self.Atomcount-1)
+				self.delatom(self.Atomcount-1)
 		return False
 
 
 
 	
 
-        @classmethod
+	@classmethod
 	def createMagneli(cls,elementA,elementB,aR,cR,n):
 		"""
 		create an A_n B_(2n-1) Magneli Phase based on a rutile structure in the axis system defined in
@@ -2814,4 +2814,4 @@ class Geometry:
 					iLattice=magLattice, iGeometry=numpy.dot(numpy.array(symmCoordinates),magLattice))
 		# remove symmetry equivalent atoms before returning
 		return returnGeo.doubleRemoved()
-		
+
